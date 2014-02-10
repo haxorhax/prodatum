@@ -1,0 +1,4523 @@
+# data file for the Fltk User Interface Designer (fluid)
+version 1.0110 
+header_name {ui.H} 
+code_name {ui.C}
+comment {/**
+    \\defgroup pd_ui prodatum User Interface
+    @\{
+*/} {in_source in_header
+} 
+
+decl {\#include "widgets.H"} {public global
+} 
+
+declblock {\#ifdef HAVE_CONFIG_H} {after {\#endif}
+} {
+  decl {\#include <config.H>} {}
+} 
+
+decl {\#include <FL/Fl_File_Chooser.H>} {public global
+} 
+
+decl {\#include <FL/Fl_Tooltip.H>} {public global
+} 
+
+decl {\#include <FL/fl_ask.H>} {public global
+} 
+
+decl {\#include "images.H"} {} 
+
+decl {\#include "midi.H"} {} 
+
+decl {\#include "pd.H"} {} 
+
+decl {\#include "cfg.H"} {} 
+
+decl {\#include "debug.H"} {} 
+
+decl {extern MIDI* midi;} {} 
+
+decl {extern PD* pd;} {} 
+
+decl {extern Cfg* cfg;} {} 
+
+decl {extern PD_UI* ui;} {} 
+
+decl {extern int automap;} {} 
+
+decl {extern void reset(int udata, int rdata);} {} 
+
+decl {char filter_tooltip[512];} {} 
+
+widget_class PD_Arp_Step {
+  xywh {422 50 40 279} type Double hide position_relative
+} {
+  decl {void init(int s);} {public
+  }
+  decl {void set_values(int off, int vel, int dur, int rep);} {public
+  }
+  decl {int step;} {}
+  decl {void edit_value(int id, int value);} {}
+  Fl_Group op {
+    callback {int val;
+for (val = 0; val < 5; val++)
+if (((Fl_Button*) o->array()[val])->value())
+break;
+
+if (val == o->c)
+	val = o->p;
+
+o->p = o->c;
+o->c = val;
+
+((Fl_Button*) o->child(val))->setonly();
+if (val == 4) // note
+edit_value(784, (int) offset->value());
+else
+edit_value(784, val - 52);}
+    xywh {0 0 40 90} labeltype NO_LABEL labelsize 10 labelcolor 7 align 0 when 0
+    class Step_Type
+  } {
+    Fl_Button End {
+      label End
+      callback {((Group*)o->parent())->do_callback();}
+      tooltip {End: This command signals the end of the pattern. Any steps programmed after the step containing the End command are ignored.} xywh {0 0 40 17} type Radio down_box UP_BOX color 7 selection_color 81 labelsize 10 labelcolor 49 align 80 when 6
+    }
+    Fl_Button skip {
+      label Skip
+      callback {((Group*)o->parent())->do_callback();}
+      tooltip {Skip: This command simply removes the step from the pattern. The Skip feature makes it easy to remove an unwanted step without rearranging the entire pattern. You'll be happy to know that the velocity, duration and repeat parameters are remembered if you decide to put the step back later.} xywh {0 18 40 17} type Radio down_box UP_BOX color 7 selection_color 94 labelsize 10 labelcolor 49 align 80 when 6
+    }
+    Fl_Button {} {
+      label Rest
+      callback {((Group*)o->parent())->do_callback();}
+      tooltip {Rest: Instead of playing a note, you can define the step as a Rest. The Duration parameter specifies the length of the rest. Rests can be tied together to form longer rests.} xywh {0 36 40 17} type Radio down_box UP_BOX color 7 selection_color 200 labelsize 10 labelcolor 49 align 80 when 6
+    }
+    Fl_Button {} {
+      label Tie
+      callback {((Group*)o->parent())->do_callback();}
+      tooltip {Tie: This function extends the duration of notes beyond the values given in the duration field by "tying" notes together. You can tie together any number of consecutive steps. IMPORTANT: The Gate function in the arpeggiator MUST be set to 100% when using the tie function, otherwise the tied note is retriggered instead of extended.} xywh {0 54 40 17} type Radio down_box UP_BOX color 7 selection_color 179 labelsize 10 labelcolor 49 align 80 when 6
+    }
+    Fl_Button key {
+      label Key
+      callback {((Group*)o->parent())->do_callback();}
+      tooltip {Key: Play a note} xywh {0 72 40 17} type Radio down_box UP_BOX color 7 selection_color 100 labelsize 10 labelcolor 49 align 80 when 6
+    }
+  }
+  Fl_Value_Output duration {
+    callback {edit_value(786, (int) o->value());}
+    tooltip {Duration: Sets the length of time for the current step, defined as a note value, based on the Master Tempo.} xywh {0 91 40 17} box UP_BOX selection_color 15 labeltype NO_LABEL labelsize 10 align 0 when 4 minimum 1 maximum 19 step 1 textfont 4 textsize 12
+    class Step_Value
+  }
+  Fl_Value_Output repeat {
+    callback {edit_value(787, (int) o->value() - 1);}
+    tooltip {Repeat: Each step can be played from 1 to 32 times.} xywh {0 110 40 17} box UP_BOX selection_color 15 labeltype NO_LABEL labelsize 10 align 0 when 4 minimum 1 maximum 32 step 1 textfont 4 textsize 12
+    class Step_Value
+  }
+  Fl_Value_Output velocity {
+    callback {edit_value(785, (int) o->value());}
+    tooltip {Velocity: Each note in the pattern plays using either a preset velocity value (from 1 through 127), or using the actual velocity of the played note (0).} xywh {0 129 40 17} box UP_BOX selection_color 15 labeltype NO_LABEL labelsize 10 align 0 when 4 maximum 127 step 1 textfont 4 textsize 12
+    class Step_Value
+  }
+  Fl_Value_Slider offset {
+    callback {if (key->value()) edit_value(784, (int) o->value());}
+    tooltip {Key Offset: Offset from the original note played (semitones).} xywh {0 148 40 131} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 80 when 4 minimum 48 maximum -48 step 1 textfont 4 textsize 12
+    class Step_Offset
+  }
+} 
+
+widget_class PD_Preset_Patchcords {
+  xywh {322 151 826 132} type Double hide position_relative
+} {
+  Function {uninitialize_sources()} {return_type void
+  } {
+    code {s1->uninitialize();
+	s2->uninitialize();
+	s3->uninitialize();
+	s4->uninitialize();
+	s5->uninitialize();
+	s6->uninitialize();
+	s7->uninitialize();
+	s8->uninitialize();
+	s9->uninitialize();
+	s10->uninitialize();
+	s11->uninitialize();
+	s12->uninitialize();} {}
+  }
+  Fl_Box {} {
+    label {1-4}
+    xywh {1 2 275 20} box THIN_UP_BOX color 7 labelfont 1 labelsize 12 labelcolor 49 align 20
+  }
+  Fl_Box {} {
+    label {5-8}
+    xywh {276 2 275 20} box THIN_UP_BOX color 7 labelfont 1 labelsize 12 labelcolor 49 align 20
+  }
+  Fl_Box {} {
+    label {9-12}
+    xywh {551 2 274 20} box THIN_UP_BOX color 7 labelfont 1 labelsize 12 labelcolor 49 align 20
+  }
+  Fl_Choice s1 {open
+    tooltip {Patch Source} xywh {2 28 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(931);}
+    class PCS_Choice
+  } {}
+  Fl_Choice {} {open
+    tooltip {Patch Destination} xywh {118 28 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(932);}
+    class PPCD_Choice
+  } {}
+  Fl_Value_Output {} {
+    tooltip {Modulation Amount} xywh {234 28 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    code0 {o->set_id(933);}
+    class Value_Output
+  }
+  Fl_Choice s2 {open
+    tooltip {Patch Source} xywh {2 53 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(934);}
+    class PCS_Choice
+  } {}
+  Fl_Choice {} {open
+    tooltip {Patch Destination} xywh {118 53 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(935);}
+    class PPCD_Choice
+  } {}
+  Fl_Value_Output {} {
+    tooltip {Modulation Amount} xywh {234 53 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    code0 {o->set_id(936);}
+    class Value_Output
+  }
+  Fl_Choice s3 {open
+    tooltip {Patch Source} xywh {2 78 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(937);}
+    class PCS_Choice
+  } {}
+  Fl_Choice {} {open
+    tooltip {Patch Destination} xywh {118 78 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(938);}
+    class PPCD_Choice
+  } {}
+  Fl_Value_Output {} {
+    tooltip {Modulation Amount} xywh {234 78 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    code0 {o->set_id(939);}
+    class Value_Output
+  }
+  Fl_Choice s4 {open
+    tooltip {Patch Source} xywh {2 103 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(940);}
+    class PCS_Choice
+  } {}
+  Fl_Choice {} {open
+    tooltip {Patch Destination} xywh {118 103 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(941);}
+    class PPCD_Choice
+  } {}
+  Fl_Value_Output {} {
+    tooltip {Modulation Amount} xywh {234 103 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    code0 {o->set_id(942);}
+    class Value_Output
+  }
+  Fl_Choice s5 {open
+    tooltip {Patch Source} xywh {277 28 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(943);}
+    class PCS_Choice
+  } {}
+  Fl_Choice {} {open
+    tooltip {Patch Destination} xywh {393 28 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(944);}
+    class PPCD_Choice
+  } {}
+  Fl_Value_Output {} {
+    tooltip {Modulation Amount} xywh {509 28 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    code0 {o->set_id(945);}
+    class Value_Output
+  }
+  Fl_Choice s6 {open
+    tooltip {Patch Source} xywh {277 53 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(946);}
+    class PCS_Choice
+  } {}
+  Fl_Choice {} {open
+    tooltip {Patch Destination} xywh {393 53 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(947);}
+    class PPCD_Choice
+  } {}
+  Fl_Value_Output {} {
+    tooltip {Modulation Amount} xywh {509 53 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    code0 {o->set_id(948);}
+    class Value_Output
+  }
+  Fl_Choice s7 {open
+    tooltip {Patch Source} xywh {277 78 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(949);}
+    class PCS_Choice
+  } {}
+  Fl_Choice {} {open
+    tooltip {Patch Destination} xywh {393 78 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(950);}
+    class PPCD_Choice
+  } {}
+  Fl_Value_Output {} {
+    tooltip {Modulation Amount} xywh {509 78 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    code0 {o->set_id(951);}
+    class Value_Output
+  }
+  Fl_Choice s8 {open
+    tooltip {Patch Source} xywh {277 103 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(952);}
+    class PCS_Choice
+  } {}
+  Fl_Choice {} {open
+    tooltip {Patch Destination} xywh {393 103 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(953);}
+    class PPCD_Choice
+  } {}
+  Fl_Value_Output {} {
+    tooltip {Modulation Amount} xywh {509 103 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    code0 {o->set_id(954);}
+    class Value_Output
+  }
+  Fl_Choice s9 {open
+    tooltip {Patch Source} xywh {552 28 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(955);}
+    class PCS_Choice
+  } {}
+  Fl_Choice {} {open
+    tooltip {Patch Destination} xywh {668 28 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(956);}
+    class PPCD_Choice
+  } {}
+  Fl_Value_Output {} {
+    tooltip {Modulation Amount} xywh {784 28 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    code0 {o->set_id(957);}
+    class Value_Output
+  }
+  Fl_Choice s10 {open
+    tooltip {Patch Source} xywh {552 53 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(958);}
+    class PCS_Choice
+  } {}
+  Fl_Choice {} {open
+    tooltip {Patch Destination} xywh {668 53 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(959);}
+    class PPCD_Choice
+  } {}
+  Fl_Value_Output {} {
+    tooltip {Modulation Amount} xywh {784 53 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    code0 {o->set_id(960);}
+    class Value_Output
+  }
+  Fl_Choice s11 {open
+    tooltip {Patch Source} xywh {552 78 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(961);}
+    class PCS_Choice
+  } {}
+  Fl_Choice {} {open
+    tooltip {Patch Destination} xywh {668 78 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(962);}
+    class PPCD_Choice
+  } {}
+  Fl_Value_Output {} {
+    tooltip {Modulation Amount} xywh {784 78 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    code0 {o->set_id(963);}
+    class Value_Output
+  }
+  Fl_Choice s12 {open
+    tooltip {Patch Source} xywh {552 103 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(964);}
+    class PCS_Choice
+  } {}
+  Fl_Choice {} {open
+    tooltip {Patch Destination} xywh {668 103 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    code0 {o->set_id(965);}
+    class PPCD_Choice
+  } {}
+  Fl_Value_Output {} {
+    tooltip {Modulation Amount} xywh {784 103 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    code0 {o->set_id(966);}
+    class Value_Output
+  }
+} 
+
+widget_class PD_Layer_Patchcords {
+  xywh {335 230 826 264} type Double labelcolor 7 hide position_relative
+} {
+  Function {init(int l)} {return_type void
+  } {
+    code {s1->set_id(1921, l);
+	s2->set_id(1924, l);
+	s3->set_id(1927, l);
+	s4->set_id(1930, l);
+	s5->set_id(1933, l);
+	s6->set_id(1936, l);
+	s7->set_id(1939, l);
+	s8->set_id(1942, l);
+	s9->set_id(1945, l);
+	s10->set_id(1948, l);
+	s11->set_id(1951, l);
+	s12->set_id(1954, l);
+	s13->set_id(1957, l);
+	s14->set_id(1960, l);
+	s15->set_id(1963, l);
+	s16->set_id(1966, l);
+	s17->set_id(1969, l);
+	s18->set_id(1972, l);
+	s19->set_id(1975, l);
+	s20->set_id(1978, l);
+	s21->set_id(1981, l);
+	s22->set_id(1984, l);
+	s23->set_id(1987, l);
+	s24->set_id(1990, l);
+	d1->set_id(1922, l);
+	d2->set_id(1925, l);
+	d3->set_id(1928, l);
+	d4->set_id(1931, l);
+	d5->set_id(1934, l);
+	d6->set_id(1937, l);
+	d7->set_id(1940, l);
+	d8->set_id(1943, l);
+	d9->set_id(1946, l);
+	d10->set_id(1949, l);
+	d11->set_id(1952, l);
+	d12->set_id(1955, l);
+	d13->set_id(1958, l);
+	d14->set_id(1961, l);
+	d15->set_id(1964, l);
+	d16->set_id(1967, l);
+	d17->set_id(1970, l);
+	d18->set_id(1973, l);
+	d19->set_id(1976, l);
+	d20->set_id(1979, l);
+	d21->set_id(1982, l);
+	d22->set_id(1985, l);
+	d23->set_id(1988, l);
+	d24->set_id(1991, l);
+	a1->set_id(1923, l);
+	a2->set_id(1926, l);
+	a3->set_id(1929, l);
+	a4->set_id(1932, l);
+	a5->set_id(1935, l);
+	a6->set_id(1938, l);
+	a7->set_id(1941, l);
+	a8->set_id(1944, l);
+	a9->set_id(1947, l);
+	a10->set_id(1950, l);
+	a11->set_id(1953, l);
+	a12->set_id(1956, l);
+	a13->set_id(1959, l);
+	a14->set_id(1962, l);
+	a15->set_id(1965, l);
+	a16->set_id(1968, l);
+	a17->set_id(1971, l);
+	a18->set_id(1974, l);
+	a19->set_id(1977, l);
+	a20->set_id(1980, l);
+	a21->set_id(1983, l);
+	a22->set_id(1986, l);
+	a23->set_id(1989, l);
+	a24->set_id(1992, l);} {}
+  }
+  Function {uninitialize_sources()} {return_type void
+  } {
+    code {s1->uninitialize();
+	s2->uninitialize();
+	s3->uninitialize();
+	s4->uninitialize();
+	s5->uninitialize();
+	s6->uninitialize();
+	s7->uninitialize();
+	s8->uninitialize();
+	s9->uninitialize();
+	s10->uninitialize();
+	s11->uninitialize();
+	s12->uninitialize();
+	s13->uninitialize();
+	s14->uninitialize();
+	s15->uninitialize();
+	s16->uninitialize();
+	s17->uninitialize();
+	s18->uninitialize();
+	s19->uninitialize();
+	s20->uninitialize();
+	s21->uninitialize();
+	s22->uninitialize();
+	s23->uninitialize();
+	s24->uninitialize();} {}
+  }
+  Fl_Choice s1 {open
+    tooltip {Patch Source} xywh {2 28 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d1 {open
+    tooltip {Patch Destination} xywh {118 28 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a1 {
+    tooltip {Modulation Amount} xywh {234 28 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s2 {open
+    tooltip {Patch Source} xywh {2 53 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d2 {open
+    tooltip {Patch Destination} xywh {118 53 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a2 {
+    tooltip {Modulation Amount} xywh {234 53 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s3 {open
+    tooltip {Patch Source} xywh {2 78 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d3 {open
+    tooltip {Patch Destination} xywh {118 78 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a3 {
+    tooltip {Modulation Amount} xywh {234 78 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s4 {open
+    tooltip {Patch Source} xywh {2 103 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d4 {open
+    tooltip {Patch Destination} xywh {118 103 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a4 {
+    tooltip {Modulation Amount} xywh {234 103 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s5 {open
+    tooltip {Patch Source} xywh {277 28 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d5 {open
+    tooltip {Patch Destination} xywh {393 28 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a5 {
+    tooltip {Modulation Amount} xywh {509 28 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s6 {open
+    tooltip {Patch Source} xywh {277 53 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d6 {open
+    tooltip {Patch Destination} xywh {393 53 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a6 {
+    tooltip {Modulation Amount} xywh {509 53 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s7 {open
+    tooltip {Patch Source} xywh {277 78 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d7 {open
+    tooltip {Patch Destination} xywh {393 78 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a7 {
+    tooltip {Modulation Amount} xywh {509 78 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s8 {open
+    tooltip {Patch Source} xywh {277 103 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d8 {open
+    tooltip {Patch Destination} xywh {393 103 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a8 {
+    tooltip {Modulation Amount} xywh {509 103 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s9 {open
+    tooltip {Patch Source} xywh {552 28 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d9 {open
+    tooltip {Patch Destination} xywh {668 28 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a9 {
+    tooltip {Modulation Amount} xywh {784 28 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s10 {open
+    tooltip {Patch Source} xywh {552 53 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d10 {open
+    tooltip {Patch Destination} xywh {668 53 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a10 {
+    tooltip {Modulation Amount} xywh {784 53 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s11 {open
+    tooltip {Patch Source} xywh {552 78 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d11 {open
+    tooltip {Patch Destination} xywh {668 78 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a11 {
+    tooltip {Modulation Amount} xywh {784 78 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s12 {open
+    tooltip {Patch Source} xywh {552 103 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d12 {open
+    tooltip {Patch Destination} xywh {668 103 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a12 {
+    tooltip {Modulation Amount} xywh {784 103 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s13 {open
+    tooltip {Patch Source} xywh {2 160 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d13 {open
+    tooltip {Patch Destination} xywh {118 160 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a13 {
+    tooltip {Modulation Amount} xywh {234 160 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s14 {open
+    tooltip {Patch Source} xywh {2 185 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d14 {open
+    tooltip {Patch Destination} xywh {118 185 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a14 {
+    tooltip {Modulation Amount} xywh {234 185 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s15 {open
+    tooltip {Patch Source} xywh {2 210 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d15 {open
+    tooltip {Patch Destination} xywh {118 210 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a15 {
+    tooltip {Modulation Amount} xywh {234 210 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s16 {open
+    tooltip {Patch Source} xywh {2 235 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d16 {open
+    tooltip {Patch Destination} xywh {118 235 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a16 {
+    tooltip {Modulation Amount} xywh {234 235 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s17 {open
+    tooltip {Patch Source} xywh {277 160 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d17 {open
+    tooltip {Patch Destination} xywh {393 160 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a17 {
+    tooltip {Modulation Amount} xywh {509 160 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s18 {open
+    tooltip {Patch Source} xywh {277 185 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d18 {open
+    tooltip {Patch Destination} xywh {393 185 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a18 {
+    tooltip {Modulation Amount} xywh {509 185 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s19 {open
+    tooltip {Patch Source} xywh {277 210 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d19 {open
+    tooltip {Patch Destination} xywh {393 210 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a19 {
+    tooltip {Modulation Amount} xywh {509 210 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s20 {open
+    tooltip {Patch Source} xywh {277 235 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d20 {open
+    tooltip {Patch Destination} xywh {393 235 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a20 {
+    tooltip {Modulation Amount} xywh {509 235 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s21 {open
+    tooltip {Patch Source} xywh {552 160 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d21 {open
+    tooltip {Patch Destination} xywh {668 160 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a21 {
+    tooltip {Modulation Amount} xywh {784 160 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s22 {open
+    tooltip {Patch Source} xywh {552 185 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d22 {open
+    tooltip {Patch Destination} xywh {668 185 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a22 {
+    tooltip {Modulation Amount} xywh {784 185 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s23 {open
+    tooltip {Patch Source} xywh {552 210 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d23 {open
+    tooltip {Patch Destination} xywh {668 210 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a23 {
+    tooltip {Modulation Amount} xywh {784 210 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Choice s24 {open
+    tooltip {Patch Source} xywh {552 235 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCS_Choice
+  } {}
+  Fl_Choice d24 {open
+    tooltip {Patch Destination} xywh {668 235 115 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 12 labelcolor 15 align 0 textsize 13
+    class PCD_Choice
+  } {}
+  Fl_Value_Output a24 {
+    tooltip {Modulation Amount} xywh {784 235 41 21} box FLAT_BOX selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    class Value_Output
+  }
+  Fl_Box {} {
+    label {1-4}
+    xywh {1 2 275 20} box THIN_UP_BOX color 7 labelfont 1 labelsize 12 labelcolor 49 align 20
+  }
+  Fl_Box {} {
+    label {5-8}
+    xywh {276 2 275 20} box THIN_UP_BOX color 7 labelfont 1 labelsize 12 labelcolor 49 align 20
+  }
+  Fl_Box {} {
+    label {9-12}
+    xywh {551 2 274 20} box THIN_UP_BOX color 7 labelfont 1 labelsize 12 labelcolor 49 align 20
+  }
+  Fl_Box {} {
+    label {13-16}
+    xywh {1 134 275 20} box THIN_UP_BOX color 7 labelfont 1 labelsize 12 labelcolor 49 align 20
+  }
+  Fl_Box {} {
+    label {17-20}
+    xywh {276 134 275 20} box THIN_UP_BOX color 7 labelfont 1 labelsize 12 labelcolor 49 align 20
+  }
+  Fl_Box {} {
+    label {21-24}
+    xywh {551 134 274 20} box THIN_UP_BOX color 7 labelfont 1 labelsize 12 labelcolor 49 align 20
+  }
+} 
+
+widget_class PD_Layer_Strip {
+  xywh {347 50 100 542} type Double hide position_relative
+} {
+  decl {void init(int layer);} {public
+  }
+  decl {int layer;} {}
+  Fl_Button instrument {
+    label {   :None}
+    callback {ui->select(layer + 1);}
+    xywh {3 3 94 20} down_box UP_BOX color 7 selection_color 15 labelfont 5 labelsize 12 labelcolor 49 align 84
+  }
+  Fl_Dial coarse {
+    label Coarse
+    private tooltip {Coarse tune (±36 semitones)} xywh {7 23 40 40} color 7 labelsize 10 minimum -36 maximum 36 step 1
+    class Fl_Knob
+  }
+  Fl_Button {} {
+    label {-}
+    callback {if (o->value())
+{
+int val = coarse->value();
+if (val == -36) return;
+val -= 12;
+if (val < -36) val = -36;
+coarse->value(val);
+coarse->do_callback();
+}}
+    tooltip {Tune octave down} xywh {1 63 26 15} box NO_BOX labelfont 4 labelsize 9 align 20 when 1
+    class Fixed_Button
+  }
+  Fl_Button {} {
+    label {+}
+    callback {if (o->value())
+{
+int val = coarse->value();
+if (val == 36) return;
+val += 12;
+if (val > 36) val = 36;
+coarse->value(val);
+coarse->do_callback();
+}}
+    tooltip {Tune octave up} xywh {28 63 26 15} box NO_BOX labelfont 4 labelsize 9 align 24 when 1
+    class Fixed_Button
+  }
+  Fl_Dial fine {
+    label Fine
+    private tooltip {Fine tune (±1 semitone by 1/64 semitone intervals (1.56 cents))} xywh {53 23 40 40} color 7 labelsize 10 minimum -63 maximum 63 step 1
+    class Fl_Knob
+  }
+  Fl_Dial offset {
+    label {S.Offset}
+    private tooltip {Sample Start Offset: higher values move the Sample Start Point further into the sample toward the end} xywh {7 76 40 40} color 7 labelsize 10 maximum 127 step 1
+    class Fl_Knob
+  }
+  Fl_Dial delay {
+    label {S.Delay}
+    private tooltip {Sample Start Delay: defines the time between when you hit a key (note-on) and the onset of the current layer's note and the start of the envelopes (if applicable)} xywh {53 76 40 40} color 7 labelsize 10 minimum -25 maximum 127 step 1
+    class Fl_Knob
+  }
+  Fl_Dial chorus {
+    label Chorus
+    private tooltip {Chorus (detuning amount 1-100%)} xywh {7 129 40 40} color 7 labelsize 10 maximum 100 step 1
+    class Fl_Knob
+  }
+  Fl_Dial width {
+    label Width
+    private tooltip {Chorus width (stereo spreading 0-100%)} xywh {53 129 40 40} color 7 labelsize 10 maximum 100 step 1
+    class Fl_Knob
+  }
+  Fl_Choice filter {open
+    tooltip {Filter Type. Allows you to choose the type of filter for the layer} xywh {3 183 94 20} down_box BORDER_BOX labeltype NO_LABEL labelcolor 15 align 0 textfont 4 textsize 12
+    class Choice
+  } {}
+  Fl_Group filter_knobs {open
+    xywh {7 203 87 53}
+  } {
+    Fl_Dial cutoff {
+      label Cutoff
+      private tooltip {Control various elements of the filter depending on the type of filter used} xywh {7 203 40 40} color 7 labelsize 10 maximum 255 step 1
+      class Fl_Knob
+    }
+    Fl_Dial emphasis {
+      label Res
+      private tooltip {Control various elements of the filter depending on the type of filter used} xywh {53 203 40 40} color 7 labelsize 10 maximum 127 step 1
+      class Fl_Knob
+    }
+  }
+  Fl_Dial glide {
+    label Glide
+    private tooltip {Glide Rate: defines the time it takes to glide to the new pitch (the larger the value, the slower the glide rate) The glide rate value range is from 0 through 32.738 seconds (zero means off)} xywh {7 256 40 40} color 7 labelsize 10 maximum 127 step 1
+    class Fl_Knob
+  }
+  Fl_Dial glide_curve {
+    label {G.Curve}
+    private tooltip {Glide Curve: describes how the glide accelerates as it slides between notes. Because of the ear's non-linear response to pitch, a linear glide sounds slow at the beginning and speeds up toward the end. Exponential curves actually sound smoother and more linear. Eight exponential curves are provided} xywh {52 256 40 40} color 7 labelsize 10 maximum 8 step 1
+    class Fl_Knob
+  }
+  Fl_Dial pan {
+    label Pan
+    private tooltip {Stereo panorama} xywh {7 310 40 40} color 7 labelsize 10 minimum -64 maximum 63 step 1
+    class Fl_Knob
+  }
+  Fl_Dial bend {
+    label {Bend R.}
+    private tooltip {Pitch-Bend Range: 0 to ±12 semitones or Master (-1)} xywh {52 310 40 40} color 7 labelsize 10 minimum -1 maximum 12 step 1
+    class Fl_Knob
+  }
+  Fl_Box {} {
+    xywh {8 402 7 5} box BORDER_BOX color 7 labeltype NO_LABEL labelsize 10 labelcolor 7 when 0 deactivate
+  }
+  Fl_Box {} {
+    xywh {40 402 7 5} box BORDER_BOX color 7 labeltype NO_LABEL labelsize 10 labelcolor 7 when 0 deactivate
+  }
+  Fl_Slider volume {
+    label dB
+    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 1.19102e+06 maximum 0 step 1
+    class Slider
+  }
+  Fl_Button mute_b {
+    label M
+    callback {pd->mute(o->value(), layer);}
+    tooltip {Mute Voice} xywh {49 366 19 17} type Toggle down_box UP_BOX color 7 selection_color 81 labelfont 1 labelsize 10 labelcolor 49 when 1
+    class Fixed_Button
+  }
+  Fl_Button solo_b {
+    label S
+    callback {pd->solo(o->value(), layer);}
+    tooltip {Solo Voice} xywh {76 366 19 17} type Toggle down_box UP_BOX color 7 selection_color 134 labelfont 1 labelsize 10 labelcolor 49 when 1
+    class Fixed_Button
+  }
+  Fl_Button copy {
+    label COPY
+    callback {ui->show_copy_layer(C_LAYER, layer);}
+    tooltip {Copy voice} xywh {52 477 40 17} selection_color 15 labelsize 10 labelcolor 15
+  }
+  Fl_Button non_t {
+    label NTP
+    tooltip {Turns keyboard transposition On or Off. With Nontranspose the keyboard will not control the pitch of the instrument. This is a useful function for drones, attack "chiffs" or other sound effects which you may not want to track the keyboard} xywh {52 385 40 17} type Toggle down_box UP_BOX selection_color 140 labelsize 10 labelcolor 15
+    class Button
+  }
+  Fl_Group mix_out {
+    tooltip {Layer Submix, FX Send} xywh {52 404 41 71} color 52 labeltype NO_LABEL labelsize 10 labelcolor 7 align 0
+    class Group
+  } {
+    Fl_Button {} {
+      label 1
+      callback {((Group*)o->parent())->do_callback();}
+      xywh {57 404 30 17} type Radio down_box UP_BOX selection_color 15 labelsize 10
+    }
+    Fl_Button {} {
+      label 2
+      callback {((Group*)o->parent())->do_callback();}
+      xywh {57 422 30 17} type Radio down_box UP_BOX selection_color 15 labelsize 10
+    }
+    Fl_Button {} {
+      label 3
+      callback {((Group*)o->parent())->do_callback();}
+      xywh {57 440 30 17} type Radio down_box UP_BOX selection_color 15 labelsize 10
+    }
+    Fl_Button {} {
+      label 4
+      callback {((Group*)o->parent())->do_callback();}
+      xywh {57 458 30 17} type Radio down_box UP_BOX selection_color 15 labelsize 10
+    }
+  }
+  Fl_Choice layer_solo {open
+    tooltip {Solo Mode: provides the playing action of a monophonic instrument such as a lead synthesizer by preventing more than one note from sounding at once} xywh {3 498 94 20} down_box BORDER_BOX labeltype NO_LABEL labelcolor 15 align 0 textsize 13
+    code0 {o->add("off");o->add("multi trigger");o->add("melody last");}
+    code1 {o->add("melody low");o->add("melody high");o->add("synth last");}
+    code2 {o->add("synth low");o->add("synth high");o->add("fingered glide");}
+    class Choice
+  } {}
+  Fl_Choice layer_group {open
+    tooltip {Assign Group: use this parameter to assign a certain number of channels to each layer. By assigning all voices in the preset to assign groups, important parts are protected from being "stolen" by more recently played keys. Or you can assign a voice, such as an open high hat, to a mono channel so it is cancelled by a closed high hat on the same mono channel. Layers rotate within their assigned "bin" of channels, not interfering with other bins} xywh {3 520 94 20} down_box BORDER_BOX labeltype NO_LABEL labelcolor 15 align 0 textsize 13
+    code0 {o->add("poly all"); o->add("poly 16 A"); o->add("poly 16 B"); o->add("poly 8 A"); o->add("poly 8 B"); o->add("poly 8 C");}
+    code1 {o->add("poly 8 D"); o->add("poly 4 A"); o->add("poly 4 B"); o->add("poly 4 C"); o->add("poly 4 D"); o->add("poly 2 A");}
+    code2 {o->add("poly 2 B"); o->add("poly 2 C"); o->add("poly 2 D"); o->add("mono A"); o->add("mono B"); o->add("mono C");}
+    code3 {o->add("mono D"); o->add("mono E"); o->add("mono F"); o->add("mono G"); o->add("mono H"); o->add("mono I");}
+    class Choice
+  } {}
+} 
+
+widget_class PD_Layer_Editor {
+  xywh {344 207 833 569} type Double box BORDER_BOX hide position_relative
+} {
+  decl {void init(int l);} {public
+  }
+  decl {int layer;} {}
+  Fl_Group {} {
+    label INSTRUMENT open
+    xywh {4 23 196 244} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+  } {
+    Fl_Choice instrument_rom {open
+      xywh {14 29 176 21} down_box BORDER_BOX labeltype NO_LABEL labelcolor 15 align 0 textsize 13
+      class ROM_Choice
+    } {}
+    Fl_Browser instrument {
+      xywh {14 55 176 181} type Hold when 1 textfont 4 textsize 12 textcolor 49
+      class Browser
+    }
+    Fl_Input instrument_filter {
+      label {F }
+      callback {instrument->set_filter(o->value());}
+      xywh {30 241 129 20} box UP_BOX labelsize 10 labelcolor 7 when 1 textfont 5 textsize 12 textcolor 49
+      code0 {o->maximum_size(16);}
+      code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
+      code2 {o->tooltip(filter_tooltip);}
+      class Input
+    }
+    Fl_Button {} {
+      label C
+      callback {instrument_filter->value(0);
+instrument_filter->do_callback();}
+      xywh {164 241 26 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49
+    }
+  }
+  Fl_Button copy_env {
+    label COPY
+    callback {ui->show_copy_layer(C_LAYER_ENVELOPE, layer);}
+    tooltip {Copy envelopes to voice...} xywh {208 6 40 17} down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15
+  }
+  Fl_Group {} {
+    label ENVELOPES open
+    xywh {208 23 417 244} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+  } {
+    Fl_Box envelope_editor {
+      xywh {209 24 415 242} box FLAT_BOX labeltype NO_LABEL
+      class Envelope_Editor
+    }
+  }
+  Fl_Button copy_lfo {
+    label COPY
+    callback {ui->show_copy_layer(C_LAYER_LFO, layer);}
+    tooltip {Copy LFO's to voice...} xywh {634 86 40 17} down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15
+  }
+  Fl_Group {} {
+    label {LFO'S} open
+    xywh {634 103 196 164} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+  } {
+    Fl_Choice lfo1_waveform {open
+      tooltip {LFO Shape} xywh {644 108 176 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 10 labelcolor 15 align 0 textsize 13
+      code1 {o->add("Random");o->add("Triangle");o->add("Sine");o->add("Sawtooth");o->add("Square");o->add("33% Pulse");o->add("25% Pulse");o->add("16% Pulse");o->add("12% Pulse");o->add("Pat: Octaves");o->add("Pat: Fifth+Octave");o->add("Pat: Sus4Trip");o->add("Pat: Neener");o->add("Sine 1,2");o->add("Sine 1,3,5");o->add("Sine+Noise");o->add("Hemi-quaver");}
+      class Choice
+    } {}
+    Fl_Dial lfo1_rate {
+      label Rate
+      tooltip {LFO Rate: the LFO speed in absolute frequency rate values (0.08 Hz to 18.14 Hz)  or tempo-based note values} xywh {644 132 40 40} color 7 labelsize 10 minimum -25 maximum 127 step 1
+      class Fl_Knob
+    }
+    Fl_Dial lfo1_delay {
+      label Delay
+      tooltip {LFO Delay: defines the amount of time between hitting a key on the controller and the onset of the LFO modulation} xywh {689 132 40 40} color 7 labelsize 10 minimum -25 maximum 127 step 1
+      class Fl_Knob
+    }
+    Fl_Dial lfo1_variation {
+      label Variation
+      tooltip {LFO Variation: sets the amount of random variation of the LFO each time you press a key on the controller (Variation is disabled when a Tempo-Based LFO is selected)} xywh {734 132 40 40} color 7 labelsize 10 maximum 100 step 1
+      class Fl_Knob
+    }
+    Fl_Button lfo1_sync {
+      label Sync
+      tooltip {LFO Sync: specifies whether the LFO is synchronized to a key stroke or is Free Running. Key Sync starts the LFO wave at the beginning of its cycle each time you press a key on the controller. In Free Run mode, the LFO wave begins at a random point in its cycle each time you press a key on the controller} xywh {779 136 41 17} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX color 7 selection_color 179 labelsize 10 labelcolor 49
+      class Button
+    }
+    Fl_Choice lfo2_waveform {open
+      tooltip {LFO Shape} xywh {644 187 176 21} down_box BORDER_BOX labeltype NO_LABEL labelsize 10 labelcolor 15 align 0 textsize 13
+      code1 {o->add("Random");o->add("Triangle");o->add("Sine");o->add("Sawtooth");o->add("Square");o->add("33% Pulse");o->add("25% Pulse");o->add("16% Pulse");o->add("12% Pulse");o->add("Pat: Octaves");o->add("Pat: Fifth+Octave");o->add("Pat: Sus4Trip");o->add("Pat: Neener");o->add("Sine 1,2");o->add("Sine 1,3,5");o->add("Sine+Noise");o->add("Hemi-quaver");}
+      class Choice
+    } {}
+    Fl_Dial lfo2_rate {
+      label Rate
+      tooltip {LFO Rate: the LFO speed in absolute frequency rate values (0.08 Hz to 18.14 Hz)  or tempo-based note values} xywh {644 211 40 40} color 7 labelsize 10 minimum -25 maximum 127 step 1
+      class Fl_Knob
+    }
+    Fl_Dial lfo2_delay {
+      label Delay
+      tooltip {LFO Delay: defines the amount of time between hitting a key on the controller and the onset of the LFO modulation} xywh {689 211 40 40} color 7 labelsize 10 minimum -25 maximum 127 step 1
+      class Fl_Knob
+    }
+    Fl_Dial lfo2_variation {
+      label Variation
+      tooltip {LFO Variation: sets the amount of random variation of the LFO each time you press a key on the controller (Variation is disabled when a Tempo-Based LFO is selected)} xywh {734 211 40 40} color 7 labelsize 10 maximum 100 step 1
+      class Fl_Knob
+    }
+    Fl_Button lfo2_sync {
+      label Sync
+      tooltip {LFO Sync: specifies whether the LFO is synchronized to a key stroke or is Free Running. Key Sync starts the LFO wave at the beginning of its cycle each time you press a key on the controller. In Free Run mode, the LFO wave begins at a random point in its cycle each time you press a key on the controller} xywh {779 215 41 17} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX color 7 selection_color 179 labelsize 10 labelcolor 49
+      class Button
+    }
+    Fl_Box {} {
+      label 1
+      xywh {779 159 41 18} labelfont 1 labelsize 15 labelcolor 15
+    }
+    Fl_Box {} {
+      label 2
+      xywh {779 238 41 18} labelfont 1 labelsize 15 labelcolor 15
+    }
+  }
+  Fl_Button copy_pc {
+    label COPY
+    callback {ui->show_copy_layer(C_LAYER_PATCHCORD, layer);}
+    tooltip {Copy patchcords to voice...} xywh {4 284 40 17} down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15
+  }
+  Fl_Box patchcords {
+    label PATCHCORDS
+    xywh {4 301 826 264} box THIN_DOWN_BOX labelfont 1 labelcolor 15 align 1
+    class PD_Layer_Patchcords
+  }
+} 
+
+widget_class PD_Preset_Editor {
+  xywh {285 127 833 569} type Double box BORDER_BOX hide position_relative
+} {
+  Fl_Group g_riff {
+    label RIFF open
+    xywh {4 23 196 376} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+  } {
+    Fl_Choice riff_rom {open
+      xywh {14 29 176 21} down_box BORDER_BOX labeltype NO_LABEL labelcolor 15 align 0 textsize 13
+      code0 {o->set_id(929);}
+      class ROM_Choice
+    } {}
+    Fl_Browser riff {
+      xywh {14 55 176 313} type Hold when 1 textfont 4 textsize 12 textcolor 49
+      code0 {o->set_id(928);}
+      class Browser
+    }
+    Fl_Input riff_filter {
+      label {F }
+      callback {riff->set_filter(o->value());}
+      xywh {30 373 129 20} box UP_BOX labelsize 10 labelcolor 7 when 1 textfont 5 textsize 12 textcolor 49
+      code0 {o->maximum_size(16);}
+      code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
+      code2 {o->tooltip(filter_tooltip);}
+      class Input
+    }
+    Fl_Button {} {
+      label C
+      callback {riff_filter->value(0);
+riff_filter->do_callback();}
+      xywh {164 373 26 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49
+    }
+  }
+  Fl_Group program {open
+    xywh {208 1 417 398}
+  } {
+    Fl_Button copy_arp_b {
+      label {COPY FROM}
+      callback {ui->show_copy_preset(C_ARP);}
+      tooltip {Copy arpeggiator settings from another program.  Note: this is permanent (it overwrites program arpeggiator settings)} xywh {208 7 86 17} down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15 deactivate
+    }
+    Fl_Group {} {
+      label ARPEGGIATOR open
+      xywh {208 23 417 304} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+    } {
+      Fl_Button {} {
+        label Sync
+        tooltip {Sync. The Sync parameter defines when a note is played in relation to when the key is pressed. When On, the note sounds the instant a key is pressed (Key Sync). When Off, the note does not sound until the next occurrence of the selected note value (Quantized)} xywh {234 33 48 17} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX selection_color 179 labelsize 10
+        code0 {o->set_id(1033);}
+        class Button
+      }
+      Fl_Group {} {
+        label Mode
+        tooltip {Arpeggiator Mode. The Mode parameter determines the direction or pattern mode of the arpeggiated notes} xywh {224 67 68 143} labelsize 10 labelcolor 15 when 0
+        code0 {o->set_id(1026);}
+        class Group
+      } {
+        Fl_Button {} {
+          label Up
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {224 67 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+        Fl_Button {} {
+          label Down
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {224 85 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+        Fl_Button {} {
+          label {Up-Down}
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {224 103 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+        Fl_Button {} {
+          label Fwd
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {224 121 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+        Fl_Button {} {
+          label Bkw
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {224 139 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+        Fl_Button {} {
+          label {Fwd-Bkw}
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {224 157 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+        Fl_Button {} {
+          label Random
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {224 175 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+        Fl_Button {} {
+          label Pattern
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {224 193 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+      }
+      Fl_Group g_pattern_speed {
+        label {Pattern Speed}
+        xywh {220 230 76 89} labelsize 10 labelcolor 15 when 0
+        code0 {o->set_id(1041);}
+        class Group
+      } {
+        Fl_Button {} {
+          label 4x
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {234 230 48 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+        Fl_Button {} {
+          label 2x
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {234 248 48 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+        Fl_Button {} {
+          label 1x
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {234 266 48 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+        Fl_Button {} {
+          label {1/2x}
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {234 284 48 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+        Fl_Button {} {
+          label {1/4x}
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {234 302 48 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+      }
+      Fl_Dial note {
+        label Note
+        tooltip {Note Value. The Note Value determines the duration of each note played. This parameter is used in non-pattern mode only} xywh {312 28 40 40} color 7 labelsize 10 minimum 1 maximum 19 step 1 value 1
+        code0 {o->set_id(1028);}
+        class Fl_Knob
+      }
+      Fl_Dial {} {
+        label Gate
+        tooltip {Gate Time. The Gate Time parameter works together with the Note Value parameter. Just as Note Value defines the length of a note, the Gate Time sets the percentage of the Note Value time played} xywh {357 28 40 40} color 7 labelsize 10 maximum 100 step 1
+        code0 {o->set_id(1030);}
+        class Fl_Knob
+      }
+      Fl_Dial {} {
+        label Velocity
+        tooltip {Note Velocity. The Velocity parameter determines the velocity at which each note arpeggiates. Velocity can be defined by the velocity value specified (from 1 through 127), or by the actual velocity of the played note (0)} xywh {312 82 40 40} color 7 labelsize 10 maximum 127 step 1
+        code0 {o->set_id(1029);}
+        class Fl_Knob
+      }
+      Fl_Dial {} {
+        label Duration
+        tooltip {Duration. This parameter defines how long the arpeggiator plays before stopping. The Duration is specified in note values. Therefore if an arpeggio were running at a 16th Note Value and the Duration were set to a whole note, the arpeggiator would play 16 steps before stopping. After the duration has elapsed, the arpeggiator remains inactive until the key is released. If Duration is set to Off, the arpeggio repeats as long as the notes are held (Infinite Duration)} xywh {357 82 40 40} color 7 labelsize 10 maximum 19 step 1
+        code0 {o->set_id(1035);}
+        class Fl_Knob
+      }
+      Fl_Dial pre_d {
+        label {Pre D}
+        tooltip {Pre-Delay. The Pre-Delay value determines how long the arpeggiator is delayed before becoming active after the first "note-on". During the pre-delay period, notes are played normally (as if the arpeggiator was off). After the pre-delay period has elapsed, the arpeggiator kicks in. Once you release all the keys on the controller, the pre-delay starts over with the next note-on. In combination with the Duration parameter, Pre-Delay lets you change the arpeggio patterns to create many more variations} xywh {312 138 40 40} color 7 labelsize 10 maximum 19 step 1
+        code0 {o->set_id(1034);}
+        class Fl_Knob
+      }
+      Fl_Dial post_d {
+        label {Post D}
+        tooltip {Post-Delay. This parameter is only relevant when both the "Duration" and "Recycle" parameters are not in the "Off" state. The Post-Delay value determines how long the arpeggiator is delayed after the Duration period. During the post-delay period, notes are played normally (as if the arpeggiator was off). After the post-delay period has elapsed, the arpeggiator either jumps to the beginning of the Pre-Delay period or to the beginning of the Duration period depending on the Recycle setting} xywh {357 138 40 40} color 7 labelsize 10 maximum 19 step 1
+        code0 {o->set_id(1043);}
+        class Fl_Knob
+      }
+      Fl_Dial {} {
+        label Count
+        tooltip {Extension Count. The Extension Count parameter specifies how many times the Extension Interval is carried out. With an Extension Count of 0, the arpeggio plays only the notes pressed. With an Extension Count of 1, the arpeggio plays the notes pressed, then plays the same notes (in the same order), transposed by the Extension Interval amount. The cycle is then repeated} xywh {312 192 40 40} color 7 labelsize 10 maximum 15 step 1
+        code0 {o->set_id(1031);}
+        class Fl_Knob
+      }
+      Fl_Dial {} {
+        label Interval
+        tooltip {Extension Interval. The Extension Interval specifies the additional intervals played when you press a key. For example, suppose you played C2 with an Interval of 7 (a Major 5th), Up mode, and an Extension Count of 2. The arpeggio alternates between C2 and G2} xywh {357 192 40 40} color 7 labelsize 10 minimum 1 maximum 16 step 1 value 1
+        code0 {o->set_id(1032);}
+        class Fl_Knob
+      }
+      Fl_Group {} {
+        label Recylce
+        tooltip {Recycle. This parameter works together with the Duration and Pre/Post Delay parameters. When these are enabled without one of the Recycle options turned on, the pattern or arpeggio normally stops. With Recycle On, the arpeggio instantly resets the pattern to the beginning of the Pre-Delay period after the duration value has elapsed and repeats the pattern or arpeggio. Another option called "On-No Pre-Delay" bypasses the predelay period} xywh {330 266 50 53} labelsize 10 labelcolor 15 when 0
+        code0 {o->set_id(1036);}
+        class Group
+      } {
+        Fl_Button {} {
+          label Off
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {330 266 50 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+        Fl_Button {} {
+          label On
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {330 284 50 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+        Fl_Button {} {
+          label {No-Pre}
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {330 302 50 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          class Button
+        }
+      }
+      Fl_Button {} {
+        label Active
+        tooltip {Arpeggiator On/Off} xywh {437 33 50 17} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX selection_color 78 labelsize 10
+        code0 {o->set_id(1025);}
+        class Button
+      }
+      Fl_Button {} {
+        label Thru
+        tooltip {Keyboard Thru. When enabled, merges the notes not arpeggiated with the arpeggiated notes. This gives the effect of two parts playing at once} xywh {492 33 50 17} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+        code0 {o->set_id(1037);}
+        class Button
+      }
+      Fl_Button {} {
+        label Latch
+        tooltip {Latch. With Latch mode On, any notes you play remain on until you press them again. Latched notes can be halted by turning Latch off in this screen, or by turning off the Arpeggiator} xywh {547 33 50 17} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+        code0 {o->set_id(1038);}
+        class Button
+      }
+      Fl_Button {} {
+        label COPY
+        callback {ui->show_copy_preset(C_ARP_PATTERN);}
+        tooltip {Copy pattern...} xywh {419 58 40 17} down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15
+      }
+      Fl_Button edit_arp {
+        label EDIT
+        callback {if (pd->arp && pd->arp->get_number() == arp->value()-1)
+{
+ui->g_arp_edit->show();
+ui->g_main->hide();
+Fl::focus(ui->g_arp_edit);
+}
+else
+midi->request_arp_dump(arp->value()-1, 0);}
+        tooltip {Edit Arpeggiator pattern} xywh {575 58 40 17} down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15 deactivate
+        class Fixed_Button
+      }
+      Fl_Group g_pattern {
+        label PATTERN open
+        xywh {419 75 196 244} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+      } {
+        Fl_Choice arp_rom {open
+          xywh {429 81 176 21} down_box BORDER_BOX labeltype NO_LABEL labelcolor 15 align 0 textsize 13
+          code0 {o->set_id(1042);}
+          class ROM_Choice
+        } {}
+        Fl_Browser arp {
+          xywh {429 107 176 181} type Hold when 1 textfont 4 textsize 12 textcolor 49
+          code0 {o->set_id(1027);}
+          class Browser
+        }
+        Fl_Input arp_filter {
+          label {F }
+          callback {arp->set_filter(o->value());}
+          xywh {445 293 129 20} box UP_BOX labelsize 10 labelcolor 7 when 1 textfont 5 textsize 12 textcolor 49
+          code0 {o->maximum_size(16);}
+          code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
+          code2 {o->tooltip(filter_tooltip);}
+          class Input
+        }
+        Fl_Button {} {
+          label C
+          callback {arp_filter->value(0);
+arp_filter->do_callback();}
+          xywh {579 293 26 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49
+        }
+      }
+    }
+    Fl_Choice {} {
+      label {Keyboard Tuning}
+      tooltip {Keyboard Tuning.  The Keyboard Tuning parameter selects which tuning is used by the current preset. The User Tuning tables are defined in the Master section} xywh {208 346 196 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
+      code0 {o->set_id(923);}
+      code1 {o->add("Equal Temperament"); o->add("Just C"); o->add("Just C2"); o->add("Just C minor"); o->add("Just C3"); o->add("Valloti"); o->add("19-tone"); o->add("Gamelan"); o->add("Werkmeister III"); o->add("Kirnberger"); o->add("Scarlatti"); o->add("Repeating Octave");}
+      class Choice
+    } {}
+    Fl_Group {} {
+      label {Tempo Offset} open
+      tooltip {This function allows you to double or halve the Master Tempo as it applies to this preset} xywh {466 346 76 53} labelsize 10 labelcolor 15 when 0
+      code0 {o->set_id(930);}
+      class Group
+    } {
+      Fl_Button {} {
+        label halve
+        callback {((Group*)o->parent())->do_callback();}
+        xywh {470 346 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+        class Button
+      }
+      Fl_Button {} {
+        label current
+        callback {((Group*)o->parent())->do_callback();}
+        xywh {470 364 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+        class Button
+      }
+      Fl_Button {} {
+        label double
+        callback {((Group*)o->parent())->do_callback();}
+        xywh {470 382 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+        class Button
+      }
+    }
+  }
+  Fl_Group links {open
+    xywh {210 1 414 396} hide
+  } {
+    Fl_Group {} {
+      label {LINK 1} open
+      xywh {216 23 196 374} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+    } {
+      Fl_Choice l1_rom {open
+        xywh {226 29 176 21} down_box BORDER_BOX labeltype NO_LABEL labelcolor 15 align 0 textsize 13
+        code0 {o->set_id(1299);}
+        class ROM_Choice
+      } {}
+      Fl_Browser l1 {
+        xywh {226 55 176 204} type Hold when 1 textfont 4 textsize 12 textcolor 49
+        code0 {o->set_id(1281);}
+        class Browser
+      }
+      Fl_Input l1_filter {
+        label {F }
+        callback {l1->set_filter(o->value());}
+        xywh {242 264 129 20} box UP_BOX labelsize 10 labelcolor 7 when 1 textfont 5 textsize 12 textcolor 49
+        code0 {o->maximum_size(16);}
+        code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
+        code2 {o->tooltip(filter_tooltip);}
+        class Input
+      }
+      Fl_Button {} {
+        label C
+        callback {l1_filter->value(0);
+l1_filter->do_callback();}
+        xywh {376 264 26 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49
+      }
+      Fl_Group g_link1 {
+        xywh {226 286 176 106}
+      } {
+        Fl_Dial {} {
+          label Pan
+          tooltip {Program Stereo Panorama} xywh {236 286 40 40} color 7 selection_color 39 labelsize 10 minimum -64 maximum 63 step 1
+          code0 {o->set_id(1283);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label Volume
+          tooltip {Program Volume} xywh {236 339 40 40} color 7 selection_color 39 labelsize 10 minimum -96 maximum 10 step 1
+          code0 {o->set_id(1282);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label Transpose
+          tooltip {Program Transpose} xywh {294 286 40 40} color 7 selection_color 39 labelsize 10 minimum -127 maximum 127 step 1
+          code0 {o->set_id(1284);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label Delay
+          tooltip {Program Delay} xywh {294 339 40 40} color 7 selection_color 39 labelsize 10 minimum -25 maximum 127 step 1
+          code0 {o->set_id(1285);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label {Velo-Low}
+          tooltip {Velocity Low} xywh {352 286 40 40} color 7 selection_color 39 labelsize 10 maximum 127 step 1
+          code0 {o->set_id(1288);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label {Velo-High}
+          tooltip {Velocity High} xywh {352 339 40 40} color 7 selection_color 39 labelsize 10 maximum 127 step 1 value 127
+          code0 {o->set_id(1289);}
+          class Fl_Knob
+        }
+      }
+    }
+    Fl_Group {} {
+      label {LINK 2} open
+      xywh {422 23 196 374} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+    } {
+      Fl_Choice l2_rom {open
+        xywh {432 29 176 21} down_box BORDER_BOX labeltype NO_LABEL labelcolor 15 align 0 textsize 13
+        code0 {o->set_id(1300);}
+        class ROM_Choice
+      } {}
+      Fl_Browser l2 {
+        xywh {432 55 176 204} type Hold when 1 textfont 4 textsize 12 textcolor 49
+        code0 {o->set_id(1290);}
+        class Browser
+      }
+      Fl_Input l2_filter {
+        label {F }
+        callback {l2->set_filter(o->value());}
+        xywh {448 264 129 20} box UP_BOX labelsize 10 labelcolor 7 when 1 textfont 5 textsize 12 textcolor 49
+        code0 {o->maximum_size(16);}
+        code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
+        code2 {o->tooltip(filter_tooltip);}
+        class Input
+      }
+      Fl_Button {} {
+        label C
+        callback {l2_filter->value(0);
+l2_filter->do_callback();}
+        xywh {582 264 26 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49
+      }
+      Fl_Group g_link2 {
+        xywh {432 286 176 106}
+      } {
+        Fl_Dial {} {
+          label Pan
+          tooltip {Program Stereo Panorama} xywh {442 286 40 40} color 7 selection_color 39 labelsize 10 minimum -64 maximum 63 step 1
+          code0 {o->set_id(1292);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label Volume
+          tooltip {Program Volume} xywh {442 339 40 40} color 7 selection_color 39 labelsize 10 minimum -96 maximum 10 step 1
+          code0 {o->set_id(1291);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label Transpose
+          tooltip {Program Transpose} xywh {500 286 40 40} color 7 selection_color 39 labelsize 10 minimum -127 maximum 127 step 1
+          code0 {o->set_id(1293);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label Delay
+          tooltip {Program Delay} xywh {500 339 40 40} color 7 selection_color 39 labelsize 10 minimum -25 maximum 127 step 1
+          code0 {o->set_id(1294);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label {Velo-Low}
+          tooltip {Velocity Low} xywh {558 286 40 40} color 7 selection_color 39 labelsize 10 maximum 127 step 1
+          code0 {o->set_id(1297);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label {Velo-High}
+          tooltip {Velocity High} xywh {558 339 40 40} color 7 selection_color 39 labelsize 10 maximum 127 step 1 value 127
+          code0 {o->set_id(1298);}
+          class Fl_Knob
+        }
+      }
+    }
+  }
+  Fl_Box patchcords {
+    label PATCHCORDS
+    xywh {4 433 826 132} box THIN_DOWN_BOX labelfont 1 labelcolor 15 align 1
+    class PD_Preset_Patchcords
+  }
+} 
+
+widget_class PD_Main {
+  xywh {344 150 833 569} type Double box BORDER_BOX hide position_relative
+} {
+  decl {PD_Layer_Strip* layer_strip[4];} {public
+  }
+  decl {Fl_Widget* ctrl_x[16];} {public
+  }
+  Fl_Group {} {
+    label main
+    xywh {0 0 834 574} labeltype NO_LABEL align 0
+  } {
+    Fl_Group {} {
+      label {PROGRAM/CHANNEL}
+      xywh {4 23 200 225} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+    } {
+      Fl_Button preset_name {
+        callback {ui->select(5);}
+        tooltip {Program name} xywh {7 26 190 20} down_box UP_BOX color 7 selection_color 15 labelfont 5 labelsize 12 labelcolor 49 align 84
+      }
+      Fl_Group channel_select {
+        tooltip {Select preset by channel or activate channel in omni and poly-mode.} xywh {4 23 196 73} labeltype NO_LABEL labelfont 1 labelcolor 15 when 0
+        code0 {o->set_id(129);}
+        class Group
+      } {
+        Fl_Button {} {
+          label 1
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {7 48 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 2
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {31 48 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 3
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {55 48 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 4
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {79 48 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 5
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {103 48 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 6
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {127 48 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 7
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {151 48 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 8
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {175 48 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 9
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {7 72 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 10
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {31 72 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 11
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {55 72 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 12
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {79 72 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 13
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {103 72 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 14
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {127 72 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 15
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {151 72 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+        Fl_Button {} {
+          label 16
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {175 72 22 22} type Radio down_box UP_BOX selection_color 15 labelsize 12 align 64
+        }
+      }
+      Fl_Dial {} {
+        label Pan
+        tooltip {Channel Stereo Panorama} xywh {10 97 40 40} color 7 selection_color 39 labelsize 10 maximum 127 step 1 value 64
+        code0 {o->set_id(132);}
+        class Fl_Knob
+      }
+      Fl_Dial {} {
+        label Volume
+        tooltip {Channel Volume} xywh {10 151 40 40} color 7 selection_color 39 labelsize 10 maximum 127 step 1 value 100
+        code0 {o->set_id(131);}
+        class Fl_Knob
+      }
+      Fl_Button b_audit {
+        label {A&UDIT}
+        callback {if (o->value())
+ui->m_audit->set();
+else
+ui->m_audit->clear();
+
+midi->audit();}
+        tooltip {Toggle audition} xywh {56 103 65 20} type Toggle down_box UP_BOX selection_color 73 labelsize 12 labelcolor 15 align 80 when 1
+      }
+      Fl_Button channel_enable {
+        label {C&HANNEL ENABLE}
+        tooltip {Multimode channel enable} xywh {56 129 65 30} type Toggle down_box UP_BOX shortcut 0x68 selection_color 59 labelsize 10 labelcolor 15 align 208
+        code0 {o->set_id(135);}
+        class Button
+      }
+      Fl_Button {} {
+        label {PROGRAM &CHANGE}
+        tooltip {Receive Program Change} xywh {56 165 65 30} type Toggle down_box UP_BOX shortcut 0x63 selection_color 138 labelsize 10 labelcolor 15 align 208
+        code0 {o->set_id(137);}
+        class Button
+      }
+      Fl_Group g_main_arp {
+        label Arp
+        xywh {126 111 33 71} labelsize 10 labelcolor 15 when 0
+        code0 {o->set_id(134);}
+        class Group
+      } {
+        Fl_Button {} {
+          label OFF
+          callback {((Group*)o->parent())->do_callback();}
+          tooltip {Arpeggiator OFF (no matter what, where, when, who and why)} xywh {126 111 33 17} type Radio down_box UP_BOX selection_color 15 labelsize 10 align 80
+        }
+        Fl_Button {} {
+          label ON
+          callback {((Group*)o->parent())->do_callback();}
+          tooltip {Arpeggiator ON (uses program settings, overrides Active state)} xywh {126 129 33 17} type Radio down_box UP_BOX selection_color 15 labelsize 10 align 80
+        }
+        Fl_Button {} {
+          label P
+          callback {((Group*)o->parent())->do_callback();}
+          tooltip {Use program arpeggiator settings} xywh {126 147 33 17} type Radio down_box UP_BOX selection_color 15 labelsize 10 align 80
+        }
+        Fl_Button {} {
+          label M
+          callback {((Group*)o->parent())->do_callback();}
+          tooltip {Use master arpeggiator settings} xywh {126 165 33 17} type Radio down_box UP_BOX selection_color 15 labelsize 10 align 80
+        }
+      }
+      Fl_Button main_edit_arp {
+        label EDIT
+        callback {ui->edit_arp_x(g_main_arp->get_value());}
+        tooltip {Edit assigned arpeggiator pattern (only enabled if it is a User pattern)} xywh {126 183 33 17} selection_color 15 labelsize 10 labelcolor 15 align 16 deactivate
+        class Fixed_Button
+      }
+      Fl_Group mix_out {
+        label Mix
+        tooltip {Mix (only effective in Multimode): Effects Sends and Sub-Out setup for selected MIDI channel. "P" means that the Effects Send is programmed for each voice (in the voice strips to the right), all other settings (1,2,3,4) will send all the voices of the preset selected on this channel to that FX send bus. "2" and "3" are also used to route sounds to the Sub 1 and 2 outputs on the back panel.} xywh {163 111 33 89} labelsize 10 labelcolor 15 when 0
+        code0 {o->set_id(133);}
+        class Group
+      } {
+        Fl_Button {} {
+          label P
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {163 111 33 17} type Radio down_box UP_BOX selection_color 15 labelsize 10 align 80
+        }
+        Fl_Button {} {
+          label 1
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {163 129 33 17} type Radio down_box UP_BOX selection_color 15 labelsize 10 align 80
+        }
+        Fl_Button {} {
+          label 2
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {163 147 33 17} type Radio down_box UP_BOX selection_color 15 labelsize 10 align 80
+        }
+        Fl_Button {} {
+          label 3
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {163 165 33 17} type Radio down_box UP_BOX selection_color 15 labelsize 10 align 80
+        }
+        Fl_Button {} {
+          label 4
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {163 183 33 17} type Radio down_box UP_BOX selection_color 15 labelsize 10 align 80
+        }
+      }
+      Fl_Box minipiano {
+        xywh {5 203 198 44} box FLAT_BOX labeltype NO_LABEL
+        class MiniPiano
+      }
+    }
+    Fl_Group controller {
+      xywh {4 257 196 308}
+    } {
+      Fl_Button {} {
+        label PLAY
+        callback {if(o->value())
+{
+	ctrl_play->show();
+	ctrl_initial->hide();
+	//b_store->activate();
+}
+else // initial controller amounts
+{
+	ctrl_initial->show();
+	ctrl_play->hide();
+	//b_store->deactivate();
+}}
+        tooltip {PLAY: Sliders send and receive CC values instead of acting as editors for initial controller amount values} xywh {4 257 40 17} type Toggle down_box UP_BOX value 1 selection_color 78 labelsize 10 labelcolor 15 align 80
+      }
+      Fl_Button b_store {
+        label SET
+        callback {pd->store_play_as_initial();}
+        tooltip {Copy controller settings to initial controller amounts} xywh {160 257 40 17} down_box UP_BOX color 7 selection_color 15 labelsize 10 labelcolor 49 align 80 deactivate
+      }
+      Fl_Group {} {
+        label CONTROLLER
+        xywh {4 274 196 291} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+      } {
+        Fl_Group ctrl_initial {
+          tooltip {Initial Controller Amounts} xywh {10 277 185 285} hide
+        } {
+          Fl_Slider {} {
+            label A
+            xywh {10 278 25 141} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 127 maximum -1 step 1
+            code0 {o->set_id(915);}
+            class Slider
+          }
+          Fl_Slider {} {
+            label B
+            xywh {42 278 25 141} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 127 maximum -1 step 1
+            code0 {o->set_id(916);}
+            class Slider
+          }
+          Fl_Slider {} {
+            label C
+            xywh {74 278 25 141} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 127 maximum -1 step 1
+            code0 {o->set_id(917);}
+            class Slider
+          }
+          Fl_Slider {} {
+            label D
+            xywh {105 278 25 141} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 127 maximum -1 step 1
+            code0 {o->set_id(918);}
+            class Slider
+          }
+          Fl_Slider {} {
+            label E
+            xywh {137 278 25 141} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 127 maximum -1 step 1
+            code0 {o->set_id(919);}
+            class Slider
+          }
+          Fl_Slider {} {
+            label F
+            xywh {169 278 25 141} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 127 maximum -1 step 1
+            code0 {o->set_id(920);}
+            class Slider
+          }
+          Fl_Slider {} {
+            label G
+            xywh {10 421 25 141} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 127 maximum -1 step 1
+            code0 {o->set_id(921);}
+            class Slider
+          }
+          Fl_Slider {} {
+            label H
+            xywh {42 421 25 141} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 127 maximum -1 step 1
+            code0 {o->set_id(922);}
+            class Slider
+          }
+          Fl_Slider {} {
+            label I
+            xywh {74 421 25 141} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 127 maximum -1 step 1
+            code0 {o->set_id(924);}
+            class Slider
+          }
+          Fl_Slider {} {
+            label J
+            xywh {105 421 25 141} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 127 maximum -1 step 1
+            code0 {o->set_id(925);}
+            class Slider
+          }
+          Fl_Slider {} {
+            label K
+            xywh {137 421 25 141} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 127 maximum -1 step 1
+            code0 {o->set_id(926);}
+            class Slider
+          }
+          Fl_Slider {} {
+            label L
+            xywh {169 421 25 141} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 127 maximum -1 step 1
+            code0 {o->set_id(927);}
+            class Slider
+          }
+        }
+        Fl_Group ctrl_play {
+          tooltip {CC Controller} xywh {10 275 185 287} labelcolor 15
+        } {
+          Fl_Slider {} {
+            label A
+            callback {pd->cc_callback(1, (int) o->value());}
+            xywh {10 278 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            code0 {ctrl_x[1] = o;}
+            class Slider
+          }
+          Fl_Slider {} {
+            label B
+            callback {pd->cc_callback(2, (int) o->value());}
+            xywh {42 278 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            code0 {ctrl_x[2] = o;}
+            class Slider
+          }
+          Fl_Slider {} {
+            label C
+            callback {pd->cc_callback(3, (int) o->value());}
+            xywh {74 278 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            code0 {ctrl_x[3] = o;}
+            class Slider
+          }
+          Fl_Slider {} {
+            label D
+            callback {pd->cc_callback(4, (int) o->value());}
+            xywh {105 278 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            code0 {ctrl_x[4] = o;}
+            class Slider
+          }
+          Fl_Slider {} {
+            label E
+            callback {pd->cc_callback(5, (int) o->value());}
+            xywh {137 278 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            code0 {ctrl_x[5] = o;}
+            class Slider
+          }
+          Fl_Slider {} {
+            label F
+            callback {pd->cc_callback(6, (int) o->value());}
+            xywh {169 278 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            code0 {ctrl_x[6] = o;}
+            class Slider
+          }
+          Fl_Slider {} {
+            label G
+            callback {pd->cc_callback(7, (int) o->value());}
+            xywh {10 421 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            code0 {ctrl_x[7] = o;}
+            class Slider
+          }
+          Fl_Slider {} {
+            label H
+            callback {pd->cc_callback(8, (int) o->value());}
+            xywh {42 421 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            code0 {ctrl_x[8] = o;}
+            class Slider
+          }
+          Fl_Slider {} {
+            label I
+            callback {pd->cc_callback(9, (int) o->value());}
+            xywh {74 421 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            code0 {ctrl_x[9] = o;}
+            class Slider
+          }
+          Fl_Slider {} {
+            label J
+            callback {pd->cc_callback(10, (int) o->value());}
+            xywh {105 421 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            code0 {ctrl_x[10] = o;}
+            class Slider
+          }
+          Fl_Slider {} {
+            label K
+            callback {pd->cc_callback(11, (int) o->value());}
+            xywh {137 421 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            code0 {ctrl_x[11] = o;}
+            class Slider
+          }
+          Fl_Slider {} {
+            label L
+            callback {pd->cc_callback(12, (int) o->value());}
+            xywh {169 421 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            code0 {ctrl_x[12] = o;}
+            class Slider
+          }
+        }
+      }
+    }
+    Fl_Group controller_assign {
+      label {CONTROLLER ASSIGN}
+      xywh {4 274 196 291} box THIN_DOWN_BOX labelfont 1 labelcolor 15 hide
+    } {
+      Fl_Group {} {
+        label REALTIME open
+        xywh {4 303 196 118} labelfont 1 labelcolor 15
+      } {
+        Fl_Spinner {} {
+          label A
+          xywh {10 309 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 maximum 95 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(391);}
+          class Spinner
+        }
+        Fl_Spinner {} {
+          label B
+          xywh {32 334 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 maximum 95 value 95 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(392);}
+          class Spinner
+        }
+        Fl_Spinner {} {
+          label C
+          xywh {67 309 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 maximum 95 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(393);}
+          class Spinner
+        }
+        Fl_Spinner {} {
+          label D
+          xywh {89 334 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 maximum 95 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(394);}
+          class Spinner
+        }
+        Fl_Spinner {} {
+          label E
+          xywh {124 309 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 maximum 95 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(395);}
+          class Spinner
+        }
+        Fl_Spinner {} {
+          label F
+          xywh {146 334 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 maximum 95 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(396);}
+          class Spinner
+        }
+        Fl_Spinner {} {
+          label G
+          xywh {10 366 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 maximum 95 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(397);}
+          class Spinner
+        }
+        Fl_Spinner {} {
+          label H
+          xywh {32 391 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 maximum 95 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(398);}
+          class Spinner
+        }
+        Fl_Spinner {} {
+          label I
+          xywh {67 366 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 maximum 95 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(406);}
+          class Spinner
+        }
+        Fl_Spinner {} {
+          label J
+          xywh {89 391 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 maximum 95 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(407);}
+          class Spinner
+        }
+        Fl_Spinner {} {
+          label K
+          xywh {124 366 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 maximum 95 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(408);}
+          class Spinner
+        }
+        Fl_Spinner {} {
+          label L
+          xywh {146 391 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 maximum 95 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(409);}
+          class Spinner
+        }
+      }
+      Fl_Group {} {
+        label FOOTSWITCH open
+        xywh {4 446 196 37} labelfont 1 labelcolor 15
+      } {
+        Fl_Spinner fs1 {
+          label 1
+          xywh {21 452 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 minimum 64 maximum 95 value 64 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(399);}
+          class Spinner
+        }
+        Fl_Spinner fs2 {
+          label 2
+          xywh {78 452 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 minimum 64 maximum 95 value 64 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(400);}
+          class Spinner
+        }
+        Fl_Spinner fs3 {
+          label 3
+          xywh {135 452 40 20} box FLAT_BOX color 7 selection_color 15 labelsize 10 labelcolor 15 align 8 minimum 64 maximum 95 value 64 textfont 4 textsize 13 textcolor 49
+          code0 {o->set_id(401);}
+          class Spinner
+        }
+      }
+    }
+    Fl_Group mixer {
+      xywh {208 0 421 569}
+    } {
+      Fl_Box {} {
+        label {VOICE 1}
+        xywh {208 23 100 542} box THIN_DOWN_BOX labelfont 1 labelcolor 15 align 1
+        code0 {o->init(0);}
+        code1 {layer_strip[0] = o;}
+        class PD_Layer_Strip
+      }
+      Fl_Box {} {
+        label {VOICE 2}
+        xywh {314 23 100 542} box THIN_DOWN_BOX labelfont 1 labelcolor 15 align 1
+        code0 {o->init(1);}
+        code1 {layer_strip[1] = o;}
+        class PD_Layer_Strip
+      }
+      Fl_Box {} {
+        label {VOICE 3}
+        xywh {420 23 100 542} box THIN_DOWN_BOX labelfont 1 labelcolor 15 align 1
+        code0 {o->init(2);}
+        code1 {layer_strip[2] = o;}
+        class PD_Layer_Strip
+      }
+      Fl_Box {} {
+        label {VOICE 4}
+        xywh {526 23 100 542} box THIN_DOWN_BOX labelfont 1 labelcolor 15 align 1
+        code0 {o->init(3);}
+        code1 {layer_strip[3] = o;}
+        class PD_Layer_Strip
+      }
+    }
+    Fl_Group master {open
+      xywh {204 0 425 569} hide
+    } {
+      Fl_Group {} {
+        label {MASTER ARPEGGIATOR} open
+        xywh {208 23 417 304} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+      } {
+        Fl_Button {} {
+          label Sync
+          tooltip {Sync. The Sync parameter defines when a note is played in relation to when the key is pressed. When On, the note sounds the instant a key is pressed (Key Sync). When Off, the note does not sound until the next occurrence of the selected note value (Quantized)} xywh {234 33 48 17} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX selection_color 179 labelsize 10
+          code0 {o->set_id(649);}
+          class Button
+        }
+        Fl_Group {} {
+          label Mode
+          tooltip {Arpeggiator Mode. The Mode parameter determines the direction or pattern mode of the arpeggiated notes} xywh {224 67 68 143} labelsize 10 labelcolor 15 when 0
+          code0 {o->set_id(642);}
+          class Group
+        } {
+          Fl_Button {} {
+            label Up
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {224 67 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+          Fl_Button {} {
+            label Down
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {224 85 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+          Fl_Button {} {
+            label {Up-Down}
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {224 103 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+          Fl_Button {} {
+            label Fwd
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {224 121 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+          Fl_Button {} {
+            label Bkw
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {224 139 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+          Fl_Button {} {
+            label {Fwd-Bkw}
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {224 157 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+          Fl_Button {} {
+            label Random
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {224 175 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+          Fl_Button {} {
+            label Pattern
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {224 193 68 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+        }
+        Fl_Group g_pattern_speed {
+          label {Pattern Speed}
+          xywh {220 230 76 89} labelsize 10 labelcolor 15 when 0
+          code0 {o->set_id(659);}
+          class Group
+        } {
+          Fl_Button {} {
+            label 4x
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {234 230 48 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+          Fl_Button {} {
+            label 2x
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {234 248 48 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+          Fl_Button {} {
+            label 1x
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {234 266 48 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+          Fl_Button {} {
+            label {1/2x}
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {234 284 48 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+          Fl_Button {} {
+            label {1/4x}
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {234 302 48 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+        }
+        Fl_Dial note {
+          label Note
+          tooltip {Note Value. The Note Value determines the duration of each note played. This parameter is used in non-pattern mode only} xywh {312 28 40 40} color 7 labelsize 10 minimum 1 maximum 19 step 1 value 1
+          code0 {o->set_id(644);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label Gate
+          tooltip {Gate Time. The Gate Time parameter works together with the Note Value parameter. Just as Note Value defines the length of a note, the Gate Time sets the percentage of the Note Value time played} xywh {357 28 40 40} color 7 labelsize 10 maximum 100 step 1
+          code0 {o->set_id(646);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label Velocity
+          tooltip {Note Velocity. The Velocity parameter determines the velocity at which each note arpeggiates. Velocity can be defined by the velocity value specified (from 1 through 127), or by the actual velocity of the played note (0)} xywh {312 82 40 40} color 7 labelsize 10 maximum 127 step 1
+          code0 {o->set_id(645);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label Duration
+          tooltip {Duration. This parameter defines how long the arpeggiator plays before stopping. The Duration is specified in note values. Therefore if an arpeggio were running at a 16th Note Value and the Duration were set to a whole note, the arpeggiator would play 16 steps before stopping. After the duration has elapsed, the arpeggiator remains inactive until the key is released. If Duration is set to Off, the arpeggio repeats as long as the notes are held (Infinite Duration)} xywh {357 82 40 40} color 7 labelsize 10 maximum 19 step 1
+          code0 {o->set_id(651);}
+          class Fl_Knob
+        }
+        Fl_Dial pre_d {
+          label {Pre D}
+          tooltip {Pre-Delay. The Pre-Delay value determines how long the arpeggiator is delayed before becoming active after the first "note-on". During the pre-delay period, notes are played normally (as if the arpeggiator was off). After the pre-delay period has elapsed, the arpeggiator kicks in. Once you release all the keys on the controller, the pre-delay starts over with the next note-on. In combination with the Duration parameter, Pre-Delay lets you change the arpeggio patterns to create many more variations} xywh {312 138 40 40} color 7 labelsize 10 maximum 19 step 1
+          code0 {o->set_id(650);}
+          class Fl_Knob
+        }
+        Fl_Dial post_d {
+          label {Post D}
+          tooltip {Post-Delay. This parameter is only relevant when both the "Duration" and "Recycle" parameters are not in the "Off" state. The Post-Delay value determines how long the arpeggiator is delayed after the Duration period. During the post-delay period, notes are played normally (as if the arpeggiator was off). After the post-delay period has elapsed, the arpeggiator either jumps to the beginning of the Pre-Delay period or to the beginning of the Duration period depending on the Recycle setting} xywh {357 138 40 40} color 7 labelsize 10 maximum 19 step 1
+          code0 {o->set_id(661);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label Count
+          tooltip {Extension Count. The Extension Count parameter specifies how many times the Extension Interval is carried out. With an Extension Count of 0, the arpeggio plays only the notes pressed. With an Extension Count of 1, the arpeggio plays the notes pressed, then plays the same notes (in the same order), transposed by the Extension Interval amount. The cycle is then repeated} xywh {312 192 40 40} color 7 labelsize 10 maximum 15 step 1
+          code0 {o->set_id(647);}
+          class Fl_Knob
+        }
+        Fl_Dial {} {
+          label Interval
+          tooltip {Extension Interval. The Extension Interval specifies the additional intervals played when you press a key. For example, suppose you played C2 with an Interval of 7 (a Major 5th), Up mode, and an Extension Count of 2. The arpeggio alternates between C2 and G2} xywh {357 192 40 40} color 7 labelsize 10 minimum 1 maximum 16 step 1 value 1
+          code0 {o->set_id(648);}
+          class Fl_Knob
+        }
+        Fl_Group {} {
+          label Recylce
+          tooltip {Recycle. This parameter works together with the Duration and Pre/Post Delay parameters. When these are enabled without one of the Recycle options turned on, the pattern or arpeggio normally stops. With Recycle On, the arpeggio instantly resets the pattern to the beginning of the Pre-Delay period after the duration value has elapsed and repeats the pattern or arpeggio. Another option called "On-No Pre-Delay" bypasses the predelay period} xywh {330 266 50 53} labelsize 10 labelcolor 15 when 0
+          code0 {o->set_id(652);}
+          class Group
+        } {
+          Fl_Button {} {
+            label Off
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {330 266 50 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+          Fl_Button {} {
+            label On
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {330 284 50 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+          Fl_Button {} {
+            label {No-Pre}
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {330 302 50 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+            class Button
+          }
+        }
+        Fl_Button {} {
+          label Active
+          tooltip {Arpeggiator On/Off} xywh {437 33 50 17} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX selection_color 78 labelsize 10
+          code0 {o->set_id(641);}
+          class Button
+        }
+        Fl_Button {} {
+          label Thru
+          tooltip {Keyboard Thru. When enabled, merges the notes not arpeggiated with the arpeggiated notes. This gives the effect of two parts playing at once} xywh {492 33 50 17} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          code0 {o->set_id(653);}
+          class Button
+        }
+        Fl_Button {} {
+          label Latch
+          tooltip {Latch. With Latch mode On, any notes you play remain on until you press them again. Latched notes can be halted by turning Latch off in this screen, or by turning off the Arpeggiator} xywh {547 33 50 17} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10
+          code0 {o->set_id(654);}
+          class Button
+        }
+        Fl_Button {} {
+          label COPY
+          callback {ui->show_copy_preset(C_ARP_PATTERN);}
+          tooltip {Paste Arpeggiator pattern} xywh {419 58 40 17} down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15
+        }
+        Fl_Button edit_arp {
+          label EDIT
+          callback {if (pd->arp && pd->arp->get_number() == arp->value()-1)
+{
+ui->g_arp_edit->show();
+ui->g_main->hide();
+Fl::focus(ui->g_arp_edit);
+}
+else
+midi->request_arp_dump(arp->value()-1, 0);}
+          tooltip {Edit Arpeggiator pattern} xywh {575 58 40 17} down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15 deactivate
+          class Fixed_Button
+        }
+        Fl_Group g_pattern {
+          label PATTERN
+          xywh {419 75 196 244} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+        } {
+          Fl_Choice arp_rom {open
+            xywh {429 81 176 21} down_box BORDER_BOX labeltype NO_LABEL labelcolor 15 align 0 textsize 13
+            code0 {o->set_id(660);}
+            class ROM_Choice
+          } {}
+          Fl_Browser arp {
+            xywh {429 107 176 181} type Hold when 1 textfont 4 textsize 12 textcolor 49
+            code0 {o->set_id(643);}
+            class Browser
+          }
+          Fl_Input arp_filter {
+            label {F }
+            callback {arp->set_filter(o->value());}
+            xywh {445 293 129 20} box UP_BOX labelsize 10 labelcolor 7 when 1 textfont 5 textsize 12 textcolor 49
+            code0 {o->maximum_size(16);}
+            code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
+            code2 {o->tooltip(filter_tooltip);}
+            class Input
+          }
+          Fl_Button {} {
+            label C
+            callback {arp_filter->value(0);
+arp_filter->do_callback();}
+            xywh {579 293 26 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49
+          }
+        }
+      }
+      Fl_Group g_riff {
+        label {MASTER RIFF} open
+        xywh {208 350 196 214} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+      } {
+        Fl_Choice riff_rom {open
+          xywh {218 356 176 21} down_box BORDER_BOX labeltype NO_LABEL labelcolor 15 align 0 textsize 13
+          code0 {o->set_id(277);}
+          class ROM_Choice
+        } {}
+        Fl_Browser riff {
+          xywh {218 382 176 151} type Hold when 1 textfont 4 textsize 12 textcolor 49
+          code0 {o->set_id(278);}
+          class Browser
+        }
+        Fl_Input riff_filter {
+          label {F }
+          callback {riff->set_filter(o->value());}
+          xywh {234 538 129 20} box UP_BOX labelsize 10 labelcolor 7 when 1 textfont 5 textsize 12 textcolor 49
+          code0 {o->maximum_size(16);}
+          code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
+          code2 {o->tooltip(filter_tooltip);}
+          class Input
+        }
+        Fl_Button {} {
+          label C
+          callback {riff_filter->value(0);
+riff_filter->do_callback();}
+          xywh {368 538 26 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49
+        }
+      }
+      Fl_Group {} {
+        label {TEMPO CONTROL}
+        xywh {415 350 210 41} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+      } {
+        Fl_Choice {} {
+          label Channel open
+          tooltip {Tempo Control Channel. Determines which channel receives tempo controller values} xywh {425 366 60 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
+          code0 {o->set_id(141);}
+          code1 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");}
+          class Choice
+        } {}
+        Fl_Choice {} {
+          label {Ctrl Up} open
+          tooltip {Allows a MIDI controller to change the Master Tempo. You can assign any controller number from 1-31, mono key pressure, or the pitch wheel to change the Global Tempo. MIDI Controller values are added to the Base Tempo with a range of ±64. When the controller is set to "Off" the tempo returns to its original setting. This control has no effect when using an external clock} xywh {490 366 60 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
+          code0 {o->set_id(402);}
+          code1 {o->add("Off");o->add("MNP");o->add("PW");}
+          code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("17");o->add("18");o->add("19");o->add("20");o->add("21");o->add("22");o->add("23");o->add("24");o->add("25");o->add("26");o->add("27");o->add("28");o->add("29");o->add("30");o->add("31");}
+          class Choice
+        } {}
+        Fl_Choice {} {
+          label {Ctrl Down} open
+          tooltip {Allows a MIDI controller to change the Master Tempo. You can assign any controller number from 1-31, mono key pressure, or the pitch wheel to change the Global Tempo. MIDI Controller values are added to the Base Tempo with a range of ±64. When the controller is set to "Off" the tempo returns to its original setting. This control has no effect when using an external clock} xywh {555 366 60 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
+          code0 {o->set_id(403);}
+          code1 {o->add("Off");o->add("MNP");o->add("PW");}
+          code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("17");o->add("18");o->add("19");o->add("20");o->add("21");o->add("22");o->add("23");o->add("24");o->add("25");o->add("26");o->add("27");o->add("28");o->add("29");o->add("30");o->add("31");}
+          class Choice
+        } {}
+      }
+      Fl_Group {} {
+        label SUPERBEATS
+        xywh {415 425 210 41} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+      } {
+        Fl_Choice {} {
+          label Mode open
+          tooltip {BEATS Mode. Off: BEATS mode off --- On: BEATS mode on. The Riff assigned in the preset is used --- Preset: BEATS mode is turned on ONLY if the Riff assigned in the preset is a "BTS" riff --- Master: BEATS mode on. The Master Riff is used} xywh {425 441 60 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
+          code0 {o->set_id(271);}
+          code1 {o->add("Off");o->add("On");o->add("Preset");o->add("Master");}
+          class Choice
+        } {}
+        Fl_Choice {} {
+          label Channel open
+          tooltip {Selects the MIDI channel on which BEATS play} xywh {490 441 60 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
+          code0 {o->set_id(272);}
+          code1 {o->add("Basic");}
+          code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");}
+          code3 {o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");}
+          class Choice
+        } {}
+        Fl_Choice {} {
+          label {Trigger Ch} open
+          tooltip {Selects the MIDI channel on which Trigger Keys will be active} xywh {555 441 60 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
+          code0 {o->set_id(273);}
+          code1 {o->add("Basic");}
+          code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");}
+          code3 {o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");}
+          class Choice
+        } {}
+      }
+      Fl_Group {} {
+        label GENERAL open
+        xywh {415 496 210 68} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+      } {
+        Fl_Choice {} {
+          label {MIDI Song Start}
+          tooltip {This function enables or disables MIDI Song Start for the Arpeggiator and Riffs. The MIDI Song Start option restarts the arpeggiator and/or Riff (BEAT) to the beginning when a MIDI Song Start command is received. This is useful for synchronizing arpeggios and BEATS when recording into, or playing along with a sequencer} xywh {425 512 90 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
+          code0 {o->set_id(658);}
+          code1 {o->add("Off");o->add("Arps");o->add("Riffs");o->add("Both");}
+          class Choice
+        } {}
+        Fl_Button {} {
+          label {MODE CHANGE}
+          tooltip {MIDI Mode Change. Specifies whether mode changes made through an external MIDI controller are accepted or ignored} xywh {425 539 190 20} type Toggle down_box DOWN_BOX selection_color 138 labelsize 10
+          code0 {o->set_id(386);}
+          class Button
+        }
+      }
+    }
+    Fl_Group {} {
+      label MASTER
+      xywh {634 433 196 132} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+    } {
+      Fl_Counter {} {
+        label BPM
+        tooltip {Master Clock. The Master Clock controls SuperBEATS, arpeggiators, synchronizes the LFOs when in tempo-based mode, controls the times of tempo-based envelopes, and can be used as a modulation source in the PatchCords section. Values range from 1 through 300 BPM or you can select "0" to use an external MIDI clock source} xywh {735 484 85 20} box THIN_UP_BOX selection_color 49 labelsize 10 labelcolor 15 align 1 minimum 0 maximum 300 step 1 textfont 4 textcolor 49
+        code0 {o->set_id(257);}
+        class Counter
+      }
+      Fl_Choice {} {
+        label {MIDI Mode} open
+        tooltip {MIDI Mode. Omni: Responds to note information on all MIDI channels and plays the preset currently displayed in the main screen - Poly: Responds only to note information received on the currently selected MIDI channel and plays that channel's associated preset - Multi: Responds to data on any combination of MIDI channels and plays the specific preset associated with each of the MIDI channels. You must select multi mode for multitimbral operation} xywh {645 484 80 21} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
+        code0 {o->add("Omni");o->add("Poly");o->add("Multi");}
+        code1 {o->set_id(385);}
+        class Choice
+      } {}
+      Fl_Choice {} {
+        label {Velocity Curve} open
+        tooltip {Velocity Curve. Modifies incoming velocity data by a velocity curve in order to provide different types of dynamics in response to your playing, or to better adapt to a MIDI controller} xywh {644 448 85 21} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
+        code0 {o->add("linear");o->add("compress");o->add("emphasize medium");o->add("expand");o->add("expand ++");o->add("shift up");o->add("shift up ++");o->add("shift up +");o->add("shift up, emphasize mid");o->add("extreme compression");o->add("extreme compression with lows");o->add("extreme compression, no lows");o->add("extreme compression, no lows 2");o->add("extreme expansion");}
+        code1 {o->set_id(265);}
+        class Choice
+      } {}
+      Fl_Dial {} {
+        label Volume
+        callback {midi->master_volume((int) o->value());}
+        tooltip {Master Volume} xywh {640 510 40 40} color 7 selection_color 39 labelsize 10 maximum 127 step 1 value 100
+        class Fl_Knob
+      }
+      Fl_Dial {} {
+        label {Transp.}
+        tooltip {Master Transpose. Transposes the key of all presets, in semitone intervals. The transpose range is ± 24 semitones} xywh {688 510 40 40} color 7 selection_color 39 labelsize 10 minimum -24 maximum 24 step 1
+        code0 {o->set_id(259);}
+        class Fl_Knob
+      }
+      Fl_Dial {} {
+        label Tune
+        tooltip {Master Tune (cents). Adjusts the fine tuning of all presets so that you can tune your device to other instruments. The master tuning range is ± 1 semitone in 1/64th semitone increments} xywh {737 510 40 40} color 7 selection_color 39 labelsize 10 minimum -63 maximum 63 step 1
+        code0 {o->set_id(260);}
+        class Fl_Knob
+      }
+      Fl_Dial {} {
+        label {Bend R.}
+        tooltip {Bend Range. Sets the range of the pitch wheel. This affects only presets that have their individual Pitch Bend range set to Master. The maximum pitch bend range is ±12 semitones or one octave in each direction} xywh {786 510 40 40} color 7 selection_color 39 labelsize 10 maximum 12 step 1 value 2
+        code0 {o->set_id(264);}
+        class Fl_Knob
+      }
+      Fl_Choice {} {
+        label {MIDI Transmit} open
+        tooltip {Enables or disables transmission of Riff/Arp note data over MIDI} xywh {740 448 80 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
+        code0 {o->set_id(657);}
+        code1 {o->add("Off");o->add("Arps");o->add("Riffs");o->add("Both");}
+        class Choice
+      } {}
+    }
+  }
+} 
+
+decl {PD_Arp_Step* arp_step[32];} {global
+} 
+
+class PD_UI {open
+} {
+  decl {Fl_File_Chooser* fc;} {}
+  decl {Fl_Button* mute_b[4];} {public
+  }
+  decl {Fl_Button* solo_b[4];} {public
+  }
+  decl {Fl_Text_Buffer* logbuf;} {public
+  }
+  decl {Fl_Double_Window* layer_editor_windows[4];} {public
+  }
+  decl {Fl_Menu_Item* layer_editor_menu_items[4];} {
+    callback {if (dismiss(true) == 2)
+return;
+if (!(confirm->value() && !fl_choice("Exit prodatum?", "Cancel", "Exit", 0)))
+delete this;} public
+  }
+  decl {PD_Layer_Editor* layer_editor[4];} {public
+  }
+  decl {bool eall;} {public
+  }
+  decl {int syncview;} {public
+  }
+  decl {int selected_step;} {public
+  }
+  decl {int selected;} {}
+  decl {int copy_type;} {}
+  decl {int copy_src;} {}
+  decl {char* filter_tmp;} {}
+  decl {bool arp_name_changed;} {}
+  decl {void set_msglevel(int level);} {}
+  decl {bool shiny_knobs;} {public
+  }
+  decl {void initialize();} {}
+  decl {void set_export_path();} {}
+  decl {void file_program(int)} {}
+  decl {void select(int l);} {public
+  }
+  decl {int get_selected();} {public
+  }
+  decl {void edit_arp_x(int x);} {public
+  }
+  decl {void set_color(int type, int value);} {public
+  }
+  decl {void set_eall(int v);} {public
+  }
+  decl {void show_copy_layer(int type, int layer);} {public
+  }
+  decl {void show_copy_preset(int type);} {public
+  }
+  decl {void create_about();} {
+    callback {if (dismiss(true) == 2)
+return;
+if (!(confirm->value() && !fl_choice("Exit prodatum?", "Cancel", "Exit", 0)))
+delete this;} public
+  }
+  Function {PD_UI()} {
+    callback {if (dismiss(true) == 2)
+return;
+if (!(confirm->value() && !fl_choice("Exit prodatum?", "Cancel", "Exit", 0)))
+delete this;} open
+  } {
+    code {Fl::visual(FL_DOUBLE|FL_RGB);
+	// filter tooltip
+	snprintf(filter_tooltip, 512,
+			"* matches any sequence of 0 or more characters.\\n"
+				"? matches any single character.\\n"
+				"[set] matches any character in the set.\\n"
+				"[^set] or [!set] matches any character not in the set.\\n"
+				"{X|Y|Z} or {X,Y,Z} matches any one of the subexpressions literally.\\n"
+				"\\\\x quotes the character x so it has no special meaning.\\n"
+				"x all other characters must be matched exactly.\\n"
+				"NOTE: Your query is automatically expanded to '*query*' to mimic prodatum's original filter behaviour.");} {}
+    Fl_Window main_window {
+      callback {if (pd->preset && pd->preset->is_changed())
+{
+	if (dismiss(true) == 1)
+		delete this;
+	return;
+}
+if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
+	return;
+delete this;}
+      xywh {301 157 843 615} type Double hide resizable
+      code0 {o->label(PACKAGE_STRING);}
+      class Double_Window size_range {674 492 843 615}
+    } {
+      Fl_Group {} {
+        label name
+        xywh {1 1 841 23} labeltype NO_LABEL
+      } {
+        Fl_Box {} {
+          label resizable
+          xywh {642 21 1 1} labeltype NO_LABEL resizable
+        }
+        Fl_Box {} {
+          xywh {1 1 772 19} box FLAT_BOX color 7 labelfont 5 labelsize 12 labelcolor 49 align 24
+        }
+        Fl_Box n_n_m {
+          label {RR.PPP.B}
+          xywh {645 1 61 17} color 7 labelfont 5 labelsize 12 labelcolor 49 align 26
+        }
+        Fl_Input n_cat_m {
+          label {:}
+          callback {if (pd->preset)
+pd->preset->set_name(o->value(), 0, o->position());}
+          tooltip {Program category (3 characters max.)} xywh {716 1 27 19} box FLAT_BOX labelfont 5 labelsize 12 labelcolor 49 when 1 textfont 5 textsize 12 textcolor 49
+          code0 {o->maximum_size(3);}
+          code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
+          code2 {o->value("cat");}
+          class Input
+        }
+        Fl_Input n_name_m {
+          label {:}
+          callback {if (pd->preset)
+pd->preset->set_name(o->value(), 1, o->position());}
+          tooltip {Program name (12 characters max.) [CTRL+N to focus]} xywh {752 1 90 19} box FLAT_BOX labelfont 5 labelsize 12 labelcolor 49 when 1 textfont 5 textsize 12 textcolor 49
+          code0 {o->maximum_size(12);}
+          code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
+          code2 {o->value("Program Name");}
+          class Input
+        }
+      }
+      Fl_Group {} {
+        label menu open
+        xywh {1 1 420 23} labeltype NO_LABEL
+      } {
+        Fl_Box {} {
+          label resizeable
+          xywh {418 21 1 1} labeltype NO_LABEL resizable
+        }
+        Fl_Menu_Bar {} {open
+          xywh {1 1 231 19} box FLAT_BOX color 7 labelcolor 49 textcolor 49
+          code0 {o->global();}
+        } {
+          Submenu {} {
+            label File
+            xywh {5 5 70 21}
+          } {
+            MenuItem {} {
+              label {&Open device...}
+              callback {if (open_device->shown() && open_device->visible())
+open_device->hide();
+else
+open_device->show();}
+              xywh {10 10 36 21} shortcut 0x6f
+            }
+            MenuItem {} {
+              label {&Save...}
+              callback {show_copy_preset(SAVE_PRESET);}
+              tooltip {Save the edit buffer} xywh {5 5 36 21} shortcut 0x40073
+            }
+            MenuItem {} {
+              label {Save (quick)}
+              callback {if (pd->preset)
+pd->preset->copy(SAVE_PRESET, -1, pd->selected_preset);
+else
+pd->display_status("*** Nothing to save.");}
+              tooltip {Save the edit buffer to the current selected preset slot} xywh {5 5 36 21} shortcut 0x50073
+            }
+            MenuItem {} {
+              label {Export...}
+              callback {file_program(0);}
+              tooltip {Saves the edit buffer to a file} xywh {5 5 29 19} shortcut 0x50078
+            }
+            MenuItem {} {
+              label {Export (quick)}
+              callback {file_program(2);}
+              tooltip {Saves the edit buffer to a file into the directory where prodatum was started from without asking for a filename (the preset name is used)..} xywh {5 5 29 19} shortcut 0x40078
+            }
+            MenuItem {} {
+              label {Import...}
+              callback {file_program(1);}
+              tooltip {Loads a program from a file into the edit buffer.} xywh {5 5 29 19} shortcut 0x40069
+            }
+            MenuItem {} {
+              label {Reset...}
+              callback {reset_w->show();}
+              xywh {5 5 29 19}
+            }
+            MenuItem {} {
+              label Exit
+              callback {main_window->do_callback();}
+              xywh {5 5 36 21} shortcut 0xff1b
+            }
+          }
+          Submenu {} {
+            label Edit
+            xywh {5 5 70 21}
+          } {
+            MenuItem {} {
+              label Undo
+              callback {if (pd->preset) pd->preset->undo();
+else pd->display_status("*** Nothing to Undo.");}
+              xywh {5 5 36 21} shortcut 0x4007a
+            }
+            MenuItem {} {
+              label Redo
+              callback {if (pd->preset) pd->preset->redo();
+else pd->display_status("*** Nothing to Redo.");}
+              xywh {15 15 36 21} shortcut 0x5007a
+            }
+            MenuItem {} {
+              label {Start Over}
+              callback {pd->start_over();}
+              tooltip {Clear the edit buffer, start from the beginning} xywh {15 15 36 21} shortcut 0x40075
+            }
+            MenuItem {} {
+              label {Copy...}
+              callback {show_copy_preset(C_PRESET);}
+              xywh {15 15 36 21} shortcut 0x40063
+            }
+            MenuItem rand_m {
+              label {&Randomize}
+              callback {pd->randomize();}
+              xywh {5 5 36 21} shortcut 0x40072
+            }
+            MenuItem m_audit {
+              label {A&udit}
+              callback {if (m_audit->value())
+{
+ui->main->b_audit->value(1);
+ui->main->b_audit->do_callback();
+pd->display_status("Audit: ON");
+}
+else
+{
+ui->main->b_audit->value(0);
+ui->main->b_audit->do_callback();
+pd->display_status("Audit: OFF");
+}}
+              xywh {5 5 30 20} type Toggle shortcut 0x75 labelcolor 49
+            }
+            MenuItem m_eall {
+              label {&Edit All}
+              callback {eall ? set_eall(0) : set_eall(1);
+if (!eall && pd->preset)
+{
+	pd->preset->show();
+	if (piano_w->shown())
+		piano->redraw();
+}}
+              xywh {5 5 36 21} type Toggle shortcut 0x65 labelcolor 49
+            }
+            MenuItem m_bypass {
+              label {F&X Bypass}
+              callback {if (m_bypass->value())
+{
+ui->b_bypass->value(1);
+ui->b_bypass->do_callback();
+pd->display_status("FX bypass: ON");
+}
+else
+{
+ui->b_bypass->value(0);
+ui->b_bypass->do_callback();
+pd->display_status("FX bypass: OFF");
+}}
+              xywh {5 5 30 20} type Toggle shortcut 0x78 labelcolor 49
+            }
+            MenuItem {} {
+              label {&Preferences...}
+              callback {if (preferences->shown() && preferences->visible())
+preferences->hide();
+else
+preferences->show();}
+              xywh {10 10 36 21} shortcut 0x70
+            }
+          }
+          Submenu {} {
+            label Window open
+            xywh {5 5 70 21}
+          } {
+            MenuItem {} {
+              label {M&ain}
+              callback {((Fl_Button*) selector->child(0))->setonly();
+selector->do_callback();}
+              xywh {15 15 30 20} shortcut 0x61
+            }
+            MenuItem {} {
+              label {Main - Maste&r}
+              callback {if (b_master->value())
+b_master->value(0);
+else
+b_master->value(1);
+
+b_master->do_callback();
+Fl::focus(b_master);}
+              xywh {25 25 30 20} shortcut 0x72
+            }
+            MenuItem {} {
+              label {Voice &1}
+              callback {((Fl_Button*) selector->child(1))->setonly();
+selector->do_callback();}
+              xywh {15 15 30 20} shortcut 0x31
+            }
+            MenuItem m_voice2 {
+              label {Voice &2}
+              callback {((Fl_Button*) selector->child(2))->setonly();
+selector->do_callback();}
+              xywh {25 25 30 20} shortcut 0x32
+            }
+            MenuItem m_voice3 {
+              label {Voice &3}
+              callback {((Fl_Button*) selector->child(3))->setonly();
+selector->do_callback();}
+              xywh {35 35 30 20} shortcut 0x33
+            }
+            MenuItem m_voice4 {
+              label {Voice &4}
+              callback {((Fl_Button*) selector->child(4))->setonly();
+selector->do_callback();}
+              xywh {45 45 30 20} shortcut 0x34
+            }
+            MenuItem {} {
+              label {Pro&gram}
+              callback {((Fl_Button*) selector->child(5))->setonly();
+selector->do_callback();}
+              xywh {5 5 30 20} shortcut 0x67
+            }
+            MenuItem {} {
+              label {Program - &Links}
+              callback {if (b_links->value())
+b_links->value(0);
+else
+b_links->value(1);
+
+b_links->do_callback();
+Fl::focus(b_links);}
+              xywh {15 15 30 20} shortcut 0x6c
+            }
+            MenuItem {} {
+              label {&Keyboard}
+              callback {if (piano_w->shown() && piano_w->visible())
+piano_w->hide();
+else{
+piano_w->show();
+pd->display_status("Hint: [ESC] closes windows.");}}
+              xywh {5 5 36 21} shortcut 0x6b
+            }
+            MenuItem {} {
+              label {&Message Log}
+              callback {if (log_w->shown() && log_w->visible())
+log_w->hide();
+else
+log_w->show();}
+              xywh {5 5 36 21} shortcut 0x6d
+            }
+          }
+          Submenu {} {
+            label MIDI
+            xywh {5 5 70 21}
+          } {
+            MenuItem {} {
+              label {All Notes Off}
+              callback {midi->write_event(0xb0, 0x7b, 0);
+
+global_minipiano->reset_active_keys();
+main->minipiano->reset_active_keys();
+piano->reset_active_keys();}
+              xywh {0 0 29 19}
+            }
+            MenuItem {} {
+              label {All Notes Off (All Channels)}
+              callback {for (int i = 0; i < 16; i++)
+midi->write_event(0xb0, 0x7b, 0, i);
+
+global_minipiano->reset_active_keys();
+main->minipiano->reset_active_keys();
+piano->reset_active_keys();}
+              xywh {0 0 29 19}
+            }
+            MenuItem {} {
+              label {All Sound Off}
+              callback {midi->write_event(0xb0, 0x78, 0);
+
+global_minipiano->reset_active_keys();
+main->minipiano->reset_active_keys();
+piano->reset_active_keys();}
+              xywh {0 0 29 19}
+            }
+            MenuItem {} {
+              label {All Sound Off (All Channels)}
+              callback {for (int i = 0; i < 16; i++)
+midi->write_event(0xb0, 0x78, 0, i);
+
+global_minipiano->reset_active_keys();
+main->minipiano->reset_active_keys();
+piano->reset_active_keys();}
+              xywh {0 0 29 19}
+            }
+            MenuItem {} {
+              label {Kill Stale Sound (last resort)}
+              callback {for (int i = 0; i < 128; i++)
+midi->write_event(NOTE_ON, i, 1);
+for (int i = 0; i < 128; i++)
+midi->write_event(NOTE_OFF, i, 0);
+
+global_minipiano->reset_active_keys();
+main->minipiano->reset_active_keys();
+piano->reset_active_keys();}
+              xywh {0 0 29 19}
+            }
+            MenuItem {} {
+              label {Reset All Controllers}
+              callback {midi->write_event(0xb0, 0x79, 0);
+
+pitchwheel->value(8192);
+modwheel->value(0);
+b_fs1->clear();
+b_fs2->clear();
+b_fs3->clear();}
+              xywh {0 0 29 19}
+            }
+            MenuItem {} {
+              label {Reset All Controllers (All Channels)}
+              callback {for (int i = 0; i < 16; i++)
+midi->write_event(0xb0, 0x79, 0, i);
+
+pitchwheel->value(8192);
+modwheel->value(0);
+b_fs1->clear();
+b_fs2->clear();
+b_fs3->clear();}
+              xywh {0 0 29 19}
+            }
+          }
+          Submenu {} {
+            label Help open
+            xywh {5 5 70 21}
+          } {
+            MenuItem tooltips {
+              label {Toolt&ips}
+              callback {if (tooltips->value())
+{
+Fl_Tooltip::enable();
+cfg->set_cfg_option(CFG_TOOLTIPS, 1);
+pd->display_status("Tooltips enabled.");
+}
+else
+{
+Fl_Tooltip::disable();
+cfg->set_cfg_option(CFG_TOOLTIPS, 0);
+pd->display_status("Tooltips disabled.");
+}}
+              xywh {5 5 36 21} type Toggle shortcut 0x69 labelcolor 49
+            }
+            MenuItem {} {
+              label {Hints...}
+              callback {fl_open_uri("http://prodatum.sf.net/doc/hints.html");}
+              xywh {5 5 36 21} shortcut 0xffbe
+            }
+            MenuItem {} {
+              label {Visit website...}
+              callback {fl_open_uri("http://prodatum.sf.net/");}
+              xywh {5 5 36 21} shortcut 0xffbf
+            }
+            MenuItem {} {
+              label {About...}
+              callback {if (about->shown() && about->visible())
+about->hide();
+else
+about->show();}
+              xywh {5 5 36 21} shortcut 0xffc0
+            }
+          }
+        }
+      }
+      Fl_Group {} {
+        label status
+        xywh {280 1 283 23} labeltype NO_LABEL
+      } {
+        Fl_Box {} {
+          label resizeable
+          xywh {421 21 1 1} labeltype NO_LABEL resizable
+        }
+        Fl_Box status {
+          label {((broadcast))}
+          xywh {281 1 281 17} box FLAT_BOX color 7 labelfont 5 labelsize 12 labelcolor 49 align 18
+        }
+      }
+      Fl_Group g_main {open
+        xywh {0 19 843 596}
+      } {
+        Fl_Group selector {
+          callback {for (int i = 0; i < o->children(); i++)
+if (((Fl_Button*) o->array()[i])->value())
+{
+	select(i);
+	Fl::focus(o->array()[i]);
+	break;
+}}
+          xywh {56 19 754 24} when 0
+        } {
+          Fl_Button {} {
+            label {M&AIN}
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {56 26 101 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10 when 6
+          }
+          Fl_Button {} {
+            label {VOICE &1}
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {233 26 60 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10 when 6
+          }
+          Fl_Button {} {
+            label {VOICE &2}
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {339 26 60 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10 when 6
+          }
+          Fl_Button {} {
+            label {VOICE &3}
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {445 26 60 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10 when 6
+          }
+          Fl_Button {} {
+            label {VOICE &4}
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {551 26 60 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10 when 6
+          }
+          Fl_Button b_program {
+            label {PRO&GRAM}
+            callback {((Group*)o->parent())->do_callback();}
+            xywh {686 26 102 17} type Radio box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelsize 10 when 6
+          }
+          Fl_Button {} {
+            label M
+            callback {pd->mute(o->value(), 0);}
+            tooltip {Mute Voice} xywh {213 26 19 17} type Toggle down_box UP_BOX shortcut 0x40031 color 7 selection_color 81 labelfont 1 labelsize 10 labelcolor 49 when 1
+            code0 {mute_b[0] = o;}
+            class Fixed_Button
+          }
+          Fl_Button {} {
+            label S
+            callback {pd->solo(o->value(), 0);}
+            tooltip {Solo Voice} xywh {294 26 19 17} type Toggle down_box UP_BOX shortcut 0x80031 color 7 selection_color 134 labelfont 1 labelsize 10 labelcolor 49 when 1
+            code0 {solo_b[0] = o;}
+            class Fixed_Button
+          }
+          Fl_Button {} {
+            label M
+            callback {pd->mute(o->value(), 1);}
+            tooltip {Mute Voice} xywh {319 26 19 17} type Toggle down_box UP_BOX shortcut 0x40032 color 7 selection_color 81 labelfont 1 labelsize 10 labelcolor 49 when 1
+            code0 {mute_b[1] = o;}
+            class Fixed_Button
+          }
+          Fl_Button {} {
+            label S
+            callback {pd->solo(o->value(), 1);}
+            tooltip {Solo Voice} xywh {400 26 19 17} type Toggle down_box UP_BOX shortcut 0x80032 color 7 selection_color 134 labelfont 1 labelsize 10 labelcolor 49 when 1
+            code0 {solo_b[1] = o;}
+            class Fixed_Button
+          }
+          Fl_Button {} {
+            label M
+            callback {pd->mute(o->value(), 2);}
+            tooltip {Mute Voice} xywh {425 26 19 17} type Toggle down_box UP_BOX shortcut 0x40033 color 7 selection_color 81 labelfont 1 labelsize 10 labelcolor 49 when 1
+            code0 {mute_b[2] = o;}
+            class Fixed_Button
+          }
+          Fl_Button {} {
+            label S
+            callback {pd->solo(o->value(), 2);}
+            tooltip {Solo Voice} xywh {506 26 19 17} type Toggle down_box UP_BOX shortcut 0x80033 color 7 selection_color 134 labelfont 1 labelsize 10 labelcolor 49 when 1
+            code0 {solo_b[2] = o;}
+            class Fixed_Button
+          }
+          Fl_Button {} {
+            label M
+            callback {pd->mute(o->value(), 3);}
+            tooltip {Mute Voice} xywh {531 26 19 17} type Toggle down_box UP_BOX shortcut 0x40034 color 7 selection_color 81 labelfont 1 labelsize 10 labelcolor 49 when 1
+            code0 {mute_b[3] = o;}
+            class Fixed_Button
+          }
+          Fl_Button {} {
+            label S
+            callback {pd->solo(o->value(), 3);}
+            tooltip {Solo Voice} xywh {612 26 19 17} type Toggle down_box UP_BOX shortcut 0x80034 color 7 selection_color 134 labelfont 1 labelsize 10 labelcolor 49 when 1
+            code0 {solo_b[3] = o;}
+            class Fixed_Button
+          }
+        }
+        Fl_Button b_master {
+          label {Maste&r}
+          callback {if (o->value())
+{
+if (get_selected() != 0)
+	select(0);
+main->master->show();
+main->mixer->hide();
+g_multisetups->show();
+g_pfx->hide();
+main->controller_assign->show();
+main->controller->hide();
+}
+else
+{
+if (get_selected() != 0)
+{
+	select(0);
+	o->value(1);
+	return;
+}
+main->mixer->show();
+main->master->hide();
+g_pfx->show();
+g_multisetups->hide();
+main->controller->show();
+main->controller_assign->hide();
+}}
+          tooltip Master xywh {158 26 46 17} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelfont 1 labelsize 10
+        }
+        Fl_Button b_pfx {
+          label {P/&FX}
+          callback {if (g_effects->visible())
+{
+g_preset->show();
+g_effects->hide();
+}
+else
+{
+g_preset->hide();
+g_effects->show();
+}}
+          tooltip Links xywh {639 26 46 17} box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelfont 1 labelsize 10
+        }
+        Fl_Button b_links {
+          label {&Links}
+          callback {if (o->value())
+{
+if (get_selected() != 5)
+	select(5);
+preset_editor->links->show();
+preset_editor->program->hide();
+}
+else
+{
+if (get_selected() != 5)
+{
+	select(5);
+	o->value(1);
+	return;
+}
+preset_editor->program->show();
+preset_editor->links->hide();
+}}
+          tooltip Links xywh {789 26 46 17} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX selection_color 15 labelfont 1 labelsize 10
+        }
+        Fl_Box main {
+          xywh {5 43 833 567} labeltype NO_LABEL
+          class PD_Main
+        }
+        Fl_Box v1 {
+          xywh {5 43 833 567} labeltype NO_LABEL hide
+          code1 {layer_editor[0] = o;}
+          code2 {o->init(0);}
+          class PD_Layer_Editor
+        }
+        Fl_Box v2 {
+          xywh {5 43 833 567} labeltype NO_LABEL hide
+          code1 {layer_editor[1] = o;}
+          code2 {o->init(1);}
+          class PD_Layer_Editor
+        }
+        Fl_Box v3 {
+          xywh {5 43 833 567} labeltype NO_LABEL hide
+          code1 {layer_editor[2] = o;}
+          code2 {o->init(2);}
+          class PD_Layer_Editor
+        }
+        Fl_Box v4 {
+          xywh {5 43 833 567} labeltype NO_LABEL hide
+          code1 {layer_editor[3] = o;}
+          code2 {o->init(3);}
+          class PD_Layer_Editor
+        }
+        Fl_Box preset_editor {
+          xywh {5 43 833 567} labeltype NO_LABEL
+          class PD_Preset_Editor
+        }
+        Fl_Button {} {
+          label MP
+          callback {if (g_value->visible())
+{g_value->hide();g_minipiano->show();}
+else
+{g_minipiano->hide();g_value->show();}}
+          tooltip {Toggle MiniPiano} xywh {639 49 28 17} type Toggle down_box UP_BOX shortcut 0x6e selection_color 7 labelsize 10 labelcolor 15
+        }
+        Fl_Group g_value {
+          label {VALUE OUT/ INPUT}
+          xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+        } {
+          Fl_Value_Output forma_out {
+            tooltip {Formatted value display} xywh {642 69 190 20} box UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 labelcolor 7 align 0 textfont 5 textsize 12 textcolor 49
+            class Formatted_Output
+          }
+          Fl_Button undo_b {
+            label {@<-}
+            callback {if (pd->preset) pd->preset->undo();}
+            tooltip {Undo program parameter change} xywh {642 91 28 28} color 7 selection_color 78 labelfont 4 labelsize 18 labelcolor 49 deactivate
+          }
+          Fl_Button redo_b {
+            label {@->}
+            callback {if (pd->preset) pd->preset->redo();}
+            tooltip {Redo program parameter change} xywh {672 91 28 28} color 7 selection_color 78 labelfont 4 labelsize 18 labelcolor 49 deactivate
+          }
+          Fl_Value_Input value_input {
+            tooltip {Manually edit value of last edited parameter (with the keyboard, by dragging left/right or the mousewheel) [CTRL+E to focus]} xywh {703 91 68 28} box UP_BOX color 49 labeltype NO_LABEL labelsize 12 align 0 when 8 maximum 0 step 1 textfont 5 textsize 20
+            code0 {o->set_id(1, 0);}
+            class Value_Input
+          }
+          Fl_Button drls {
+            label {&DR}
+            callback {if (o->value())
+{
+value_input->when(FL_WHEN_ENTER_KEY);
+cfg->set_cfg_option(CFG_DRLS, 1);
+}
+else
+{
+value_input->when(FL_WHEN_CHANGED);
+cfg->set_cfg_option(CFG_DRLS, 0);
+}}
+            tooltip {When to actually commit the value of the Value display. Enabled: commit on mousebutton release or when you press enter. Disabled: commit all  value changes.} xywh {774 91 28 28} type Toggle down_box UP_BOX shortcut 0x64 value 1 color 7 selection_color 78 labelsize 12 labelcolor 49 align 80
+          }
+          Fl_Button b_eall {
+            label {&Eall}
+            callback {set_eall(o->value());
+if (!o->value() && pd->preset)
+if (!eall && pd->preset)
+{
+	pd->preset->show();
+	if (piano_w->shown())
+			piano->redraw();
+}}
+            tooltip {Edit All Layers} xywh {804 91 28 28} type Toggle down_box UP_BOX color 7 selection_color 78 labelsize 12 labelcolor 49 align 16
+          }
+        }
+        Fl_Group g_minipiano {
+          label MINIPIANO
+          xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 15 hide
+        } {
+          Fl_Box global_minipiano {
+            xywh {640 67 194 54} box FLAT_BOX labeltype NO_LABEL
+            class MiniPiano
+          }
+        }
+        Fl_Group g_pfx {open
+          xywh {639 129 196 321} labeltype NO_LABEL align 0
+        } {
+          Fl_Group g_effects {
+            label EFFECTS
+            tooltip {Effects section (it is disabled when the selected channel and the selected FX channel differ)} xywh {639 146 196 304} box THIN_DOWN_BOX labelfont 1 labelcolor 15 hide
+          } {
+            Fl_Choice fx_channel {open
+              tooltip {FX Control Channel. When in multi mode, you can set this to "0" which applies the Master menu effects settings to all 16 MIDI channels. If you want more control, you can choose a channel  which applies the effects settings of the preset on the specified channel to all the other channels. Changing the preset on the specified channel changes the effect. If you are in Omni or Poly modes this parameter is disabled} xywh {649 151 82 21} down_box BORDER_BOX labeltype NO_LABEL align 0 textsize 13
+              code0 {o->set_id(140);}
+              code1 {o->add("Master");}
+              code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");}
+              code3 {o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");}
+              class Choice
+            } {}
+            Fl_Button b_bypass {
+              label {F&X BYPASS}
+              tooltip {When bypassed, the effects are turned Off on a global scale. This includes Effects programmed in the preset} xywh {742 151 82 21} type Toggle down_box UP_BOX selection_color 81 labelsize 10 align 80
+              code0 {o->set_id(258);}
+              class Button
+            }
+            Fl_Group fx {
+              xywh {644 176 185 274}
+            } {
+              Fl_Choice fxa {open
+                tooltip {Selects the type of effect A} xywh {649 178 175 21} down_box BORDER_BOX align 2 textsize 13
+                class Choice
+              } {}
+              Fl_Group g_fxa {
+                xywh {644 200 185 114}
+              } {
+                Fl_Box {} {
+                  label FXA
+                  xywh {649 213 40 24} labelfont 1 labelsize 15 labelcolor 15
+                }
+                Fl_Dial fxa_decay {
+                  label Decay
+                  tooltip {Decay sets the length of time it takes an effect to fade out. When setting up reverb effects, Decay controls the room size and the reflectivity of the room. For larger room sizes and greater reflectivity, set the Decay value higher. When setting up delay effects, the Decay parameter controls how many echoes are produced or how long the echoes last. The greater the value, the more echoes and longer lengths of time} xywh {694 204 40 40} color 7 labelsize 10 maximum 90 step 1
+                  class Fl_Knob
+                }
+                Fl_Dial fxa_damp {
+                  label Damp
+                  tooltip {High Frequency Damping. High Frequency energy tends to fade away first as a sound is dissipated in a room. the HF Damping parameter adjusts the amount of damping applied to the signal's high frequency elements which, in turn, changes the characteristics of the room. Rooms with smooth, hard surfaces are more reflective and have less high frequency damping. Rooms filled with sound absorbing materials, such as curtains or people, have more high frequency damping} xywh {739 204 40 40} color 7 labelsize 10 maximum 127 step 1
+                  class Fl_Knob
+                }
+                Fl_Dial fxa_ba {
+                  label {B >> A}
+                  tooltip {The output of effects processor B can be routed into effects processor A. This connects the effects in series instead of their normal parallel configuration} xywh {784 204 40 40} color 7 labelsize 10 maximum 127 step 1
+                  class Fl_Knob
+                }
+                Fl_Dial fxa_send1 {
+                  label {Send 1}
+                  tooltip {Send 1 amount} xywh {649 257 40 40} color 7 labelsize 10 maximum 100 step 1
+                  class Fl_Knob
+                }
+                Fl_Dial fxa_send2 {
+                  label {Send 2}
+                  tooltip {Send 2 amount} xywh {694 257 40 40} color 7 labelsize 10 maximum 100 step 1
+                  class Fl_Knob
+                }
+                Fl_Dial fxa_send3 {
+                  label {Send 3}
+                  tooltip {Send 3 amount} xywh {739 257 40 40} color 7 labelsize 10 maximum 100 step 1
+                  class Fl_Knob
+                }
+                Fl_Dial fxa_send4 {
+                  label {Send 4}
+                  tooltip {Send 4 amount} xywh {784 257 40 40} color 7 labelsize 10 maximum 100 step 1
+                  class Fl_Knob
+                }
+              }
+              Fl_Choice fxb {open
+                tooltip {Selects the type of effect B} xywh {649 316 175 21} down_box BORDER_BOX align 2 textsize 13
+                class Choice
+              } {}
+              Fl_Group g_fxb {
+                xywh {644 338 185 112}
+              } {
+                Fl_Box {} {
+                  label FXB
+                  xywh {649 351 40 24} labelfont 1 labelsize 15 labelcolor 15
+                }
+                Fl_Dial fxb_feedback {
+                  label Feedback
+                  tooltip {The Chorus and Flange effects have a controllable feedback loop after the delay element. Feeding back a small amount of the signal intensifies the effect by creating multiple cancellations or images. Higher feedback values increase the amount of the Feedback loop} xywh {694 342 40 40} color 7 labelsize 10 maximum 127 step 1
+                  class Fl_Knob
+                }
+                Fl_Dial fxb_lfo_rate {
+                  label LFO
+                  tooltip {Both Chorus and Flange effects use a Low Frequency Oscillator (LFO) to animate the effect. LFO applied to a chorus effect creates the slight changes necessary for a realistic choral effect. Applied to a flanger effect, the LFO moves the comb filter notches and adds animation to the sound} xywh {739 342 40 40} color 7 labelsize 10 maximum 127 step 1
+                  class Fl_Knob
+                }
+                Fl_Dial fxb_delay {
+                  label Delay
+                  tooltip {Flanging, chorus and echoes are all based on a delay line where the signal is delayed by some time period and then mixed back with the unaltered signal. This parameter specifies the how much time passes before you hear the delayed signal. On some effects, this value cannot be changed. The Delay value range is from 0ms to 635ms} xywh {784 342 40 40} color 7 labelsize 10 minimum -12 maximum 127 step 1
+                  class Fl_Knob
+                }
+                Fl_Dial fxb_send1 {
+                  label {Send 1}
+                  tooltip {Send 1 amount} xywh {649 395 40 40} color 7 labelsize 10 maximum 100 step 1
+                  class Fl_Knob
+                }
+                Fl_Dial fxb_send2 {
+                  label {Send 2}
+                  tooltip {Send 2 amount} xywh {694 395 40 40} color 7 labelsize 10 maximum 100 step 1
+                  class Fl_Knob
+                }
+                Fl_Dial fxb_send3 {
+                  label {Send 3}
+                  tooltip {Send 2 amount} xywh {739 395 40 40} color 7 labelsize 10 maximum 100 step 1
+                  class Fl_Knob
+                }
+                Fl_Dial fxb_send4 {
+                  label {Send 4}
+                  tooltip {Send 4 amount} xywh {784 395 40 40} color 7 labelsize 10 maximum 100 step 1
+                  class Fl_Knob
+                }
+              }
+            }
+          }
+          Fl_Group g_preset {open
+            xywh {639 129 196 321} labeltype NO_LABEL align 0 deactivate
+          } {
+            Fl_Button b_copy_p {
+              label COPY
+              callback {//ui->show_copy_preset(c_preset);
+if (o->value())
+{
+if (b_save_p->value())
+	b_save_p->value(0);
+// load user list and deactivate rom choice
+if (pd->selected_preset_rom != 0)
+	preset_rom->set_value(0);
+preset_rom->deactivate();
+g_program->label("TARGET");
+// save filter string
+if (!filter_tmp)
+	{
+	filter_tmp = new char[preset_filter->size()+1];
+	strcpy(filter_tmp, preset_filter->value());
+	preset_filter->value(0);
+	preset_filter->do_callback();
+	}
+Fl::focus(preset);
+}
+else
+{
+preset_rom->set_value(pd->selected_preset_rom);
+preset_rom->activate();
+preset->select(pd->selected_preset + 1);
+preset_filter->value(filter_tmp);
+preset_filter->do_callback();
+delete filter_tmp;
+filter_tmp = 0;
+g_program->label("PROGRAM");
+Fl::focus(preset);
+}}
+              tooltip {Copy Program (You will need to select a target below. This copies the already saved version of the selected program and NOT the edit buffer. Use "SAVE" to save the edit buffer). Backspace cancels.} xywh {639 129 40 17} type Toggle down_box UP_BOX selection_color 81 labelsize 10 labelcolor 15
+            }
+            Fl_Button b_save_p {
+              label SAVE
+              callback {//ui->show_copy_preset(s_preset);
+if (o->value())
+{
+if (b_copy_p->value())
+	b_copy_p->value(0);
+pd->display_status("Hint: Give me a name over there --->");
+// load user list and deactivate rom choice
+if (pd->selected_preset_rom != 0)
+	preset_rom->set_value(0);
+preset_rom->deactivate();
+g_program->label("TARGET");
+// save filter string
+if (!filter_tmp)
+	{
+	filter_tmp = new char[preset_filter->size()+1];
+	strcpy(filter_tmp, preset_filter->value());
+	preset_filter->value(0);
+	preset_filter->do_callback();
+	}
+Fl::focus(preset);
+}
+else
+{
+preset_rom->set_value(pd->selected_preset_rom);
+preset_rom->activate();
+preset->select(pd->selected_preset + 1);
+preset_filter->value(filter_tmp);
+preset_filter->do_callback();
+delete filter_tmp;
+filter_tmp = 0;
+g_program->label("PROGRAM");
+Fl::focus(preset);
+}}
+              tooltip {Save the edit buffer (You will need to select a target below). Backspace cancels.} xywh {795 129 40 17} type Toggle down_box UP_BOX selection_color 81 labelsize 10 labelcolor 15
+            }
+            Fl_Group g_program {
+              label PROGRAM open
+              xywh {639 146 196 304} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+            } {
+              Fl_Choice preset_rom {open
+                xywh {649 152 176 21} down_box BORDER_BOX labeltype NO_LABEL labelcolor 15 align 0 textsize 13
+                code0 {o->set_id(138);}
+                class ROM_Choice
+              } {}
+              Fl_Browser preset {
+                tooltip {Select a program to load for editing or, if either "COPY" or "SAVE" is active, double-click/Enter/Space target to copy/save (hold SHIFT to copy/save and return to preset selection mode).} xywh {649 178 176 241} type Hold when 4 textfont 4 textsize 12 textcolor 49
+                code0 {o->set_id(897);}
+                class Browser
+              }
+              Fl_Input preset_filter {
+                label {F }
+                callback {preset->set_filter(o->value());}
+                xywh {665 424 129 20} box UP_BOX labelsize 10 labelcolor 7 when 1 textfont 5 textsize 12 textcolor 49
+                code0 {o->maximum_size(16);}
+                code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
+                code2 {o->tooltip(filter_tooltip);}
+                class Input
+              }
+              Fl_Button {} {
+                label C
+                callback {preset_filter->value(0);
+preset_filter->do_callback();}
+                xywh {799 424 26 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 labelcolor 49
+              }
+            }
+          }
+        }
+        Fl_Group g_multisetups {
+          label MULTISETUP open
+          xywh {639 146 196 304} box THIN_DOWN_BOX labelfont 1 labelcolor 15 hide
+        } {
+          Fl_Browser multisetups {
+            callback {o->deactivate();
+midi->copy(C_SETUP, o->value() - 1, -1);
+midi->request_setup_dump();}
+            xywh {649 152 176 226} type Hold when 0 textfont 4 textsize 12 textcolor 49 deactivate
+          }
+          Fl_Input s_name {
+            label {Save as}
+            tooltip {MultiSetup name (16 characters max.)} xywh {649 395 176 20} box UP_BOX labelsize 10 labelcolor 15 align 5 when 1 textfont 5 textsize 12 textcolor 49
+            code0 {o->maximum_size(16);}
+            code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
+            class Input
+          }
+          Fl_Button do_save {
+            label {Save @returnarrow}
+            callback {o->deactivate();
+pd->save_setup(multisetups->value() - 1, s_name->value());}
+            tooltip {Save MultiSetup} xywh {649 424 60 20} box THIN_UP_BOX shortcut 0xff0d selection_color 15 labelsize 12
+          }
+          Fl_Button {} {
+            label Load
+            callback {multisetups->do_callback();}
+            tooltip {Save MultiSetup} xywh {765 424 60 20} box THIN_UP_BOX selection_color 15 labelsize 12
+          }
+        }
+      }
+      Fl_Group g_arp_edit {
+        xywh {0 20 843 595} box FLAT_BOX hide
+      } {
+        Fl_Box {} {
+          xywh {10 30 40 279} labeltype NO_LABEL
+          code0 {o->init(0);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {53 30 40 279} labeltype NO_LABEL
+          code0 {o->init(1);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {96 30 40 279} labeltype NO_LABEL
+          code0 {o->init(2);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {139 30 40 279} labeltype NO_LABEL
+          code0 {o->init(3);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {182 30 40 279} labeltype NO_LABEL
+          code0 {o->init(4);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {225 30 40 279} labeltype NO_LABEL
+          code0 {o->init(5);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {268 30 40 279} labeltype NO_LABEL
+          code0 {o->init(6);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {311 30 40 279} labeltype NO_LABEL
+          code0 {o->init(7);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {354 30 40 279} labeltype NO_LABEL
+          code0 {o->init(8);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {397 30 40 279} labeltype NO_LABEL
+          code0 {o->init(9);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {440 30 40 279} labeltype NO_LABEL
+          code0 {o->init(10);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {483 30 40 279} labeltype NO_LABEL
+          code0 {o->init(11);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {526 30 40 279} labeltype NO_LABEL
+          code0 {o->init(12);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {569 30 40 279} labeltype NO_LABEL
+          code0 {o->init(13);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {612 30 40 279} labeltype NO_LABEL
+          code0 {o->init(14);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {655 30 40 279} labeltype NO_LABEL
+          code0 {o->init(15);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {10 325 40 279} labeltype NO_LABEL
+          code0 {o->init(16);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {53 325 40 279} labeltype NO_LABEL
+          code0 {o->init(17);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {96 325 40 279} labeltype NO_LABEL
+          code0 {o->init(18);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {139 325 40 279} labeltype NO_LABEL
+          code0 {o->init(19);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {182 325 40 279} labeltype NO_LABEL
+          code0 {o->init(20);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {225 325 40 279} labeltype NO_LABEL
+          code0 {o->init(21);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {268 325 40 279} labeltype NO_LABEL
+          code0 {o->init(22);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {311 325 40 279} labeltype NO_LABEL
+          code0 {o->init(23);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {354 325 40 279} labeltype NO_LABEL
+          code0 {o->init(24);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {397 325 40 279} labeltype NO_LABEL
+          code0 {o->init(25);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {440 325 40 279} labeltype NO_LABEL
+          code0 {o->init(26);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {483 325 40 279} labeltype NO_LABEL
+          code0 {o->init(27);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {526 325 40 279} labeltype NO_LABEL
+          code0 {o->init(28);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {569 325 40 279} labeltype NO_LABEL
+          code0 {o->init(29);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {612 325 40 279} labeltype NO_LABEL
+          code0 {o->init(30);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {655 325 40 279} labeltype NO_LABEL
+          code0 {o->init(31);}
+          class PD_Arp_Step
+        }
+        Fl_Input arp_name {
+          label NAME
+          callback {arp_name_changed = true;}
+          tooltip {Arpeggiator pattern name} xywh {705 554 127 20} box UP_BOX labelfont 1 labelsize 10 labelcolor 15 align 5 when 1 textfont 5 textsize 12 textcolor 49
+          code0 {o->maximum_size(12);}
+          code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
+          class Input
+        }
+        Fl_Button {} {
+          label {Close @returnarrow}
+          callback {if (arp_name_changed && pd->arp) pd->arp->rename(arp_name->value());
+arp_name_changed = false;
+g_main->show();
+g_arp_edit->hide();
+Fl::focus(g_main);}
+          tooltip {Keep settings and return} xywh {705 584 68 20} box THIN_UP_BOX shortcut 0xff0d selection_color 15 labelsize 12
+        }
+        Fl_Button {} {
+          label Reset
+          callback {if (pd->arp) pd->arp->reset_pattern();
+arp_name_changed = false;}
+          tooltip {Undo all changes} xywh {781 584 51 20} box THIN_UP_BOX selection_color 15 labelsize 12
+        }
+        Fl_Box {} {
+          label OP
+          xywh {698 30 1 90} box BORDER_BOX color 7 labelfont 1 labelsize 10 labelcolor 15 align 8
+        }
+        Fl_Box {} {
+          label TIME
+          xywh {698 123 1 16} box BORDER_BOX color 7 labelfont 1 labelsize 10 labelcolor 15 align 8
+        }
+        Fl_Box {} {
+          label REPEAT
+          xywh {698 141 1 16} box BORDER_BOX color 7 labelfont 1 labelsize 10 labelcolor 15 align 8
+        }
+        Fl_Box {} {
+          label VELOCITY
+          xywh {698 159 1 16} box BORDER_BOX color 7 labelfont 1 labelsize 10 labelcolor 15 align 8
+        }
+        Fl_Box {} {
+          label {PITCH | OFFSET}
+          xywh {698 179 1 16} box BORDER_BOX color 7 labelfont 1 labelsize 10 labelcolor 15 align 8
+        }
+        Fl_Box {} {
+          label OP
+          xywh {698 325 1 90} box BORDER_BOX color 7 labelfont 1 labelsize 10 labelcolor 15 align 8
+        }
+        Fl_Box {} {
+          label TIME
+          xywh {698 418 1 16} box BORDER_BOX color 7 labelfont 1 labelsize 10 labelcolor 15 align 8
+        }
+        Fl_Box {} {
+          label REPEAT
+          xywh {698 436 1 16} box BORDER_BOX color 7 labelfont 1 labelsize 10 labelcolor 15 align 8
+        }
+        Fl_Box {} {
+          label VELOCITY
+          xywh {698 454 1 16} box BORDER_BOX color 7 labelfont 1 labelsize 10 labelcolor 15 align 8
+        }
+        Fl_Box {} {
+          label {PITCH | OFFSET}
+          xywh {698 474 1 16} box BORDER_BOX color 7 labelfont 1 labelsize 10 labelcolor 15 align 8
+        }
+        Fl_Output pattern_length {
+          label {BEATS:TICKS}
+          tooltip {Pattern length (48 Ticks/Beat)} xywh {705 280 127 30} box FLAT_BOX color 49 labelfont 1 labelsize 10 labelcolor 15 align 5 textfont 4 textsize 24
+        }
+      }
+      Fl_Box {} {
+        xywh {1 1 841 66} labeltype NO_LABEL when 0
+        class DND_Box
+      }
+    }
+    Fl_Window init {
+      label Initializing
+      callback {;}
+      xywh {680 68 290 147} type Double box BORDER_BOX hide modal
+    } {
+      Fl_Box {} {
+        xywh {1 1 104 43} box FLAT_BOX color 7 labeltype NO_LABEL labelfont 1 labelcolor 49 align 26
+      }
+      Fl_Box {} {
+        label {Please wait. This may take a few minutes.}
+        xywh {105 1 184 43} box FLAT_BOX color 7 labelfont 1 labelsize 12 labelcolor 49 align 154
+      }
+      Fl_Box {} {
+        xywh {5 0 64 64} deactivate
+        code0 {o->image(image_l64);}
+      }
+      Fl_Progress init_progress {
+        label {Loading ROM data}
+        xywh {10 74 270 26} box THIN_DOWN_BOX color 49 selection_color 15 labelsize 13
+      }
+      Fl_Button {} {
+        label Cancel
+        callback {init_progress->value(0.);
+init_progress->label("Waiting for MIDI queue to exit...");
+init_progress->redraw();
+pd->cancel_init();}
+        xywh {220 117 60 20} box THIN_UP_BOX selection_color 15 labelsize 12
+      }
+    }
+    Fl_Window open_device {
+      label {Open Device}
+      xywh {544 73 355 414} type Double box BORDER_BOX labelcolor 15 hide modal
+    } {
+      Fl_Box {} {
+        label {Open Device}
+        xywh {1 1 353 43} box FLAT_BOX color 7 labelfont 1 labelcolor 49 align 26
+      }
+      Fl_Box {} {
+        xywh {5 0 64 64} deactivate
+        code0 {o->image(image_l64);}
+      }
+      Fl_Box {} {
+        label {Out Port}
+        xywh {17 78 56 20} labelsize 12 labelcolor 15 align 24
+      }
+      Fl_Menu_Button midi_outs {
+        label {Select...}
+        callback {connect->deactivate();
+device_info->label(0);
+if (midi->connect_out(o->value()))
+{
+o->label(o->text(o->value()));
+}
+else
+{
+o->label("Select...");
+}} open
+        tooltip {OUT: Select the MIDI port that is connected to MIDI IN of your device.} xywh {74 78 211 20} box THIN_UP_BOX down_box THIN_UP_BOX labelsize 12 align 84 textsize 13
+      } {}
+      Fl_Box {} {
+        label {In Port}
+        xywh {17 106 56 20} labelsize 12 labelcolor 15 align 24
+      }
+      Fl_Menu_Button midi_ins {
+        label {Select...}
+        callback {connect->deactivate();
+device_info->label(0);
+if (midi->connect_in(o->value()))
+{
+o->label(o->text(o->value()));
+}
+else
+{
+o->label("Select...");
+}} open
+        tooltip {IN: Select the MIDI port that is connected to MIDI OUT of your device.} xywh {74 106 211 20} box THIN_UP_BOX down_box THIN_UP_BOX labelsize 12 align 84 textsize 13
+      } {}
+      Fl_Box {} {
+        label {Device ID}
+        xywh {17 134 56 20} labelsize 12 labelcolor 15 align 24
+      }
+      Fl_Spinner device_id {
+        callback {connect->deactivate();
+device_info->label(0);
+midi->set_device_id(o->value());
+midi->request_device_inquiry();
+r_user_id->value(o->value());}
+        tooltip {ID: Must be unique for every device you intend to use prodatum with (you can set the ID in the Master Menu of your device)!} xywh {74 134 55 20} color 7 selection_color 15 labeltype NO_LABEL labelfont 2 labelsize 12 labelcolor 15 align 0 when 1 minimum 0 maximum 126 value 0 textfont 4 textsize 13 textcolor 49
+      }
+      Fl_Button b_auto_detect {
+        label {Auto-Detect}
+        callback {connect->deactivate();
+device_info->label(0);
+midi->request_device_inquiry(127);}
+        xywh {140 134 80 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49 deactivate
+      }
+      Fl_Choice speed {
+        label {Op. Level}
+        callback {cfg->set_cfg_option(CFG_SPEED, o->value());} open
+        tooltip {Operation Level: Lower settings will work better if your computer or your MIDI device is very slow.} xywh {74 162 110 20} down_box BORDER_BOX labelsize 12 labelcolor 15 textsize 13
+        code0 {o->add("Fast");o->add("Slower");o->add("Turtle");}
+      } {}
+      Fl_Box {} {
+        label {Ctrl Port}
+        xywh {20 198 53 20} labelsize 12 labelcolor 15 align 24
+      }
+      Fl_Menu_Button midi_ctrl {
+        label {Select... (optional)}
+        callback {if (midi->connect_thru(o->value()))
+{
+cfg->set_cfg_option(CFG_MIDI_THRU, o->value());
+o->label(o->text(o->value()));
+}
+else
+{
+cfg->set_cfg_option(CFG_MIDI_THRU, -1);
+o->label("Select... (optional)");
+}} open
+        tooltip {Control: Select the MIDI port that your controller is connected to (select again to disconnect).} xywh {74 198 211 20} box THIN_UP_BOX down_box THIN_UP_BOX labelsize 12 align 84 textsize 13
+      } {}
+      Fl_Choice midi_ctrl_ch {
+        label {Ctrl Chnl}
+        callback {midi->set_control_channel_filter(o->value());} open
+        tooltip {Control Channel: Data to the control port will only be accepted for the selected channel(s).} xywh {74 228 55 20} down_box BORDER_BOX labelsize 12 labelcolor 15 textsize 13
+        code0 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("All");}
+      } {}
+      Fl_Check_Button midi_automap {
+        label {Map to Basic Channel}
+        callback {automap = o->value();
+cfg->set_cfg_option(CFG_AUTOMAP, o->value());}
+        tooltip {When enabled voice messages from the controller will always leave prodatum on the channel that is selected in prodatum. This is helpful when your controller does not allow you to change the MIDI channel or if you do not want to switch channels on the controller all the time.} xywh {140 228 162 20} down_box DOWN_BOX value 1 selection_color 49
+      }
+      Fl_Button {} {
+        label Update
+        callback {connect->deactivate();
+device_info->label(0);
+midi->request_device_inquiry(device_id->value());}
+        tooltip {Request device information.} xywh {15 294 54 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49
+      }
+      Fl_Box {} {
+        label {Device Info}
+        xywh {74 264 267 20} color 7 labelsize 12 labelcolor 15 align 132
+      }
+      Fl_Box device_info {
+        tooltip {Shows device information for the selected device (updates automatically on every port or ID change).} xywh {74 264 267 85} box THIN_DOWN_BOX color 7 selection_color 15 labelcolor 49 align 213
+      }
+      Fl_Check_Button autoconnect {
+        label {Open at startup}
+        callback {cfg->set_cfg_option(CFG_AUTOCONNECT, o->value());}
+        tooltip {Wether you want prodatum to automatically connect to your device at startup.} xywh {84 354 123 20} down_box DOWN_BOX value 1 selection_color 49
+      }
+      Fl_Button b_rescan {
+        label {Populate Ports}
+        callback {midi_outs->label("Select...");
+midi_ins->label("Select...");
+midi_ctrl->label("Select... (optional)");
+delete midi;
+midi = new MIDI();
+// select previous
+int selection;
+selection = cfg->get_cfg_option(CFG_MIDI_OUT);
+if (selection != -1)
+{
+midi_outs->value(selection);
+midi_outs->do_callback();}
+selection = cfg->get_cfg_option(CFG_MIDI_IN);
+if (selection != -1)
+{
+midi_ins->value(selection);
+midi_ins->do_callback();}
+selection = cfg->get_cfg_option(CFG_MIDI_THRU);
+if (selection != -1)
+{
+midi_ctrl->value(selection);
+midi_ctrl->do_callback();}}
+        tooltip {Populate (newly) available MIDI ports.} xywh {74 384 90 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49
+      }
+      Fl_Button connect {
+        label {Open @returnarrow}
+        callback {open_device->hide();
+cfg->set_cfg_option(CFG_MIDI_OUT, midi_outs->value());
+cfg->set_cfg_option(CFG_MIDI_IN, midi_ins->value());
+cfg->set_cfg_option(CFG_DEVICE_ID, device_id->value());
+midi->request_setup_dump();}
+        xywh {212 384 64 20} box THIN_UP_BOX shortcut 0xff0d selection_color 15 labelsize 12 deactivate
+      }
+      Fl_Button {} {
+        label Close
+        callback {open_device->hide();}
+        xywh {281 384 60 20} box THIN_UP_BOX shortcut 0x6f selection_color 15 labelsize 12
+      }
+    }
+    Fl_Window preferences {
+      label Preferences
+      callback {b_close_prefs->do_callback();}
+      xywh {382 320 617 338} type Double box UP_BOX labelsize 11 hide modal
+    } {
+      Fl_Box {} {
+        label Preferences
+        xywh {1 1 615 43} box FLAT_BOX color 7 labelfont 1 labelcolor 49 align 26
+      }
+      Fl_Box {} {
+        xywh {5 0 64 64} deactivate
+        code0 {o->image(image_l64);}
+      }
+      Fl_Box {} {
+        label Confirm
+        xywh {10 90 124 70} labelfont 1 labelcolor 15 align 5
+      }
+      Fl_Check_Button confirm {
+        label Exit
+        callback {cfg->set_cfg_option(CFG_CONFIRM_EXIT, o->value());}
+        tooltip {Wether to show a confirmation dialog on exit} xywh {20 97 46 15} down_box DOWN_BOX value 1 selection_color 49
+      }
+      Fl_Check_Button confirm_dismiss {
+        label Dismiss
+        callback {cfg->set_cfg_option(CFG_CONFIRM_DISMISS, o->value());}
+        tooltip {Wether to show a confirmation dialog for dismiss} xywh {20 116 72 15} down_box DOWN_BOX value 1 selection_color 49
+      }
+      Fl_Check_Button confirm_rand {
+        label Randomize
+        callback {cfg->set_cfg_option(CFG_CONFIRM_RAND, o->value());}
+        tooltip {Wether to show a confirmation dialog for randomize} xywh {20 135 94 15} down_box DOWN_BOX value 1 selection_color 49
+      }
+      Fl_Group g_knobmode {
+        label {Knob job..}
+        callback {int i;
+for (i = 0; i < o->children(); i++)
+if (((Fl_Button*) o->array()[i])->value())
+break;
+((Fl_Button*) o->child(i))->setonly();
+cfg->set_cfg_option(CFG_KNOBMODE, i);}
+        tooltip {Choose how knobs should behave when you drag them} xywh {140 90 124 70} labelfont 1 labelcolor 15 align 5
+      } {
+        Fl_Check_Button {} {
+          label {..radially}
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {155 97 77 15} type Radio down_box DOWN_BOX value 1 selection_color 49
+        }
+        Fl_Check_Button {} {
+          label {..horizontally}
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {155 116 103 15} type Radio down_box DOWN_BOX value 1 selection_color 49
+        }
+        Fl_Check_Button {} {
+          label {..vertically}
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {155 135 87 15} type Radio down_box DOWN_BOX value 1 selection_color 49
+        }
+      }
+      Fl_Box {} {
+        label {Import and Export}
+        xywh {10 185 290 61} labelfont 1 labelcolor 15 align 133
+      }
+      Fl_Output export_dir {
+        tooltip {The default export directory is where quick exports are saved to and is the start location for all im-/export browsers.} xywh {20 192 275 20} box UP_BOX labelsize 10 labelcolor 15 align 0 when 0 textfont 5 textsize 12 textcolor 49
+      }
+      Fl_Button {} {
+        label Change
+        callback {set_export_path();}
+        tooltip {This button starts the "browse for a nice export directory" quest!} xywh {20 218 60 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49
+      }
+      Fl_Check_Button c_aaudit {
+        label {Audit Imports}
+        callback {cfg->set_cfg_option(CFG_AUDIT_IMPORT, o->value());}
+        tooltip {Audit programs selected in the import browser?} xywh {90 222 107 15} down_box DOWN_BOX selection_color 49
+      }
+      Fl_Box {} {
+        label {MIDI Performance}
+        xywh {10 274 290 51} labelfont 1 labelcolor 15 align 5
+      }
+      Fl_Check_Button closed_loop_download {
+        label {Closed Loop Preset Download (Slower)}
+        callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD, o->value());}
+        tooltip {Closed loop downloads require prodatum to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: disabled, use open loop downloads)} xywh {20 281 269 15} down_box DOWN_BOX selection_color 49
+      }
+      Fl_Check_Button closed_loop_upload {
+        label {Closed Loop Preset Upload (Slower)}
+        callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_UPLOAD, o->value());}
+        tooltip {Closed loop uploads require the device to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: disabled, use open loop uploads)} xywh {20 300 251 15} down_box DOWN_BOX selection_color 49
+      }
+      Fl_Box {} {
+        label Colors
+        xywh {320 90 290 146} labelfont 1 labelcolor 15 align 5
+      }
+      Fl_Check_Button c_cbg {
+        label {Colored Background}
+        callback {cfg->set_cfg_option(CFG_COLORED_BG, o->value());
+set_color(-1, 0);}
+        tooltip {Use color C as background} xywh {400 204 154 15} down_box DOWN_BOX selection_color 49
+      }
+      Fl_Check_Button c_sk {
+        label {Shiny Knobs}
+        callback {set_color(KNOBS, o->value());}
+        tooltip {Make knobs bright} xywh {400 223 101 15} down_box DOWN_BOX selection_color 49
+      }
+      Fl_Button {} {
+        label Default
+        callback {set_color(DEFAULT, 0);}
+        tooltip {Set default colors.} xywh {330 201 60 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49
+      }
+      Fl_Value_Slider c_bg {
+        label S1
+        callback {set_color(BG, o->value());}
+        tooltip {Shade 1} xywh {350 97 255 15} type {Horz Knob} box FLAT_BOX selection_color 7 labelsize 12 labelcolor 15 align 4 maximum 255 step 1 textsize 12
+      }
+      Fl_Value_Slider c_bg2 {
+        label S2
+        callback {set_color(BG2, o->value());}
+        tooltip {Shade 2} xywh {350 116 255 15} type {Horz Knob} box FLAT_BOX selection_color 7 labelsize 12 labelcolor 15 align 4 maximum 255 step 1 textsize 12
+      }
+      Fl_Value_Slider c_rr {
+        label {C R}
+        callback {set_color(RR, o->value());}
+        tooltip {Color red} xywh {350 135 255 15} type {Horz Knob} box FLAT_BOX selection_color 7 labelsize 12 labelcolor 15 align 4 maximum 255 step 1 textsize 12
+      }
+      Fl_Value_Slider c_gg {
+        label {C G}
+        callback {set_color(GG, o->value());}
+        tooltip {Color green} xywh {350 154 255 15} type {Horz Knob} box FLAT_BOX selection_color 7 labelsize 12 labelcolor 15 align 4 maximum 255 step 1 textsize 12
+      }
+      Fl_Value_Slider c_bb {
+        label {C B}
+        callback {set_color(BB, o->value());}
+        tooltip {Color blue} xywh {350 173 255 15} type {Horz Knob} box FLAT_BOX selection_color 7 labelsize 12 labelcolor 15 align 4 maximum 255 step 1 textsize 12
+      }
+      Fl_Choice {} {
+        label stderr
+        callback {set_msglevel(o->value());} open
+        tooltip {stderr message level (for debugging)} xywh {525 269 80 20} down_box BORDER_BOX labelsize 11 labelcolor 15 textsize 11
+        code0 {o->add("Error");o->add("Info");o->add("Debug");}
+        code1 {o->value(0);}
+      } {}
+      Fl_Button b_close_prefs {
+        label Close
+        callback {preferences->hide();}
+        xywh {330 300 275 20} box THIN_UP_BOX shortcut 0x70 selection_color 15 labelsize 12
+      }
+    }
+    Fl_Window piano_w {
+      label Keyboard
+      callback {o->hide();}
+      xywh {273 430 931 192} type Double box BORDER_BOX hide
+      class Double_Window
+    } {
+      Fl_Group pi_mode {
+        label M
+        callback {for (int i = 0; i < o->children(); i++)
+if (((Fl_Button*) o->array()[i])->value())
+{
+	piano->set_mode(i);
+	break;
+}}
+        tooltip {Switch Modes} xywh {556 4 46 20} labelsize 10 labelcolor 15 align 4 when 0
+      } {
+        Fl_Button {} {
+          label K
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {557 4 15 20} type Radio down_box UP_BOX value 1 selection_color 15 labelsize 12 labelcolor 15
+        }
+        Fl_Button {} {
+          label V
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {572 4 15 20} type Radio down_box UP_BOX selection_color 15 labelsize 12 labelcolor 15
+        }
+        Fl_Button {} {
+          label R
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {587 4 15 20} type Radio down_box UP_BOX selection_color 15 labelsize 12 labelcolor 15
+        }
+      }
+      Fl_Button b_fs1 {
+        label {FOOTSW 1}
+        callback {int val = 0;
+if (o->value())
+val = 127;
+pd->cc_callback(13, val);}
+        xywh {609 4 69 20} type Toggle down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15 when 6
+        code0 {main->ctrl_x[13] = o;}
+      }
+      Fl_Button b_fs2 {
+        label {FOOTSW 2}
+        callback {int val = 0;
+if (o->value())
+val = 127;
+pd->cc_callback(14, val);}
+        xywh {679 4 69 20} type Toggle down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15 when 6
+        code0 {main->ctrl_x[14] = o;}
+      }
+      Fl_Button b_fs3 {
+        label {FOOTSW 3}
+        callback {int val = 0;
+if (o->value())
+val = 127;
+pd->cc_callback(15, val);}
+        xywh {749 4 69 20} type Toggle down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15 when 6
+        code0 {main->ctrl_x[15] = o;}
+      }
+      Fl_Button all_notes_off {
+        label {ALL NOTES OFF}
+        callback {midi->write_event(0xb0, 0x7b, 0);
+piano->reset_active_keys();}
+        tooltip {Turns off all notes (Ignored/Disabled in omni mode)} xywh {826 4 96 20} down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15 when 6
+      }
+      Fl_Slider pitchwheel {
+        label PITCH
+        callback {int val = (int) o->value();
+midi->write_event(0xe0, val & 0x007f, val >> 7);}
+        tooltip {Pitch "Wheel": Use right mouse button to enable hold, left for common behaviour} xywh {42 4 256 20} type Horizontal box UP_BOX selection_color 15 labelsize 10 labelcolor 15 align 4 maximum 16383 step 1 value 8192
+        class Pitch_Slider
+      }
+      Fl_Group g_transpose_layer {
+        label T
+        callback {for (int i = 0; i < o->children(); i++)
+if (((Fl_Button*) o->array()[i])->value())
+{
+	piano->select_transpose_layer(i);
+	break;
+}} open
+        tooltip {Transpose Layer: Choose the layer to transpose then "Middle-Click" the key that shall be middle-C} xywh {476 4 61 20} labelsize 10 labelcolor 15 align 4 when 0
+      } {
+        Fl_Button {} {
+          label 1
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {477 4 15 20} type Radio down_box UP_BOX value 1 selection_color 15 labelsize 12 labelcolor 15
+        }
+        Fl_Button {} {
+          label 2
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {492 4 15 20} type Radio down_box UP_BOX selection_color 15 labelsize 12 labelcolor 15
+        }
+        Fl_Button {} {
+          label 3
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {507 4 15 20} type Radio down_box UP_BOX selection_color 15 labelsize 12 labelcolor 15
+        }
+        Fl_Button {} {
+          label 4
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {522 4 15 20} type Radio down_box UP_BOX selection_color 15 labelsize 12 labelcolor 15
+        }
+      }
+      Fl_Slider modwheel {
+        label MOD
+        callback {midi->write_event(0xb0, 1, (int) o->value());}
+        tooltip {Modulation "Wheel"} xywh {332 4 127 20} type Horizontal box UP_BOX selection_color 15 labelsize 10 labelcolor 15 align 4 maximum 127 step 1
+      }
+      Fl_Box piano {
+        xywh {5 27 921 162} labeltype NO_LABEL
+        class Piano
+      }
+    }
+    Fl_Window log_w {
+      label {Message Log}
+      xywh {529 160 491 265} type Double box BORDER_BOX hide resizable
+      class Double_Window size_range {320 108 0 0}
+    } {
+      Fl_Text_Display log {
+        xywh {1 1 489 228} box DOWN_BOX selection_color 7 labelcolor 15 align 0 textcolor 49 resizable
+        class Text_Display
+      }
+      Fl_Group {} {open
+        xywh {1 233 489 29}
+      } {
+        Fl_Button {} {
+          label C
+          callback {logbuf->remove(0, logbuf->length());}
+          tooltip {Clear Buffer} xywh {340 237 26 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 labelcolor 49 align 64
+        }
+        Fl_Check_Button log_sysex_in {
+          label IS
+          callback {cfg->set_cfg_option(CFG_LOG_SYSEX_IN, o->value());}
+          tooltip {Log Incoming SysEx} xywh {185 237 35 20} down_box DOWN_BOX value 1 selection_color 49 labelfont 4 labelcolor 15
+        }
+        Fl_Check_Button log_sysex_out {
+          label OS
+          callback {cfg->set_cfg_option(CFG_LOG_SYSEX_OUT, o->value());}
+          tooltip {Log Outgoing SysEx} xywh {223 237 35 20} down_box DOWN_BOX value 1 selection_color 49 labelfont 4 labelcolor 15
+        }
+        Fl_Check_Button log_events_in {
+          label IE
+          callback {cfg->set_cfg_option(CFG_LOG_EVENTS_IN, o->value());}
+          tooltip {Log Incoming Events} xywh {261 237 35 20} down_box DOWN_BOX selection_color 49 labelfont 4 labelcolor 15
+        }
+        Fl_Check_Button log_events_out {
+          label OE
+          callback {cfg->set_cfg_option(CFG_LOG_EVENTS_OUT, o->value());}
+          tooltip {Log Outgoing Events} xywh {299 237 35 20} down_box DOWN_BOX selection_color 49 labelfont 4 labelcolor 15
+        }
+        Fl_Button scroll_lock {
+          label {SCR LK}
+          xywh {374 237 48 20} type Toggle box THIN_UP_BOX color 7 selection_color 15 labelsize 10 labelcolor 49 align 64
+        }
+        Fl_Button {} {
+          label Close
+          callback {log_w->hide();}
+          xywh {427 237 48 20} box THIN_UP_BOX selection_color 15 labelsize 12
+        }
+        Fl_Box {} {
+          label label
+          xywh {3 258 1 1} labeltype NO_LABEL resizable
+        }
+      }
+    }
+    Fl_Window about {
+      label {About prodatum} open selected
+      xywh {510 121 275 128} type Double box BORDER_BOX hide modal
+    } {
+      Fl_Box {} {
+        xywh {10 10 64 64} deactivate
+        code0 {o->image(image_l64);}
+      }
+      Fl_Box about_text {
+        xywh {85 10 180 40} labelfont 1 labelsize 18 align 144
+      }
+      Fl_Box {} {
+        label {Copyright © Jan Eidtmann
+2008-2011}
+        xywh {85 55 180 40} labelsize 12 align 144
+      }
+      Fl_Button {} {
+        label Close
+        callback {about->hide();}
+        xywh {10 98 255 20} box THIN_UP_BOX selection_color 15 labelsize 12
+      }
+    }
+    Fl_Window copy_layer {
+      label Copy
+      xywh {327 533 274 98} type Double box BORDER_BOX hide modal
+    } {
+      Fl_Group layer_dst {
+        label TARGET open
+        tooltip {Target layer. Double-click target to copy (hold SHIFT to copy and close window).. (Hint: ESC closes windows)} xywh {10 22 255 33} labelfont 1 labelcolor 15
+      } {
+        Fl_Button {} {
+          label {VOICE 1}
+          callback {if (Fl::event_clicks())
+{
+Fl::event_clicks(0);
+pd->preset->copy(copy_type, copy_src, 0);
+if (Fl::event_state(FL_SHIFT))
+copy_layer->hide();
+else
+o->deactivate();
+}}
+          xywh {10 30 60 20} type Radio box THIN_UP_BOX down_box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49 when 6
+        }
+        Fl_Button {} {
+          label {VOICE 2}
+          callback {if (Fl::event_clicks())
+{
+Fl::event_clicks(0);
+pd->preset->copy(copy_type, copy_src, 1);
+if (Fl::event_state(FL_SHIFT))
+copy_layer->hide();
+else
+o->deactivate();
+}}
+          xywh {75 30 60 20} type Radio box THIN_UP_BOX down_box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49 when 6
+        }
+        Fl_Button {} {
+          label {VOICE 3}
+          callback {if (Fl::event_clicks())
+{
+Fl::event_clicks(0);
+pd->preset->copy(copy_type, copy_src, 2);
+if (Fl::event_state(FL_SHIFT))
+copy_layer->hide();
+else
+o->deactivate();
+}}
+          xywh {140 30 60 20} type Radio box THIN_UP_BOX down_box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49 when 6
+        }
+        Fl_Button {} {
+          label {VOICE 4}
+          callback {if (Fl::event_clicks())
+{
+Fl::event_clicks(0);
+pd->preset->copy(copy_type, copy_src, 3);
+if (Fl::event_state(FL_SHIFT))
+copy_layer->hide();
+else
+o->deactivate();
+}}
+          xywh {205 30 60 20} type Radio box THIN_UP_BOX down_box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49 when 6
+        }
+      }
+      Fl_Button {} {
+        label Close
+        callback {copy_layer->hide();}
+        xywh {205 69 60 20} selection_color 15 labelsize 12
+      }
+    }
+    Fl_Window copy_preset {
+      label Copy
+      xywh {703 83 216 366} type Double box BORDER_BOX hide modal
+    } {
+      Fl_Group g_copy_preset {
+        label DESTINATION open
+        xywh {10 22 196 304} box THIN_DOWN_BOX labelfont 1 labelcolor 15
+      } {
+        Fl_Choice copy_arp_rom {open
+          xywh {20 28 176 21} down_box BORDER_BOX labeltype NO_LABEL labelcolor 15 align 0 textsize 13 deactivate
+          code0 {o->set_id(2);}
+          class ROM_Choice
+        } {}
+        Fl_Browser copy_browser {
+          tooltip {Double-click/Enter/Space target to copy/save (hold SHIFT to copy/save and close window). ESC/Backspace cancels.} xywh {20 54 176 241} type Hold when 1 textfont 4 textsize 12 textcolor 49
+          class Browser
+        }
+        Fl_Input copy_browser_filter {
+          label {F }
+          callback {copy_browser->set_filter(o->value());}
+          xywh {36 300 129 20} box UP_BOX labelsize 10 labelcolor 7 when 1 textfont 5 textsize 12 textcolor 49
+          code0 {o->cursor_color(FL_BACKGROUND_COLOR);}
+          code1 {o->tooltip(filter_tooltip);}
+          class Input
+        }
+        Fl_Button {} {
+          label C
+          callback {copy_browser_filter->value(0);
+copy_browser_filter->do_callback();}
+          xywh {170 300 26 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49
+        }
+      }
+      Fl_Group g_copy_arp_pattern {
+        label DESTINATION open
+        xywh {10 22 196 304} box THIN_DOWN_BOX labelfont 1 labelcolor 15 hide
+      } {
+        Fl_Browser copy_arp_pattern_browser {
+          tooltip {Execute Copy/Save command by either double clicking or pressing Enter or Space on the target. ESC/Backspace cancels.} xywh {20 29 176 266} type Hold when 1 textfont 4 textsize 12 textcolor 49
+          class Browser
+        }
+        Fl_Input copy_arp_pattern_browser_filter {
+          label {F }
+          callback {copy_arp_pattern_browser->set_filter(o->value());}
+          xywh {36 300 129 20} box UP_BOX labelsize 10 labelcolor 7 when 1 textfont 5 textsize 12 textcolor 49
+          code0 {o->tooltip(filter_tooltip);}
+          code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
+          class Input
+        }
+        Fl_Button {} {
+          label C
+          callback {copy_arp_pattern_browser_filter->value(0);
+copy_arp_pattern_browser_filter->do_callback();}
+          xywh {170 300 26 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49
+        }
+      }
+      Fl_Button {} {
+        label Close
+        callback {copy_preset->hide();}
+        xywh {145 338 60 20} selection_color 15 labelsize 12
+      }
+    }
+    Fl_Window loading_w {
+      label {Please wait...}
+      callback {;}
+      xywh {538 66 290 86} type Double box BORDER_BOX hide modal
+    } {
+      Fl_Box {} {
+        xywh {1 1 104 43} box FLAT_BOX color 7 labeltype NO_LABEL labelfont 1 labelcolor 49 align 26
+      }
+      Fl_Box {} {
+        label {Loading program...}
+        xywh {105 1 184 43} box FLAT_BOX color 7 labelfont 1 labelsize 12 labelcolor 49 align 154
+      }
+      Fl_Box {} {
+        xywh {5 0 64 64} deactivate
+        code0 {o->image(image_l64);}
+      }
+      Fl_Progress progress {
+        label label
+        xywh {115 64 60 6} box FLAT_BOX selection_color 49 labeltype NO_LABEL labelcolor 7
+      }
+    }
+    Fl_Window reset_w {
+      label Reset
+      callback {;} open
+      xywh {740 72 286 168} type Double box BORDER_BOX hide modal
+    } {
+      Fl_Box {} {
+        xywh {1 1 84 43} box FLAT_BOX color 7 labeltype NO_LABEL labelfont 1 labelcolor 49 align 26
+      }
+      Fl_Box {} {
+        label {What do you want me to reset?}
+        xywh {85 1 200 43} box FLAT_BOX color 7 labelfont 1 labelsize 12 labelcolor 49 align 154
+      }
+      Fl_Box {} {
+        xywh {5 0 64 64} deactivate
+        code0 {o->image(image_l64);}
+      }
+      Fl_Check_Button r_user {
+        label {User Data}
+        callback {if (o->value())
+g_r_user->activate();
+else
+g_r_user->deactivate();}
+        tooltip {Delete Program- and Arp-Name data!} xywh {8 79 87 20} down_box DOWN_BOX selection_color 49
+      }
+      Fl_Group g_r_user {open
+        xywh {111 75 149 25} labeltype NO_LABEL labelcolor 15 align 0 deactivate
+      } {
+        Fl_Check_Button r_user_all {
+          label All
+          callback {if (o->value())
+r_user_id->deactivate();
+else
+r_user_id->activate();}
+          tooltip {Delete all User data!} xywh {111 79 39 20} down_box DOWN_BOX value 1 selection_color 49
+        }
+        Fl_Spinner r_user_id {
+          label ID
+          tooltip {Delete User data for the device configured using this ID only!} xywh {193 79 58 20} color 7 selection_color 15 labelsize 12 when 1 minimum 0 maximum 126 value 0 textfont 4 textsize 13 textcolor 49 deactivate
+        }
+      }
+      Fl_Check_Button r_rom {
+        label {ROM Data}
+        callback {if (o->value())
+g_r_rom->activate();
+else
+g_r_rom->deactivate();}
+        tooltip {Delete ROM data (once downloaded they never change so this is only useful if initialization went wrong)!} xywh {8 104 90 20} down_box DOWN_BOX selection_color 49
+      }
+      Fl_Group g_r_rom {open
+        xywh {111 100 174 25} labeltype NO_LABEL align 0 deactivate
+      } {
+        Fl_Check_Button r_rom_all {
+          label All
+          callback {if (o->value())
+r_rom_rom->deactivate();
+else
+r_rom_rom->activate();}
+          tooltip {Delete all ROM data!} xywh {111 104 39 20} down_box DOWN_BOX value 1 selection_color 49
+        }
+        Fl_Choice r_rom_rom {
+          label {ROM } open
+          tooltip {Delete  ROM data of this ROM only!} xywh {193 104 82 21} down_box BORDER_BOX labelsize 12 textsize 13 deactivate
+          class ROM_Choice
+        } {}
+      }
+      Fl_Button b_reset {
+        label Reset
+        callback {o->deactivate();
+int userdata = -1;
+int romdata = -1;
+if (r_user->value())
+{
+if (r_user_all->value())
+	userdata = 127;
+else
+	userdata = r_user_id->value();
+}
+if (r_rom->value())
+{
+if (r_rom_all->value())
+	romdata = 1;
+else
+	romdata = pd->rom[r_rom_rom->value() + 1]->get_attribute(ID);
+}
+reset(userdata, romdata);}
+        tooltip {Delete chosen data and show the Open Device dialog when finished.} xywh {142 140 60 20} box THIN_UP_BOX selection_color 15 labelsize 12
+      }
+      Fl_Button {} {
+        label Cancel
+        callback {reset_w->hide();}
+        tooltip {Don't delete anything!} xywh {215 140 60 20} box THIN_UP_BOX selection_color 15 labelsize 12
+      }
+    }
+    code {initialize();} {}
+  }
+  Function {~PD_UI()} {open
+  } {
+    code {pd->display_status("Bye!");
+cfg->set_cfg_option(CFG_SYNCVIEW, syncview);
+cfg->set_cfg_option(CFG_WINDOW_WIDTH, main_window->w());
+cfg->set_cfg_option(CFG_WINDOW_HEIGHT, main_window->h());
+if (fc) delete fc;
+if (pd) delete pd;
+delete midi;
+delete cfg;
+pmesg(1, "Bye.\\n");
+exit(0);} {}
+  }
+} 
+
+Function {handler(int event)} {return_type int
+} {
+  code {pmesg(100, "unused handler event: %d\\n", event);
+return 0;} {}
+} 
+
+comment {/** @\} */} {in_source in_header
+} 
