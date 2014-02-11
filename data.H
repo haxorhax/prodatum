@@ -170,8 +170,8 @@ public:
 	 * the upload was successfull
 	 */
 	void upload(int packet, int closed = -1, bool show = false);
-	/// will be used to save the preset to the library
-	void save_file(const char*);
+	/// save dump to disk
+	void save_file();
 	// get methods needed to clone preset dumps
 	int get_dump_size() const;
 	const unsigned char* get_data() const;

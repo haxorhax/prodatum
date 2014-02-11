@@ -1,20 +1,20 @@
-//    This file is part of prodatum.
-//    Copyright 2011 Jan Eidtmann
-//
-//    prodatum is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
-//
-//    prodatum is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
+/*
+ This file is part of prodatum.
+ Copyright 2011-2014 Jan Eidtmann
 
-// $Id$
+ prodatum is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ prodatum is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <string.h>
 #include <fstream>
@@ -26,7 +26,6 @@
 #include "ui.H"
 #include "cfg.H"
 #include "threads.H"
-#include "config.h"
 #include "debug.H"
 
 static bool init_complete;
@@ -57,7 +56,6 @@ PD::PD()
 	roms = 0;
 	preset = 0;
 	preset_copy = 0;
-	preset_library = 0;
 	setup = 0;
 	setup_copy = 0;
 	setup_init = 0;
@@ -92,8 +90,6 @@ PD::~PD()
 		delete preset;
 	if (preset_copy)
 		delete preset_copy;
-	if (preset_library)
-		delete preset_library;
 	if (setup)
 		delete setup;
 	if (setup_copy)
@@ -154,7 +150,6 @@ static void wait_for_init(void*)
 			pd->load_setup();
 			ui->init->hide();
 		}
-		Fl::remove_timeout(wait_for_init, 0);
 	}
 	else
 	{
@@ -170,8 +165,6 @@ static void wait_for_init(void*)
 			}
 			Fl::repeat_timeout(.1, wait_for_init);
 		}
-		else
-			Fl::remove_timeout(wait_for_init, 0);
 	}
 }
 
@@ -183,7 +176,6 @@ static void check_loading(void*)
 	pmesg("check_loading() \n");
 	if (ui->loading_w->shown())
 		ui->loading_w->hide();
-	Fl::remove_timeout(check_loading, 0);
 }
 
 void PD::loading()
@@ -224,7 +216,6 @@ static void status(void* p)
 			return;
 		}
 		ui->status->label(0);
-		Fl::remove_timeout(status, 0);
 	}
 }
 
@@ -596,10 +587,9 @@ static void check_connection(void* p)
 	pmesg("check_connection() \n");
 	if (*(int*) p == 0 && !ui->init->shown())
 		ui->open_device->show();
-	Fl::remove_timeout(check_connection);
 }
 
-#ifdef DEBUG
+#ifdef TEST
 void _test_s(int n)
 {
 	pmesg("_test_s(%d)\n", n);
@@ -703,10 +693,10 @@ void test()
 		Fl::wait(.05);
 	}
 }
-#endif // DEBUG
+#endif // TEST
 void PD::connect()
 {
-#ifdef DEBUG
+#ifdef TEST
 	test();
 	return;
 #endif
@@ -1183,16 +1173,11 @@ void PD::incoming_preset_dump(const unsigned char* data, int len)
 	}
 }
 
-void PD::show_preset(bool lib)
+void PD::show_preset()
 {
-	pmesg("PD::show_preset(%s) \n", lib ? "library" : "preset");
+	pmesg("PD::show_preset() \n");
 	// update ui controls
 	ui->set_eall(0);
-	if (lib)
-	{
-		preset_library->show();
-		return;
-	}
 	preset->show();
 	if (ui->piano_w->shown())
 		ui->piano->redraw();
@@ -1343,9 +1328,7 @@ void PD::incoming_ACK(int packet)
 {
 	pmesg("PD::incoming_ACK(packet: %d) \n", packet);
 	display_status("Received ACK.");
-	if (preset_library)
-		preset_library->upload(++packet);
-	else if (preset)
+	if (preset)
 		preset->upload(++packet);
 	nak_count = 0;
 }
@@ -1409,49 +1392,19 @@ void PD::randomize()
 	}
 }
 
-int PD::load_export(const char* filename, bool library) //, bool keep)
+void PD::load_export(const char* filename)
 {
 	pmesg("PD::load_export(%s) \n", filename);
 	if (!setup)
 	{
 		pd->display_status("*** Must be connected.");
-		if (preset_library)
-		{
-			delete preset_library;
-			preset_library = 0;
-		}
-		return 0;
+		return;
 	}
-	if (!filename) // user hit cancel
+	if(preset->is_changed())
 	{
-		if (preset_library) //  with loaded audit preset
-		{
-			// delete preset_library and upload our preset back to the edit buffer
-			delete preset_library;
-			preset_library = 0;
-			preset->upload(0, cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD));
-			show_preset();
-			display_status("Canceled import, Program reloaded.");
-		}
-		return 1;
+	  if (fl_choice("Unsaved changes will be lost! Continue import?", "Cancel", "Continue", 0) != 1)
+		return;
 	}
-	//	if (library && keep)
-	//	{
-	//		// user chose preset, keep it, show it
-	//		delete preset;
-	//		delete preset_copy;
-	//		preset = new Preset_Dump(preset_library->get_dump_size(),
-	//				preset_library->get_data(), preset_library->get_p_size());
-	//		preset_copy = new Preset_Dump(preset_library->get_dump_size(),
-	//				preset_library->get_data(), preset_library->get_p_size());
-	//		preset->set_changed(true);
-	//		show_preset();
-	//		display_status("Program imported.");
-	//		//pd->display_status("Import successful.");
-	//		delete preset_library;
-	//		preset_library = 0;
-	//		return 1;
-	//	}
 	// open the file
 #ifdef __linux
 	int offset = 0;
@@ -1470,12 +1423,7 @@ int PD::load_export(const char* filename, bool library) //, bool keep)
 	{
 		fl_message("Could not open the file. Do you have read permissions?\n"
 				"Note: You can only drop a single file.");
-		if (preset_library)
-		{
-			delete preset_library;
-			preset_library = 0;
-		}
-		return 0;
+		return;
 	}
 	// check and load file
 	int size;
@@ -1486,12 +1434,7 @@ int PD::load_export(const char* filename, bool library) //, bool keep)
 	{
 		pd->display_status("*** File format unsupported.");
 		file.close();
-		if (preset_library)
-		{
-			delete preset_library;
-			preset_library = 0;
-		}
-		return 0;
+		return;
 	}
 	unsigned char* sysex = new unsigned char[size];
 	file.read((char*) sysex, size);
@@ -1499,13 +1442,8 @@ int PD::load_export(const char* filename, bool library) //, bool keep)
 	if (!(sysex[0] == 0xf0 && sysex[1] == 0x18 && sysex[2] == 0x0f && sysex[4] == 0x55 && sysex[size - 1] == 0xf7))
 	{
 		pd->display_status("*** File format unsupported.");
-		if (preset_library)
-		{
-			delete preset_library;
-			preset_library = 0;
-		}
 		delete[] sysex;
-		return 0;
+		return;
 	}
 	// find packet size
 	int pos = DUMP_HEADER_SIZE; // start after the header
@@ -1514,48 +1452,25 @@ int PD::load_export(const char* filename, bool library) //, bool keep)
 			break;
 	if (0 != test_checksum(sysex, size, pos - DUMP_HEADER_SIZE + 1))
 	{
-		if (preset_library)
-		{
-			delete preset_library;
-			preset_library = 0;
-		}
 		delete[] sysex;
-		return 0;
+		return;
 	}
-	// load presets
-	if (!library) // "this is not a library preview" aka import this!
+	// load preset
+	if (preset)
 	{
-		if (preset_library)
-		{
-			delete preset_library;
-			preset_library = 0;
-		}
-		if (preset)
-		{
-			delete preset;
-			delete preset_copy;
-		}
-		preset = new Preset_Dump(size, sysex, pos - DUMP_HEADER_SIZE + 1);
-		preset_copy = new Preset_Dump(size, sysex, pos - DUMP_HEADER_SIZE + 1);
-		// set edited
-		preset->set_changed(true);
-		// upload to edit buffer
-		preset->move(-1);
-		preset->upload(0, cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD));
-		show_preset();
+		delete preset;
+		delete preset_copy;
 	}
-	else // upload preset from library for audition
-	{
-		if (preset_library)
-			delete preset_library;
-		preset_library = new Preset_Dump(size, sysex, pos - DUMP_HEADER_SIZE + 1);
-		preset_library->move(-1);
-		preset_library->upload(0, cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD));
-		pd->show_preset(true); // true = show preset_library instead of preset
-		display_status("Program loaded for audition.");
-	}
+	preset = new Preset_Dump(size, sysex, pos - DUMP_HEADER_SIZE + 1);
+	preset_copy = new Preset_Dump(size, sysex, pos - DUMP_HEADER_SIZE + 1);
+	// set edited
+	//preset->set_changed(true);
+	// upload to edit buffer
+	preset->move(-1);
+	preset->upload(0, cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD));
+	show_preset();
 	delete[] sysex;
-	return 1;
+	return;
 }
 
 int PD::test_checksum(const unsigned char* data, int size, int packet_size)

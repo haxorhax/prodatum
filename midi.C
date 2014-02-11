@@ -1,20 +1,20 @@
-//    This file is part of prodatum.
-//    Copyright 2011 Jan Eidtmann
-//
-//    prodatum is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
-//
-//    prodatum is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
+/*
+    This file is part of prodatum.
+    Copyright 2011-2014 Jan Eidtmann
 
-// $Id$
+    prodatum is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    prodatum is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <string.h>
 #include <errno.h>
@@ -27,7 +27,6 @@
 #include "pd.H"
 #include "ui.H"
 #include "cfg.H"
-#include "config.h"
 
 extern PD* pd;
 extern PD_UI* ui;
@@ -332,15 +331,12 @@ static void process_midi_in(void*)
 			// log sysex messages
 			if (ui->log_sysex_in->value())
 			{
-				char* buf = new char[2 * len + 17];
-				int n = snprintf(buf, 15, "\nIS.%lu::", ++count);
+				char* buf = new char[2 * len + 18];
+				int n = snprintf(buf, 18, "\nIS.%lu::", ++count);
 				for (int i = 0; i < len; i++)
 					sprintf(n + buf + 2 * i, "%02X", sysex[i]);
 				ui->logbuf->append(buf);
 				delete[] buf;
-				ui->log->insert_position(ui->logbuf->length());
-				if (!ui->scroll_lock->value())
-					ui->log->show_insert_position();
 			}
 			// e-mu sysex
 			if (sysex[1] == 0x18)
@@ -576,15 +572,11 @@ static void process_midi_in(void*)
 				}
 			}
 			// log midi events
-			++count_events;
 			if (ui->log_events_in->value())
 			{
-				char buf[28];
-				snprintf(buf, 28, "\nIE.%lu %02X%02X%02X", count_events, event[0], event[1], event[2]);
+				char buf[30];
+				snprintf(buf, 30, "\nIE.%lu::%02X%02X%02X", ++count_events, event[0], event[1], event[2]);
 				ui->logbuf->append(buf);
-				ui->log->insert_position(ui->logbuf->length());
-				if (!ui->scroll_lock->value())
-					ui->log->show_insert_position();
 			}
 		}
 	}
@@ -620,15 +612,9 @@ MIDI::MIDI()
 #ifndef WIN32
 	if (pipe(p) == -1)
 	{
-		pmesg("*** Could not open pipe\n%s", strerror(errno));
-		fl_alert("Could not open pipe\n%s", strerror(errno));
+		fprintf(stderr, "*** Could not open pipe\n%s", strerror(errno));
 		throw 1;
 	}
-	//	int flags;
-	//	flags = fcntl(p[0], F_GETFL, 0);
-	//	fcntl(p[0], F_SETFL, flags | O_NONBLOCK);
-	//	flags = fcntl(p[1], F_GETFL, 0);
-	//	fcntl(p[1], F_SETFL, flags | O_NONBLOCK);
 #endif
 	populate_ports();
 }
@@ -662,15 +648,12 @@ void MIDI::populate_ports()
 	for (int i = 0; i < Pm_CountDevices(); i++)
 	{
 		const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-		pmesg("%s %s ", info->interf, info->name);
 		if (info->output)
 		{
-			pmesg("Out\n");
 			ui->midi_outs->add("foo");
 			ui->midi_outs->replace(ui->midi_outs->size() - 2, info->name);
 			ports_out.push_back(i);
 			pd->display_status(info->name);
-			Fl::wait();
 		}
 		else
 		{
@@ -680,10 +663,9 @@ void MIDI::populate_ports()
 			ui->midi_ctrl->replace(ui->midi_ctrl->size() - 2, info->name);
 			ports_in.push_back(i);
 			pd->display_status(info->name);
-			Fl::wait();
-			pmesg("In\n");
 		}
 	}
+	Fl::wait(.1);
 }
 
 void MIDI::set_device_id(int id)
@@ -715,6 +697,10 @@ int MIDI::start_timer()
 		Fl::remove_timeout(process_midi_in, 0);
 #endif
 		pd->display_status("*** Could not start MIDI timer.", true);
+		fprintf(stderr, "*** Could not start MIDI timer.\n");
+#ifdef WIN32
+		fflush(stderr);
+#endif
 		return 0;
 	}
 	timer_running = true;
@@ -731,7 +717,7 @@ void MIDI::stop_timer()
 	thru_active = false;
 	midi_active = false;
 	while (!process_midi_exit_flag)
-		Fl::wait(.1);
+		mysleep(10);
 	Pt_Stop();
 #ifndef WIN32
 	Fl::remove_fd(p[0]);
@@ -785,6 +771,10 @@ int MIDI::connect_out(int port)
 		ports_out.at(port);
 	} catch (...)
 	{
+		fprintf(stderr, "*** Selected MIDI port (%d, out) does not exist.\n", port);
+#ifdef WIN32
+		fflush(stderr);
+#endif
 		return 0;
 	}
 	pmerror = Pm_OpenOutput(&port_out, ports_out.at(port), NULL, 0, NULL, NULL, 0); // open the port
@@ -851,6 +841,10 @@ int MIDI::connect_in(int port)
 		ports_in.at(port);
 	} catch (...)
 	{
+		fprintf(stderr, "*** Selected MIDI port (%d, in) does not exist.\n", port);
+#ifdef WIN32
+		fflush(stderr);
+#endif
 		return 0;
 	}
 	pmerror = Pm_OpenInput(&port_in, ports_in.at(port), NULL, 512, NULL, NULL);
@@ -922,6 +916,10 @@ int MIDI::connect_thru(int port)
 		ports_in.at(port);
 	} catch (...)
 	{
+		fprintf(stderr, "*** Selected MIDI port (%d, thru) does not exist.\n", port);
+#ifdef WIN32
+		fflush(stderr);
+#endif
 		return 0;
 	}
 	pmerror = Pm_OpenInput(&port_thru, ports_in.at(port), NULL, 512, NULL, NULL);
@@ -947,7 +945,7 @@ int MIDI::connect_thru(int port)
 	return 1;
 }
 
-void MIDI::set_control_channel_filter(int channel)
+void MIDI::set_control_channel_filter(int channel) const
 {
 	pmesg("MIDI::set_control_channel_filter(%d)\n", channel);
 	cfg->set_cfg_option(CFG_CONTROL_CHANNEL, channel);
@@ -962,7 +960,7 @@ void MIDI::set_control_channel_filter(int channel)
 		show_error();
 }
 
-void MIDI::set_channel_filter(int channel)
+void MIDI::set_channel_filter(int channel) const
 {
 	pmesg("MIDI::set_channel_filter(%d)\n", channel);
 	pmerror = Pm_SetChannelMask(port_in, Pm_Channel(channel));
@@ -970,15 +968,16 @@ void MIDI::set_channel_filter(int channel)
 		show_error();
 }
 
-static void check_answer(void*)
-{
-	pmesg("check_answer()\n");
-	if (!got_answer)
-	{
-		fl_alert("PXK did not respond! prodatum will close.");
-		delete ui;
-	}
-}
+// TODO (unused yet)
+//static void check_answer(void*)
+//{
+//	pmesg("check_answer()\n");
+//	if (!got_answer)
+//	{
+//		fl_alert("PXK did not respond! prodatum will close.");
+//		delete ui;
+//	}
+//}
 
 void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 {
@@ -989,7 +988,10 @@ void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 	static unsigned char header[3];
 	if (!midi_active || len > SYSEX_MAX_SIZE)
 	{
-		pmesg("*** Could not send sysex.");
+		fprintf(stderr, "*** Got request to send sysex with deactivated MIDI processor.\n");
+#ifdef WIN32
+		fflush(stderr);
+#endif
 		return;
 	}
 	header[0] = sysex[0];
@@ -1008,15 +1010,12 @@ void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 	// log sysex messages
 	if (ui->log_sysex_out->value())
 	{
-		char* buf = new char[2 * len + 17];
-		int n = snprintf(buf, 15, "\nOS.%lu::", ++count);
+		char* buf = new char[2 * len + 18];
+		int n = snprintf(buf, 18, "\nOS.%lu::", ++count);
 		for (int i = 0; i < len; i++)
-			sprintf(n + buf + 2 * i, "%02X", sysex[i]);
+			sprintf(n + buf + 2 * i, "%02x", sysex[i]);
 		ui->logbuf->append(buf);
 		delete[] buf;
-		ui->log->insert_position(ui->logbuf->length());
-		if (!ui->scroll_lock->value())
-			ui->log->show_insert_position();
 	}
 }
 
@@ -1041,12 +1040,9 @@ void MIDI::write_event(int status, int value1, int value2, int channel) const
 	// log midi events
 	if (ui->log_events_out->value())
 	{
-		char buf[29];
-		snprintf(buf, 29, "\nOE.%lu %02X%02X%02X", ++count, stat, value1, value2);
+		char buf[30];
+		snprintf(buf, 30, "\nOE.%lu::%02x%02x%02x", ++count, stat, value1, value2);
 		ui->logbuf->append(buf);
-		ui->log->insert_position(ui->logbuf->length());
-		if (!ui->scroll_lock->value())
-			ui->log->show_insert_position();
 	}
 }
 

@@ -1,0 +1,16 @@
+*
+!.gitignore
+!*.H
+/ui.H
+!*.C
+/ui.C
+!prodatum.fl
+!config.h.in
+!CMakeLists.txt
+!README
+!CHANGELOG
+!fl_gleam.cxx
+!fltk_gleam-1.1.10.patch
+!build/
+!include/
+!lib/

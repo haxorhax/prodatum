@@ -26,7 +26,7 @@
 //     http://www.fltk.org/str.php
 //
 
-// $Id: fl_gleam.cxx 386 2011-03-29 14:52:41Z vvd_ $
+// modified version for prodatum (Jan Eidtmann)
 
 // Box drawing code for an obscure box type.
 // These box types are in seperate files so they are not linked

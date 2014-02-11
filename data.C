@@ -1,20 +1,20 @@
-//    This file is part of prodatum.
-//    Copyright 2011 Jan Eidtmann
-//
-//    prodatum is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
-//
-//    prodatum is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
+/*
+    This file is part of prodatum.
+    Copyright 2011-2014 Jan Eidtmann
 
-// $Id$
+    prodatum is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    prodatum is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <string.h>
 #include <fstream>
@@ -26,7 +26,6 @@
 #include "cfg.H"
 #include "pd.H"
 #include "ui.H"
-#include "config.h"
 #include "debug.H"
 
 extern MIDI* midi;
@@ -481,15 +480,17 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 	}
 }
 
-void Preset_Dump::save_file(const char* filename)
+void Preset_Dump::save_file()
 {
-	pmesg("Preset_Dump::save_file(%s) \n", filename);
+	pmesg("Preset_Dump::save_file() \n");
+	char path[PATH_MAX];
+	snprintf(path, PATH_MAX, "%s/%s.syx", cfg->get_export_dir(), get_name());
 	// check if file exists and ask for confirmation
 	struct stat sbuf;
-	if (stat(filename, &sbuf) == 0 && fl_choice("Overwrite existing file?", "No", "Overwrite", 0) == 0)
+	if (stat(path, &sbuf) == 0 && fl_choice("Overwrite existing file?", "No", "Overwrite", 0) == 0)
 		return;
 	// write
-	std::ofstream file(filename, std::ofstream::binary | std::ios::trunc);
+	std::ofstream file(path, std::ofstream::binary | std::ios::trunc);
 	if (!file.is_open())
 	{
 		fl_message("Could not write the file.\nDo you have permission to write?");

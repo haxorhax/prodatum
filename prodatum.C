@@ -1,20 +1,20 @@
-//    prodatum: E-MU Proteus family remote and preset editor
-//    Copyright 2011 Jan Eidtmann
-//
-//    This program is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+/*
+ prodatum: E-MU Proteus family remote and preset editor
+ Copyright 2011-2014 Jan Eidtmann
 
-// $Id$
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <string.h>
 #ifdef WIN32
@@ -30,7 +30,6 @@
 #include "midi.H"
 #include "pd.H"
 #include "cfg.H"
-#include "config.h"
 #include "debug.H"
 
 static void load_data();
@@ -250,6 +249,15 @@ int main(int argc, char *argv[])
 	return Fl::run();
 }
 
+static void logbuffer_cb(void*)
+{
+	if (ui->logbuf->length() >= LOG_BUFFER_SIZE)
+		ui->logbuf->remove(0, LOG_BUFFER_SIZE / 2);
+	ui->log->insert_position(ui->logbuf->length());
+	if (!ui->scroll_lock->value())
+		ui->log->show_insert_position();
+}
+
 void PD_UI::initialize()
 {
 	pmesg("PD_UI::initialize()\n");
@@ -307,6 +315,7 @@ void PD_UI::initialize()
 
 	// log
 	logbuf = new Fl_Text_Buffer(LOG_BUFFER_SIZE);
+	logbuf->add_modify_callback((Fl_Text_Modify_Cb) logbuffer_cb, 0);
 	log->buffer(logbuf);
 	log_sysex_out->value(cfg->get_cfg_option(CFG_LOG_SYSEX_OUT));
 	log_sysex_in->value(cfg->get_cfg_option(CFG_LOG_SYSEX_IN));
@@ -319,28 +328,6 @@ void PD_UI::initialize()
 	main_window->free_position();
 	main_window->size(cfg->get_cfg_option(CFG_WINDOW_WIDTH), cfg->get_cfg_option(CFG_WINDOW_HEIGHT));
 	Fl::focus(selector);
-}
-
-// TODO
-void PD_UI::set_export_path(const char* p)
-{
-	pmesg("PD_UI::set_export_path(p)\n");
-	cfg->set_export_dir(p);
-	//ui->export_dir->value(p);
-}
-
-void PD_UI::export_sysex()
-{
-	pmesg("PD_UI::export_sysex() \n");
-	if (!pd->preset)
-	{
-		pd->display_status("*** Nothing to export.");
-		return;
-	}
-	char path[PATH_MAX];
-	snprintf(path, PATH_MAX, "%s%s.syx", cfg->get_export_dir(), pd->preset->get_name());
-	pd->preset->save_file((const char*) path);
-	return;
 }
 
 /**

@@ -64,9 +64,9 @@ public:
 	/// allows for switching the device ID on the fly
 	void set_device_id(int id);
 	/// sets the incoming channel filter for the control port
-	void set_control_channel_filter(int channel);
+	void set_control_channel_filter(int channel) const;
 	/// sets the incoming channel filter
-	void set_channel_filter(int channel);
+	void set_channel_filter(int channel) const;
 	/**
 	 * opens writable MIDI port, starts MIDI timer if not running yet.
 	 * @param out the MIDI port to open

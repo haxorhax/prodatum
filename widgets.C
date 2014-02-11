@@ -1,20 +1,20 @@
-//    This file is part of prodatum.
-//    Copyright 2011 Jan Eidtmann
-//
-//    prodatum is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
-//
-//    prodatum is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
+/*
+    This file is part of prodatum.
+    Copyright 2011-2014 Jan Eidtmann
 
-// $Id$
+    prodatum is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    prodatum is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <FL/fl_ask.H>
 #include <FL/filename.H>
@@ -240,14 +240,8 @@ void Browser::set_id(int v, int l)
 int Browser::get_value() const
 {
 	int v = value();
-	// deactivate preset selection on preset selection
 	if (id_layer[0] == 897)
-	{
-		//ui->g_preset->deactivate();
-		//ui->value_input->deactivate();
-		// select save slot
 		ui->copy_browser->value(v);
-	}
 	// update instrument names in channel strips
 	if (id_layer[0] == 1409)
 	{
@@ -302,18 +296,15 @@ void Browser::set_value(int v)
 			value(v + 2);
 		}
 		else if (v >= 0)
+		{
+			Fl::wait();
 			value(v + 1);
+		}
 		else
 			return;
 		apply_filter();
-		// deactivate preset selection on preset selection
 		if (id_layer[0] == 897)
-		{
-			//ui->g_preset->deactivate();
-			//ui->value_input->deactivate();
-			// select save slot
 			ui->copy_browser->value(v + 1);
-		}
 		// update instrument names in channel strips
 		else if (id_layer[0] == 1409)
 		{
@@ -3046,7 +3037,8 @@ void Envelope_Editor::draw()
 	}
 	fl_font(FL_COURIER, 10);
 	fl_line_style(FL_SOLID, 1);
-	for (int i = 0; i < 5; i++)
+	unsigned char i;
+	for (i = 0; i < 5; i++)
 	{
 		// Borders
 		fl_color(light);
@@ -3086,9 +3078,9 @@ void Envelope_Editor::draw()
 	// lower bar
 	// Borders
 	fl_color(light);
-	for (int i = 0; i < 6; i++)
+	for (i = 0; i < 6; i++)
 		fl_rect(copy_button[i], ee_y0 + ee_h - 18, 16, 14);
-	for (int i = 0; i < 4; i++)
+	for (i = 0; i < 4; i++)
 		fl_rect(shape_button[i], ee_y0 + ee_h - 18, 16, 14);
 	// selected
 	fl_color(FL_SELECTION_COLOR);
@@ -3156,14 +3148,14 @@ void Envelope_Editor::draw()
 	}
 	// horizontale
 	float y_step = ((float) ee_h - 50.) / 20.;
-	for (int i = -9; i <= 9; i++)
+	for (char j = -9; j <= 9; j++)
 	{
-		if (i == 0)
+		if (j == 0)
 			if (mode == VOLUME)
 				break;
 			else
 				continue;
-		fl_line(x0 + 1, y0 + y_step * i, x0 + ee_w - 11, y0 + y_step * i);
+		fl_line(x0 + 1, y0 + y_step * j, x0 + ee_w - 11, y0 + y_step * j);
 	}
 	// rahmen
 	fl_rect(x0, ee_y0 + 25, ee_w - 9, ee_h - 49);
@@ -3173,7 +3165,7 @@ void Envelope_Editor::draw()
 	// envelopes
 	if (overlay)
 	{
-		for (int i = 0; i < modes; i++)
+		for (i = 0; i < modes; i++)
 		{
 			if (i == mode)
 				continue;
@@ -3184,16 +3176,16 @@ void Envelope_Editor::draw()
 	// value fields
 	// calc number of hovers
 	int hovers = 0;
-	for (int i = 0; i < 6; i++)
+	for (i = 0; i < 6; i++)
 		if (hover_list & (1 << i))
 			hovers += 12;
 	char info[15];
 	int y_offset = 16;
-	for (int i = 0; i < 6; i++)
+	for (i = 0; i < 6; i++)
 	{
 		if (hover_list & (1 << i))
 		{
-			const char *tmp;
+			const char *tmp = 0;
 			switch (i)
 			{
 				case 0:
@@ -3215,7 +3207,7 @@ void Envelope_Editor::draw()
 					tmp = "R2";
 					break;
 			}
-			const char *tmp_tempo;
+			const char *tmp_tempo = 0;
 			if (env[mode].mode == TEMPO_BASED)
 			{
 				switch (env[mode].stage[i][0])
@@ -3300,7 +3292,6 @@ void Envelope_Editor::draw()
 				snprintf(info, 15, "%s %5s%4d", tmp, tmp_tempo, env[mode].stage[i][1]);
 			else
 				snprintf(info, 15, "%s %5d%4d", tmp, env[mode].stage[i][0], env[mode].stage[i][1]);
-			tmp_tempo = 0;
 			if (i == hover)
 				fl_font(FL_COURIER_BOLD_ITALIC, 14);
 			else
@@ -4038,8 +4029,8 @@ void Piano::draw()
 
 int Piano::handle(int ev)
 {
-	static int i = 0;
-	static int j = 0;
+	static unsigned char i = 0;
+	static unsigned char j = 0;
 	static int mx = 0;
 	mx = Fl::event_x() - w_black / 2; // dragbox beneath mousepointer
 	switch (ev)
@@ -4391,10 +4382,11 @@ void Piano::draw_ranges()
 	fl_rectf(keyboard_x0 - 10, keyboard_y0 + h_white + 1, keyboard_w + 15, 119);
 	fl_color(FL_SELECTION_COLOR);
 	fl_font(FL_COURIER, 10);
-	static int show_layers;
+	static unsigned char show_layers;
 	ui->eall ? show_layers = 1 : show_layers = 4;
 	char buf[4];
-	for (int i = 0; i < show_layers; i++)
+	unsigned char i;
+	for (i = 0; i < show_layers; i++)
 	{
 		snprintf(buf, 4, "%d", i + 1);
 		fl_draw(buf, keyboard_x0 - 9, dragbox[mode][i][0][1] + 7);
@@ -4419,7 +4411,7 @@ void Piano::draw_ranges()
 		fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .8f));
 	if (mode == KEYRANGE)
 	{
-		for (int i = 0; i < 128; i++)
+		for (i = 0; i < 128; i++)
 			if (taste_x0[i][1] == 0)
 			{
 				fl_line_style(FL_SOLID, 1);
@@ -4440,7 +4432,7 @@ void Piano::draw_ranges()
 	}
 
 	// draw selected ranges
-	for (int i = 0; i < show_layers; i++) // for all 4 layers
+	for (i = 0; i < show_layers; i++) // for all 4 layers
 	{
 		// key ranges
 		fl_color(fl_darker(FL_BACKGROUND2_COLOR));
@@ -4475,7 +4467,7 @@ void Piano::draw_ranges()
 					dragbox[mode][i][HIGH_KEY][0] - dragbox[mode][i][HIGH_FADE][0] + w_black, 4);
 		}
 		// put handles on top
-		for (int j = 0; j < 4; j++) // for all 4 values
+		for (unsigned char j = 0; j < 4; j++) // for all 4 values
 		{
 			if (highlight_dragbox[i][j])
 				fl_color(FL_SELECTION_COLOR);
@@ -4553,10 +4545,11 @@ void Piano::draw_piano()
 	fl_push_clip(keyboard_x0, keyboard_y0, keyboard_w + 1, h_white);
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_rectf(keyboard_x0, keyboard_y0, keyboard_w + 1, h_white);
-	int tmp;
+	unsigned char tmp;
 	// white keys
 	fl_color(FL_BACKGROUND2_COLOR);
-	for (int i = 0; i < 11; i++)
+	unsigned char i;
+	for (i = 0; i < 11; i++)
 	{
 		tmp = 12 * i;
 		fl_rectf(taste_x0[0 + tmp][0] + 1, keyboard_y0, w_white - 2, h_white);
@@ -4572,7 +4565,7 @@ void Piano::draw_piano()
 
 	// black keys
 	fl_color(FL_BACKGROUND_COLOR);
-	for (int i = 0; i < 11; i++)
+	for (i = 0; i < 11; i++)
 	{
 		tmp = 12 * i;
 		fl_rectf(taste_x0[1 + tmp][0], keyboard_y0, w_black, h_black);
@@ -4588,7 +4581,7 @@ void Piano::draw_piano()
 
 void Piano::draw_highlights()
 {
-	for (int key = 0; key < 128; key++)
+	for (unsigned char key = 0; key < 128; key++)
 		if (active_keys[key] != 0)
 		{
 			if (taste_x0[key][1] == 1) // black keys
@@ -4631,7 +4624,7 @@ void Piano::draw_highlights()
 				}
 				fl_rectf(taste_x0[key][0] + 1, keyboard_y0, w_white - 2, h_white);
 				// repaint black keys if a white key is hovered
-				int tmp;
+				unsigned char tmp;
 				if (key + 1 < 127 && key + 1 != hovered_key)
 				{
 					tmp = (key + 1) % 12;
@@ -4694,9 +4687,9 @@ void Piano::draw_case()
 	fl_rectf(keyboard_x0, keyboard_y0 - 12, keyboard_w + 1, 12);
 	fl_color(FL_SELECTION_COLOR);
 	fl_font(FL_COURIER, 10);
-	int offset = 7 * (w_white - 1); // octave
+	unsigned char offset = 7 * (w_white - 1); // octave
 	char buf[9];
-	for (int i = 0; i < 11; i++)
+	for (unsigned char i = 0; i < 11; i++)
 	{
 		snprintf(buf, 9, "C%d", i - 2);
 		fl_draw(buf, keyboard_x0 + i * offset, keyboard_y0 - 3);
@@ -4732,7 +4725,7 @@ void Piano::draw_curve(int type)
 	char buf[30];
 	fl_color(FL_FOREGROUND_COLOR);
 	fl_font(FL_COURIER, 8);
-	for (int i = 0; i < 4; i++)
+	for (unsigned char i = 0; i < 4; i++)
 	{
 		snprintf(buf, 30, "L%d  %3d %3d  %3d %3d", i + 1, new_key_value[mode][i][LOW_KEY], new_key_value[mode][i][LOW_FADE],
 				new_key_value[mode][i][HIGH_KEY], new_key_value[mode][i][HIGH_FADE]);
@@ -4882,7 +4875,7 @@ void Piano::set_range_values(int md, int layer, int low_k, int low_f, int high_k
 	dragbox[md][layer][LOW_FADE][0] = taste_x0[low_k + low_f][0];
 	dragbox[md][layer][HIGH_KEY][0] = taste_x0[high_k][0];
 	dragbox[md][layer][HIGH_FADE][0] = taste_x0[high_k - high_f][0];
-	for (int i = 0; i < 4; i++) // center on white keys
+	for (unsigned char i = 0; i < 4; i++) // center on white keys
 	{
 		if ((dragbox[md][layer][i][0] - keyboard_x0) % 12 == 0)
 			dragbox[md][layer][i][0] += 3; // center on white keys
@@ -5015,7 +5008,7 @@ void MiniPiano::draw_case()
 
 void MiniPiano::draw_highlights()
 {
-	for (int key = 12 * octave; key <= (12 * octave + 24); key++)
+	for (unsigned char key = 12 * octave; key <= (12 * octave + 24); key++)
 		if (active_keys[key] != 0)
 		{
 			int mapped_key = key - octave * 12;
@@ -5121,10 +5114,11 @@ void MiniPiano::draw_piano()
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_rectf(key_x, key_y, key_w, h_white);
 	static float offset = 1.;
-	for (int i = 0; i < 11; i++)
+	unsigned char i;
+	for (i = 0; i < 11; i++)
 	{
 		// for each octave on the keyboard
-		int octave = i * 12;
+		unsigned char octave = i * 12;
 		taste_x0[0 + octave][0] = key_x + offset;
 		taste_x0[0 + octave][1] = 0.;
 		taste_x0[1 + octave][0] = key_x + w_white - s - w_black / 2. + offset;
@@ -5158,7 +5152,7 @@ void MiniPiano::draw_piano()
 	int octa;
 	// white keys
 	fl_color(FL_FOREGROUND_COLOR);
-	for (int i = 0; i < 3; i++)
+	for (i = 0; i < 3; i++)
 	{
 		octa = 12 * i;
 		fl_rectf(taste_x0[0 + octa][0], key_y, w_white - 2, h_white);
@@ -5173,7 +5167,7 @@ void MiniPiano::draw_piano()
 	}
 	// black keys
 	fl_color(FL_BACKGROUND_COLOR);
-	for (int i = 0; i < 2; i++)
+	for (i = 0; i < 2; i++)
 	{
 		octa = 12 * i;
 		fl_rectf(taste_x0[1 + octa][0], key_y, w_black, h_black);
@@ -5406,7 +5400,7 @@ void MiniPiano::activate_key(int value, int key)
 
 void MiniPiano::reset_active_keys()
 {
-	for (int i = 0; i < 128; i++)
+	for (unsigned char i = 0; i < 128; i++)
 		if (active_keys[i] > 0)
 			active_keys[i] = -1;
 	damage(D_HIGHLIGHT);

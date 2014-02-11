@@ -186,12 +186,6 @@ public:
 	 */
 	const Preset_Dump* preset_copy;
 	/**
-	 * preset data that has been loaded from the library.
-	 * used for imports
-	 * @see Preset_Dump()
-	 */
-	Preset_Dump* preset_library;
-	/**
 	 * array of ROM()s for the currently opened device.
 	 * @see ROM()
 	 */
@@ -277,8 +271,8 @@ public:
 	void start_over();
 	void randomize();
 	/// load an exported program
-	int load_export(const char*, bool library = false); //, bool keep = false);
-	void show_preset(bool lib = false);
+	void load_export(const char*);
+	void show_preset();
 	/**
 	 * mute/unmute a layer
 	 * @param state wether to mute or unmute

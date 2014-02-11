@@ -1,20 +1,26 @@
-//    This file is part of prodatum.
-//    Copyright 2011 Jan Eidtmann
-//
-//    prodatum is free software: you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation, either version 3 of the License, or
-//    (at your option) any later version.
-//
-//    prodatum is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
+/*
+ This file is part of prodatum.
+ Copyright 2011-2014 Jan Eidtmann
 
-// $Id$
+ prodatum is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ prodatum is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifdef WIN32
+#include <stdio.h>
+#else
+#include <unistd.h>
+#endif
 
 #include <string.h>
 #include <errno.h>
@@ -22,7 +28,7 @@
 #include <sys/stat.h>
 #include <FL/fl_ask.H>
 #include <stdlib.h>
-#include "config.h"
+
 #include "cfg.H"
 #include "debug.H"
 
@@ -78,13 +84,13 @@ Cfg::Cfg(const char* n, int ac)
 	struct stat sbuf;
 	if (stat(config_dir, &sbuf) == -1)
 	{
-
 		if (mkdir(config_dir, S_IRWXU| S_IRWXG | S_IROTH | S_IXOTH) == -1)
 		{
-			char message[256];
-			snprintf(message, 256, "Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
-			pmesg(message);
-			fl_alert("%s", message);
+			fl_alert("Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
+			fprintf(stderr, "Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
+#ifdef WIN32
+			fflush(stderr);
+#endif
 			throw 1;
 		}
 	}
@@ -95,7 +101,6 @@ Cfg::Cfg(const char* n, int ac)
 	std::ifstream file(config_path);
 	if (!file.is_open())
 	{
-		//ui->message("Could not load the config,\nusing defaults.");
 		for (int i = 0; i < NOOPTION; i++)
 			option[i] = defaults[i];
 		return;
@@ -135,7 +140,11 @@ Cfg::~Cfg()
 	std::ofstream file(config_path, std::ios::trunc);
 	if (!file.is_open())
 	{
-		fl_message("Warning:\nCould not write the config file.");
+		fl_alert("Warning:\nCould not write the config file.");
+		fprintf(stderr, "Warning:\nCould not write the config file.");
+#ifdef WIN32
+		fflush(stderr);
+#endif
 		return;
 	}
 	// calc checksum
@@ -190,12 +199,36 @@ const char* Cfg::get_export_dir() const
 	return export_dir;
 }
 
-void Cfg::set_export_dir(const char* dir)
+bool Cfg::set_export_dir(const char* dir)
 {
 	pmesg("Cfg::set_export_dir(%s)  \n", dir);
-	// add trailing slash
-	if (dir[strlen(dir) - 1] != '/' && dir[strlen(dir) - 1] != '\\')
-		snprintf(export_dir, PATH_MAX, "%s/", dir);
+	struct stat sbuf;
+	if (stat(dir, &sbuf) == -1)
+	{
+		fl_alert("Warning: Directory must exist.\nUsing previous directory.");
+		return false;
+	}
 	else
-		snprintf(export_dir, PATH_MAX, "%s", dir);
+	{
+		char buf[PATH_MAX];
+		snprintf(buf, PATH_MAX, "%s/___prodatum-filecheck___", dir);
+		FILE *fp = fopen(buf, "w");
+		if (fp == NULL)
+		{
+			if (errno == EACCES)
+				fl_alert("Warning: You don't have write permission at %s.\nUsing previous directory.", dir);
+			return false;
+		}
+		else
+		{
+			fclose(fp);
+#ifdef WIN32
+			_unlink(buf);
+#else
+			unlink(buf);
+#endif
+		}
+	}
+	snprintf(export_dir, PATH_MAX, "%s", dir);
+	return true;
 }

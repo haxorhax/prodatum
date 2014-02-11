@@ -90,7 +90,7 @@ public:
 	/// returns the config directory path
 	const char* get_config_dir() const;
 	const char* get_export_dir() const;
-	void set_export_dir(const char* dir);
+	bool set_export_dir(const char* dir);
 	/**
 	 * updates a configuration value
 	 * @param option the parameter to update
