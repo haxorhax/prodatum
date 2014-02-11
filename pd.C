@@ -16,11 +16,7 @@
 
 // $Id$
 
-#ifdef HAVE_CONFIG_H
-#  include <config.H>
-#endif
-
-//#include <string>
+#include <string.h>
 #include <fstream>
 #include <FL/fl_ask.H>
 #include <FL/Fl_Tooltip.H>
@@ -30,7 +26,7 @@
 #include "ui.H"
 #include "cfg.H"
 #include "threads.H"
-
+#include "config.h"
 #include "debug.H"
 
 static bool init_complete;
@@ -55,7 +51,7 @@ std::map<int, int> rom_id_map;
 
 PD::PD()
 {
-	pmesg(40, "PD::PD() \n");
+	pmesg("PD::PD() \n");
 	setup_names = 0;
 	user_presets = 0;
 	roms = 0;
@@ -85,7 +81,7 @@ PD::PD()
 
 PD::~PD()
 {
-	pmesg(40, "PD::~PD() \n");
+	pmesg("PD::~PD() \n");
 	for (int i = 0; i < 4; i++) // unmute eventually muted voices
 		mute(0, i);
 	// save setup_names
@@ -123,7 +119,7 @@ static void *init_watchdog(void*)
 	while (time_incoming_midi)
 	{
 		gettimeofday(&tv_last_sleep, 0);
-		mysleep (100);
+		mysleep(100);
 		tv_sub.tv_sec = tv_incoming.tv_sec - tv_last_sleep.tv_sec;
 		tv_sub.tv_usec = tv_incoming.tv_usec - tv_last_sleep.tv_usec;
 		if (tv_sub.tv_usec < 0)
@@ -131,7 +127,7 @@ static void *init_watchdog(void*)
 			--tv_sub.tv_sec;
 			tv_sub.tv_usec += 1000000;
 		}
-		//pmesg(90, "wd time: %d\n", tv_sub.tv_sec * 1000000 + tv_sub.tv_usec);
+		//pmesg("wd time: %d\n", tv_sub.tv_sec * 1000000 + tv_sub.tv_usec);
 		if ((tv_sub.tv_sec * 1000000 + tv_sub.tv_usec) < init_timeout)
 			time_incoming_midi = false;
 	}
@@ -144,7 +140,7 @@ static void *init_watchdog(void*)
  */
 static void wait_for_init(void*)
 {
-	pmesg(40, "wait_for_init() \n");
+	pmesg("wait_for_init() \n");
 	static char buf[30];
 	if (init_complete && !time_incoming_midi)
 	{
@@ -153,7 +149,7 @@ static void wait_for_init(void*)
 		{
 			// wait a bit, might loading a setup here which
 			// makes the device ignore all requests
-			mysleep (25);
+			mysleep(25);
 			// load setup
 			pd->load_setup();
 			ui->init->hide();
@@ -184,7 +180,7 @@ static void wait_for_init(void*)
  */
 static void check_loading(void*)
 {
-	pmesg(40, "check_loading() \n");
+	pmesg("check_loading() \n");
 	if (ui->loading_w->shown())
 		ui->loading_w->hide();
 	Fl::remove_timeout(check_loading, 0);
@@ -192,7 +188,7 @@ static void check_loading(void*)
 
 void PD::loading()
 {
-	pmesg(40, "PD::loading() \n");
+	pmesg("PD::loading() \n");
 	Fl::remove_timeout(check_loading, 0);
 	ui->loading_w->free_position();
 	ui->loading_w->show();
@@ -205,7 +201,7 @@ void PD::loading()
 static bool launch = true;
 static void status(void* p)
 {
-	pmesg(80, "status() \n");
+	pmesg("status() \n");
 	static char message[40];
 	if ((char*) p)
 	{
@@ -235,7 +231,7 @@ static void status(void* p)
 // currently spasce for ~30 characters max!
 void PD::display_status(const char* message, bool top)
 {
-	pmesg(40, "PD::display_status(%s, %s) \n", message, top ? "true" : "false");
+	pmesg("PD::display_status(%s, %s) \n", message, top ? "true" : "false");
 	if (top) // important stuff
 	{
 		if (!launch)
@@ -261,7 +257,7 @@ void PD::display_status(const char* message, bool top)
 
 void PD::init_arp_riff_names()
 {
-	pmesg(40, "PD::init_arp_riff_names() \n");
+	pmesg("PD::init_arp_riff_names() \n");
 	time_incoming_midi = true;
 	init_complete = true;
 	names_to_download = 0;
@@ -285,31 +281,30 @@ void PD::init_arp_riff_names()
 
 void PD::widget_callback(int id, int value, int layer)
 {
-	pmesg(40, "PD::widget_callback(%d, %d, %d) \n", id, value, layer);
+	pmesg("PD::widget_callback(%d, %d, %d) \n", id, value, layer);
 	if (!setup)
 		return;
 	// browser returns -1 when user clicked on empty space
-	if (value == -1 && (id == 278 || id == 643 || id == 897 || id == 928 || id
-			== 1027 || id == 1409))
+	if (value == -1 && (id == 278 || id == 643 || id == 897 || id == 928 || id == 1027 || id == 1409))
 	{
 		int current = 0;
 		// reselect the previous selection for them
 		switch (id)
 		{
-		case (278): // master riff
-			current = setup->get_value(id);
-			break;
-		case (643): // master arp
-			current = setup->get_value(id);
-			break;
-		case 897: // preset
-			current = setup->get_value(130, selected_channel);
-			break;
-		case 1409: // intrument
-			current = preset->get_value(id, layer);
-			break;
-		default: // arp/riff
-			current = preset->get_value(id);
+			case (278): // master riff
+				current = setup->get_value(id);
+				break;
+			case (643): // master arp
+				current = setup->get_value(id);
+				break;
+			case 897: // preset
+				current = setup->get_value(130, selected_channel);
+				break;
+			case 1409: // intrument
+				current = preset->get_value(id, layer);
+				break;
+			default: // arp/riff
+				current = preset->get_value(id);
 		}
 		if (layer == -2)
 			pwid[id][0]->set_value(current);
@@ -401,81 +396,80 @@ void PD::widget_callback(int id, int value, int layer)
 	// id's which have deps and need further updates below
 	switch (id)
 	{
-	case 135: // channel enable
-		if (value == 0)
-		{
-			ui->main->minipiano->reset_active_keys();
-			ui->global_minipiano->reset_active_keys();
-			ui->piano->reset_active_keys();
-		}
-		return;
-	case 138: // preset rom select
-		selected_preset_rom = value;
-		midi->write_event(0xb0, 0, selected_preset_rom, selected_channel);
-		midi->write_event(0xb0, 32, selected_preset / 128, selected_channel);
-		midi->write_event(0xc0, selected_preset % 128, 0, selected_channel);
-		midi->request_preset_dump(-1, 0);
-		return;
-	case 140: // FX channel
-		selected_fx_channel = value;
-		if (midi_mode != MULTI || selected_fx_channel != -1)
-			preset->show_fx();
-		else
-			setup->show_fx();
-		return;
-	case 385: // MIDI Mode
-		if (value != MULTI)
-		{
-			if (midi_mode == MULTI)
+		case 135: // channel enable
+			if (value == 0)
 			{
-				pwid[140][0]->set_value(selected_channel);
-				preset->show_fx();
-				ui->main->mix_out->deactivate();
-				for (int i = 0; i < 4; i++)
-					ui->main->layer_strip[i]->mix_out->activate();
+				ui->main->minipiano->reset_active_keys();
+				ui->global_minipiano->reset_active_keys();
+				ui->piano->reset_active_keys();
 			}
-			midi_mode = value;
-		}
-		else // multimode
-		{
-			midi_mode = value;
-			pwid[140][0]->set_value(selected_fx_channel);
-			if (selected_fx_channel != -1)
+			return;
+		case 138: // preset rom select
+			selected_preset_rom = value;
+			midi->write_event(0xb0, 0, selected_preset_rom, selected_channel);
+			midi->write_event(0xb0, 32, selected_preset / 128, selected_channel);
+			midi->write_event(0xc0, selected_preset % 128, 0, selected_channel);
+			midi->request_preset_dump(-1, 0);
+			return;
+		case 140: // FX channel
+			selected_fx_channel = value;
+			if (midi_mode != MULTI || selected_fx_channel != -1)
 				preset->show_fx();
 			else
 				setup->show_fx();
-			ui->main->mix_out->get_value();
-			ui->main->mix_out->activate();
-		}
-		return;
-	case 1537: // Filter type
-		for (int i = 0; i <= 50; i++)
-			if (FM[i].value == value)
+			return;
+		case 385: // MIDI Mode
+			if (value != MULTI)
 			{
-				Fl_Tooltip::exit((Fl_Widget*) pwid[id][layer]);
-				ui->main->layer_strip[layer]->filter->tooltip(FM[i].info);
-				break;
+				if (midi_mode == MULTI)
+				{
+					pwid[140][0]->set_value(selected_channel);
+					preset->show_fx();
+					ui->main->mix_out->deactivate();
+					for (int i = 0; i < 4; i++)
+						ui->main->layer_strip[i]->mix_out->activate();
+				}
+				midi_mode = value;
 			}
-		return;
-	case 513: // fx types
-	case 520:
-	case 1153:
-	case 1160:
-		update_fx_values(id, value);
-		return;
+			else // multimode
+			{
+				midi_mode = value;
+				pwid[140][0]->set_value(selected_fx_channel);
+				if (selected_fx_channel != -1)
+					preset->show_fx();
+				else
+					setup->show_fx();
+				ui->main->mix_out->get_value();
+				ui->main->mix_out->activate();
+			}
+			return;
+		case 1537: // Filter type
+			for (int i = 0; i <= 50; i++)
+				if (FM[i].value == value)
+				{
+					Fl_Tooltip::exit((Fl_Widget*) pwid[id][layer]);
+					ui->main->layer_strip[layer]->filter->tooltip(FM[i].info);
+					break;
+				}
+			return;
+		case 513: // fx types
+		case 520:
+		case 1153:
+		case 1160:
+			update_fx_values(id, value);
+			return;
 	}
 	// controller mapping changed
 	if ((id > 390 && id < 402) || (id > 405 && id < 410))
 		update_control_map();
 	// update cc controler values when we change initial amounts
 	else if ((id > 914 && id < 928) && id != 923)
-		((Fl_Slider*) ui->main->ctrl_x[(id > 922) ? id - 915 : id - 914])->value(
-				(double) value);
+		((Fl_Slider*) ui->main->ctrl_x[(id > 922) ? id - 915 : id - 914])->value((double) value);
 }
 
 void PD::update_cc_sliders()
 {
-	pmesg(40, "PD::update_cc_sliders() \n");
+	pmesg("PD::update_cc_sliders() \n");
 	if (!preset)
 		return;
 	ui->main->b_store->deactivate();
@@ -520,7 +514,7 @@ void PD::update_cc_sliders()
 
 void PD::update_control_map()
 {
-	pmesg(40, "PD::update_control_map() \n");
+	pmesg("PD::update_control_map() \n");
 	// cc to controller
 	cc_to_ctrl.clear();
 	cc_to_ctrl[setup->get_value(391)] = 1;
@@ -561,7 +555,7 @@ void PD::update_control_map()
 
 void PD::cc_callback(int controller, int value)
 {
-	pmesg(40, "PD::cc_callback(%d, %d) \n", controller, value);
+	pmesg("PD::cc_callback(%d, %d) \n", controller, value);
 	midi->write_event(0xb0, ctrl_to_cc[controller], value, selected_channel);
 	if (!cc_changed)
 	{
@@ -574,7 +568,7 @@ void PD::store_play_as_initial()
 {
 	if (!preset)
 		return;
-	pmesg(40, "PD::store_play_as_initial() \n");
+	pmesg("PD::store_play_as_initial() \n");
 	ui->main->b_store->deactivate();
 	cc_changed = false;
 	widget_callback(915, (int) ((Fl_Slider*) ui->main->ctrl_x[1])->value());
@@ -599,7 +593,7 @@ void PD::store_play_as_initial()
 // dialog instead we use this timeout (in connect below)
 static void check_connection(void* p)
 {
-	pmesg(40, "check_connection() \n");
+	pmesg("check_connection() \n");
 	if (*(int*) p == 0 && !ui->init->shown())
 		ui->open_device->show();
 	Fl::remove_timeout(check_connection);
@@ -608,7 +602,7 @@ static void check_connection(void* p)
 #ifdef DEBUG
 void _test_s(int n)
 {
-	pmesg(40, "_test_s(%d)\n", n);
+	pmesg("_test_s(%d)\n", n);
 	int skip = 0;
 	// first fill the arp browser
 	if (pwid[660][0])
@@ -626,7 +620,7 @@ void _test_s(int n)
 }
 void _test_p(int n)
 {
-	pmesg(40, "_test_p(%d)\n", n);
+	pmesg("_test_p(%d)\n", n);
 	char buf[30];
 	snprintf(buf, 30, "%d", n);
 	ui->main->preset_name->copy_label((char*) buf);
@@ -636,18 +630,18 @@ void _test_p(int n)
 	// first we wanna load the names into the browsers
 	// so they are available for selection
 	for (int j = 0; j < 4; j++)
-	if (pwid[1439][j]) // instruments
+	if (pwid[1439][j])// instruments
 	pwid[1439][j]->set_value(n);
-	if (pwid[929][0]) // riffs
+	if (pwid[929][0])// riffs
 	pwid[929][0]->set_value(n);
-	if (pwid[1042][0]) // arp
+	if (pwid[1042][0])// arp
 	pwid[1042][0]->set_value(n);
-	if (pwid[1299][0]) // link 1
+	if (pwid[1299][0])// link 1
 	pwid[1299][0]->set_value(n);
-	if (pwid[1300][0]) // link 2
+	if (pwid[1300][0])// link 2
 	pwid[1300][0]->set_value(n);
 
-	for (int i = 915; i <= 1300; i++) // preset params
+	for (int i = 915; i <= 1300; i++)// preset params
 
 	{
 		if ((i > 1152 && i < 1169) || i == 929) // skip fx & riff rom
@@ -667,8 +661,8 @@ void _test_p(int n)
 	}
 	//update_piano();
 	int id = 1413;
-	for (int m = 0; m < 3; m++) // modes
-	for (int i = 0; i < 4; i++) // layers
+	for (int m = 0; m < 3; m++)// modes
+	for (int i = 0; i < 4; i++)// layers
 	ui->piano->set_range_values(m, i, n, n, n, n);
 	// arp ranges
 	ui->piano->set_range_values(0, 4, n, 0, n, 0);
@@ -681,7 +675,7 @@ void _test_p(int n)
 	//update_envelopes();
 	static int stages[12];
 	id = 1793;
-	for (int l = 0; l < 4; l++) // for all 4 layers
+	for (int l = 0; l < 4; l++)// for all 4 layers
 
 	{
 		for (int m = 0; m < 3; m++) // for all three envelopes
@@ -716,7 +710,7 @@ void PD::connect()
 	test();
 	return;
 #endif
-	pmesg(40, "PD::connect() \n");
+	pmesg("PD::connect() \n");
 	if (!cfg->get_cfg_option(CFG_AUTOCONNECT))
 		ui->open_device->show();
 	int p_out = cfg->get_cfg_option(CFG_MIDI_OUT);
@@ -771,7 +765,7 @@ void PD::connect()
 
 void PD::initialize()
 {
-	pmesg(40, "PD::initialize() \n");
+	pmesg("PD::initialize() \n");
 	for (int i = 0; i < 5; i++)
 		for (int j = 0; j < 7; j++)
 			name_counter[i][j] = 0;
@@ -824,7 +818,7 @@ void PD::initialize()
 // callback for cancel button on init
 void PD::cancel_init()
 {
-	pmesg(40, "PD::cancel_init() \n");
+	pmesg("PD::cancel_init() \n");
 	midi->cancel();
 	if (setup_init)
 	{
@@ -887,13 +881,13 @@ void PD::cancel_init()
 
 void PD::create_device_info()
 {
-	pmesg(40, "PD::create_device_info()\n");
+	pmesg("PD::create_device_info()\n");
 	// if we cancelled initialisation of roms, return here
 	if (!rom[1])
 		return;
 	char buf[512];
-	snprintf(buf, 512, "%s (%s) with %d ROM%s", get_name(member_code), os_rev,
-			roms, (roms > 1 || roms == 0) ? "s:" : ":");
+	snprintf(buf, 512, "%s (%s) with %d ROM%s", get_name(member_code), os_rev, roms,
+			(roms > 1 || roms == 0) ? "s:" : ":");
 	std::string info;
 	info += buf;
 	if (roms == 0)
@@ -905,14 +899,13 @@ void PD::create_device_info()
 	{
 		for (int i = 1; i <= roms; i++)
 		{
-			snprintf(buf, 512, "\n - %s: %d sam, %d prg", rom[i]->name(),
-					rom[i]->get_attribute(INSTRUMENT),
+			snprintf(buf, 512, "\n - %s: %d sam, %d prg", rom[i]->name(), rom[i]->get_attribute(INSTRUMENT),
 					rom[i]->get_attribute(PRESET));
 			info += buf;
 		}
 	}
 	ui->device_info->copy_label(info.data());
-	pmesg(40, "%s\n", info.data());
+	pmesg("%s\n", info.data());
 	// TODO: warn about outdated OS
 	//	if (member_code != AUDITY && strncmp(os_rev, "2.26", 4) != 0)
 	//		fl_message(
@@ -924,7 +917,7 @@ void PD::create_device_info()
 // device infos
 void PD::incoming_inquiry_data(const unsigned char* data, int len)
 {
-	pmesg(40, "PD::incoming_inquiry_data(data, %d) \n", len);
+	pmesg("PD::incoming_inquiry_data(data, %d) \n", len);
 	display_status("Received device inquiry.");
 	device_code = data[7] * 128 + data[6];
 	if (device_code == 516)
@@ -940,32 +933,32 @@ void PD::incoming_inquiry_data(const unsigned char* data, int len)
 		midi->request_hardware_config();
 		switch (member_code)
 		{
-		case AUDITY:
-			ui->main->b_audit->hide();
-			ui->m_audit->hide();
-			ui->main->g_riff->deactivate();
-			ui->preset_editor->g_riff->deactivate();
-			ui->main->post_d->hide();
-			ui->main->pre_d->label("Delay");
-			ui->preset_editor->post_d->hide();
-			ui->preset_editor->pre_d->label("Delay");
-			break;
-		default:
-			ui->main->b_audit->show();
-			ui->m_audit->show();
-			ui->main->g_riff->activate();
-			ui->preset_editor->g_riff->activate();
-			ui->main->post_d->show();
-			ui->main->pre_d->label("Pre D");
-			ui->preset_editor->post_d->show();
-			ui->preset_editor->pre_d->label("Pre D");
+			case AUDITY:
+				ui->main->b_audit->hide();
+				ui->m_audit->hide();
+				ui->main->g_riff->deactivate();
+				ui->preset_editor->g_riff->deactivate();
+				ui->main->post_d->hide();
+				ui->main->pre_d->label("Delay");
+				ui->preset_editor->post_d->hide();
+				ui->preset_editor->pre_d->label("Delay");
+				break;
+			default:
+				ui->main->b_audit->show();
+				ui->m_audit->show();
+				ui->main->g_riff->activate();
+				ui->preset_editor->g_riff->activate();
+				ui->main->post_d->show();
+				ui->main->pre_d->label("Pre D");
+				ui->preset_editor->post_d->show();
+				ui->preset_editor->pre_d->label("Pre D");
 		}
 	}
 }
 
 void PD::incoming_hardware_config(const unsigned char* data, int len)
 {
-	pmesg(40, "PD::incoming_hardware_config(data, %d) \n", len);
+	pmesg("PD::incoming_hardware_config(data, %d) \n", len);
 	init_complete = false;
 	display_status("Received device configuration.");
 	user_presets = data[8] * 128 + data[7];
@@ -985,8 +978,7 @@ void PD::incoming_hardware_config(const unsigned char* data, int len)
 		if (j > roms)
 			continue;
 		int idx = 11 + (j - 1) * 6;
-		rom[j] = new ROM(data[idx + 1] * 128 + data[idx],
-				data[idx + 3] * 128 + data[idx + 2],
+		rom[j] = new ROM(data[idx + 1] * 128 + data[idx], data[idx + 3] * 128 + data[idx + 2],
 				data[idx + 5] * 128 + data[idx + 4]);
 		rom_id_map[data[idx + 1] * 128 + data[idx]] = j;
 	}
@@ -1007,7 +999,7 @@ void PD::incoming_hardware_config(const unsigned char* data, int len)
 
 void PD::incoming_setup_dump(const unsigned char* data, int len)
 {
-	pmesg(40, "PD::incoming_setup_dump(data, %d) \n", len);
+	pmesg("PD::incoming_setup_dump(data, %d) \n", len);
 	display_status("Received setup dump.");
 	selected_multisetup = data[0x4A]; // needed to select it in the multisetup choice
 	if (!init_complete)
@@ -1029,14 +1021,12 @@ void PD::incoming_setup_dump(const unsigned char* data, int len)
 
 void PD::load_setup()
 {
-	pmesg(40, "PD::load_setup() \n");
+	pmesg("PD::load_setup() \n");
 	display_status("Loading setup...");
 	if (setup_init)
 	{
-		setup = new Setup_Dump(setup_init->get_dump_size(),
-				setup_init->get_data());
-		setup_copy = new Setup_Dump(setup_init->get_dump_size(),
-				setup_init->get_data());
+		setup = new Setup_Dump(setup_init->get_dump_size(), setup_init->get_data());
+		setup_copy = new Setup_Dump(setup_init->get_dump_size(), setup_init->get_data());
 		if (ui->init->shown())
 			setup->upload(); // re-load previously used setup
 		delete setup_init;
@@ -1073,7 +1063,7 @@ void PD::load_setup()
 
 void PD::incoming_preset_dump(const unsigned char* data, int len)
 {
-	pmesg(40, "PD::incoming_preset_dump(data, %d) \n", len);
+	pmesg("PD::incoming_preset_dump(data, %d) \n", len);
 	//static int packets;
 	static unsigned char dump[1615];
 	static int dump_pos = 0;
@@ -1088,7 +1078,7 @@ void PD::incoming_preset_dump(const unsigned char* data, int len)
 	// preset dump header
 	if (data[6] == 0x01 && dump_pos == 0) // closed loop (requires ACKs)
 	{
-		//pmesg(40, "PD::incoming_preset_dump(len: %d) header (closed)\n", len);
+		//pmesg("PD::incoming_preset_dump(len: %d) header (closed)\n", len);
 		midi->ack(0);
 		closed_loop = true;
 		dump_pos = len;
@@ -1100,7 +1090,7 @@ void PD::incoming_preset_dump(const unsigned char* data, int len)
 	}
 	else if (data[6] == 0x03 && dump_pos == 0) // open loop
 	{
-		//pmesg(40, "PD::incoming_preset_dump(len: %d) header (open)\n", len);
+		//pmesg("PD::incoming_preset_dump(len: %d) header (open)\n", len);
 		closed_loop = false;
 		dump_pos = len;
 		ui->progress->value((float) dump_pos);
@@ -1118,7 +1108,7 @@ void PD::incoming_preset_dump(const unsigned char* data, int len)
 		ui->progress->value((float) dump_pos);
 		if (closed_loop)
 		{
-			//pmesg(40, "PD::incoming_preset_dump(len: %d) data (closed)\n", len);
+			//pmesg("PD::incoming_preset_dump(len: %d) data (closed)\n", len);
 			// calculate checksum
 			int sum = 0;
 			for (int i = 9; i < len - 2; i++)
@@ -1142,8 +1132,7 @@ void PD::incoming_preset_dump(const unsigned char* data, int len)
 						randomizing = false;
 					}
 					else
-						preset = new Preset_Dump(dump_pos, dump, packet_size,
-								true);
+						preset = new Preset_Dump(dump_pos, dump, packet_size, true);
 					// store a copy
 					delete preset_copy;
 					preset_copy = new Preset_Dump(dump_pos, dump, packet_size);
@@ -1155,7 +1144,7 @@ void PD::incoming_preset_dump(const unsigned char* data, int len)
 		}
 		else
 		{
-			//pmesg(40, "PD::incoming_preset_dump(len: %d) data (open)\n", len);
+			//pmesg("PD::incoming_preset_dump(len: %d) data (open)\n", len);
 			memcpy(dump + dump_pos, data, len);
 			dump_pos += len;
 			if (len < 253) // last packet
@@ -1196,7 +1185,7 @@ void PD::incoming_preset_dump(const unsigned char* data, int len)
 
 void PD::show_preset(bool lib)
 {
-	pmesg(40, "PD::show_preset(%s) \n", lib ? "library" : "preset");
+	pmesg("PD::show_preset(%s) \n", lib ? "library" : "preset");
 	// update ui controls
 	ui->set_eall(0);
 	if (lib)
@@ -1224,7 +1213,7 @@ void PD::show_preset(bool lib)
 
 void PD::incoming_arp_dump(const unsigned char* data, int len)
 {
-	pmesg(40, "PD::incoming_arp_dump(data, %d)\n", len);
+	pmesg("PD::incoming_arp_dump(data, %d)\n", len);
 	// on init we are only interested in the names
 	if (names_to_download == -1)
 		return;
@@ -1238,17 +1227,13 @@ void PD::incoming_arp_dump(const unsigned char* data, int len)
 		int number = data[6] + 128 * data[7];
 		if (number > MAX_ARPS)
 		{
-			pmesg(
-					10,
-					"PD::incoming_arp_dump(len: %d) *** returning: MAX_ARPS reached\n",
-					len);
+			pmesg("PD::incoming_arp_dump(len: %d) *** returning: MAX_ARPS reached\n", len);
 			return;
 		}
 		int rom_id = data[len - 3] + 128 * data[len - 2];
 		if (rom_id_map.find(rom_id) != rom_id_map.end())
 		{
-			pmesg(90, "PD::incoming_arp_dump(len:%d) (#:%d-%d)\n ", len,
-					number, data[len - 3] + 128 * data[len - 2]);
+			pmesg("PD::incoming_arp_dump(len:%d) (#:%d-%d)\n ", len, number, data[len - 3] + 128 * data[len - 2]);
 			rom[rom_id_map[rom_id]]->load_names(ARP, number + 1);
 			rom[rom_id_map[rom_id]]->set_name(ARP, number, data + 14);
 			++init_progress;
@@ -1264,7 +1249,7 @@ void PD::incoming_arp_dump(const unsigned char* data, int len)
 
 //void PD::incoming_pc_dump(const unsigned char* data, int len)
 //{
-//	pmesg(40, "PD::incoming_pc_dump(len: %d) \n", len);
+//	pmesg("PD::incoming_pc_dump(len: %d) \n", len);
 //}
 
 void PD::incoming_generic_name(const unsigned char* data)
@@ -1276,7 +1261,7 @@ void PD::incoming_generic_name(const unsigned char* data)
 	unsigned char type = data[6] % 0xF;
 	if (type < PRESET || type > RIFF)
 	{
-		pmesg(1, "*** unknown name type %d\n", type);
+		pmesg("*** unknown name type %d\n", type);
 		display_status("*** Received unknown name type.", true);
 		cancel_init();
 		return;
@@ -1286,18 +1271,16 @@ void PD::incoming_generic_name(const unsigned char* data)
 		rom_id = rom_id_map[data[9] + 128 * data[10]];
 	else
 	{
-		pmesg(1, "*** ROM %d does not exist\n", data[9] + 128 * data[10]);
+		pmesg("*** ROM %d does not exist\n", data[9] + 128 * data[10]);
 		display_status("*** Received unknown name type.", true);
 		cancel_init();
 		return;
 	}
 	int number = data[7] + 128 * data[8];
-	pmesg(40, "PD::incoming_generic_name(data) (#:%d-%d, type:%d)\n", number,
-			data[9] + 128 * data[10], type);
+	pmesg("PD::incoming_generic_name(data) (#:%d-%d, type:%d)\n", number, data[9] + 128 * data[10], type);
 	// number of riffs unknown
 	if (type == RIFF)
-		if (number > MAX_RIFFS || (data[11] == 'f' && data[12] == 'f')
-				|| data[11] < 32)
+		if (number > MAX_RIFFS || (data[11] == 'f' && data[12] == 'f') || data[11] < 32)
 			return;
 	if (type == SETUP)
 	{
@@ -1321,8 +1304,7 @@ void PD::incoming_generic_name(const unsigned char* data)
 	}
 	else // load next (chunk of) name(s)
 	{
-		if (number != name_counter[rom_id][type] || !rom[rom_id]->set_name(
-				type, number, data + 11))
+		if (number != name_counter[rom_id][type] || !rom[rom_id]->set_name(type, number, data + 11))
 		{
 			display_status("*** Received bogus name.", true);
 			cancel_init();
@@ -1352,14 +1334,14 @@ void PD::incoming_generic_name(const unsigned char* data)
 
 void PD::incoming_ERROR(int cmd, int sub)
 {
-	pmesg(40, "PD::incoming_ERROR(cmd: %X, subcmd: %X) \n", cmd, sub);
+	pmesg("PD::incoming_ERROR(cmd: %X, subcmd: %X) \n", cmd, sub);
 	display_status("Received ERROR.");
 
 }
 
 void PD::incoming_ACK(int packet)
 {
-	pmesg(40, "PD::incoming_ACK(packet: %d) \n", packet);
+	pmesg("PD::incoming_ACK(packet: %d) \n", packet);
 	display_status("Received ACK.");
 	if (preset_library)
 		preset_library->upload(++packet);
@@ -1370,7 +1352,7 @@ void PD::incoming_ACK(int packet)
 
 void PD::incoming_NAK(int packet)
 {
-	pmesg(40, "PD:incoming_NAK:(packet: %d) \n", packet);
+	pmesg("PD:incoming_NAK:(packet: %d) \n", packet);
 	display_status("Received NAK. Retrying...");
 	if (preset && nak_count < 3)
 	{
@@ -1383,24 +1365,24 @@ void PD::incoming_NAK(int packet)
 
 void PD::incoming_CANCEL()
 {
-	pmesg(40, "PD::incoming_CANCEL() \n");
+	pmesg("PD::incoming_CANCEL() \n");
 	display_status("Received CANCEL.");
 }
 
 void PD::incoming_WAIT()
 {
-	pmesg(40, "PD::incoming_WAIT() \n");
+	pmesg("PD::incoming_WAIT() \n");
 	display_status("Received WAIT.");
 }
 
 void PD::incoming_EOF()
 {
-	pmesg(40, "PD::incoming_EOF() \n");
+	pmesg("PD::incoming_EOF() \n");
 }
 
 void PD::start_over()
 {
-	pmesg(40, "PD::start_over() \n");
+	pmesg("PD::start_over() \n");
 	if (!preset || !preset_copy || !preset->is_changed() || dismiss(false) != 1)
 		return;
 	// select a different basic channel (erases edit buffer)
@@ -1413,14 +1395,13 @@ void PD::start_over()
 
 void PD::randomize()
 {
-	pmesg(40, "PD::randomize() \n");
+	pmesg("PD::randomize() \n");
 	if (!setup)
 	{
 		pd->display_status("*** Must be connected.");
 		return;
 	}
-	if (!(cfg->get_cfg_option(CFG_CONFIRM_RAND) && !fl_choice(
-			"Randomize preset?", "Cancel", "Randomize", 0)))
+	if (!(cfg->get_cfg_option(CFG_CONFIRM_RAND) && !fl_choice("Randomize preset?", "Cancel", "Randomize", 0)))
 	{
 		ui->set_eall(0);
 		randomizing = true;
@@ -1430,7 +1411,7 @@ void PD::randomize()
 
 int PD::load_export(const char* filename, bool library) //, bool keep)
 {
-	pmesg(40, "PD::load_export(%s) \n", filename);
+	pmesg("PD::load_export(%s) \n", filename);
 	if (!setup)
 	{
 		pd->display_status("*** Must be connected.");
@@ -1476,8 +1457,8 @@ int PD::load_export(const char* filename, bool library) //, bool keep)
 	int offset = 0;
 	while (strncmp(filename + offset, "/", 1) != 0)
 	++offset;
-	char n[BUF_PATHS];
-	snprintf(n, BUF_PATHS, "%s", filename + offset);
+	char n[PATH_MAX];
+	snprintf(n, PATH_MAX, "%s", filename + offset);
 	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n)
 			- 1] == ' ')
 	n[strlen(n) - 1] = '\0';
@@ -1488,7 +1469,7 @@ int PD::load_export(const char* filename, bool library) //, bool keep)
 	if (!file.is_open())
 	{
 		fl_message("Could not open the file. Do you have read permissions?\n"
-			"Note: You can only drop a single file.");
+				"Note: You can only drop a single file.");
 		if (preset_library)
 		{
 			delete preset_library;
@@ -1515,8 +1496,7 @@ int PD::load_export(const char* filename, bool library) //, bool keep)
 	unsigned char* sysex = new unsigned char[size];
 	file.read((char*) sysex, size);
 	file.close();
-	if (!(sysex[0] == 0xf0 && sysex[1] == 0x18 && sysex[2] == 0x0f && sysex[4]
-			== 0x55 && sysex[size - 1] == 0xf7))
+	if (!(sysex[0] == 0xf0 && sysex[1] == 0x18 && sysex[2] == 0x0f && sysex[4] == 0x55 && sysex[size - 1] == 0xf7))
 	{
 		pd->display_status("*** File format unsupported.");
 		if (preset_library)
@@ -1568,8 +1548,7 @@ int PD::load_export(const char* filename, bool library) //, bool keep)
 	{
 		if (preset_library)
 			delete preset_library;
-		preset_library = new Preset_Dump(size, sysex,
-				pos - DUMP_HEADER_SIZE + 1);
+		preset_library = new Preset_Dump(size, sysex, pos - DUMP_HEADER_SIZE + 1);
 		preset_library->move(-1);
 		preset_library->upload(0, cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD));
 		pd->show_preset(true); // true = show preset_library instead of preset
@@ -1581,7 +1560,7 @@ int PD::load_export(const char* filename, bool library) //, bool keep)
 
 int PD::test_checksum(const unsigned char* data, int size, int packet_size)
 {
-	pmesg(40, "PD::test_checksum(data, %d, %d) \n", size, packet_size);
+	pmesg("PD::test_checksum(data, %d, %d) \n", size, packet_size);
 	const int chunks = (size - DUMP_HEADER_SIZE) / packet_size;
 	const int tail = (size - DUMP_HEADER_SIZE) % packet_size - 11;
 	int offset = DUMP_HEADER_SIZE + 9;
@@ -1607,72 +1586,72 @@ int PD::test_checksum(const unsigned char* data, int size, int packet_size)
 	sum = 0;
 	if (errors)
 		sum = fl_choice("Checksum test failed! Import anyway?\n"
-			"Note: This may crash prodatum.", "Import", "No", 0);
+				"Note: This may crash prodatum.", "Import", "No", 0);
 	return sum;
 }
 
 // for testing so we can add missing names
 const char* PD::get_name(int code) const
 {
-	pmesg(40, "PD::get_name(code: %d)\n", code);
+	pmesg("PD::get_name(code: %d)\n", code);
 	switch (code)
 	{
-	case 0x02:
-		return "Audity 2000";
-	case 0x03:
-		return "Proteus 2000";
-	case 0x04:
-		return "B-3";
-	case 0x05:
-		return "XL-1";
-	case 0x06:
-		return "Virtuoso 2000";
-	case 0x07:
-		return "Mo'Phatt";
-	case 0x08:
-		return "B-3 Turbo";
-	case 0x09:
-		return "XL-1 Turbo";
-	case 0x0a:
-		return "Mo'Phatt Turbo";
-	case 0x0b:
-		return "Planet Earth";
-	case 0x0c:
-		return "Planet Earth Turbo";
-	case 0x0d:
-		return "XL-7";
-	case 0x0e:
-		return "MP-7";
-	case 0x0f:
-		return "Proteus 2500";
-	case 0x10:
-		return "Orbit 3";
-	case 0x11:
-		return "PK-6";
-	case 0x12:
-		return "XK-6";
-	case 0x13:
-		return "MK-6";
-	case 0x14:
-		return "Halo";
-	case 0x15:
-		return "Proteus 1000";
-	case 0x16:
-		return "Vintage Pro";
-	case 0x17:
-		return "Vintage Keys";
-	case 0x18:
-		return "PX-7";
-	default:
-		static char buf[20];
-		snprintf(buf, 20, "Unknown (%X)", code);
-		return buf;
+		case 0x02:
+			return "Audity 2000";
+		case 0x03:
+			return "Proteus 2000";
+		case 0x04:
+			return "B-3";
+		case 0x05:
+			return "XL-1";
+		case 0x06:
+			return "Virtuoso 2000";
+		case 0x07:
+			return "Mo'Phatt";
+		case 0x08:
+			return "B-3 Turbo";
+		case 0x09:
+			return "XL-1 Turbo";
+		case 0x0a:
+			return "Mo'Phatt Turbo";
+		case 0x0b:
+			return "Planet Earth";
+		case 0x0c:
+			return "Planet Earth Turbo";
+		case 0x0d:
+			return "XL-7";
+		case 0x0e:
+			return "MP-7";
+		case 0x0f:
+			return "Proteus 2500";
+		case 0x10:
+			return "Orbit 3";
+		case 0x11:
+			return "PK-6";
+		case 0x12:
+			return "XK-6";
+		case 0x13:
+			return "MK-6";
+		case 0x14:
+			return "Halo";
+		case 0x15:
+			return "Proteus 1000";
+		case 0x16:
+			return "Vintage Pro";
+		case 0x17:
+			return "Vintage Keys";
+		case 0x18:
+			return "PX-7";
+		default:
+			static char buf[20];
+			snprintf(buf, 20, "Unknown (%X)", code);
+			return buf;
 	}
 }
 
 void PD::mute(int state, int layer)
 {
-	pmesg(40, "PD::mute(%d, %d)\n", state, layer);
+	pmesg("PD::mute(%d, %d)\n", state, layer);
 	if (!preset)
 		return;
 	if (state)
@@ -1716,7 +1695,7 @@ void PD::mute(int state, int layer)
 
 void PD::solo(int state, int layer)
 {
-	pmesg(40, "PD::solo(%d, %d)\n", state, layer);
+	pmesg("PD::solo(%d, %d)\n", state, layer);
 	if (state)
 	{
 		is_solo[layer] = 1;
@@ -1751,7 +1730,7 @@ void PD::solo(int state, int layer)
 
 void PD::save_setup(int dst, const char* newname)
 {
-	pmesg(40, "PD::save_setup(%d, %s) \n", dst, newname);
+	pmesg("PD::save_setup(%d, %s) \n", dst, newname);
 	if (!setup)
 	{
 		ui->do_save->activate();
@@ -1803,14 +1782,12 @@ void PD::save_setup(int dst, const char* newname)
 
 void PD::save_setup_names(int device_id)
 {
-	pmesg(40, "PD::save_setup_names(%d) \n", device_id);
+	pmesg("PD::save_setup_names(%d) \n", device_id);
 	if (midi_mode != -1 && setup_names)
 	{
-		char filename[BUF_PATHS];
-		snprintf(filename, BUF_PATHS, "%s/n_set_%d", cfg->get_config_dir(),
-				device_id);
-		std::fstream file(filename,
-				std::ios::out | std::ios::binary | std::ios::trunc);
+		char filename[PATH_MAX];
+		snprintf(filename, PATH_MAX, "%s/n_set_%d", cfg->get_config_dir(), device_id);
+		std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
 		file.write((char*) setup_names, 1024);
 		file.close();
 	}
@@ -1818,7 +1795,7 @@ void PD::save_setup_names(int device_id)
 
 int PD::load_setup_names(int start, bool from_disk_only)
 {
-	pmesg(40, "PD::load_setup_names(%d)\n", start);
+	pmesg("PD::load_setup_names(%d)\n", start);
 	// try to load from disk
 	if (from_disk_only)
 	{
@@ -1827,11 +1804,9 @@ int PD::load_setup_names(int start, bool from_disk_only)
 			delete[] setup_names;
 			setup_names = 0;
 		}
-		char filename[BUF_PATHS];
-		snprintf(filename, BUF_PATHS, "%s/n_set_%d", cfg->get_config_dir(),
-				cfg->get_cfg_option(CFG_DEVICE_ID));
-		std::fstream file(filename,
-				std::ios::in | std::ios::binary | std::ios::ate);
+		char filename[PATH_MAX];
+		snprintf(filename, PATH_MAX, "%s/n_set_%d", cfg->get_config_dir(), cfg->get_cfg_option(CFG_DEVICE_ID));
+		std::fstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
 		if (file.is_open())
 		{
 			size_t size = file.tellg();
@@ -1883,168 +1858,168 @@ int PD::load_setup_names(int start, bool from_disk_only)
 
 void PD::set_setup_name(int number, const unsigned char* name)
 {
-	pmesg(40, "PD::set_setup_name(%d, %s) \n", number, name);
+	pmesg("PD::set_setup_name(%d, %s) \n", number, name);
 	if (!setup_names)
 		setup_names = new unsigned char[1024];
 	memcpy(setup_names + 16 * number, name, 16);
-	//pmesg(1, "setup number = %D\n", number);
+	//pmesg("setup number = %D\n", number);
 }
 
 void PD::update_fx_values(int id, int value) const
 {
-	pmesg(40, "PD::update_fx_values(%d, %d) \n", id, value);
+	pmesg("PD::update_fx_values(%d, %d) \n", id, value);
 	if (id == 513 || id == 1153) // fxa
 	{
 		int decay = 0;
 		int damp = 0;
 		switch (value)
 		{
-		case 1:
-			decay = 40;
-			damp = 96;
-			break;
-		case 2:
-			decay = 44;
-			damp = 64;
-			break;
-		case 3:
-		case 34:
-			decay = 48;
-			damp = 96;
-			break;
-		case 4:
-			decay = 56;
-			damp = 64;
-			break;
-		case 5:
-			decay = 56;
-			damp = 80;
-			break;
-		case 6:
-			decay = 56;
-			damp = 64;
-			break;
-		case 7:
-			decay = 56;
-			damp = 120;
-			break;
-		case 8:
-			decay = 36;
-			damp = 120;
-			break;
-		case 9:
-		case 10:
-		case 11:
-		case 12:
-			decay = 24;
-			damp = 64;
-			break;
-		case 13:
-		case 14:
-		case 15:
-		case 16:
-		case 17:
-			decay = 48;
-			damp = 64;
-			break;
-		case 18:
-			decay = 40;
-			damp = 64;
-			break;
-		case 19:
-			decay = 37;
-			damp = 120;
-			break;
-		case 20:
-			decay = 60;
-			damp = 120;
-			break;
-		case 21:
-			decay = 30;
-			damp = 120;
-			break;
-		case 22:
-			decay = 45;
-			damp = 120;
-			break;
-		case 23:
-			decay = 48;
-			damp = 0;
-			break;
-		case 24:
-			decay = 72;
-			damp = 0;
-			break;
-		case 25:
-			decay = 80;
-			damp = 0;
-			break;
-		case 26:
-		case 33:
-			decay = 64;
-			damp = 96;
-			break;
-		case 27:
-			decay = 32;
-			damp = 96;
-			break;
-		case 28:
-			decay = 0;
-			damp = 0;
-			break;
-		case 29:
-			decay = 0;
-			damp = 96;
-			break;
-		case 30:
-			decay = 0;
-			damp = 64;
-			break;
-		case 31:
-		case 32:
-			decay = 60;
-			damp = 120;
-			break;
-		case 35:
-			decay = 80;
-			damp = 0;
-			break;
-		case 36:
-			decay = 64;
-			damp = 120;
-			break;
-		case 37:
-			decay = 60;
-			damp = 8;
-			break;
-		case 38:
-			decay = 60;
-			damp = 104;
-			break;
-		case 39:
-			decay = 40;
-			damp = 104;
-			break;
-		case 40:
-			decay = 48;
-			damp = 112;
-			break;
-		case 41:
-			decay = 52;
-			damp = 112;
-			break;
-		case 42:
-			decay = 40;
-			damp = 80;
-			break;
-		case 43:
-			decay = 32;
-			damp = 56;
-			break;
-		case 44:
-			decay = 56;
-			damp = 32;
-			break;
+			case 1:
+				decay = 40;
+				damp = 96;
+				break;
+			case 2:
+				decay = 44;
+				damp = 64;
+				break;
+			case 3:
+			case 34:
+				decay = 48;
+				damp = 96;
+				break;
+			case 4:
+				decay = 56;
+				damp = 64;
+				break;
+			case 5:
+				decay = 56;
+				damp = 80;
+				break;
+			case 6:
+				decay = 56;
+				damp = 64;
+				break;
+			case 7:
+				decay = 56;
+				damp = 120;
+				break;
+			case 8:
+				decay = 36;
+				damp = 120;
+				break;
+			case 9:
+			case 10:
+			case 11:
+			case 12:
+				decay = 24;
+				damp = 64;
+				break;
+			case 13:
+			case 14:
+			case 15:
+			case 16:
+			case 17:
+				decay = 48;
+				damp = 64;
+				break;
+			case 18:
+				decay = 40;
+				damp = 64;
+				break;
+			case 19:
+				decay = 37;
+				damp = 120;
+				break;
+			case 20:
+				decay = 60;
+				damp = 120;
+				break;
+			case 21:
+				decay = 30;
+				damp = 120;
+				break;
+			case 22:
+				decay = 45;
+				damp = 120;
+				break;
+			case 23:
+				decay = 48;
+				damp = 0;
+				break;
+			case 24:
+				decay = 72;
+				damp = 0;
+				break;
+			case 25:
+				decay = 80;
+				damp = 0;
+				break;
+			case 26:
+			case 33:
+				decay = 64;
+				damp = 96;
+				break;
+			case 27:
+				decay = 32;
+				damp = 96;
+				break;
+			case 28:
+				decay = 0;
+				damp = 0;
+				break;
+			case 29:
+				decay = 0;
+				damp = 96;
+				break;
+			case 30:
+				decay = 0;
+				damp = 64;
+				break;
+			case 31:
+			case 32:
+				decay = 60;
+				damp = 120;
+				break;
+			case 35:
+				decay = 80;
+				damp = 0;
+				break;
+			case 36:
+				decay = 64;
+				damp = 120;
+				break;
+			case 37:
+				decay = 60;
+				damp = 8;
+				break;
+			case 38:
+				decay = 60;
+				damp = 104;
+				break;
+			case 39:
+				decay = 40;
+				damp = 104;
+				break;
+			case 40:
+				decay = 48;
+				damp = 112;
+				break;
+			case 41:
+				decay = 52;
+				damp = 112;
+				break;
+			case 42:
+				decay = 40;
+				damp = 80;
+				break;
+			case 43:
+				decay = 32;
+				damp = 56;
+				break;
+			case 44:
+				decay = 56;
+				damp = 32;
+				break;
 
 		}
 		ui->fxa_decay->value((double) decay);
@@ -2069,116 +2044,116 @@ void PD::update_fx_values(int id, int value) const
 		int delay = 0;
 		switch (value)
 		{
-		case 1:
-			lfo = 3;
-			break;
-		case 2:
-			feedback = 4;
-			lfo = 11;
-			break;
-		case 3:
-			feedback = 8;
-			lfo = 4;
-			break;
-		case 4:
-			feedback = 16;
-			lfo = 11;
-			break;
-		case 5:
-			feedback = 64;
-			lfo = 2;
-			break;
-		case 8:
-			feedback = 88;
-			lfo = 3;
-			break;
-		case 9:
-			feedback = 64;
-			lfo = 1;
-			break;
-		case 10:
-			feedback = 64;
-			lfo = 6;
-			break;
-		case 11:
-			feedback = 104;
-			lfo = 5;
-			break;
-		case 12:
-			feedback = 72;
-			lfo = 2;
-			break;
-		case 13:
-			feedback = 16;
-			lfo = 24;
-			break;
-		case 14:
-			feedback = 112;
-			lfo = 1;
-			break;
-		case 15:
-			feedback = 16;
-			lfo = 4;
-			break;
-		case 16:
-			feedback = 48;
-			lfo = 24;
-			break;
-		case 17:
-			feedback = 64;
-			lfo = 9;
-			break;
-		case 18:
-			feedback = 32;
-			delay = 50;
-			break;
-		case 19:
-			feedback = 32;
-			delay = 60;
-			break;
-		case 20:
-		case 21:
-			feedback = 32;
-			delay = 80;
-			break;
-		case 22:
-			feedback = 16;
-			lfo = 9;
-			delay = 40;
-			break;
-		case 23:
-			feedback = 24;
-			lfo = 24;
-			delay = 24;
-			break;
-		case 24:
-			feedback = 24;
-			lfo = 3;
-			delay = 50;
-			break;
-		case 25:
-		case 26:
-			feedback = 32;
-			delay = 100;
-			break;
-		case 27:
-			lfo = 70;
-			break;
-		case 28:
-			feedback = 100;
-			break;
-		case 29:
-			feedback = 70;
-			lfo = 1;
-			break;
-		case 30:
-			feedback = 90;
-			lfo = 6;
-			break;
-		case 31:
-			feedback = 20;
-			lfo = 4;
-			break;
+			case 1:
+				lfo = 3;
+				break;
+			case 2:
+				feedback = 4;
+				lfo = 11;
+				break;
+			case 3:
+				feedback = 8;
+				lfo = 4;
+				break;
+			case 4:
+				feedback = 16;
+				lfo = 11;
+				break;
+			case 5:
+				feedback = 64;
+				lfo = 2;
+				break;
+			case 8:
+				feedback = 88;
+				lfo = 3;
+				break;
+			case 9:
+				feedback = 64;
+				lfo = 1;
+				break;
+			case 10:
+				feedback = 64;
+				lfo = 6;
+				break;
+			case 11:
+				feedback = 104;
+				lfo = 5;
+				break;
+			case 12:
+				feedback = 72;
+				lfo = 2;
+				break;
+			case 13:
+				feedback = 16;
+				lfo = 24;
+				break;
+			case 14:
+				feedback = 112;
+				lfo = 1;
+				break;
+			case 15:
+				feedback = 16;
+				lfo = 4;
+				break;
+			case 16:
+				feedback = 48;
+				lfo = 24;
+				break;
+			case 17:
+				feedback = 64;
+				lfo = 9;
+				break;
+			case 18:
+				feedback = 32;
+				delay = 50;
+				break;
+			case 19:
+				feedback = 32;
+				delay = 60;
+				break;
+			case 20:
+			case 21:
+				feedback = 32;
+				delay = 80;
+				break;
+			case 22:
+				feedback = 16;
+				lfo = 9;
+				delay = 40;
+				break;
+			case 23:
+				feedback = 24;
+				lfo = 24;
+				delay = 24;
+				break;
+			case 24:
+				feedback = 24;
+				lfo = 3;
+				delay = 50;
+				break;
+			case 25:
+			case 26:
+				feedback = 32;
+				delay = 100;
+				break;
+			case 27:
+				lfo = 70;
+				break;
+			case 28:
+				feedback = 100;
+				break;
+			case 29:
+				feedback = 70;
+				lfo = 1;
+				break;
+			case 30:
+				feedback = 90;
+				lfo = 6;
+				break;
+			case 31:
+				feedback = 20;
+				lfo = 4;
+				break;
 		}
 		ui->fxb_feedback->value((double) feedback);
 		ui->fxb_lfo_rate->value((double) lfo);

@@ -3,10 +3,10 @@
 #include <stdarg.h>
 
 #if defined(NDEBUG)
-#define pmesg(level, format, args...) ((void)0)
+#define pmesg(format, args...) ((void)0)
 
 #else
-void pmesg(int level, const char *format, ...);
+void pmesg(const char *format, ...);
 
 #endif
 

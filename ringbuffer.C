@@ -22,10 +22,6 @@
 
 // slightly modified for prodatum to use unsigned char
 
-#ifdef HAVE_CONFIG_H
-#  include <config.H>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 #ifdef USE_MLOCK

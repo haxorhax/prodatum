@@ -2,9 +2,9 @@
 #ifndef PD_H_
 #define PD_H_
 /**
-    \defgroup pd_pd prodatum CPU
-    @{
-*/
+ \defgroup pd_pd prodatum CPU
+ @{
+ */
 #include <sys/time.h>
 #include <map>
 #include <vector>
@@ -187,7 +187,7 @@ public:
 	const Preset_Dump* preset_copy;
 	/**
 	 * preset data that has been loaded from the library.
-	 * unused yet
+	 * used for imports
 	 * @see Preset_Dump()
 	 */
 	Preset_Dump* preset_library;

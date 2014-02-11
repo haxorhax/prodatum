@@ -16,10 +16,6 @@
 
 // $Id$
 
-#ifdef HAVE_CONFIG_H
-#  include <config.H>
-#endif
-
 #include <string.h>
 #include <fstream>
 #include <sys/stat.h>
@@ -30,7 +26,7 @@
 #include "cfg.H"
 #include "pd.H"
 #include "ui.H"
-
+#include "config.h"
 #include "debug.H"
 
 extern MIDI* midi;
@@ -59,11 +55,9 @@ static int unibble(const unsigned char* lsb, const unsigned char* msb)
 // ###############
 // Preset_Dump class
 // #################
-Preset_Dump::Preset_Dump(int dump_size, const unsigned char* dump_data,
-		int p_size, bool update)
+Preset_Dump::Preset_Dump(int dump_size, const unsigned char* dump_data, int p_size, bool update)
 {
-	pmesg(40, "Preset_Dump::Preset_Dump(size: %d, data, packet_size: %d)\n",
-			dump_size, p_size);
+	pmesg("Preset_Dump::Preset_Dump(size: %d, data, packet_size: %d)\n", dump_size, p_size);
 	disable_add_undo = false;
 	data_is_changed = false;
 	size = dump_size;
@@ -96,7 +90,7 @@ Preset_Dump::Preset_Dump(int dump_size, const unsigned char* dump_data,
 
 Preset_Dump::~Preset_Dump()
 {
-	pmesg(90, "Preset_Dump::~Preset_Dump()\n");
+	pmesg("Preset_Dump::~Preset_Dump()\n");
 	delete[] data;
 }
 
@@ -149,7 +143,7 @@ int Preset_Dump::get_rom_id() const
 
 int Preset_Dump::get_value(int id, int layer) const
 {
-	pmesg(80, "Preset_Dump::get_value(id: %d, layer: %d)\n", id, layer);
+	pmesg("Preset_Dump::get_value(id: %d, layer: %d)\n", id, layer);
 	int offset = 0;
 	idmap(id, layer, offset);
 	if (offset == 0)
@@ -172,7 +166,7 @@ int Preset_Dump::get_p_size() const
 
 int Preset_Dump::set_value(int id, int value, int layer)
 {
-	//pmesg(90, "Preset_Dump::set_value(id: %d, value: %d, layer: %d)\n", id,
+	//pmesg("Preset_Dump::set_value(id: %d, value: %d, layer: %d)\n", id,
 	//		value, layer);
 	int offset = 0;
 	idmap(id, layer, offset);
@@ -181,8 +175,7 @@ int Preset_Dump::set_value(int id, int value, int layer)
 	if (value < 0)
 		value += 16384;
 	// check wether value is the same
-	if (unibble((const unsigned char*) data + offset,
-			(const unsigned char*) data + offset + 1) == value)
+	if (unibble((const unsigned char*) data + offset, (const unsigned char*) data + offset + 1) == value)
 		return 0;
 	// save undo
 	if (!disable_add_undo && id > 914 && !(ui->eall && layer > 0))
@@ -256,8 +249,7 @@ void Preset_Dump::set_name(const char* val, int type, int position)
 			ui->n_name_m->position(position);
 		}
 	}
-	snprintf(buf, 30, "%02d.%03d.%d %s", rom_id, number % 128, number / 128,
-			name);
+	snprintf(buf, 30, "%02d.%03d.%d %s", rom_id, number % 128, number / 128, name);
 	ui->main->preset_name->copy_label((char*) buf);
 	// update the name on the device, just for fun
 	for (int i = offset; i < len + offset; i++)
@@ -272,10 +264,9 @@ void Preset_Dump::update_highlight_buttons()
 
 void Preset_Dump::show()
 {
-	pmesg(40, "Preset_Dump::show()\n");
+	pmesg("Preset_Dump::show()\n");
 	char buf[30];
-	snprintf(buf, 30, "%02d.%03d.%d %s", rom_id, number % 128, number / 128,
-			name);
+	snprintf(buf, 30, "%02d.%03d.%d %s", rom_id, number % 128, number / 128, name);
 	ui->main->preset_name->copy_label((char*) buf);
 	snprintf(buf, 30, "%02d.%03d.%d", rom_id, number % 128, number / 128);
 	ui->n_n_m->copy_label(buf);
@@ -325,7 +316,7 @@ void Preset_Dump::show()
 
 void Preset_Dump::show_fx() const
 {
-	pmesg(40, "Preset_Dump::show_fx()\n");
+	pmesg("Preset_Dump::show_fx()\n");
 	for (int i = 1153; i < 1169; i++)
 		if (pwid[i][0])
 			pwid[i][0]->set_value(get_value(i));
@@ -337,25 +328,22 @@ void Preset_Dump::update_piano() const
 	int id = 1413;
 	for (int m = 0; m < 3; m++) // modes
 		for (int i = 0; i < 4; i++) // layers
-			ui->piano->set_range_values(m, i, get_value(id + m * 4, i),
-					get_value(id + 1 + m * 4, i), get_value(id + 2 + m * 4, i),
-					get_value(id + 3 + m * 4, i));
+			ui->piano->set_range_values(m, i, get_value(id + m * 4, i), get_value(id + 1 + m * 4, i),
+					get_value(id + 2 + m * 4, i), get_value(id + 3 + m * 4, i));
 	// arp ranges
 	ui->piano->set_range_values(0, 4, get_value(1039), 0, get_value(1040), 0);
 	if (pd->setup)
-		ui->piano->set_range_values(0, 5, pd->setup->get_value(655), 0,
-				pd->setup->get_value(656), 0);
+		ui->piano->set_range_values(0, 5, pd->setup->get_value(655), 0, pd->setup->get_value(656), 0);
 	// link ranges
 	ui->piano->set_range_values(0, 6, get_value(1286), 0, get_value(1287), 0);
 	ui->piano->set_range_values(0, 7, get_value(1295), 0, get_value(1296), 0);
 	// transpose
-	ui->piano->set_transpose(get_value(1429, 0), get_value(1429, 1),
-			get_value(1429, 2), get_value(1429, 3));
+	ui->piano->set_transpose(get_value(1429, 0), get_value(1429, 1), get_value(1429, 2), get_value(1429, 3));
 }
 
 void Preset_Dump::update_envelopes() const
 {
-	pmesg(70, "Preset_Dump::update_envelopes()\n");
+	pmesg("Preset_Dump::update_envelopes()\n");
 	static int stages[12];
 	int mode = 0;
 	int repeat = -1;
@@ -372,24 +360,23 @@ void Preset_Dump::update_envelopes() const
 			}
 			switch (m)
 			{
-			case 1:
-				repeat = get_value(1833, l);
-				break;
-			case 2:
-				repeat = get_value(1834, l);
-				break;
-			default: // volume env has no repeat
-				repeat = -1;
+				case 1:
+					repeat = get_value(1833, l);
+					break;
+				case 2:
+					repeat = get_value(1834, l);
+					break;
+				default: // volume env has no repeat
+					repeat = -1;
 			}
-			ui->layer_editor[l]->envelope_editor->set_data(m, stages, mode,
-					repeat);
+			ui->layer_editor[l]->envelope_editor->set_data(m, stages, mode, repeat);
 		}
 	}
 }
 
 void Preset_Dump::upload(int packet, int closed, bool show)
 {
-	pmesg(40, "Preset_Dump::upload(packet: %d, closed: %d)\n", packet, closed);
+	pmesg("Preset_Dump::upload(packet: %d, closed: %d)\n", packet, closed);
 	if (!data)
 		return;
 	const static int chunks = (size - DUMP_HEADER_SIZE) / packet_size;
@@ -414,8 +401,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		// first we send the dump header
 		if (packet == 0)
 		{
-			data[3] = (unsigned char) (cfg->get_cfg_option(CFG_DEVICE_ID)
-					& 0xFF);
+			data[3] = (unsigned char) (cfg->get_cfg_option(CFG_DEVICE_ID) & 0xFF);
 			data[6] = 0x01;
 			offset = 0;
 			chunk_size = DUMP_HEADER_SIZE;
@@ -430,8 +416,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 				else
 					offset += packet_size;
 			}
-			data[offset + 3] = (unsigned char) (cfg->get_cfg_option(
-					CFG_DEVICE_ID) & 0xFF);
+			data[offset + 3] = (unsigned char) (cfg->get_cfg_option(CFG_DEVICE_ID) & 0xFF);
 			data[offset + 6] = 0x02;
 			chunk_size = packet_size;
 			if (packet == chunks + 1)
@@ -461,8 +446,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		{
 			if (i == 0)
 			{
-				data[3] = (unsigned char) (cfg->get_cfg_option(CFG_DEVICE_ID)
-						& 0xFF);
+				data[3] = (unsigned char) (cfg->get_cfg_option(CFG_DEVICE_ID) & 0xFF);
 				data[6] = 0x03;
 				offset = 0;
 				chunk_size = DUMP_HEADER_SIZE;
@@ -474,8 +458,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 					offset += DUMP_HEADER_SIZE;
 				else
 					offset += packet_size;
-				data[offset + 3] = (unsigned char) (cfg->get_cfg_option(
-						CFG_DEVICE_ID) & 0xFF);
+				data[offset + 3] = (unsigned char) (cfg->get_cfg_option(CFG_DEVICE_ID) & 0xFF);
 				data[offset + 6] = 0x04;
 				chunk_size = packet_size;
 				if (i == chunks + 1)
@@ -500,18 +483,16 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 
 void Preset_Dump::save_file(const char* filename)
 {
-	pmesg(40, "Preset_Dump::save_file(%s) \n", filename);
+	pmesg("Preset_Dump::save_file(%s) \n", filename);
 	// check if file exists and ask for confirmation
 	struct stat sbuf;
-	if (stat(filename, &sbuf) == 0 && fl_choice("Overwrite existing file?",
-			"No", "Overwrite", 0) == 0)
+	if (stat(filename, &sbuf) == 0 && fl_choice("Overwrite existing file?", "No", "Overwrite", 0) == 0)
 		return;
 	// write
 	std::ofstream file(filename, std::ofstream::binary | std::ios::trunc);
 	if (!file.is_open())
 	{
-		fl_message(
-				"Could not write the file.\nDo you have permission to write?");
+		fl_message("Could not write the file.\nDo you have permission to write?");
 		return;
 	}
 	update_checksum(); // save a valid dump
@@ -522,7 +503,7 @@ void Preset_Dump::save_file(const char* filename)
 
 void Preset_Dump::move(int new_number)
 {
-	pmesg(40, "Preset_Dump::move(position: %d)\n", new_number);
+	pmesg("Preset_Dump::move(position: %d)\n", new_number);
 	if (!data)
 		return;
 	number = new_number;
@@ -538,8 +519,7 @@ void Preset_Dump::move(int new_number)
 }
 
 // recursively copy any parameter range in chunks
-void Preset_Dump::copy_layer_parameter_range(int start, int end, int src,
-		int dst)
+void Preset_Dump::copy_layer_parameter_range(int start, int end, int src, int dst)
 {
 	// reverse order so instrument rom is set before instrument
 	if (start < end)
@@ -548,8 +528,7 @@ void Preset_Dump::copy_layer_parameter_range(int start, int end, int src,
 		start = end;
 		end = tmp;
 	}
-	pmesg(40, "Preset_Dump::copy_layer_parameter_range(%d,%d,%d,%d)\n", start,
-			end, src, dst);
+	pmesg("Preset_Dump::copy_layer_parameter_range(%d,%d,%d,%d)\n", start, end, src, dst);
 	unsigned char m[255];
 	m[0] = 0xf0;
 	m[1] = 0x18;
@@ -607,7 +586,7 @@ void Preset_Dump::copy_layer_parameter_range(int start, int end, int src,
 
 void Preset_Dump::copy(int type, int src, int dst)
 {
-	pmesg(40, "Preset_Dump::copy(%X,%d,%d)\n", type, src, dst);
+	pmesg("Preset_Dump::copy(%X,%d,%d)\n", type, src, dst);
 	if (type >= C_LAYER && type <= C_LAYER_PATCHCORD)
 	{
 		midi->edit_parameter_value(898, dst);
@@ -615,103 +594,98 @@ void Preset_Dump::copy(int type, int src, int dst)
 	}
 	switch (type)
 	{
-	case C_PRESET:
-	{
-		midi->copy(C_PRESET, number, dst, 0, 0, rom_id);
-		// update names and browsers
-		pd->rom[0]->set_name(PRESET, dst,
-				pd->rom[rom_id_map[rom_id]]->get_name(PRESET, number));
-		if (ui->preset_rom->value() == 0)
-			ui->preset->load_n(PRESET, 0, dst);
-		ui->copy_browser->load_n(PRESET, 0, dst);
-		pd->display_status("Copied.");
-	}
-		break;
-	case C_PRESET_COMMON:
-		break;
-	case C_ARP:
-	{
-		// note: we cannot copy the arp into the edit buffer
-		// so we only allow copying if a user preset is selected
-		if (!pd->preset_copy->get_rom_id())
+		case C_PRESET:
 		{
-			midi->copy(C_ARP, dst, pd->preset_copy->get_number(), 0, 0,
-					ui->copy_arp_rom->get_value());
-			// wait a bit for the device to update the edit buffer
-			mysleep(100);
-			midi->request_preset_dump(-1, 0);
-		}
-		pd->display_status("Copied.");
-		break;
-	}
-	case C_FX:
-		break;
-	case C_LAYER:
-		copy_layer_parameter_range(1409, 1992, src, dst);
-		update_piano();
-		update_envelopes();
-		pd->display_status("Copied.");
-		break;
-	case C_LAYER_COMMON:
-		copy_layer_parameter_range(1409, 1439, src, dst);
-		pd->display_status("Copied.");
-		break;
-	case C_LAYER_FILTER:
-		copy_layer_parameter_range(1537, 1539, src, dst);
-		pd->display_status("Copied.");
-		break;
-	case C_LAYER_LFO:
-		copy_layer_parameter_range(1665, 1674, src, dst);
-		pd->display_status("Copied.");
-		break;
-	case C_LAYER_ENVELOPE:
-		copy_layer_parameter_range(1793, 1834, src, dst);
-		update_envelopes();
-		pd->display_status("Copied.");
-		break;
-	case C_LAYER_PATCHCORD:
-		copy_layer_parameter_range(1921, 1992, src, dst);
-		pd->display_status("Copied.");
-		break;
-	case C_ARP_PATTERN:
-	{
-		int source_rom;
-		if (ui->preset_editor->arp->visible_r())
-		{
-			src = ui->preset_editor->arp->get_value();
-			source_rom
-					= pd->rom[ui->preset_editor->arp_rom->value()]->get_attribute(
-							ID);
-		}
-		else
-		{
-			src = ui->main->arp->get_value();
-			source_rom = pd->rom[ui->main->arp_rom->value()]->get_attribute(ID);
-		}
-		midi->copy(C_ARP_PATTERN, src, dst, 0, 0, source_rom);
-		// update names
-		pd->rom[0]->set_name(ARP, dst,
-				pd->rom[rom_id_map[source_rom]]->get_name(ARP, src));
-		ui->copy_arp_pattern_browser->load_n(ARP, 0, dst);
-		if (ui->preset_editor->arp_rom->value() == 0)
-			ui->preset_editor->arp->load_n(ARP, 0, dst);
-		if (ui->main->arp_rom->value() == 0)
-			ui->main->arp->load_n(ARP, 0, dst);
-		pd->display_status("Copied.");
-		break;
-	}
-	case SAVE_PRESET:
-	{
-		// update internal files and ui
-		pd->rom[0]->set_name(PRESET, dst, name);
-		ui->preset->load_n(PRESET, 0, dst);
-		if (ui->copy_arp_rom->value() == 0)
+			midi->copy(C_PRESET, number, dst, 0, 0, rom_id);
+			// update names and browsers
+			pd->rom[0]->set_name(PRESET, dst, pd->rom[rom_id_map[rom_id]]->get_name(PRESET, number));
+			if (ui->preset_rom->value() == 0)
+				ui->preset->load_n(PRESET, 0, dst);
 			ui->copy_browser->load_n(PRESET, 0, dst);
-		// upload preset
-		move(dst);
-		upload(0, cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD));
-		set_changed(false);
-	}
+			pd->display_status("Copied.");
+		}
+			break;
+		case C_PRESET_COMMON:
+			break;
+		case C_ARP:
+		{
+			// note: we cannot copy the arp into the edit buffer
+			// so we only allow copying if a user preset is selected
+			if (!pd->preset_copy->get_rom_id())
+			{
+				midi->copy(C_ARP, dst, pd->preset_copy->get_number(), 0, 0, ui->copy_arp_rom->get_value());
+				// wait a bit for the device to update the edit buffer
+				mysleep(100);
+				midi->request_preset_dump(-1, 0);
+			}
+			pd->display_status("Copied.");
+			break;
+		}
+		case C_FX:
+			break;
+		case C_LAYER:
+			copy_layer_parameter_range(1409, 1992, src, dst);
+			update_piano();
+			update_envelopes();
+			pd->display_status("Copied.");
+			break;
+		case C_LAYER_COMMON:
+			copy_layer_parameter_range(1409, 1439, src, dst);
+			pd->display_status("Copied.");
+			break;
+		case C_LAYER_FILTER:
+			copy_layer_parameter_range(1537, 1539, src, dst);
+			pd->display_status("Copied.");
+			break;
+		case C_LAYER_LFO:
+			copy_layer_parameter_range(1665, 1674, src, dst);
+			pd->display_status("Copied.");
+			break;
+		case C_LAYER_ENVELOPE:
+			copy_layer_parameter_range(1793, 1834, src, dst);
+			update_envelopes();
+			pd->display_status("Copied.");
+			break;
+		case C_LAYER_PATCHCORD:
+			copy_layer_parameter_range(1921, 1992, src, dst);
+			pd->display_status("Copied.");
+			break;
+		case C_ARP_PATTERN:
+		{
+			int source_rom;
+			if (ui->preset_editor->arp->visible_r())
+			{
+				src = ui->preset_editor->arp->get_value();
+				source_rom = pd->rom[ui->preset_editor->arp_rom->value()]->get_attribute(ID);
+			}
+			else
+			{
+				src = ui->main->arp->get_value();
+				source_rom = pd->rom[ui->main->arp_rom->value()]->get_attribute(ID);
+			}
+			midi->copy(C_ARP_PATTERN, src, dst, 0, 0, source_rom);
+			// update names
+			pd->rom[0]->set_name(ARP, dst, pd->rom[rom_id_map[source_rom]]->get_name(ARP, src));
+			ui->copy_arp_pattern_browser->load_n(ARP, 0, dst);
+			if (ui->preset_editor->arp_rom->value() == 0)
+				ui->preset_editor->arp->load_n(ARP, 0, dst);
+			if (ui->main->arp_rom->value() == 0)
+				ui->main->arp->load_n(ARP, 0, dst);
+			pd->display_status("Copied.");
+			break;
+		}
+		case SAVE_PRESET:
+		{
+			// update internal files and ui
+			pd->rom[0]->set_name(PRESET, dst, name);
+			ui->preset->load_n(PRESET, 0, dst);
+			if (ui->copy_arp_rom->value() == 0)
+				ui->copy_browser->load_n(PRESET, 0, dst);
+			// upload preset
+			move(dst);
+			upload(0, cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD));
+			set_changed(false);
+		}
 	}
 }
 
@@ -719,7 +693,7 @@ void Preset_Dump::add_undo(int id, int value, int layer)
 {
 	if (disable_add_undo)
 		return;
-	pmesg(40, "Preset_Dump::add_undo(%d, %d, %d)\n", id, value, layer);
+	pmesg("Preset_Dump::add_undo(%d, %d, %d)\n", id, value, layer);
 	parameter changed, prev_changed;
 	// envelopes are special because we change 2 values at once
 	// and on undo we want to change both back at once
@@ -774,7 +748,7 @@ void Preset_Dump::undo()
 {
 	if (!undo_s.empty())
 	{
-		pmesg(40, "Preset_Dump::undo()\n");
+		pmesg("Preset_Dump::undo()\n");
 		// 10000 undos max! ")
 		if (undo_s.size() > 10000)
 			undo_s.pop_back();
@@ -795,8 +769,7 @@ void Preset_Dump::undo()
 		redo_s.push_front(c);
 		if (undo_s.empty())
 			ui->undo_b->deactivate();
-		else if (repeat && (p.id > 1793 && p.id < 1833) && p.id != 1806 && p.id
-				!= 1819) // envelopes
+		else if (repeat && (p.id > 1793 && p.id < 1833) && p.id != 1806 && p.id != 1819) // envelopes
 		{
 			repeat = false;
 			goto Undo;
@@ -813,7 +786,7 @@ void Preset_Dump::redo()
 {
 	if (!redo_s.empty())
 	{
-		pmesg(40, "Preset_Dump::redo()\n");
+		pmesg("Preset_Dump::redo()\n");
 		bool repeat = true;
 		Redo:
 		// save current value for undo
@@ -829,8 +802,7 @@ void Preset_Dump::redo()
 		redo_s.pop_front();
 		if (redo_s.empty())
 			ui->redo_b->deactivate();
-		else if (repeat && (p.id > 1793 && p.id < 1833) && p.id != 1806 && p.id
-				!= 1819) // envelopes
+		else if (repeat && (p.id > 1793 && p.id < 1833) && p.id != 1806 && p.id != 1819) // envelopes
 		{
 			repeat = false;
 			goto Redo;
@@ -866,11 +838,10 @@ void Preset_Dump::update_ui_from_xdo(int id, int value, int layer)
 void Preset_Dump::idmap(const int& id, const int& layer, int& id_mapped) const
 {
 	//pmesg(100, "Preset_Dump::idmap(id: %d, layer: %d, offset)\n", id, layer);
-	if (!data || !((id >= 899 && id <= 970) || (id >= 1025 && id <= 1043)
-			|| (id >= 1153 && id <= 1168) || (id >= 1281 && id <= 1300) || (id
-			>= 1409 && id <= 1439) || (id >= 1537 && id <= 1539) || (id >= 1665
-			&& id <= 1674) || (id >= 1793 && id <= 1834) || (id >= 1921 && id
-			<= 1992)))
+	if (!data
+			|| !((id >= 899 && id <= 970) || (id >= 1025 && id <= 1043) || (id >= 1153 && id <= 1168)
+					|| (id >= 1281 && id <= 1300) || (id >= 1409 && id <= 1439) || (id >= 1537 && id <= 1539)
+					|| (id >= 1665 && id <= 1674) || (id >= 1793 && id <= 1834) || (id >= 1921 && id <= 1992)))
 		return;
 	if (!extra_controller && (id >= 967 && id <= 970))
 		return;
@@ -914,14 +885,10 @@ void Preset_Dump::idmap(const int& id, const int& layer, int& id_mapped) const
 		pos = id - 1921 + 209 + extra_controller - a2k + layer * 158;
 
 	pos = (pos - 16) * 2 + 16;
-	id_mapped = DUMP_HEADER_SIZE + packet_size * (pos / (packet_size - 11))
-			+ (pos % (packet_size - 11)) + 9;
+	id_mapped = DUMP_HEADER_SIZE + packet_size * (pos / (packet_size - 11)) + (pos % (packet_size - 11)) + 9;
 	if (id_mapped > size - 4)
 	{
-		pmesg(
-				1,
-				"*** Preset_Dump::idmap value out of bounds: id %d, layer %d, offset %d\n",
-				id, layer, id_mapped);
+		pmesg("*** Preset_Dump::idmap value out of bounds: id %d, layer %d, offset %d\n", id, layer, id_mapped);
 		id_mapped = 0;
 		return;
 	}
@@ -935,7 +902,7 @@ void Preset_Dump::idmap(const int& id, const int& layer, int& id_mapped) const
 // updates checksums in the dump
 void Preset_Dump::update_checksum()
 {
-	pmesg(90, "Preset_Dump::update_checksum()\n");
+	pmesg("Preset_Dump::update_checksum()\n");
 	if (!data)
 		return;
 	const static int chunks = (size - DUMP_HEADER_SIZE) / packet_size;
@@ -964,7 +931,7 @@ void Preset_Dump::update_checksum()
 // #################
 Arp_Dump::Arp_Dump(int dump_size, const unsigned char* dump_data)
 {
-	pmesg(40, "Arp_Dump::Arp_Dump(size: %d, data)\n", dump_size);
+	pmesg("Arp_Dump::Arp_Dump(size: %d, data)\n", dump_size);
 	size = dump_size;
 	data = new unsigned char[dump_size];
 	memcpy(data, dump_data, dump_size);
@@ -977,19 +944,19 @@ Arp_Dump::Arp_Dump(int dump_size, const unsigned char* dump_data)
 
 Arp_Dump::~Arp_Dump()
 {
-	pmesg(40, "Arp_Dump::~Arp_Dump()\n");
+	pmesg("Arp_Dump::~Arp_Dump()\n");
 	delete[] data;
 }
 
 int Arp_Dump::get_number() const
 {
-	pmesg(40, "Arp_Dump::get_number()\n");
+	pmesg("Arp_Dump::get_number()\n");
 	return number;
 }
 
 void Arp_Dump::show() const
 {
-	pmesg(40, "Arp_Dump::show()\n");
+	pmesg("Arp_Dump::show()\n");
 	// fill name field
 	update_name(name);
 	int offset;
@@ -1019,17 +986,15 @@ void Arp_Dump::show() const
 
 void Arp_Dump::update_sequence_length_information() const
 {
-	pmesg(40, "Arp_Dump::update_sequence_length_information()\n");
+	pmesg("Arp_Dump::update_sequence_length_information()\n");
 	int tick[19] =
-	{ 6, 8, 9, 12, 16, 18, 24, 32, 36, 48, 64, 72, 96, 128, 144, 192, 256, 288,
-			384 };
+	{ 6, 8, 9, 12, 16, 18, 24, 32, 36, 48, 64, 72, 96, 128, 144, 192, 256, 288, 384 };
 	int i = 0;
 	int total = 0;
 	while (i < 32 && !arp_step[i]->End->value())
 	{
 		if (!arp_step[i]->skip->value())
-			total += tick[(int) arp_step[i]->duration->value() - 1]
-					* (int) arp_step[i]->repeat->value();
+			total += tick[(int) arp_step[i]->duration->value() - 1] * (int) arp_step[i]->repeat->value();
 		++i;
 	}
 	int beat = total / 48;
@@ -1041,7 +1006,7 @@ void Arp_Dump::update_sequence_length_information() const
 
 int Arp_Dump::get_value(int id, int step) const
 {
-	pmesg(40, "Arp_Dump::get_value(id: %d, step: %d)\n", id, step);
+	pmesg("Arp_Dump::get_value(id: %d, step: %d)\n", id, step);
 	int offset = (id - 784) * 2 + 26 + step * 8;
 	int value = unibble(data + offset, data + offset + 1);
 	if (id == 787) // repeat
@@ -1051,7 +1016,7 @@ int Arp_Dump::get_value(int id, int step) const
 
 void Arp_Dump::reset_step(int step) const
 {
-	pmesg(40, "Arp_Dump::reset_step(step: %d)\n", step);
+	pmesg("Arp_Dump::reset_step(step: %d)\n", step);
 	int tmp = step * 8;
 	unsigned char* dat = data + 26;
 	int offset = unibble(dat + tmp, dat + tmp + 1);
@@ -1067,7 +1032,7 @@ void Arp_Dump::reset_step(int step) const
 
 void Arp_Dump::rename(const char* newname) const
 {
-	pmesg(40, "Arp_Dump::rename(%s)\n", newname);
+	pmesg("Arp_Dump::rename(%s)\n", newname);
 	unsigned char buf[17];
 	snprintf((char*) buf, 17, "%s                 ", newname);
 	for (int i = 0; i < 12; i++)
@@ -1081,7 +1046,7 @@ void Arp_Dump::rename(const char* newname) const
 
 void Arp_Dump::update_name(const unsigned char* np) const
 {
-	pmesg(40, "Arp_Dump::update_name(%s)\n", np);
+	pmesg("Arp_Dump::update_name(%s)\n", np);
 	pd->rom[0]->set_name(ARP, number, np);
 	ui->copy_arp_pattern_browser->load_n(ARP, 0, number);
 	if (ui->preset_editor->arp_rom->value() == 0)
@@ -1098,7 +1063,7 @@ void Arp_Dump::update_name(const unsigned char* np) const
 
 void Arp_Dump::reset_pattern() const
 {
-	pmesg(40, "Arp_Dump::reset_pattern()\n");
+	pmesg("Arp_Dump::reset_pattern()\n");
 	midi->write_sysex(data, (size_t) size);
 	show();
 }
@@ -1108,7 +1073,7 @@ void Arp_Dump::reset_pattern() const
 // #################
 Setup_Dump::Setup_Dump(int dump_size, const unsigned char* dump_data)
 {
-	pmesg(40, "Setup_Dump::Setup_Dump(size: %d, data)\n", dump_size);
+	pmesg("Setup_Dump::Setup_Dump(size: %d, data)\n", dump_size);
 	size = dump_size;
 	(size > 689) ? extra_controller = 4 : extra_controller = 0;
 	data = 0;
@@ -1128,13 +1093,13 @@ Setup_Dump::Setup_Dump(int dump_size, const unsigned char* dump_data)
 
 Setup_Dump::~Setup_Dump()
 {
-	pmesg(40, "Setup_Dump::~Setup_Dump()\n");
+	pmesg("Setup_Dump::~Setup_Dump()\n");
 	delete[] data;
 }
 
 int Setup_Dump::get_value(int id, int channel) const
 {
-	pmesg(80, "Setup_Dump::get_value(id: %d, ch: %d)\n", id, channel);
+	pmesg("Setup_Dump::get_value(id: %d, ch: %d)\n", id, channel);
 	int offset = 0;
 	idmap(id, channel, offset);
 	if (offset == 0)
@@ -1144,20 +1109,19 @@ int Setup_Dump::get_value(int id, int channel) const
 
 int Setup_Dump::get_dump_size() const
 {
-	pmesg(40, "Setup_Dump::get_dump_size()\n");
+	pmesg("Setup_Dump::get_dump_size()\n");
 	return size;
 }
 
 const unsigned char* Setup_Dump::get_data() const
 {
-	pmesg(40, "Setup_Dump::get_data()\n");
+	pmesg("Setup_Dump::get_data()\n");
 	return data;
 }
 
 int Setup_Dump::set_value(int id, int value, int channel)
 {
-	pmesg(40, "Setup_Dump::set_value(id: %d, value: %d, ch: %d)\n", id, value,
-			channel);
+	pmesg("Setup_Dump::set_value(id: %d, value: %d, ch: %d)\n", id, value, channel);
 	if (id == 388 && data)
 	{
 		data[0x4A] = value;
@@ -1171,8 +1135,7 @@ int Setup_Dump::set_value(int id, int value, int channel)
 	if (value < 0)
 		value += 16384;
 	// check wether value is the same
-	if (unibble((const unsigned char*) data + offset,
-			(const unsigned char*) data + offset + 1) == value)
+	if (unibble((const unsigned char*) data + offset, (const unsigned char*) data + offset + 1) == value)
 		return 0;
 	data[offset] = value % 128;
 	if (id < 142 || id > 157) // for name only one byte per char
@@ -1182,7 +1145,7 @@ int Setup_Dump::set_value(int id, int value, int channel)
 
 void Setup_Dump::update_highlight_buttons()
 {
-	pmesg(40, "Setup_Dump::update_highlight_buttons()\n");
+	pmesg("Setup_Dump::update_highlight_buttons()\n");
 	// used by set color to update the colors of the highlight buttons in the navi bar
 	pwid[258][0]->set_value(get_value(258)); // fx bypass
 	pwid[641][0]->set_value(get_value(641)); // master arp
@@ -1190,7 +1153,7 @@ void Setup_Dump::update_highlight_buttons()
 
 void Setup_Dump::show() const
 {
-	pmesg(40, "Setup_Dump::show()\n");
+	pmesg("Setup_Dump::show()\n");
 	int skip = 0;
 	if (pd->midi_mode != MULTI)
 		skip = 140;
@@ -1215,7 +1178,7 @@ void Setup_Dump::show() const
 
 void Setup_Dump::show_fx() const
 {
-	pmesg(40, "Setup_Dump::show_fx()\n");
+	pmesg("Setup_Dump::show_fx()\n");
 	//	ui->main->fx->activate();
 	for (int i = 513; i < 529; i++)
 		if (pwid[i][0])
@@ -1224,7 +1187,7 @@ void Setup_Dump::show_fx() const
 
 void Setup_Dump::upload() const
 {
-	pmesg(40, "Setup_Dump::upload()\n");
+	pmesg("Setup_Dump::upload()\n");
 	midi->write_sysex(data, size);
 }
 
@@ -1232,26 +1195,24 @@ void Setup_Dump::upload() const
 void Setup_Dump::idmap(const int& id, const int& channel, int& id_mapped) const
 {
 	//pmesg(100, "Setup_Dump::idmap(id: %d, ch: %d, offset)\n", id, channel);
-	if (!data || !((id >= 130 && id <= 157) || (id >= 257 && id <= 269) || (id
-			>= 271 && id <= 278) || (id >= 385 && id <= 414) || (id >= 513
-			&& id <= 528) || (id >= 641 && id <= 661)) || id == 136 || id
-			== 261 || id == 262 || id == 263 || id == 387 || id == 389 || id
-			== 390)
+	if (!data
+			|| !((id >= 130 && id <= 157) || (id >= 257 && id <= 269) || (id >= 271 && id <= 278) || (id >= 385 && id <= 414)
+					|| (id >= 513 && id <= 528) || (id >= 641 && id <= 661)) || id == 136 || id == 261 || id == 262 || id == 263
+			|| id == 387 || id == 389 || id == 390)
 		return;
 	if (!extra_controller && (id >= 411 && id <= 414))
 		return;
 	// channel parameters
 	if (id >= 130 && id <= 138)
-		id_mapped = 2 * (id - 130) + 36 + 2
-				* (setup_dump_info[SDI_GENERAL] + setup_dump_info[SDI_MIDI]
-						+ setup_dump_info[SDI_FX]
-						+ setup_dump_info[SDI_RESERVED]
-						+ setup_dump_info[SDI_NON_CHNL]) + channel * (2
-				* setup_dump_info[SDI_CHNL_PARAMS]);
+		id_mapped = 2 * (id - 130) + 36
+				+ 2
+						* (setup_dump_info[SDI_GENERAL] + setup_dump_info[SDI_MIDI] + setup_dump_info[SDI_FX]
+								+ setup_dump_info[SDI_RESERVED] + setup_dump_info[SDI_NON_CHNL])
+				+ channel * (2 * setup_dump_info[SDI_CHNL_PARAMS]);
 	// multimode parameters
 	else if (id >= 139 && id <= 141)
-		id_mapped = 2 * (id - 139) + 36 + 2 * (setup_dump_info[SDI_GENERAL]
-				+ setup_dump_info[SDI_MIDI] + setup_dump_info[SDI_FX] + 21);
+		id_mapped = 2 * (id - 139) + 36
+				+ 2 * (setup_dump_info[SDI_GENERAL] + setup_dump_info[SDI_MIDI] + setup_dump_info[SDI_FX] + 21);
 	// name
 	else if (id >= 142 && id <= 157)
 		id_mapped = id - 122;
@@ -1271,20 +1232,16 @@ void Setup_Dump::idmap(const int& id, const int& channel, int& id_mapped) const
 	}
 	// fx parameters
 	else if (id >= 513 && id <= 528)
-		id_mapped = 2 * (id - 513) + 36 + 2 * (setup_dump_info[SDI_GENERAL]
-				+ setup_dump_info[SDI_MIDI]);
+		id_mapped = 2 * (id - 513) + 36 + 2 * (setup_dump_info[SDI_GENERAL] + setup_dump_info[SDI_MIDI]);
 	// arp parameters
 	else if (id >= 641 && id <= 661)
-		id_mapped = 2 * (id - 641) + 36 + 2 * (setup_dump_info[SDI_GENERAL]
-				+ setup_dump_info[SDI_MIDI] + setup_dump_info[SDI_FX]);
+		id_mapped = 2 * (id - 641) + 36
+				+ 2 * (setup_dump_info[SDI_GENERAL] + setup_dump_info[SDI_MIDI] + setup_dump_info[SDI_FX]);
 	else
-		pmesg(80, "*** Setup_Dump::idmap: Request for unknown ID: %d\n", id);
+		pmesg("*** Setup_Dump::idmap: Request for unknown ID: %d\n", id);
 	if (id_mapped > size - 3)
 	{
-		pmesg(
-				1,
-				"*** Setup_Dump::idmap value out of bounds: id %d, channel %d, offset %d\n",
-				id, channel, id_mapped);
+		pmesg("*** Setup_Dump::idmap value out of bounds: id %d, channel %d, offset %d\n", id, channel, id_mapped);
 		id_mapped = 0;
 		return;
 	}
@@ -1295,7 +1252,7 @@ void Setup_Dump::idmap(const int& id, const int& channel, int& id_mapped) const
 // #################
 ROM::ROM(int i, int pr, int in)
 {
-	pmesg(40, "ROM::ROM(%d, %d, %d)  \n", i, pr, in);
+	pmesg("ROM::ROM(%d, %d, %d)  \n", i, pr, in);
 	id = i;
 	instrument_names = 0;
 	preset_names = 0;
@@ -1332,11 +1289,11 @@ ROM::ROM(int i, int pr, int in)
 		arps = 0;
 		const Fl_Menu_Item* item;
 		item = ui->preset_editor->arp_rom->find_item(rom_name);
-		const_cast<Fl_Menu_Item*> (item)->hide();
+		const_cast<Fl_Menu_Item*>(item)->hide();
 		item = ui->main->arp_rom->find_item(rom_name);
-		const_cast<Fl_Menu_Item*> (item)->hide();
+		const_cast<Fl_Menu_Item*>(item)->hide();
 		item = ui->copy_arp_rom->find_item(rom_name);
-		const_cast<Fl_Menu_Item*> (item)->hide();
+		const_cast<Fl_Menu_Item*>(item)->hide();
 		for (int i = 0; i < 4; i++)
 			ui->layer_editor[i]->instrument_rom->add(rom_name);
 		ui->preset_editor->riff_rom->add(rom_name);
@@ -1347,7 +1304,7 @@ ROM::ROM(int i, int pr, int in)
 
 ROM::~ROM()
 {
-	pmesg(40, "ROM::~ROM()  \n");
+	pmesg("ROM::~ROM()  \n");
 	// clear rom choices once
 	if (id == 0)
 	{
@@ -1366,22 +1323,20 @@ ROM::~ROM()
 	if (pd->midi_mode != -1)
 	{
 		const char* path = cfg->get_config_dir();
-		char filename[BUF_PATHS];
+		char filename[PATH_MAX];
 		// instruments
 		if (id != 0 && instrument_names && !is_saved_already[INSTRUMENT])
 		{
-			snprintf(filename, BUF_PATHS, "%s/n_ins_%d", path, id);
-			std::fstream file(filename,
-					std::ios::out | std::ios::binary | std::ios::trunc);
+			snprintf(filename, PATH_MAX, "%s/n_ins_%d", path, id);
+			std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
 			file.write((char*) instrument_names, instruments * 16);
 			file.close();
 		}
 		// riffs
 		if (id != 0 && riff_names && !is_saved_already[RIFF])
 		{
-			snprintf(filename, BUF_PATHS, "%s/n_rff_%d", path, id);
-			std::fstream file(filename,
-					std::ios::out | std::ios::binary | std::ios::trunc);
+			snprintf(filename, PATH_MAX, "%s/n_rff_%d", path, id);
+			std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
 			file.write((char*) riff_names, riffs * 16);
 			file.close();
 		}
@@ -1389,12 +1344,10 @@ ROM::~ROM()
 		if (preset_names && !is_saved_already[PRESET])
 		{
 			if (id == 0)
-				snprintf(filename, BUF_PATHS, "%s/n_prs_%d_%d", path, id,
-						device_id);
+				snprintf(filename, PATH_MAX, "%s/n_prs_%d_%d", path, id, device_id);
 			else
-				snprintf(filename, BUF_PATHS, "%s/n_prs_%d", path, id);
-			std::fstream file(filename,
-					std::ios::out | std::ios::binary | std::ios::trunc);
+				snprintf(filename, PATH_MAX, "%s/n_prs_%d", path, id);
+			std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
 			file.write((char*) preset_names, presets * 16);
 			file.close();
 		}
@@ -1404,21 +1357,18 @@ ROM::~ROM()
 			if (arp_names)
 			{
 				if (id == 0)
-					snprintf(filename, BUF_PATHS, "%s/n_arp_%d_%d", path, id,
-							device_id);
+					snprintf(filename, PATH_MAX, "%s/n_arp_%d_%d", path, id, device_id);
 				else
-					snprintf(filename, BUF_PATHS, "%s/n_arp_%d", path, id);
-				std::fstream file(filename,
-						std::ios::out | std::ios::binary | std::ios::trunc);
+					snprintf(filename, PATH_MAX, "%s/n_arp_%d", path, id);
+				std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
 				file.write((char*) arp_names, arps * 16);
 				file.close();
 			}
 			else if (id != 0)
 			{
 				// save dummy file so we dont get init window on each startup
-				snprintf(filename, BUF_PATHS, "%s/n_arp_%d", path, id);
-				std::fstream file(filename,
-						std::ios::out | std::ios::binary | std::ios::trunc);
+				snprintf(filename, PATH_MAX, "%s/n_arp_%d", path, id);
+				std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
 				file.write("none            ", 16);
 				file.close();
 			}
@@ -1434,29 +1384,29 @@ ROM::~ROM()
 // returns the number of names to download
 int ROM::load_names(int type, int number)
 {
-	pmesg(40, "ROM(%d)::load_names(type %d, start %d) \n", id, type, number);
+	pmesg("ROM(%d)::load_names(type %d, start %d) \n", id, type, number);
 	if (number == 0 && disk_load_names(type))
 		return 0;
 	int max = 0;
 	switch (type)
 	{
-	case INSTRUMENT:
-		max = instruments;
-		break;
-	case PRESET:
-		max = presets;
-		break;
-	case ARP:
-		if (id == 0)
-			max = arps;
-		else
-			max = MAX_ARPS;
-		break;
-	case RIFF:
-		max = MAX_RIFFS;
-		break;
-	default:
-		return 0;
+		case INSTRUMENT:
+			max = instruments;
+			break;
+		case PRESET:
+			max = presets;
+			break;
+		case ARP:
+			if (id == 0)
+				max = arps;
+			else
+				max = MAX_ARPS;
+			break;
+		case RIFF:
+			max = MAX_RIFFS;
+			break;
+		default:
+			return 0;
 	}
 	// for rom arps we need to use arp dumps
 	if (type == ARP && id != 0 && number < max)
@@ -1474,44 +1424,43 @@ int ROM::load_names(int type, int number)
 
 int ROM::disk_load_names(int type)
 {
-	pmesg(40, "ROM::disk_load_names(type: %d)  \n", type);
+	pmesg("ROM::disk_load_names(type: %d)  \n", type);
 	const char* path = cfg->get_config_dir();
-	char filename[BUF_PATHS];
+	char filename[PATH_MAX];
 	int* number;
 	unsigned char** data;
 	switch (type)
 	{
-	case INSTRUMENT:
-		snprintf(filename, BUF_PATHS, "%s/n_ins_%d", path, id);
-		number = &instruments;
-		data = &instrument_names;
-		break;
-	case PRESET:
-		if (id == 0)
-			snprintf(filename, BUF_PATHS, "%s/n_prs_%d_%d", path, id, device_id);
-		else
-			snprintf(filename, BUF_PATHS, "%s/n_prs_%d", path, id);
-		number = &presets;
-		data = &preset_names;
-		break;
-	case ARP:
-		if (id == 0)
-			snprintf(filename, BUF_PATHS, "%s/n_arp_%d_%d", path, id, device_id);
-		else
-			snprintf(filename, BUF_PATHS, "%s/n_arp_%d", path, id);
-		number = &arps;
-		data = &arp_names;
-		break;
-	case RIFF:
-		snprintf(filename, BUF_PATHS, "%s/n_rff_%d", path, id);
-		number = &riffs;
-		data = &riff_names;
-		break;
-	default:
-		return 0;
+		case INSTRUMENT:
+			snprintf(filename, PATH_MAX, "%s/n_ins_%d", path, id);
+			number = &instruments;
+			data = &instrument_names;
+			break;
+		case PRESET:
+			if (id == 0)
+				snprintf(filename, PATH_MAX, "%s/n_prs_%d_%d", path, id, device_id);
+			else
+				snprintf(filename, PATH_MAX, "%s/n_prs_%d", path, id);
+			number = &presets;
+			data = &preset_names;
+			break;
+		case ARP:
+			if (id == 0)
+				snprintf(filename, PATH_MAX, "%s/n_arp_%d_%d", path, id, device_id);
+			else
+				snprintf(filename, PATH_MAX, "%s/n_arp_%d", path, id);
+			number = &arps;
+			data = &arp_names;
+			break;
+		case RIFF:
+			snprintf(filename, PATH_MAX, "%s/n_rff_%d", path, id);
+			number = &riffs;
+			data = &riff_names;
+			break;
+		default:
+			return 0;
 	}
-	std::fstream
-			file(filename, std::ios::in | std::ios::binary | std::ios::ate);
+	std::fstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
 	if (file.is_open())
 	{
 		size_t size = file.tellg();
@@ -1533,11 +1482,11 @@ int ROM::disk_load_names(int type)
 			const char* rom_name = ROM::name();
 			const Fl_Menu_Item* item;
 			item = ui->preset_editor->arp_rom->find_item(rom_name);
-			const_cast<Fl_Menu_Item*> (item)->show();
+			const_cast<Fl_Menu_Item*>(item)->show();
 			item = ui->main->arp_rom->find_item(rom_name);
-			const_cast<Fl_Menu_Item*> (item)->show();
+			const_cast<Fl_Menu_Item*>(item)->show();
 			item = ui->copy_arp_rom->find_item(rom_name);
-			const_cast<Fl_Menu_Item*> (item)->show();
+			const_cast<Fl_Menu_Item*>(item)->show();
 		}
 		return 1;
 	}
@@ -1546,217 +1495,188 @@ int ROM::disk_load_names(int type)
 
 int ROM::set_name(int type, int number, const unsigned char* name)
 {
-	pmesg(40, "ROM::set_name(type: %d, #: %d, name) (id: %d) \n", type, number,
-			id);
+	pmesg("ROM::set_name(type: %d, #: %d, name) (id: %d) \n", type, number, id);
 	switch (type)
 	{
-	case INSTRUMENT:
-		if (!instrument_names)
-			instrument_names = new unsigned char[16 * instruments];
-		if (number >= instruments)
-		{
-			pmesg(
-					1,
-					"*** ROM::set_name out of bounds: rom: %d type %d, number %d\n",
-					id, type, number);
-			return 0;
-		}
-		memcpy(instrument_names + 16 * number, name, 16);
-		break;
-	case PRESET:
-		if (!preset_names)
-			preset_names = new unsigned char[16 * presets];
-		if (number >= presets)
-		{
-			pmesg(
-					1,
-					"*** ROM::set_name out of bounds: rom: %d type %d, number %d\n",
-					id, type, number);
-			return 0;
-		}
-		memcpy(preset_names + 16 * number, name, 16);
-		break;
-	case ARP:
-		if (!arp_names)
-		{
-			arp_names = new unsigned char[16 * MAX_ARPS];
-			memset(arp_names, ' ', 16 * MAX_ARPS);
-		}
-		if ((id != 0 && number >= MAX_ARPS) || (id == 0 && number >= arps))
-		{
-			pmesg(
-					1,
-					"*** ROM::set_name out of bounds: rom: %d type %d, number %d\n",
-					id, type, number);
-			return 0;
-		}
-		if (id != 0)
-		{
-			++arps;
-			// show this rom in arp selections
-			if (number == 0)
+		case INSTRUMENT:
+			if (!instrument_names)
+				instrument_names = new unsigned char[16 * instruments];
+			if (number >= instruments)
 			{
-				const char* rom_name = ROM::name();
-				const Fl_Menu_Item* item;
-				item = ui->preset_editor->arp_rom->find_item(rom_name);
-				const_cast<Fl_Menu_Item*> (item)->show();
-				item = ui->main->arp_rom->find_item(rom_name);
-				const_cast<Fl_Menu_Item*> (item)->show();
-				item = ui->copy_arp_rom->find_item(rom_name);
-				const_cast<Fl_Menu_Item*> (item)->show();
+				pmesg("*** ROM::set_name out of bounds: rom: %d type %d, number %d\n", id, type, number);
+				return 0;
 			}
-		}
-		memcpy(arp_names + 16 * number, name, 12);
-		break;
-	case RIFF:
-		if (!riff_names)
-			riff_names = new unsigned char[16 * MAX_RIFFS];
-		if (number >= MAX_RIFFS)
-		{
-			pmesg(
-					1,
-					"*** ROM::set_name out of bounds: rom: %d type %d, number %d\n",
-					id, type, number);
+			memcpy(instrument_names + 16 * number, name, 16);
+			break;
+		case PRESET:
+			if (!preset_names)
+				preset_names = new unsigned char[16 * presets];
+			if (number >= presets)
+			{
+				pmesg("*** ROM::set_name out of bounds: rom: %d type %d, number %d\n", id, type, number);
+				return 0;
+			}
+			memcpy(preset_names + 16 * number, name, 16);
+			break;
+		case ARP:
+			if (!arp_names)
+			{
+				arp_names = new unsigned char[16 * MAX_ARPS];
+				memset(arp_names, ' ', 16 * MAX_ARPS);
+			}
+			if ((id != 0 && number >= MAX_ARPS) || (id == 0 && number >= arps))
+			{
+				pmesg("*** ROM::set_name out of bounds: rom: %d type %d, number %d\n", id, type, number);
+				return 0;
+			}
+			if (id != 0)
+			{
+				++arps;
+				// show this rom in arp selections
+				if (number == 0)
+				{
+					const char* rom_name = ROM::name();
+					const Fl_Menu_Item* item;
+					item = ui->preset_editor->arp_rom->find_item(rom_name);
+					const_cast<Fl_Menu_Item*>(item)->show();
+					item = ui->main->arp_rom->find_item(rom_name);
+					const_cast<Fl_Menu_Item*>(item)->show();
+					item = ui->copy_arp_rom->find_item(rom_name);
+					const_cast<Fl_Menu_Item*>(item)->show();
+				}
+			}
+			memcpy(arp_names + 16 * number, name, 12);
+			break;
+		case RIFF:
+			if (!riff_names)
+				riff_names = new unsigned char[16 * MAX_RIFFS];
+			if (number >= MAX_RIFFS)
+			{
+				pmesg("*** ROM::set_name out of bounds: rom: %d type %d, number %d\n", id, type, number);
+				return 0;
+			}
+			++riffs;
+			memcpy(riff_names + 16 * number, name, 16);
+			break;
+		default:
+			pmesg("*** ROM::set_name unknown type: rom: %d type %d, number %d\n", id, type, number);
+			pd->display_status("ROM::set_name() Unknown ROM.", true);
 			return 0;
-		}
-		++riffs;
-		memcpy(riff_names + 16 * number, name, 16);
-		break;
-	default:
-		pmesg(1,
-				"*** ROM::set_name unknown type: rom: %d type %d, number %d\n",
-				id, type, number);
-		pd->display_status("ROM::set_name() Unknown ROM.", true);
-		return 0;
 	}
 	return 1;
 }
 
 const unsigned char* ROM::get_name(int type, int number) const
 {
-	pmesg(40, "ROM::get_name(type: %d, #: %d)  \n", type, number);
+	pmesg("ROM::get_name(type: %d, #: %d)  \n", type, number);
 	switch (type)
 	{
-	case INSTRUMENT:
-		if (!instrument_names || number >= instruments)
-		{
-			pmesg(
-					1,
-					"*** ROM::get_name out of bounds: rom: %d type INSTRUMENT, number %d\n",
-					id, number);
+		case INSTRUMENT:
+			if (!instrument_names || number >= instruments)
+			{
+				pmesg("*** ROM::get_name out of bounds: rom: %d type INSTRUMENT, number %d\n", id, number);
+				return 0;
+			}
+			return instrument_names + 16 * number;
+		case PRESET:
+			if (!preset_names || number >= presets)
+			{
+				pmesg("*** ROM::get_name out of bounds: rom: %d type PRESET, number %d\n", id, number);
+				return 0;
+			}
+			return preset_names + 16 * number;
+		case ARP:
+			if (!arp_names || number >= arps)
+			{
+				pmesg("*** ROM::get_name out of bounds: rom: %d type ARP, number %d\n", id, number);
+				return 0;
+			}
+			return arp_names + 16 * number;
+		case RIFF:
+			if (!riff_names || number >= riffs)
+			{
+				pmesg("*** ROM::get_name out of bounds: rom: %d type RIFF, number %d\n", id, number);
+				return 0;
+			}
+			return riff_names + 16 * number;
+		default:
+			pmesg("*** ROM::get_name unknown type: rom: %d type %d, number %d\n", id, type, number);
+			pd->display_status("ROM::get_name() Unknown ROM.", true);
 			return 0;
-		}
-		return instrument_names + 16 * number;
-	case PRESET:
-		if (!preset_names || number >= presets)
-		{
-			pmesg(
-					1,
-					"*** ROM::get_name out of bounds: rom: %d type PRESET, number %d\n",
-					id, number);
-			return 0;
-		}
-		return preset_names + 16 * number;
-	case ARP:
-		if (!arp_names || number >= arps)
-		{
-			pmesg(
-					1,
-					"*** ROM::get_name out of bounds: rom: %d type ARP, number %d\n",
-					id, number);
-			return 0;
-		}
-		return arp_names + 16 * number;
-	case RIFF:
-		if (!riff_names || number >= riffs)
-		{
-			pmesg(
-					1,
-					"*** ROM::get_name out of bounds: rom: %d type RIFF, number %d\n",
-					id, number);
-			return 0;
-		}
-		return riff_names + 16 * number;
-	default:
-		pmesg(1,
-				"*** ROM::get_name unknown type: rom: %d type %d, number %d\n",
-				id, type, number);
-		pd->display_status("ROM::get_name() Unknown ROM.", true);
-		return 0;
 	}
 }
 
 int ROM::get_attribute(int type) const
 {
-	pmesg(40, "ROM::get_attribute(type: %d)  \n", type);
+	pmesg("ROM::get_attribute(type: %d)  \n", type);
 	switch (type)
 	{
-	case ID:
-		return id;
-	case INSTRUMENT:
-		return instruments;
-	case PRESET:
-		return presets;
-	case ARP:
-		return arps;
-	case RIFF:
-		return riffs;
-	default:
-		return -1;
+		case ID:
+			return id;
+		case INSTRUMENT:
+			return instruments;
+		case PRESET:
+			return presets;
+		case ARP:
+			return arps;
+		case RIFF:
+			return riffs;
+		default:
+			return -1;
 	}
 }
 
 const char* ROM::name() const
 {
-	pmesg(40, "name(code: %d)\n", id);
+	pmesg("name(code: %d)\n", id);
 	switch (id)
 	{
-	case 0:
-		return "User";
-	case 2:
-		return "XTREM";
-	case 3:
-		return "Audity";
-	case 4:
-		return "Composer";
-	case 5:
-		return "Protozoa";
-	case 6:
-		return "B3";
-	case 7:
-		return "XL-1";
-	case 8:
-		return "ZR-76";
-	case 9:
-		return "World Exp.";
-	case 10:
-		return "Orch 1";
-	case 11:
-		return "Orch 2";
-	case 13:
-	case 15:
-		return "Mo'Phatt";
-	case 14:
-		return "XL-2";
-	case 16:
-		return "Ensoniq";
-	case 17:
-		return "PROM1";
-	case 18:
-		return "Vintage";
-	case 19:
-		return "DRUM";
-	case 64:
-		return "Holy Grail";
-	case 65:
-		return "TSCY";
-	case 66:
-		return "Siedlaczek";
-	case 67:
-		return "Beat";
-	default:
-		static char buf[20];
-		snprintf(buf, 20, "Unknown (%d)", id);
-		return buf;
+		case 0:
+			return "User";
+		case 2:
+			return "XTREM";
+		case 3:
+			return "Audity";
+		case 4:
+			return "Composer";
+		case 5:
+			return "Protozoa";
+		case 6:
+			return "B3";
+		case 7:
+			return "XL-1";
+		case 8:
+			return "ZR-76";
+		case 9:
+			return "World Exp.";
+		case 10:
+			return "Orch 1";
+		case 11:
+			return "Orch 2";
+		case 13:
+		case 15:
+			return "Mo'Phatt";
+		case 14:
+			return "XL-2";
+		case 16:
+			return "Ensoniq";
+		case 17:
+			return "PROM1";
+		case 18:
+			return "Vintage";
+		case 19:
+			return "DRUM";
+		case 64:
+			return "Holy Grail";
+		case 65:
+			return "TSCY";
+		case 66:
+			return "Siedlaczek";
+		case 67:
+			return "Beat";
+		default:
+			static char buf[20];
+			snprintf(buf, 20, "Unknown (%d)", id);
+			return buf;
 	}
 }

@@ -1,22 +1,20 @@
-// $Id$
 #ifndef MIDI_H_
 #define MIDI_H_
 /**
-    \defgroup pd_midi prodatum MIDI I/O
-    @{
-*/
+ \defgroup pd_midi prodatum MIDI I/O
+ @{
+ */
 #include <vector>
 #include <portmidi.h>
 #include <porttime.h>
 #include <pmutil.h>
-//#include "ringbuffer.H"
 
 #define MIDI_SYSEX 0xf0
 #define MIDI_EOX 0xf7
 #define NOTE_OFF 0x80
 #define NOTE_ON 0x90
 
-#ifdef WINDOWS
+#ifdef WIN32
 #	include <windows.h>
 #	define mysleep(x) Sleep(x)
 #else
@@ -47,14 +45,6 @@ class MIDI
 	int start_timer();
 	/// method to stop the MIDI sender/receiver
 	void stop_timer();
-	/**
-	 * nibblelize an integer value
-	 * creates two nibble bytes from an integer for MIDI transmission
-	 * @param value the integer value to nibblelize
-	 * @param lsb reference to the lsb value
-	 * @param msb reference to the msb value
-	 */
-	void nibble(int value, unsigned char& lsb, unsigned char& msb) const;
 
 public:
 	/**
@@ -97,7 +87,7 @@ public:
 	 * @param sysex the sysex data
 	 * @param size the size of the message in bytes
 	 */
-	void write_sysex(const unsigned char* sysex, size_t size) const;
+	void write_sysex(const unsigned char* sysex, unsigned int size) const;
 	/**
 	 * puts a MIDI event into the write buffer
 	 * @param status MIDI status byte
@@ -178,8 +168,7 @@ public:
 	 * @param dst_l the destination layer
 	 * @param rom_id the ROM ID of the source
 	 */
-	void copy(int cmd, int src, int dst, int src_l = 0, int dst_l = 0,
-			int rom_id = 0) const;
+	void copy(int cmd, int src, int dst, int src_l = 0, int dst_l = 0, int rom_id = 0) const;
 	/// toggles audition on the device
 	void audit() const;
 	/// sends a randomize preset command

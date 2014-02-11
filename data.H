@@ -2,9 +2,9 @@
 #ifndef DATA_H_
 #define DATA_H_
 /**
-    \defgroup pd_data prodatum Data Classes
-    @{
-*/
+ \defgroup pd_data prodatum Data Classes
+ @{
+ */
 #include <deque>
 
 #define DUMP_HEADER_SIZE 36
@@ -87,8 +87,7 @@ public:
 	 * @param update wether to automatically update name files and browsers
 	 * from name extracted from the dump
 	 */
-	Preset_Dump(int dump_size, const unsigned char* dump_data, int p_size,
-			bool update = false);
+	Preset_Dump(int dump_size, const unsigned char* dump_data, int p_size, bool update = false);
 	/**
 	 * DTOR just frees the memory
 	 */
@@ -227,13 +226,7 @@ class Setup_Dump
 	 */
 	enum
 	{
-		SDI_GENERAL,
-		SDI_MIDI,
-		SDI_FX,
-		SDI_RESERVED,
-		SDI_NON_CHNL,
-		SDI_CHNLS,
-		SDI_CHNL_PARAMS
+		SDI_GENERAL, SDI_MIDI, SDI_FX, SDI_RESERVED, SDI_NON_CHNL, SDI_CHNLS, SDI_CHNL_PARAMS
 	};
 	/// array holds vital informations about the current setup
 	int setup_dump_info[7];

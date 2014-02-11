@@ -2,22 +2,19 @@
 #ifndef CFG_H_
 #define CFG_H_
 /**
-    \defgroup pd_cfg prodatum Configurations
-    @{
-*/
-#ifdef WINDOWS
+ \defgroup pd_cfg prodatum Configurations
+ @{
+ */
+#ifdef WIN32
 #	include <direct.h>
 #	define mkdir(x,m) _mkdir(x)
 #else
 #	define mkdir(x,m) mkdir(x,m)
 #endif
 
-#define SYSEX_MESSAGE_BUFFER 1024
-#define RING_READ_BUFFER_SIZE 2048
-#define RING_WRITE_BUFFER_SIZE SYSEX_MESSAGE_BUFFER
+#include "config.h"
 #define MAX_ARPS 300
 #define MAX_RIFFS 1000
-#define LOG_BUFFER_SIZE 1000000
 #include <vector>
 
 /**
@@ -55,7 +52,6 @@ enum CONFIG
 	CFG_LOG_EVENTS_IN,
 	CFG_WINDOW_WIDTH,
 	CFG_WINDOW_HEIGHT,
-	CFG_AUDIT_IMPORT,
 	NOOPTION
 };
 
@@ -76,9 +72,9 @@ class Cfg
 	/// config name
 	char config_name[64];
 	/// configuration directory
-	char config_dir[BUF_PATHS];
+	char config_dir[PATH_MAX];
 	/// path to export directory
-	char export_dir[BUF_PATHS];
+	char export_dir[PATH_MAX];
 	std::vector<int> defaults;
 	std::vector<int> option;
 

@@ -35,10 +35,6 @@
 #ifndef WIDGETS_H_
 #define WIDGETS_H_
 
-#ifdef HAVE_CONFIG_H
-#  include <config.H>
-#endif
-
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Hold_Browser.H>
 #include <FL/Fl_Choice.H>
@@ -53,6 +49,8 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Text_Display.H>
+
+#include "config.h"
 
 /**
  * maps filter parameter values to index in selectors array.
@@ -137,7 +135,7 @@ class Double_Window: public Fl_Double_Window
 	int handle(int event);
 public:
 	Double_Window(int w, int h, char* const label = 0) :
-		Fl_Double_Window(w, h, label)
+			Fl_Double_Window(w, h, label)
 	{
 		;
 	}
@@ -148,7 +146,7 @@ class DND_Box: public Fl_Box
 	int handle(int event);
 public:
 	DND_Box(int x, int y, int w, int h, char* const label = 0) :
-		Fl_Box(x, y, w, h, label)
+			Fl_Box(x, y, w, h, label)
 	{
 		clear_visible_focus();
 	}
@@ -159,7 +157,7 @@ public:
 	}
 	void dnd();
 protected:
-	char evt_txt[BUF_PATHS];
+	char evt_txt[PATH_MAX];
 };
 
 /**
@@ -177,7 +175,7 @@ class Browser: public Fl_Hold_Browser, public PWid
 	int selected_rom;
 public:
 	Browser(int x, int y, int w, int h, char* const label = 0) :
-		Fl_Hold_Browser(x, y, w, h, label)
+			Fl_Hold_Browser(x, y, w, h, label)
 	{
 		filter = '\0';
 		has_scrollbar(VERTICAL);
@@ -207,7 +205,7 @@ class ROM_Choice: public Fl_Choice, public PWid
 	void dependency(int v, bool get) const;
 public:
 	ROM_Choice(int x, int y, int w, int h, char* const label = 0) :
-		Fl_Choice(x, y, w, h, label)
+			Fl_Choice(x, y, w, h, label)
 	{
 		no_user = 1;
 	}
@@ -226,7 +224,7 @@ class Input: public Fl_Input
 	int handle(int ev);
 public:
 	Input(int x, int y, int w, int h, char const* label = 0) :
-		Fl_Input(x, y, w, h, label)
+			Fl_Input(x, y, w, h, label)
 	{
 		;
 	}
@@ -241,7 +239,7 @@ class Value_Input: public Fl_Value_Input, public PWid
 	int handle(int event);
 public:
 	Value_Input(int x, int y, int w, int h, char const* label = 0) :
-		Fl_Value_Input(x, y, w, h, label)
+			Fl_Value_Input(x, y, w, h, label)
 	{
 		;
 	}
@@ -261,7 +259,7 @@ class Formatted_Output: public Fl_Value_Output
 	int layer;
 public:
 	Formatted_Output(int x, int y, int w, int h, char const* label = 0) :
-		Fl_Value_Output(x, y, w, h, label)
+			Fl_Value_Output(x, y, w, h, label)
 	{
 		;
 	}
@@ -278,7 +276,7 @@ class Value_Output: public Fl_Value_Output, public PWid
 	int double_click_value; // used for patchcord double click toggle
 public:
 	Value_Output(int x, int y, int w, int h, char const* label = 0) :
-		Fl_Value_Output(x, y, w, h, label)
+			Fl_Value_Output(x, y, w, h, label)
 	{
 		double_click_value = 0;
 	}
@@ -299,7 +297,7 @@ protected:
 	void draw(int X, int Y, int W, int H);
 public:
 	Slider(int x, int y, int w, int h, char const* label = 0) :
-		Fl_Slider(x, y, w, h, label)
+			Fl_Slider(x, y, w, h, label)
 	{
 		prev_value = -96;
 		id_layer[0] = -1; // used by cc sliders
@@ -319,7 +317,7 @@ class Spinner: public Fl_Spinner, public PWid
 	int handle(int event);
 public:
 	Spinner(int x, int y, int w, int h, char const* label = 0) :
-		Fl_Spinner(x, y, w, h, label)
+			Fl_Spinner(x, y, w, h, label)
 	{
 		;
 	}
@@ -337,7 +335,7 @@ class Counter: public Fl_Counter, public PWid
 	int handle(int event);
 public:
 	Counter(int x, int y, int w, int h, char const* label = 0) :
-		Fl_Counter(x, y, w, h, label)
+			Fl_Counter(x, y, w, h, label)
 	{
 		;
 	}
@@ -356,7 +354,7 @@ class Group: public Fl_Group, public PWid
 	void dependency(int v) const;
 public:
 	Group(int x, int y, int w, int h, char const* label = 0) :
-		Fl_Group(x, y, w, h, label)
+			Fl_Group(x, y, w, h, label)
 	{
 		;
 	}
@@ -384,14 +382,7 @@ class Fl_Knob: public Fl_Valuator, public PWid
 public:
 	enum Fl_Knobtype
 	{
-		DOTLIN = 0,
-		DOTLOG_1,
-		DOTLOG_2,
-		DOTLOG_3,
-		LINELIN,
-		LINELOG_1,
-		LINELOG_2,
-		LINELOG_3
+		DOTLIN = 0, DOTLOG_1, DOTLOG_2, DOTLOG_3, LINELIN, LINELOG_1, LINELOG_2, LINELOG_3
 	};
 	Fl_Knob(int xx, int yy, int ww, int hh, const char *l = 0);
 	void type(int ty);
@@ -412,7 +403,7 @@ class Button: public Fl_Button, public PWid
 	int handle(int event);
 public:
 	Button(int x, int y, int w, int h, char const* label = 0) :
-		Fl_Button(x, y, w, h, label)
+			Fl_Button(x, y, w, h, label)
 	{
 		id_layer[0] = -1;
 	}
@@ -427,7 +418,7 @@ class Fixed_Button: public Fl_Button
 	int handle(int event);
 public:
 	Fixed_Button(int x, int y, int w, int h, char const* label = 0) :
-		Fl_Button(x, y, w, h, label)
+			Fl_Button(x, y, w, h, label)
 	{
 		;
 	}
@@ -443,7 +434,7 @@ class Choice: public Fl_Choice, public PWid
 	void dependency(int v) const;
 public:
 	Choice(int x, int y, int w, int h, char* const label = 0) :
-		Fl_Choice(x, y, w, h, label)
+			Fl_Choice(x, y, w, h, label)
 	{
 		;
 	}
@@ -474,7 +465,7 @@ class PCS_Choice: public Choice
 	}
 public:
 	PCS_Choice(int x, int y, int w, int h, char* const label = 0) :
-		Choice(x, y, w, h, label)
+			Choice(x, y, w, h, label)
 	{
 		src[0].value = 0;
 		src[0].name = "Off";
@@ -666,7 +657,7 @@ class PCD_Choice: public Choice
 	} dst[68];
 public:
 	PCD_Choice(int x, int y, int w, int h, char* const label = 0) :
-		Choice(x, y, w, h, label)
+			Choice(x, y, w, h, label)
 	{
 		dst[0].value = 0;
 		dst[0].name = "Off";
@@ -830,7 +821,7 @@ class PPCD_Choice: public Choice
 	} dst[28];
 public:
 	PPCD_Choice(int x, int y, int w, int h, char* const label = 0) :
-		Choice(x, y, w, h, label)
+			Choice(x, y, w, h, label)
 	{
 		dst[0].value = 0;
 		dst[0].name = "Off";
@@ -967,7 +958,7 @@ class Envelope_Editor: public Fl_Box
 
 public:
 	Envelope_Editor(int x, int y, int w, int h, char* const label = 0) :
-		Fl_Box(x, y, w, h, label)
+			Fl_Box(x, y, w, h, label)
 	{
 		zoomlevel = 4;
 		modes = 3;
@@ -1038,9 +1029,9 @@ class Piano: public Fl_Box
 
 public:
 	Piano(int x, int y, int w, int h, char* const label = 0) :
-		Fl_Box(x, y, w, h, label)
+			Fl_Box(x, y, w, h, label)
 	{
-		// tasten- hšhen/-breiten
+		// tasten- hï¿½hen/-breiten
 		h_white = 32;
 		w_white = 13; // 15
 		h_black = 20;
@@ -1080,20 +1071,17 @@ public:
 			taste_x0[4 + octave][1] = 0;
 			taste_x0[5 + octave][0] = keyboard_x0 + 3 * (w_white - 1) + offset;
 			taste_x0[5 + octave][1] = 0;
-			taste_x0[6 + octave][0] = keyboard_x0 + 9 + 3 * (w_white - 1)
-					+ offset;
+			taste_x0[6 + octave][0] = keyboard_x0 + 9 + 3 * (w_white - 1) + offset;
 			taste_x0[6 + octave][1] = 1;
 			taste_x0[7 + octave][0] = keyboard_x0 + 4 * (w_white - 1) + offset;
 			taste_x0[7 + octave][1] = 0;
 			if (i == 10) // keyboard is smaller than full 10 full octaves
 				break;
-			taste_x0[8 + octave][0] = keyboard_x0 + 9 + 4 * (w_white - 1)
-					+ offset;
+			taste_x0[8 + octave][0] = keyboard_x0 + 9 + 4 * (w_white - 1) + offset;
 			taste_x0[8 + octave][1] = 1;
 			taste_x0[9 + octave][0] = keyboard_x0 + 5 * (w_white - 1) + offset;
 			taste_x0[9 + octave][1] = 0;
-			taste_x0[10 + octave][0] = keyboard_x0 + 9 + 5 * (w_white - 1)
-					+ offset;
+			taste_x0[10 + octave][0] = keyboard_x0 + 9 + 5 * (w_white - 1) + offset;
 			taste_x0[10 + octave][1] = 1;
 			taste_x0[11 + octave][0] = keyboard_x0 + 6 * (w_white - 1) + offset;
 			taste_x0[11 + octave][1] = 0;
@@ -1105,11 +1093,9 @@ public:
 				for (int j = 0; j < 4; j++)
 				{
 					if (j == LOW_KEY || j == HIGH_KEY)
-						dragbox[m][i][j][1] = keyboard_y0 + 5 + keyboard_h + i
-								* 18;
+						dragbox[m][i][j][1] = keyboard_y0 + 5 + keyboard_h + i * 18;
 					else
-						dragbox[m][i][j][1] = keyboard_y0 + 5 + keyboard_h + i
-								* 18 + 8;
+						dragbox[m][i][j][1] = keyboard_y0 + 5 + keyboard_h + i * 18 + 8;
 				}
 		// arps
 		dragbox[0][4][LOW_KEY][1] = dragbox[0][3][LOW_KEY][1] + 20;
@@ -1127,8 +1113,7 @@ public:
 				set_range_values(m, i, 0, 0, 127, 0);
 	}
 
-	void set_range_values(int md, int layer, int low_k, int low_f, int high_k,
-			int high_f);
+	void set_range_values(int md, int layer, int low_k, int low_f, int high_k, int high_f);
 	void set_transpose(int l1, int l2, int l3, int l4);
 	void select_transpose_layer(int l);
 	void set_mode(int m);
@@ -1173,7 +1158,7 @@ class MiniPiano: public Fl_Box
 
 public:
 	MiniPiano(int x, int y, int w, int h, char* const label = 0) :
-		Fl_Box(x, y, w, h, label)
+			Fl_Box(x, y, w, h, label)
 	{
 		pushed = NONE;
 		hovered_key = NONE;
@@ -1196,7 +1181,7 @@ class Pitch_Slider: public Fl_Slider
 	bool hold;
 public:
 	Pitch_Slider(int x, int y, int w, int h, char* const label = 0) :
-		Fl_Slider(x, y, w, h, label)
+			Fl_Slider(x, y, w, h, label)
 	{
 		hold = false;
 	}
@@ -1211,7 +1196,7 @@ class Step_Type: public Fl_Group
 	int s;
 public:
 	Step_Type(int x, int y, int w, int h, char* const label = 0) :
-		Fl_Group(x, y, w, h, label)
+			Fl_Group(x, y, w, h, label)
 	{
 		;
 	}
@@ -1231,7 +1216,7 @@ class Step_Value: public Fl_Value_Output
 	int s;
 public:
 	Step_Value(int x, int y, int w, int h, char const* label = 0) :
-		Fl_Value_Output(x, y, w, h, label)
+			Fl_Value_Output(x, y, w, h, label)
 	{
 		;
 	}
@@ -1249,7 +1234,7 @@ protected:
 	void draw(int X, int Y, int W, int H);
 public:
 	Step_Offset(int x, int y, int w, int h, char* const label = 0) :
-		Fl_Value_Slider(x, y, w, h, label)
+			Fl_Value_Slider(x, y, w, h, label)
 	{
 		;
 	}
@@ -1266,7 +1251,7 @@ class Text_Display: public Fl_Text_Display
 	int c_w;
 public:
 	Text_Display(int x, int y, int w, int h, char const* label = 0) :
-		Fl_Text_Display(x, y, w, h, label)
+			Fl_Text_Display(x, y, w, h, label)
 	{
 		textfont(FL_COURIER);
 		textsize(12);

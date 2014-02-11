@@ -11,19 +11,13 @@ comment {/**
 decl {\#include "widgets.H"} {public global
 } 
 
-declblock {\#ifdef HAVE_CONFIG_H} {after {\#endif}
-} {
-  decl {\#include <config.H>} {}
-} 
+decl {\#include <FL/filename.H>>} {} 
 
-decl {\#include <FL/Fl_File_Chooser.H>} {public global
-} 
+decl {\#include <FL/Fl_Tooltip.H>} {} 
 
-decl {\#include <FL/Fl_Tooltip.H>} {public global
-} 
+decl {\#include <FL/fl_ask.H>} {} 
 
-decl {\#include <FL/fl_ask.H>} {public global
-} 
+decl {\#include <string.h>} {} 
 
 decl {\#include "images.H"} {} 
 
@@ -32,6 +26,8 @@ decl {\#include "midi.H"} {}
 decl {\#include "pd.H"} {} 
 
 decl {\#include "cfg.H"} {} 
+
+decl {\#include "config.h"} {} 
 
 decl {\#include "debug.H"} {} 
 
@@ -2490,7 +2486,6 @@ decl {PD_Arp_Step* arp_step[32];} {global
 
 class PD_UI {open
 } {
-  decl {Fl_File_Chooser* fc;} {}
   decl {Fl_Button* mute_b[4];} {public
   }
   decl {Fl_Button* solo_b[4];} {public
@@ -2518,12 +2513,11 @@ delete this;} public
   decl {int copy_src;} {}
   decl {char* filter_tmp;} {}
   decl {bool arp_name_changed;} {}
-  decl {void set_msglevel(int level);} {}
   decl {bool shiny_knobs;} {public
   }
   decl {void initialize();} {}
-  decl {void set_export_path();} {}
-  decl {void file_program(int)} {}
+  decl {void set_export_path(const char*);} {}
+  decl {void export_sysex();} {}
   decl {void select(int l);} {public
   }
   decl {int get_selected();} {public
@@ -2570,9 +2564,9 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
-      xywh {301 157 843 615} type Double hide resizable
-      code0 {o->label(PACKAGE_STRING);}
+delete this;} open
+      xywh {1018 281 840 615} type Double hide resizable
+      code0 {o->label("prodatum ng");}
       class Double_Window size_range {674 492 843 615}
     } {
       Fl_Group {} {
@@ -2624,7 +2618,7 @@ pd->preset->set_name(o->value(), 1, o->position());}
           code0 {o->global();}
         } {
           Submenu {} {
-            label File
+            label File open
             xywh {5 5 70 21}
           } {
             MenuItem {} {
@@ -2649,19 +2643,9 @@ pd->display_status("*** Nothing to save.");}
               tooltip {Save the edit buffer to the current selected preset slot} xywh {5 5 36 21} shortcut 0x50073
             }
             MenuItem {} {
-              label {Export...}
-              callback {file_program(0);}
-              tooltip {Saves the edit buffer to a file} xywh {5 5 29 19} shortcut 0x50078
-            }
-            MenuItem {} {
-              label {Export (quick)}
-              callback {file_program(2);}
-              tooltip {Saves the edit buffer to a file into the directory where prodatum was started from without asking for a filename (the preset name is used)..} xywh {5 5 29 19} shortcut 0x40078
-            }
-            MenuItem {} {
-              label {Import...}
-              callback {file_program(1);}
-              tooltip {Loads a program from a file into the edit buffer.} xywh {5 5 29 19} shortcut 0x40069
+              label Export
+              callback {export_sysex();}
+              tooltip {Saves the edit buffer to a file into the export directory (the preset name is used as file name)} xywh {5 5 29 19} shortcut 0x40078
             }
             MenuItem {} {
               label {Reset...}
@@ -2758,7 +2742,7 @@ preferences->show();}
             }
           }
           Submenu {} {
-            label Window open
+            label Window
             xywh {5 5 70 21}
           } {
             MenuItem {} {
@@ -2969,7 +2953,7 @@ about->show();}
           xywh {281 1 281 17} box FLAT_BOX color 7 labelfont 5 labelsize 12 labelcolor 49 align 18
         }
       }
-      Fl_Group g_main {open
+      Fl_Group g_main {
         xywh {0 19 843 596}
       } {
         Fl_Group selector {
@@ -3759,7 +3743,7 @@ pd->cancel_init();}
     }
     Fl_Window open_device {
       label {Open Device}
-      xywh {544 73 355 414} type Double box BORDER_BOX labelcolor 15 hide modal
+      xywh {544 73 355 410} type Double box BORDER_BOX labelcolor 15 hide modal
     } {
       Fl_Box {} {
         label {Open Device}
@@ -3922,8 +3906,8 @@ midi->request_setup_dump();}
     }
     Fl_Window preferences {
       label Preferences
-      callback {b_close_prefs->do_callback();}
-      xywh {382 320 617 338} type Double box UP_BOX labelsize 11 hide modal
+      callback {b_close_prefs->do_callback();} open
+      xywh {733 338 615 335} type Double box UP_BOX labelsize 11 hide modal
     } {
       Fl_Box {} {
         label Preferences
@@ -3979,21 +3963,16 @@ cfg->set_cfg_option(CFG_KNOBMODE, i);}
         }
       }
       Fl_Box {} {
-        label {Import and Export}
+        label {Export directory}
         xywh {10 185 290 61} labelfont 1 labelcolor 15 align 133
       }
-      Fl_Output export_dir {
-        tooltip {The default export directory is where quick exports are saved to and is the start location for all im-/export browsers.} xywh {20 192 275 20} box UP_BOX labelsize 10 labelcolor 15 align 0 when 0 textfont 5 textsize 12 textcolor 49
+      Fl_Input export_dir {
+        tooltip {The directory is where exports are saved to} xywh {20 192 275 20} box UP_BOX labeltype NO_LABEL labelcolor 15 align 0 when 0 textfont 5 textsize 12 textcolor 49
       }
       Fl_Button {} {
-        label Change
-        callback {set_export_path();}
-        tooltip {This button starts the "browse for a nice export directory" quest!} xywh {20 218 60 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49
-      }
-      Fl_Check_Button c_aaudit {
-        label {Audit Imports}
-        callback {cfg->set_cfg_option(CFG_AUDIT_IMPORT, o->value());}
-        tooltip {Audit programs selected in the import browser?} xywh {90 222 107 15} down_box DOWN_BOX selection_color 49
+        label Save
+        callback {set_export_path(export_dir->value());}
+        tooltip {Save export directory} xywh {20 218 60 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49 align 20
       }
       Fl_Box {} {
         label {MIDI Performance}
@@ -4054,13 +4033,6 @@ set_color(-1, 0);}
         callback {set_color(BB, o->value());}
         tooltip {Color blue} xywh {350 173 255 15} type {Horz Knob} box FLAT_BOX selection_color 7 labelsize 12 labelcolor 15 align 4 maximum 255 step 1 textsize 12
       }
-      Fl_Choice {} {
-        label stderr
-        callback {set_msglevel(o->value());} open
-        tooltip {stderr message level (for debugging)} xywh {525 269 80 20} down_box BORDER_BOX labelsize 11 labelcolor 15 textsize 11
-        code0 {o->add("Error");o->add("Info");o->add("Debug");}
-        code1 {o->value(0);}
-      } {}
       Fl_Button b_close_prefs {
         label Close
         callback {preferences->hide();}
@@ -4233,7 +4205,7 @@ if (((Fl_Button*) o->array()[i])->value())
       }
     }
     Fl_Window about {
-      label {About prodatum} open selected
+      label {About prodatum}
       xywh {510 121 275 128} type Double box BORDER_BOX hide modal
     } {
       Fl_Box {} {
@@ -4504,19 +4476,19 @@ reset(userdata, romdata);}
 cfg->set_cfg_option(CFG_SYNCVIEW, syncview);
 cfg->set_cfg_option(CFG_WINDOW_WIDTH, main_window->w());
 cfg->set_cfg_option(CFG_WINDOW_HEIGHT, main_window->h());
-if (fc) delete fc;
 if (pd) delete pd;
 delete midi;
 delete cfg;
-pmesg(1, "Bye.\\n");
+pmesg("Bye.\\n");
 exit(0);} {}
   }
 } 
 
-Function {handler(int event)} {return_type int
+Function {handler(int event)} {open return_type int
 } {
-  code {pmesg(100, "unused handler event: %d\\n", event);
-return 0;} {}
+  code {//pmesg("unused handler event: %d\\n", event);
+return 0;} {selected
+  }
 } 
 
 comment {/** @\} */} {in_source in_header

@@ -1,0 +1,13 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+ 
+#cmakedefine VER @VER@
+#cmakedefine SYSEX_MAX_SIZE @SYSEX_MAX_SIZE@
+#cmakedefine RINGBUFFER_WRITE @RINGBUFFER_WRITE@
+#cmakedefine RINGBUFFER_READ @RINGBUFFER_READ@
+#cmakedefine LOG_BUFFER_SIZE @LOG_BUFFER_SIZE@
+#ifndef PATH_MAX
+#cmakedefine PATH_MAX @PATH_MAX@
+#endif
+ 
+#endif // CONFIG_H
