@@ -22,7 +22,7 @@ if(WIN32)
 endif(WIN32)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  ADD_DEFINITIONS(-DOSX -DUSE_MLOCK)
+  ADD_DEFINITIONS(-DOSX -DUSE_MLOCK -DHAVE_PTHREAD_H)
   set(ADDITIONAL_LIBRARIES "-framework Carbon -framework ApplicationServices -framework CoreMIDI -framework CoreAudio")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 

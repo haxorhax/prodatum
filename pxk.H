@@ -8,6 +8,8 @@
 #ifndef PXK_H_
 #define PXK_H_
 
+#include <map>
+
 #include "data.H"
 #include "debug.H"
 #include "midi.H"
@@ -18,15 +20,21 @@ class PXK
 	/*
 	 * general
 	 */
+public:
 	PD_UI* prodatum;
+private:
 	MIDI* mo;
 	char device_id;
+	unsigned char request_delay;
 	bool synchronized;
-	bool synchronize(PD_UI* pd, MIDI* m, char id);
+public:
+	bool synchronize(PD_UI* pd, MIDI* m, char id, char delay);
+private:
 	/// maps controller values to CC widget numbers (device -> UI)
 	std::map<int, int> cc_to_ctrl;
 	/// maps CC widget numbers to actual controller values (UI -> device)
 	std::map<int, int> ctrl_to_cc;
+public:
 	void incoming_generic_name(const unsigned char* data);
 	void incoming_ERROR(int cmd, int sub);
 	void incoming_ACK(int packet);
@@ -41,17 +49,21 @@ class PXK
 	/*
 	 * device specific
 	 */
-	const int device_code = 516; // PXK device code
+public:
+	int device_code; // PXK device code
+private:
 	int member_code; // 2 = AUDITY
 	char os_rev[5]; // OS revision
 	int user_presets; // available user presets
+	void create_device_info();
+public:
 	void incoming_inquiry_data(const unsigned char* data, int len);
 	void incoming_hardware_config(const unsigned char* data, int len);
-	void create_device_info();
 
 	/*
 	 * setup specific
 	 */
+private:
 	Setup_Dump* setup;
 	const Setup_Dump* setup_copy;
 	char selected_multisetup;
@@ -61,36 +73,42 @@ class PXK
 	int selected_preset;
 	char midi_mode;
 	char selected_fx_channel;
-	void incoming_setup_dump(const unsigned char* data, int len);
 	void store_play_as_initial();
 	void update_fx_values(int id, int value) const;
 	void update_cc_sliders();
 	void update_control_map();
-	void store_play_as_initial();
+public:
+	void incoming_setup_dump(const unsigned char* data, int len);
 
 	/*
 	 * rom specific
 	 */
+private:
 	ROM* rom[5];
 	unsigned char roms; // number of roms
+	std::map<int, int> rom_id_map;
+	const char* get_name(int code) const;
 
 	/*
 	 * preset specific
 	 */
+private:
 	Preset_Dump* preset;
 	const Preset_Dump* preset_copy;
 	unsigned int mute_volume[4]; // volume of muted voices
 	bool is_solo[4];
-	/// currently selected layer
+public:
 	int selected_layer;
-	void incoming_preset_dump(const unsigned char* data, int len);
 	void mute(int state, int layer);
 	void solo(int state, int layer);
+	void incoming_preset_dump(const unsigned char* data, int len);
 
 	/*
 	 * arp specific
 	 */
+private:
 	Arp_Dump* arp;
+public:
 	void incoming_arp_dump(const unsigned char* data, int len);
 
 
@@ -98,6 +116,7 @@ public:
 	/// CTOR
 	PXK()
 	{
+		device_code = -1;
 		device_id = -1;
 		synchronized = false;
 	}
