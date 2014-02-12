@@ -62,10 +62,7 @@ Preset_Dump::Preset_Dump(int dump_size, const unsigned char* dump_data, int p_si
 	size = dump_size;
 	packet_size = p_size;
 	(size > 1607) ? extra_controller = 4 : extra_controller = 0;
-	a2k = 0;
-	if (size == 1605)
-		a2k = 1;
-	data = 0;
+	(size == 1605) ? a2k = 1 : a2k = 0;
 	number = pd->selected_preset;
 	rom_id = pd->selected_preset_rom;
 	if (dump_data)
@@ -110,7 +107,7 @@ void Preset_Dump::set_changed(bool set)
 	}
 }
 
-int Preset_Dump::get_extra_controller()
+int Preset_Dump::get_extra_controller() const
 {
 	return extra_controller;
 }
@@ -120,7 +117,7 @@ void Preset_Dump::clone(Preset_Dump* dst) const
 	memcpy(dst->data, data, size);
 }
 
-const char* Preset_Dump::get_name()
+const char* Preset_Dump::get_name() const
 {
 	static char n[17];
 	snprintf(n, 17, "%s", name);
@@ -154,13 +151,10 @@ int Preset_Dump::get_dump_size() const
 {
 	return size;
 }
+
 const unsigned char* Preset_Dump::get_data() const
 {
 	return data;
-}
-int Preset_Dump::get_p_size() const
-{
-	return packet_size;
 }
 
 int Preset_Dump::set_value(int id, int value, int layer)
@@ -255,13 +249,13 @@ void Preset_Dump::set_name(const char* val, int type, int position)
 		midi->edit_parameter_value(899 + i, *(name + i));
 }
 
-void Preset_Dump::update_highlight_buttons()
+void Preset_Dump::update_highlight_buttons() const
 {
 	// used by set color to update the colors of the highlight buttons in the navi bar
 	pwid[1025][0]->set_value(get_value(1025)); // preset arp
 }
 
-void Preset_Dump::show()
+void Preset_Dump::show() const
 {
 	pmesg("Preset_Dump::show()\n");
 	char buf[30];
@@ -816,7 +810,7 @@ void Preset_Dump::redo()
 		pd->display_status("*** Nothing to redo.");
 }
 
-void Preset_Dump::update_ui_from_xdo(int id, int value, int layer)
+void Preset_Dump::update_ui_from_xdo(int id, int value, int layer) const
 {
 	if (id > 1792 && id < 1835)
 		update_envelopes();
@@ -867,7 +861,6 @@ void Preset_Dump::idmap(const int& id, const int& layer, int& id_mapped) const
 
 	else if (id - 1300 <= 0) // Preset Common Links Edit Parameters
 		pos = id - 1281 + 103 + extra_controller - a2k;
-
 	// layer parameters start here
 	else if (id - 1439 <= 0) // Preset Layer General Edit Parameters
 		pos = id - 1409 + 123 + extra_controller - a2k + layer * 158;
@@ -881,8 +874,7 @@ void Preset_Dump::idmap(const int& id, const int& layer, int& id_mapped) const
 	else if (id - 1834 <= 0) // Preset Layer Envelope Edit Parameters
 		pos = id - 1793 + 167 + extra_controller - a2k + layer * 158;
 
-	else
-		// Preset Layer PatchCords Edit Parameters
+	else // Preset Layer PatchCords Edit Parameters
 		pos = id - 1921 + 209 + extra_controller - a2k + layer * 158;
 
 	pos = (pos - 16) * 2 + 16;
@@ -893,11 +885,6 @@ void Preset_Dump::idmap(const int& id, const int& layer, int& id_mapped) const
 		id_mapped = 0;
 		return;
 	}
-	// testing
-	//	pmesg(80,
-	//			"id/layer: %4d/%d  value: %2X,%2X %3d  pos/offset: %4d/%4d  PPL\n",
-	//			id, layer, data[id_mapped], data[id_mapped + 1],
-	//			unibble(data + id_mapped, data + id_mapped + 1), pos, id_mapped);
 }
 
 // updates checksums in the dump
@@ -906,12 +893,12 @@ void Preset_Dump::update_checksum()
 	pmesg("Preset_Dump::update_checksum()\n");
 	if (!data)
 		return;
-	const static int chunks = (size - DUMP_HEADER_SIZE) / packet_size;
+	const static unsigned char chunks = (size - DUMP_HEADER_SIZE) / packet_size;
 	const static int tail = (size - DUMP_HEADER_SIZE) % packet_size - 11;
 	int offset = DUMP_HEADER_SIZE + 9;
 	int sum;
 	unsigned char checksum;
-	for (int j = 0; j < chunks; j++)
+	for (unsigned char j = 0; j < chunks; j++)
 	{
 		sum = 0;
 		for (int i = 0; i < (packet_size - 11); i++)
@@ -967,7 +954,7 @@ void Arp_Dump::show() const
 	int tmp;
 	unsigned char* dat = data + 26;
 	// load step values
-	for (int i = 0; i < 32; i++)
+	for (unsigned char i = 0; i < 32; i++)
 	{
 		tmp = i * 8;
 		offset = unibble(dat + tmp, dat + tmp + 1);
@@ -990,7 +977,7 @@ void Arp_Dump::update_sequence_length_information() const
 	pmesg("Arp_Dump::update_sequence_length_information()\n");
 	int tick[19] =
 	{ 6, 8, 9, 12, 16, 18, 24, 32, 36, 48, 64, 72, 96, 128, 144, 192, 256, 288, 384 };
-	int i = 0;
+	unsigned char i = 0;
 	int total = 0;
 	while (i < 32 && !arp_step[i]->End->value())
 	{
@@ -1036,7 +1023,7 @@ void Arp_Dump::rename(const char* newname) const
 	pmesg("Arp_Dump::rename(%s)\n", newname);
 	unsigned char buf[17];
 	snprintf((char*) buf, 17, "%s                 ", newname);
-	for (int i = 0; i < 12; i++)
+	for (unsigned char i = 0; i < 12; i++)
 	{
 		if (!isascii(buf[i]))
 			buf[i] = ' ';
@@ -1144,7 +1131,7 @@ int Setup_Dump::set_value(int id, int value, int channel)
 	return 1;
 }
 
-void Setup_Dump::update_highlight_buttons()
+void Setup_Dump::update_highlight_buttons() const
 {
 	pmesg("Setup_Dump::update_highlight_buttons()\n");
 	// used by set color to update the colors of the highlight buttons in the navi bar
@@ -1259,9 +1246,8 @@ ROM::ROM(int i, int pr, int in)
 	preset_names = 0;
 	arp_names = 0;
 	riff_names = 0;
-	for (int i = 0; i < 7; i++)
+	for (unsigned char i = 0; i < 7; i++)
 		is_saved_already[i] = false;
-
 	const char* rom_name = name();
 	ui->preset_rom->add(rom_name);
 	ui->preset_editor->l1_rom->add(rom_name);
@@ -1309,7 +1295,7 @@ ROM::~ROM()
 	// clear rom choices once
 	if (id == 0)
 	{
-		for (int i = 0; i < 4; i++)
+		for (unsigned char i = 0; i < 4; i++)
 			ui->layer_editor[i]->instrument_rom->clear();
 		ui->preset_rom->clear();
 		ui->preset_editor->arp_rom->clear();

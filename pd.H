@@ -41,11 +41,6 @@ enum
 	OMNI, POLY, MULTI
 };
 
-enum
-{
-	AUDITY = 2
-};
-
 /**
  * prodatum's control class.
  * Evaluates incoming sysex messages and holds data objects like preset and

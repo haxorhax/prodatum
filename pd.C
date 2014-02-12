@@ -67,20 +67,20 @@ PD::PD()
 	midi_mode = -1;
 	randomizing = false;
 	cc_changed = false;
-	nak_count = 0;
-	for (int i = 0; i < 4; i++)
+	for (nak_count = 0; nak_count < 4; nak_count++)
 	{
-		mute_volume[i] = -100;
-		is_solo[i] = 0;
+		mute_volume[nak_count] = -100;
+		is_solo[nak_count] = 0;
 	}
-	for (int i = 0; i < 5; i++)
-		rom[i] = 0;
+	for (nak_count = 0; nak_count < 5; nak_count++)
+		rom[nak_count] = 0;
+	nak_count = 0;
 }
 
 PD::~PD()
 {
 	pmesg("PD::~PD() \n");
-	for (int i = 0; i < 4; i++) // unmute eventually muted voices
+	for (unsigned char i = 0; i < 4; i++) // unmute eventually muted voices
 		mute(0, i);
 	// save setup_names
 	save_setup_names(cfg->get_cfg_option(CFG_DEVICE_ID));
@@ -254,7 +254,7 @@ void PD::init_arp_riff_names()
 	names_to_download = 0;
 	for (int j = 1; j <= roms; j++)
 	{
-		if (member_code != AUDITY)
+		if (member_code != 2) // AUDITY
 			names_to_download += rom[j]->load_names(RIFF, 0);
 		names_to_download += rom[j]->load_names(ARP, 0);
 	}
@@ -707,31 +707,36 @@ void PD::connect()
 	int p_in = cfg->get_cfg_option(CFG_MIDI_IN);
 	int p_thru = cfg->get_cfg_option(CFG_MIDI_THRU);
 	device_code = 0;
-	if (p_out != -1)
+	if (p_out == -1 || p_in == -1)
 	{
-		if (midi->connect_out(p_out))
-		{
-			ui->midi_outs->label(ui->midi_outs->text(p_out));
-			ui->midi_outs->value(p_out);
-		}
-		else
-		{
-			p_out = -1;
-			display_status("*** Failed to open Out-Port.", true);
-		}
+		ui->open_device->show();
+		return;
 	}
-	if (p_in != -1)
+	else
+		Fl::add_timeout(.5, check_connection, (void*) &device_code);
+
+	if (midi->connect_out(p_out))
 	{
-		if (midi->connect_in(p_in))
-		{
-			ui->midi_ins->label(ui->midi_ins->text(p_in));
-			ui->midi_ins->value(p_in);
-		}
-		else
-		{
-			p_in = -1;
-			display_status("*** Failed to open In-Port.", true);
-		}
+		ui->midi_outs->label(ui->midi_outs->text(p_out));
+		ui->midi_outs->value(p_out);
+	}
+	else
+	{
+		p_out = -1;
+		display_status("*** Failed to open Out-Port.", true);
+		return;
+	}
+
+	if (midi->connect_in(p_in))
+	{
+		ui->midi_ins->label(ui->midi_ins->text(p_in));
+		ui->midi_ins->value(p_in);
+	}
+	else
+	{
+		p_in = -1;
+		display_status("*** Failed to open In-Port.", true);
+		return;
 	}
 	if (p_thru != -1)
 	{
@@ -743,30 +748,26 @@ void PD::connect()
 		else
 		{
 			p_thru = -1;
-			//fl_message("Failed to open Ctrl-Port");
 			display_status("*** Failed to open Ctrl-Port.", true);
 		}
 	}
-	if (p_out == -1 || p_in == -1)
-		ui->open_device->show();
-	else
-		Fl::add_timeout(.5, check_connection, (void*) &device_code);
 }
 
 void PD::initialize()
 {
 	pmesg("PD::initialize() \n");
-	for (int i = 0; i < 5; i++)
-		for (int j = 0; j < 7; j++)
+	unsigned char i, j;
+	for (i = 0; i < 5; i++)
+		for (j = 0; j < 7; j++)
 			name_counter[i][j] = 0;
 	// reset patchcord source widgets (for MNOP controllers)
-	for (int i = 0; i < 4; i++)
+	for (i = 0; i < 4; i++)
 		ui->layer_editor[i]->patchcords->uninitialize_sources();
 	ui->preset_editor->patchcords->uninitialize_sources();
 	// load names
 	names_to_download = 0;
 	// check for preset, instrument and arp files
-	for (int j = 0; j <= roms; j++)
+	for (j = 0; j <= roms; j++)
 	{
 		names_to_download += rom[j]->load_names(PRESET, 0);
 		if (j == 0) // rom arp quantity unknown
@@ -910,7 +911,7 @@ void PD::incoming_inquiry_data(const unsigned char* data, int len)
 	pmesg("PD::incoming_inquiry_data(data, %d) \n", len);
 	display_status("Received device inquiry.");
 	device_code = data[7] * 128 + data[6];
-	if (device_code == 516)
+	if (device_code == 516) // PXK
 	{
 		member_code = data[9] * 128 + data[8];
 		snprintf(os_rev, 5, "%c%c%c%c", data[10], data[11], data[12], data[13]);
@@ -923,7 +924,7 @@ void PD::incoming_inquiry_data(const unsigned char* data, int len)
 		midi->request_hardware_config();
 		switch (member_code)
 		{
-			case AUDITY:
+			case 2: // AUDITY
 				ui->main->b_audit->hide();
 				ui->m_audit->hide();
 				ui->main->g_riff->deactivate();
@@ -962,7 +963,7 @@ void PD::incoming_hardware_config(const unsigned char* data, int len)
 	// (we might have been connected to a device with more roms before!
 	delete rom[0];
 	rom[0] = new ROM(0, user_presets);
-	for (int j = 1; j < 5; j++)
+	for (unsigned char j = 1; j < 5; j++)
 	{
 		delete rom[j];
 		if (j > roms)
@@ -979,9 +980,11 @@ void PD::incoming_hardware_config(const unsigned char* data, int len)
 	if (roms != 0)
 	{
 		ui->connect->activate();
-		if (!ui->open_device->shown())
-			//initialize();
+		if (!ui->open_device->shown()) // autoconnect
+		{
+			ui->connect->deactivate();
 			midi->request_setup_dump();
+		}
 	}
 	else
 		ui->open_device->show();
@@ -1400,10 +1403,10 @@ void PD::load_export(const char* filename)
 		pd->display_status("*** Must be connected.");
 		return;
 	}
-	if(preset->is_changed())
+	if (preset->is_changed())
 	{
-	  if (fl_choice("Unsaved changes will be lost! Continue import?", "Cancel", "Continue", 0) != 1)
-		return;
+		if (fl_choice("Unsaved changes will be lost! Continue import?", "Cancel", "Continue", 0) != 1)
+			return;
 	}
 	// open the file
 #ifdef __linux

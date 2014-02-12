@@ -54,7 +54,7 @@ class Preset_Dump
 	std::deque<parameter> redo_s;
 	/// push undo parameter on stack
 	void add_undo(int id, int value, int layer);
-	void update_ui_from_xdo(int id, int value, int layer);
+	void update_ui_from_xdo(int id, int value, int layer) const;
 	/**
 	 * maps parameter IDs to offset values in the dump
 	 * @param id parameter ID
@@ -95,7 +95,7 @@ public:
 	/// return data status
 	bool is_changed() const;
 	/// return extra_controller
-	int get_extra_controller();
+	int get_extra_controller() const;
 	/// undo edit
 	void undo();
 	/// redo edit
@@ -110,7 +110,7 @@ public:
 	///
 	void set_changed(bool);
 	/// returns the preset name
-	const char* get_name();
+	const char* get_name() const;
 	/// returns the preset number
 	int get_number() const;
 	/// returns the ROM ID
@@ -133,13 +133,13 @@ public:
 	int set_value(int id, int value, int layer = -2);
 	/// set category and name
 	void set_name(const char* val, int type, int position);
-	void update_highlight_buttons();
+	void update_highlight_buttons() const;
 	/**
 	 * update UI widgets with the parameter values of this dump.
 	 * this calls \c get_value() for all parameters (except FX parameters)
 	 * and sets the corresponding widget in the UI.
 	 */
-	void show();
+	void show() const;
 	/**
 	 * update UI-FX widgets with the parameter values of this dump.
 	 * this calls \c get_value() for all FX parameters
@@ -175,7 +175,6 @@ public:
 	// get methods needed to clone preset dumps
 	int get_dump_size() const;
 	const unsigned char* get_data() const;
-	int get_p_size() const;
 };
 
 /**
@@ -258,7 +257,7 @@ public:
 	 * @param channel parameter channel to update
 	 */
 	int set_value(int id, int value, int channel = -1);
-	void update_highlight_buttons();
+	void update_highlight_buttons() const;
 	/**
 	 * update UI widgets with the parameter values of this dump.
 	 * this calls \c get_value() for all setup parameters

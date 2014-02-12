@@ -868,7 +868,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 1.19102e+06 maximum 0 step 1
+    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 1.19102e+006 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2562,10 +2562,10 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open
-      xywh {1014 282 840 615} type Double resizable
+delete this;}
+      xywh {1014 282 840 615} type Double hide resizable
       code0 {o->label("prodatum ng");}
-      class Double_Window size_range {674 492 843 615} visible
+      class Double_Window size_range {674 492 843 615}
     } {
       Fl_Group {} {
         label name open
@@ -2919,17 +2919,17 @@ else
 Fl_Tooltip::disable();
 cfg->set_cfg_option(CFG_TOOLTIPS, 0);
 pd->display_status("Tooltips disabled.");
-}} selected
+}}
               xywh {5 5 36 21} type Toggle shortcut 0x69 labelsize 12 labelcolor 49
             }
             MenuItem {} {
               label {Hints...}
-              callback {fl_open_uri("http://prodatum.sf.net/doc/hints.html");} selected
+              callback {fl_open_uri("http://prodatum.sf.net/doc/hints.html");}
               xywh {5 5 36 21} shortcut 0xffbe labelsize 12
             }
             MenuItem {} {
               label {Visit website...}
-              callback {fl_open_uri("http://prodatum.sf.net/");} selected
+              callback {fl_open_uri("http://prodatum.sf.net/");}
               xywh {5 5 36 21} shortcut 0xffbf labelsize 12
             }
             MenuItem {} {
@@ -2937,7 +2937,7 @@ pd->display_status("Tooltips disabled.");
               callback {if (about->shown() && about->visible())
 about->hide();
 else
-about->show();} selected
+about->show();}
               xywh {5 5 36 21} shortcut 0xffc0 labelsize 12
             }
           }
@@ -3745,12 +3745,12 @@ pd->cancel_init();}
       }
     }
     Fl_Window open_device {
-      label {Open Device}
-      xywh {544 73 355 410} type Double box BORDER_BOX labelcolor 15 hide modal
+      label {Open Device} open
+      xywh {683 309 301 410} type Double box BORDER_BOX labelcolor 15 hide modal
     } {
       Fl_Box {} {
         label {Open Device}
-        xywh {1 1 353 43} box FLAT_BOX color 7 labelfont 1 labelcolor 49 align 26
+        xywh {1 1 299 43} box FLAT_BOX color 7 labelfont 1 labelcolor 49 align 26
       }
       Fl_Box {} {
         xywh {5 0 64 64} deactivate
@@ -3758,7 +3758,7 @@ pd->cancel_init();}
       }
       Fl_Box {} {
         label {Out Port}
-        xywh {17 78 56 20} labelsize 12 labelcolor 15 align 24
+        xywh {20 80 56 20} labelsize 12 labelcolor 15 align 24
       }
       Fl_Menu_Button midi_outs {
         label {Select...}
@@ -3772,11 +3772,11 @@ else
 {
 o->label("Select...");
 }} open
-        tooltip {OUT: Select the MIDI port that is connected to MIDI IN of your device.} xywh {74 78 211 20} box THIN_UP_BOX down_box THIN_UP_BOX labelsize 12 align 84 textsize 13
+        tooltip {OUT: Select the MIDI port that is connected to MIDI IN of your device.} xywh {75 80 215 20} box THIN_UP_BOX down_box THIN_UP_BOX labelsize 12 align 84 textsize 13
       } {}
       Fl_Box {} {
         label {In Port}
-        xywh {17 106 56 20} labelsize 12 labelcolor 15 align 24
+        xywh {20 105 56 20} labelsize 12 labelcolor 15 align 24
       }
       Fl_Menu_Button midi_ins {
         label {Select...}
@@ -3790,36 +3790,11 @@ else
 {
 o->label("Select...");
 }} open
-        tooltip {IN: Select the MIDI port that is connected to MIDI OUT of your device.} xywh {74 106 211 20} box THIN_UP_BOX down_box THIN_UP_BOX labelsize 12 align 84 textsize 13
-      } {}
-      Fl_Box {} {
-        label {Device ID}
-        xywh {17 134 56 20} labelsize 12 labelcolor 15 align 24
-      }
-      Fl_Spinner device_id {
-        callback {connect->deactivate();
-device_info->label(0);
-midi->set_device_id(o->value());
-midi->request_device_inquiry();
-r_user_id->value(o->value());}
-        tooltip {ID: Must be unique for every device you intend to use prodatum with (you can set the ID in the Master Menu of your device)!} xywh {74 134 55 20} color 7 selection_color 15 labeltype NO_LABEL labelfont 2 labelsize 12 labelcolor 15 align 0 when 1 minimum 0 maximum 126 value 0 textfont 4 textsize 13 textcolor 49
-      }
-      Fl_Button b_auto_detect {
-        label {Auto-Detect}
-        callback {connect->deactivate();
-device_info->label(0);
-midi->request_device_inquiry(127);}
-        xywh {140 134 80 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49 deactivate
-      }
-      Fl_Choice speed {
-        label {Op. Level}
-        callback {cfg->set_cfg_option(CFG_SPEED, o->value());} open
-        tooltip {Operation Level: Lower settings will work better if your computer or your MIDI device is very slow.} xywh {74 162 110 20} down_box BORDER_BOX labelsize 12 labelcolor 15 textsize 13
-        code0 {o->add("Fast");o->add("Slower");o->add("Turtle");}
+        tooltip {IN: Select the MIDI port that is connected to MIDI OUT of your device.} xywh {75 105 215 20} box THIN_UP_BOX down_box THIN_UP_BOX labelsize 12 align 84 textsize 13
       } {}
       Fl_Box {} {
         label {Ctrl Port}
-        xywh {20 198 53 20} labelsize 12 labelcolor 15 align 24
+        xywh {23 130 53 20} labelsize 12 labelcolor 15 align 24
       }
       Fl_Menu_Button midi_ctrl {
         label {Select... (optional)}
@@ -3833,38 +3808,63 @@ else
 cfg->set_cfg_option(CFG_MIDI_THRU, -1);
 o->label("Select... (optional)");
 }} open
-        tooltip {Control: Select the MIDI port that your controller is connected to (select again to disconnect).} xywh {74 198 211 20} box THIN_UP_BOX down_box THIN_UP_BOX labelsize 12 align 84 textsize 13
+        tooltip {Control: Select the MIDI port that your controller is connected to (select again to disconnect).} xywh {75 130 215 20} box THIN_UP_BOX down_box THIN_UP_BOX labelsize 12 align 84 textsize 13
       } {}
       Fl_Choice midi_ctrl_ch {
         label {Ctrl Chnl}
         callback {midi->set_control_channel_filter(o->value());} open
-        tooltip {Control Channel: Data to the control port will only be accepted for the selected channel(s).} xywh {74 228 55 20} down_box BORDER_BOX labelsize 12 labelcolor 15 textsize 13
+        tooltip {Control Channel: Data to the control port will only be accepted for the selected channel(s).} xywh {75 185 50 20} down_box BORDER_BOX labelsize 12 labelcolor 15 textsize 13
         code0 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("All");}
       } {}
       Fl_Check_Button midi_automap {
         label {Map to Basic Channel}
         callback {automap = o->value();
 cfg->set_cfg_option(CFG_AUTOMAP, o->value());}
-        tooltip {When enabled voice messages from the controller will always leave prodatum on the channel that is selected in prodatum. This is helpful when your controller does not allow you to change the MIDI channel or if you do not want to switch channels on the controller all the time.} xywh {140 228 162 20} down_box DOWN_BOX value 1 selection_color 49
+        tooltip {When enabled voice messages from the controller will always leave prodatum on the channel that is selected in prodatum. This is helpful when your controller does not allow you to change the MIDI channel or if you do not want to switch channels on the controller all the time.} xywh {130 185 162 20} down_box DOWN_BOX value 1 selection_color 49 labelsize 12
+      }
+      Fl_Box {} {
+        label {Device ID}
+        xywh {20 220 56 20} labelsize 12 labelcolor 15 align 24
+      }
+      Fl_Spinner device_id {
+        callback {connect->deactivate();
+device_info->label(0);
+midi->set_device_id(o->value());
+midi->request_device_inquiry();
+r_user_id->value(o->value());}
+        tooltip {ID: Must be unique for every device you intend to use prodatum with (you can set the ID in the Master Menu of your device)!} xywh {75 220 50 20} color 7 selection_color 15 labeltype NO_LABEL labelfont 2 labelsize 12 labelcolor 15 align 0 when 1 minimum 0 maximum 126 value 0 textfont 4 textsize 13 textcolor 49
+      }
+      Fl_Button b_auto_detect {
+        label {Auto-Detect}
+        callback {connect->deactivate();
+device_info->label(0);
+midi->request_device_inquiry(127);}
+        xywh {135 220 80 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49 deactivate
       }
       Fl_Button {} {
         label Update
         callback {connect->deactivate();
 device_info->label(0);
 midi->request_device_inquiry(device_id->value());}
-        tooltip {Request device information.} xywh {15 294 54 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49
+        tooltip {Request device information.} xywh {15 265 55 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49
       }
       Fl_Box {} {
         label {Device Info}
-        xywh {74 264 267 20} color 7 labelsize 12 labelcolor 15 align 132
+        xywh {75 245 11 20} color 7 labelsize 12 labelcolor 15 align 132
       }
       Fl_Box device_info {
-        tooltip {Shows device information for the selected device (updates automatically on every port or ID change).} xywh {74 264 267 85} box THIN_DOWN_BOX color 7 selection_color 15 labelcolor 49 align 213
+        tooltip {Shows device information for the selected device (updates automatically on every port or ID change).} xywh {75 245 215 85} box THIN_DOWN_BOX color 7 selection_color 15 labelsize 12 labelcolor 49 align 213
       }
+      Fl_Choice speed {
+        label {Op. Level}
+        callback {cfg->set_cfg_option(CFG_SPEED, o->value());} open
+        tooltip {Operation Level: Lower settings will work better if your computer or your MIDI device is very slow.} xywh {75 340 105 20} down_box BORDER_BOX labelsize 12 labelcolor 15 textsize 13
+        code0 {o->add("Fast");o->add("Slower");o->add("Turtle");}
+      } {}
       Fl_Check_Button autoconnect {
         label {Open at startup}
         callback {cfg->set_cfg_option(CFG_AUTOCONNECT, o->value());}
-        tooltip {Wether you want prodatum to automatically connect to your device at startup.} xywh {84 354 123 20} down_box DOWN_BOX value 1 selection_color 49
+        tooltip {Wether you want prodatum to automatically connect to your device at startup.} xywh {185 340 105 20} down_box DOWN_BOX value 1 selection_color 49 labelsize 12
       }
       Fl_Button b_rescan {
         label {Populate Ports}
@@ -3890,21 +3890,22 @@ if (selection != -1)
 {
 midi_ctrl->value(selection);
 midi_ctrl->do_callback();}}
-        tooltip {Populate (newly) available MIDI ports.} xywh {74 384 90 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49
+        tooltip {Populate (newly) available MIDI ports.} xywh {75 155 90 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49
       }
       Fl_Button connect {
         label {Open @returnarrow}
         callback {open_device->hide();
+connect->deactivate();
 cfg->set_cfg_option(CFG_MIDI_OUT, midi_outs->value());
 cfg->set_cfg_option(CFG_MIDI_IN, midi_ins->value());
 cfg->set_cfg_option(CFG_DEVICE_ID, device_id->value());
 midi->request_setup_dump();}
-        xywh {212 384 64 20} box THIN_UP_BOX shortcut 0xff0d selection_color 15 labelsize 12 deactivate
+        xywh {140 375 70 25} box THIN_UP_BOX shortcut 0xff0d selection_color 15 labelsize 12 deactivate
       }
       Fl_Button {} {
         label Close
-        callback {open_device->hide();}
-        xywh {281 384 60 20} box THIN_UP_BOX shortcut 0x6f selection_color 15 labelsize 12
+        callback {open_device->hide();} selected
+        xywh {220 375 70 25} box THIN_UP_BOX shortcut 0x6f selection_color 15 labelsize 12
       }
     }
     Fl_Window preferences {
