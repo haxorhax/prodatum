@@ -318,7 +318,7 @@ void PD_UI::set_eall(int v)
 		if (piano_w->shown())
 			piano->redraw();
 		eall = true;
-		pd->display_status("Edit All Layers enabled.");
+		pxk->display_status("Edit All Layers enabled.");
 	}
 	if (!v && eall)
 	{
@@ -348,7 +348,7 @@ void PD_UI::set_eall(int v)
 		b_eall->clear();
 		m_eall->clear();
 		eall = false;
-		pd->display_status("Edit All Layers disabled.");
+		pxk->display_status("Edit All Layers disabled.");
 	}
 }
 
@@ -397,7 +397,7 @@ void PD_UI::show_copy_layer(int type, int src_layer)
 	copy_type = type;
 	copy_src = src_layer;
 	copy_layer->show();
-	pd->display_status("Hint: [ESC] closes windows.");
+	pxk->display_status("Hint: [ESC] closes windows.");
 }
 
 /**
@@ -410,7 +410,7 @@ void PD_UI::show_copy_preset(int type)
 	pmesg("PD_UI::show_copy_preset(%d)\n", type);
 	if (!pd->preset)
 	{
-		pd->display_status("*** Nothing to save or copy.");
+		pxk->display_status("*** Nothing to save or copy.");
 		return;
 	}
 	switch (type)
@@ -453,7 +453,7 @@ void PD_UI::show_copy_preset(int type)
 			break;
 	}
 	copy_preset->show();
-	pd->display_status("Hint: [ESC] closes windows.");
+	pxk->display_status("Hint: [ESC] closes windows.");
 }
 
 /**
@@ -739,7 +739,7 @@ void reset(int user_data, int rom_data)
 //	{
 //		ui->reset_w->hide();
 //		ui->b_reset->activate();
-//		pd->display_status("Changed your mind?");
+//		pxk->display_status("Changed your mind?");
 //		return;
 //	}
 //	pmesg("reset(%d, %d)\n", user_data, rom_data);

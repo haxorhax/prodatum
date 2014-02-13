@@ -9,6 +9,7 @@
 #define PXK_H_
 
 #include <map>
+#include <vector>
 
 #include "ui.H"
 #include "data.H"
@@ -22,7 +23,7 @@ class PXK
 	 * general
 	 */
 public:
-
+	std::vector<std::string> status_message;
 private:
 	char device_id;
 	unsigned char request_delay;
@@ -30,7 +31,7 @@ private:
 public:
 	bool LoadConfig(const char*) const;
 	bool PopulatePorts() const;
-	void Synchronize(unsigned char);
+	bool Synchronize();
 	void r_sysex(const unsigned char*, const int) const;
 	void r_event(const unsigned char*);
 private:

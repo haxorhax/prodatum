@@ -326,13 +326,14 @@ static void process_midi_in(void*)
 			{
 				pmesg("ERRROROOR (%d)\n", len); // TODO
 			}
-			// TODO
-			pxk->r_sysex(sysex, len);
 
-			return;
 			// e-mu sysex
 			if (sysex[1] == 0x18)
 			{
+				// TODO
+				pxk->r_sysex(sysex, len);
+
+				//return;
 				switch (sysex[5])
 				{
 					case 0x70: // error
@@ -364,7 +365,7 @@ static void process_midi_in(void*)
 						if (requested)
 						{
 							requested = false;
-							pd->incoming_hardware_config(sysex, len);
+							pxk->incoming_hardware_config(sysex, len);
 						}
 						break;
 
@@ -412,7 +413,7 @@ static void process_midi_in(void*)
 						break;
 
 					default:
-						pd->display_status("Received unrecognized sysex.", true);
+						pxk->display_status("Received unrecognized sysex.", true);
 						pmesg("process_midi_in: received unrecognized message:\n");
 						for (int i = 0; i < len; i++)
 							pmesg("%X ", sysex[i]);
@@ -683,7 +684,7 @@ int MIDI::start_timer()
 #else
 		Fl::remove_timeout(process_midi_in, 0);
 #endif
-		pd->display_status("*** Could not start MIDI timer.", true);
+		pxk->display_status("*** Could not start MIDI timer.", true);
 		fprintf(stderr, "*** Could not start MIDI timer.\n");
 #ifdef WIN32
 		fflush(stderr);
@@ -1019,7 +1020,7 @@ void MIDI::write_event(int status, int value1, int value2, int channel) const
 	{ stat, value1 & 0xff, value2 & 0xff };
 	while (jack_ringbuffer_write_space(write_buffer) < 3)
 	{
-		pd->display_status("Throttling upload...", true);
+		pxk->display_status("Throttling upload...", true);
 		Fl::wait(.1);
 	}
 	jack_ringbuffer_write(write_buffer, msg, 3);
@@ -1165,7 +1166,7 @@ void MIDI::edit_parameter_value(int id, int value) const
 	for (size_t i = 0; i < 12; i++)
 		sprintf(buf + 2 * i, "%02X", request[i]);
 	buf[24] = '\0';
-	pd->display_status(buf);
+	pxk->display_status(buf);
 }
 
 void MIDI::master_volume(int volume) const

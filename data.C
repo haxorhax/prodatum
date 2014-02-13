@@ -25,12 +25,14 @@
 #include "midi.H"
 #include "cfg.H"
 #include "pd.H"
+#include "pxk.H"
 #include "ui.H"
 #include "debug.H"
 
 extern MIDI* midi;
 extern Cfg* cfg;
 extern PD* pd;
+extern PXK* pxk;
 extern PD_UI* ui;
 extern bool time_incoming_midi;
 extern std::map<int, int> rom_id_map;
@@ -423,9 +425,9 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 			if (show_preset)
 				pd->show_preset();
 			if (unibble(data + 7, data + 8) == -1)
-				pd->display_status("Upload successful.");
+				pxk->display_status("Upload successful.");
 			else
-				pd->display_status("Program saved.");
+				pxk->display_status("Program saved.");
 			status = 0;
 			ui->loading_w->hide();
 		}
@@ -465,9 +467,9 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 				if (show_preset)
 					pd->show_preset();
 				if (unibble(data + 7, data + 8) == -1)
-					pd->display_status("Upload successful.");
+					pxk->display_status("Upload successful.");
 				else
-					pd->display_status("Program saved.");
+					pxk->display_status("Program saved.");
 				status = 0;
 			}
 		}
@@ -493,7 +495,7 @@ void Preset_Dump::save_file()
 	update_checksum(); // save a valid dump
 	file.write((const char*) data, size);
 	file.close();
-	pd->display_status("Program saved to disk.");
+	pxk->display_status("Program saved to disk.");
 }
 
 void Preset_Dump::move(int new_number)
@@ -597,7 +599,7 @@ void Preset_Dump::copy(int type, int src, int dst)
 			if (ui->preset_rom->value() == 0)
 				ui->preset->load_n(PRESET, 0, dst);
 			ui->copy_browser->load_n(PRESET, 0, dst);
-			pd->display_status("Copied.");
+			pxk->display_status("Copied.");
 		}
 			break;
 		case C_PRESET_COMMON:
@@ -613,7 +615,7 @@ void Preset_Dump::copy(int type, int src, int dst)
 				mysleep(100);
 				midi->request_preset_dump(-1, 0);
 			}
-			pd->display_status("Copied.");
+			pxk->display_status("Copied.");
 			break;
 		}
 		case C_FX:
@@ -622,28 +624,28 @@ void Preset_Dump::copy(int type, int src, int dst)
 			copy_layer_parameter_range(1409, 1992, src, dst);
 			update_piano();
 			update_envelopes();
-			pd->display_status("Copied.");
+			pxk->display_status("Copied.");
 			break;
 		case C_LAYER_COMMON:
 			copy_layer_parameter_range(1409, 1439, src, dst);
-			pd->display_status("Copied.");
+			pxk->display_status("Copied.");
 			break;
 		case C_LAYER_FILTER:
 			copy_layer_parameter_range(1537, 1539, src, dst);
-			pd->display_status("Copied.");
+			pxk->display_status("Copied.");
 			break;
 		case C_LAYER_LFO:
 			copy_layer_parameter_range(1665, 1674, src, dst);
-			pd->display_status("Copied.");
+			pxk->display_status("Copied.");
 			break;
 		case C_LAYER_ENVELOPE:
 			copy_layer_parameter_range(1793, 1834, src, dst);
 			update_envelopes();
-			pd->display_status("Copied.");
+			pxk->display_status("Copied.");
 			break;
 		case C_LAYER_PATCHCORD:
 			copy_layer_parameter_range(1921, 1992, src, dst);
-			pd->display_status("Copied.");
+			pxk->display_status("Copied.");
 			break;
 		case C_ARP_PATTERN:
 		{
@@ -666,7 +668,7 @@ void Preset_Dump::copy(int type, int src, int dst)
 				ui->preset_editor->arp->load_n(ARP, 0, dst);
 			if (ui->main->arp_rom->value() == 0)
 				ui->main->arp->load_n(ARP, 0, dst);
-			pd->display_status("Copied.");
+			pxk->display_status("Copied.");
 			break;
 		}
 		case SAVE_PRESET:
@@ -774,7 +776,7 @@ void Preset_Dump::undo()
 		update_ui_from_xdo(p.id, p.value, p.layer);
 	}
 	else
-		pd->display_status("*** Nothing to Undo.");
+		pxk->display_status("*** Nothing to Undo.");
 }
 
 void Preset_Dump::redo()
@@ -807,7 +809,7 @@ void Preset_Dump::redo()
 		update_ui_from_xdo(p.id, p.value, p.layer);
 	}
 	else
-		pd->display_status("*** Nothing to redo.");
+		pxk->display_status("*** Nothing to redo.");
 }
 
 void Preset_Dump::update_ui_from_xdo(int id, int value, int layer) const
@@ -1547,7 +1549,7 @@ int ROM::set_name(int type, int number, const unsigned char* name)
 			break;
 		default:
 			pmesg("*** ROM::set_name unknown type: rom: %d type %d, number %d\n", id, type, number);
-			pd->display_status("ROM::set_name() Unknown ROM.", true);
+			pxk->display_status("ROM::set_name() Unknown ROM.", true);
 			return 0;
 	}
 	return 1;
@@ -1588,7 +1590,7 @@ const unsigned char* ROM::get_name(int type, int number) const
 			return riff_names + 16 * number;
 		default:
 			pmesg("*** ROM::get_name unknown type: rom: %d type %d, number %d\n", id, type, number);
-			pd->display_status("ROM::get_name() Unknown ROM.", true);
+			pxk->display_status("ROM::get_name() Unknown ROM.", true);
 			return 0;
 	}
 }

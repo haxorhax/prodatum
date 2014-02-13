@@ -21,8 +21,18 @@
 #include "cfg.H"
 
 extern PD_UI* ui;
+extern PXK* pxk;
 MIDI* midi = 0;
 Cfg* cfg = 0;
+
+/* if autoconnection is enabled but the device is not powered
+ we end up with an unconnected main window. this shows
+ the open dialog if there is no answer*/
+static void check_connection(void* p)
+{
+	if (*(char*) p == -1 && !ui->init->shown())
+		ui->open_device->show();
+}
 
 // to open another device:
 // delete PXK, new PXK :)
@@ -32,11 +42,12 @@ PXK::PXK(const char* file, char auto_c)
 	midi = 0;
 	device_id = -1;
 	device_code = -1;
-	synchronized = false;
+	synchronized = false; // TODO
 	preset = 0;
 	preset_copy = 0;
 	setup = 0;
 	setup_copy = 0;
+	selected_multisetup = -1;
 	setup_names = 0;
 	arp = 0;
 	for (unsigned char i = 0; i <= 5; i++)
@@ -51,6 +62,7 @@ PXK::PXK(const char* file, char auto_c)
 			Fl::wait(.1);
 			return;
 		}
+		// autoconnect
 		// open midi ports
 		bool success = true;
 		if (!midi->connect_out(cfg->get_cfg_option(CFG_MIDI_OUT)))
@@ -70,7 +82,10 @@ PXK::PXK(const char* file, char auto_c)
 			ui->midi_ctrl->value(cfg->get_cfg_option(CFG_MIDI_THRU));
 		}
 		if (success)
-			Synchronize(cfg->get_cfg_option(CFG_DEVICE_ID));
+		{
+			midi->request_device_inquiry();
+			Fl::add_timeout(.5, check_connection, (void*) &device_id);
+		}
 		else
 		{
 			ui->open_device->show();
@@ -90,227 +105,277 @@ PXK::~PXK()
 	if (preset_copy)
 		delete preset_copy;
 	for (i = 0; i <= roms; i++)
-		delete rom[i];
-	if (setup)
-		delete setup;
-	if (setup_copy)
-		delete setup_copy;
-	if (setup_names)
-		delete[] setup_names;
-	if (cfg)
-	{
-		delete cfg;
-		cfg = 0;
-	}
-	if (midi)
-	{
-		delete midi;
-		midi = 0;
-	}
+		if (rom[i])
+			delete rom[i];
+if (setup)
+	delete setup;
+if (setup_copy)
+	delete setup_copy;
+if (setup_names)
+	delete[] setup_names;
+if (cfg)
+{
+	delete cfg;
+	cfg = 0;
+}
+if (midi)
+{
+	delete midi;
+	midi = 0;
+}
 }
 
 bool PXK::LoadConfig(const char* name) const
 {
-	pmesg("PXK::LoadConfig()\n");
-	if (cfg)
-	{
-		delete cfg;
-		cfg = 0;
-	}
-	cfg = new Cfg(name, ui->autoconnect->value());
-	if (!cfg)
-		return false;
-	cfg->apply();
-	cfg->set_color(CURRENT, 0);
-	ui->main_window->show();
-	Fl::wait(.1);
-	return true;
+pmesg("PXK::LoadConfig()\n");
+if (cfg)
+{
+	delete cfg;
+	cfg = 0;
+}
+cfg = new Cfg(name, ui->autoconnect->value());
+if (!cfg)
+	return false;
+cfg->apply();
+cfg->set_color(CURRENT, 0);
+ui->main_window->show();
+Fl::wait(.1);
+return true;
 }
 
 bool PXK::PopulatePorts() const
 {
-	pmesg("PXK::PopulatePorts()\n");
-	if (midi)
-	{
-		delete midi;
-		midi = 0;
-	}
-	midi = new MIDI();
-	if (!midi)
-		return false;
-	return true;
+pmesg("PXK::PopulatePorts()\n");
+if (midi)
+{
+	delete midi;
+	midi = 0;
+}
+midi = new MIDI();
+if (!midi)
+	return false;
+return true;
 }
 
-/* if autoconnection is enabled but the device is not powered
- we end up with an unconnected main window. this shows
- the open dialog if there is no answer*/
-static void check_connection(void* p)
+bool PXK::Synchronize()
 {
-	if (((PXK*) p)->device_code <= 0 && !ui->init->shown())
-		ui->open_device->show();
-}
-
-void PXK::Synchronize(unsigned char id)
-{
-	midi->request_device_inquiry(id);
-	Fl::add_timeout(.5, check_connection, (void*) this);
+if (synchronized) // TODO
+	return false;
+midi->request_setup_dump();
+Fl::add_timeout(.5, check_connection, (void*) &selected_multisetup);
+return true;
 }
 
 void PXK::r_sysex(const unsigned char* sysex, const int len) const
 {
-	// log sysex messages
-	static unsigned int count = 0;
-	if (ui->log_sysex_in->value())
-	{
-		char* buf = new char[2 * len + 18];
-		int n = snprintf(buf, 18, "\nIS.%du::", ++count);
-		for (int i = 0; i < len; i++)
-			sprintf(n + buf + 2 * i, "%02X", sysex[i]);
-		ui->logbuf->append(buf);
-		delete[] buf;
-	}
+// log sysex messages
+static unsigned int count = 0;
+if (ui->log_sysex_in->value())
+{
+	char* buf = new char[2 * len + 18];
+	int n = snprintf(buf, 18, "\nIS.%du::", ++count);
+	for (int i = 0; i < len; i++)
+		sprintf(n + buf + 2 * i, "%02X", sysex[i]);
+	ui->logbuf->append(buf);
+	delete[] buf;
+}
 }
 
 void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 {
-	Fl::remove_timeout(check_connection);
-	device_code = data[7] * 128 + data[6];
-	if (device_code == 516) // talking to an PXK!
+Fl::remove_timeout(check_connection);
+device_code = data[7] * 128 + data[6];
+if (device_code == 516) // talking to an PXK!
+{
+	device_id = data[2];
+	midi->set_device_id(device_id); // so further sysex comes through
+	midi->edit_parameter_value(405, request_delay);
+	midi->request_hardware_config();
+	snprintf(os_rev, 5, "%c%c%c%c", data[10], data[11], data[12], data[13]);
+	member_code = data[9] * 128 + data[8];
+	switch (member_code)
 	{
-		device_id = data[2];
-		midi->set_device_id(device_id); // so further sysex comes through
-		midi->edit_parameter_value(405, request_delay);
-		midi->request_hardware_config();
-		snprintf(os_rev, 5, "%c%c%c%c", data[10], data[11], data[12], data[13]);
-		member_code = data[9] * 128 + data[8];
-		switch (member_code)
-		{
-			case 2: // AUDITY
-				ui->main->b_audit->hide();
-				ui->m_audit->hide();
-				ui->main->g_riff->deactivate();
-				ui->preset_editor->g_riff->deactivate();
-				ui->main->post_d->hide();
-				ui->main->pre_d->label("Delay");
-				ui->preset_editor->post_d->hide();
-				ui->preset_editor->pre_d->label("Delay");
-				break;
-			default:
-				ui->main->b_audit->show();
-				ui->m_audit->show();
-				ui->main->g_riff->activate();
-				ui->preset_editor->g_riff->activate();
-				ui->main->post_d->show();
-				ui->main->pre_d->label("Pre D");
-				ui->preset_editor->post_d->show();
-				ui->preset_editor->pre_d->label("Pre D");
-		}
+		case 2: // AUDITY
+			ui->main->b_audit->hide();
+			ui->m_audit->hide();
+			ui->main->g_riff->deactivate();
+			ui->preset_editor->g_riff->deactivate();
+			ui->main->post_d->hide();
+			ui->main->pre_d->label("Delay");
+			ui->preset_editor->post_d->hide();
+			ui->preset_editor->pre_d->label("Delay");
+			break;
+		default:
+			ui->main->b_audit->show();
+			ui->m_audit->show();
+			ui->main->g_riff->activate();
+			ui->preset_editor->g_riff->activate();
+			ui->main->post_d->show();
+			ui->main->pre_d->label("Pre D");
+			ui->preset_editor->post_d->show();
+			ui->preset_editor->pre_d->label("Pre D");
 	}
-	else
-		device_code = -1;
+}
+else
+	device_code = -1;
 }
 void PXK::incoming_hardware_config(const unsigned char* data, int len)
 {
-	user_presets = data[8] * 128 + data[7];
-	roms = data[9];
-	rom_id_map.clear();
-	rom_id_map[0] = 0;
-	rom[0] = new ROM(0, user_presets);
-	for (unsigned char j = 1; j <= roms; j++)
-	{
-		int idx = 11 + (j - 1) * 6;
-		rom[j] = new ROM(data[idx + 1] * 128 + data[idx], data[idx + 3] * 128 + data[idx + 2],
-				data[idx + 5] * 128 + data[idx + 4]);
-		rom_id_map[data[idx + 1] * 128 + data[idx]] = j;
-	}
-	create_device_info();
-	if (roms != 0)
-	{
-		ui->open_device->hide();
-		midi->request_setup_dump();
-	}
+user_presets = data[8] * 128 + data[7];
+roms = data[9];
+rom_id_map.clear();
+rom_id_map[0] = 0;
+rom[0] = new ROM(0, user_presets);
+for (unsigned char j = 1; j <= roms; j++)
+{
+	int idx = 11 + (j - 1) * 6;
+	rom[j] = new ROM(data[idx + 1] * 128 + data[idx], data[idx + 3] * 128 + data[idx + 2],
+			data[idx + 5] * 128 + data[idx + 4]);
+	rom_id_map[data[idx + 1] * 128 + data[idx]] = j;
+}
+create_device_info();
+// autoconnect TODO
+if (roms != 0 && !ui->open_device->shown())
+	midi->request_setup_dump();
 }
 void PXK::create_device_info()
 {
-	pmesg("PXK::create_device_info()\n");
-	// if we cancelled initialisation of roms, return here
-	if (!rom[1])
-		return;
-	char buf[512];
-	snprintf(buf, 512, "%s (%s) with %d ROM%s", get_name(member_code), os_rev, roms,
-			(roms > 1 || roms == 0) ? "s:" : ":");
-	std::string info;
+pmesg("PXK::create_device_info()\n");
+// if we cancelled initialisation of roms, return here
+if (!rom[1])
+	return;
+char buf[512];
+snprintf(buf, 512, "%s (%s) with %d ROM%s", get_name(member_code), os_rev, roms, (roms > 1 || roms == 0) ? "s:" : ":");
+std::string info;
+info += buf;
+if (roms == 0)
+{
+	snprintf(buf, 512, "\nNo ROM installed");
 	info += buf;
-	if (roms == 0)
+}
+else
+{
+	for (unsigned char i = 1; i <= roms; i++)
 	{
-		snprintf(buf, 512, "\nNo ROM installed");
+		snprintf(buf, 512, "\n - %s: %d sam, %d prg", rom[i]->name(), rom[i]->get_attribute(INSTRUMENT),
+				rom[i]->get_attribute(PRESET));
 		info += buf;
 	}
-	else
-	{
-		for (unsigned char i = 1; i <= roms; i++)
-		{
-			snprintf(buf, 512, "\n - %s: %d sam, %d prg", rom[i]->name(), rom[i]->get_attribute(INSTRUMENT),
-					rom[i]->get_attribute(PRESET));
-			info += buf;
-		}
-	}
-	ui->device_info->copy_label(info.data());
+}
+ui->device_info->copy_label(info.data());
 }
 const char* PXK::get_name(int code) const
 {
-	pmesg("PXK::get_name(code: %d)\n", code);
-	switch (code)
+pmesg("PXK::get_name(code: %d)\n", code);
+switch (code)
+{
+	case 0x02:
+		return "Audity 2000";
+	case 0x03:
+		return "Proteus 2000";
+	case 0x04:
+		return "B-3";
+	case 0x05:
+		return "XL-1";
+	case 0x06:
+		return "Virtuoso 2000";
+	case 0x07:
+		return "Mo'Phatt";
+	case 0x08:
+		return "B-3 Turbo";
+	case 0x09:
+		return "XL-1 Turbo";
+	case 0x0a:
+		return "Mo'Phatt Turbo";
+	case 0x0b:
+		return "Planet Earth";
+	case 0x0c:
+		return "Planet Earth Turbo";
+	case 0x0d:
+		return "XL-7";
+	case 0x0e:
+		return "MP-7";
+	case 0x0f:
+		return "Proteus 2500";
+	case 0x10:
+		return "Orbit 3";
+	case 0x11:
+		return "PK-6";
+	case 0x12:
+		return "XK-6";
+	case 0x13:
+		return "MK-6";
+	case 0x14:
+		return "Halo";
+	case 0x15:
+		return "Proteus 1000";
+	case 0x16:
+		return "Vintage Pro";
+	case 0x17:
+		return "Vintage Keys";
+	case 0x18:
+		return "PX-7";
+	default:
+		static char buf[20];
+		snprintf(buf, 20, "Unknown (%X)", code);
+		return buf;
+}
+}
+
+/**
+ * displays text in the status bar for 2 seconds
+ */
+static bool launch = true;
+static void status(void* p)
+{
+static char message[40];
+if ((char*) p)
+{
+	strncpy(message, (char*) p, 40);
+	ui->status->label(message);
+	if (launch)
+		Fl::repeat_timeout(1.5, status);
+	else
+		Fl::repeat_timeout(.8, status); // dont display system message too long
+}
+else
+{
+	launch = true;
+	if (!pxk->status_message.empty())
 	{
-		case 0x02:
-			return "Audity 2000";
-		case 0x03:
-			return "Proteus 2000";
-		case 0x04:
-			return "B-3";
-		case 0x05:
-			return "XL-1";
-		case 0x06:
-			return "Virtuoso 2000";
-		case 0x07:
-			return "Mo'Phatt";
-		case 0x08:
-			return "B-3 Turbo";
-		case 0x09:
-			return "XL-1 Turbo";
-		case 0x0a:
-			return "Mo'Phatt Turbo";
-		case 0x0b:
-			return "Planet Earth";
-		case 0x0c:
-			return "Planet Earth Turbo";
-		case 0x0d:
-			return "XL-7";
-		case 0x0e:
-			return "MP-7";
-		case 0x0f:
-			return "Proteus 2500";
-		case 0x10:
-			return "Orbit 3";
-		case 0x11:
-			return "PK-6";
-		case 0x12:
-			return "XK-6";
-		case 0x13:
-			return "MK-6";
-		case 0x14:
-			return "Halo";
-		case 0x15:
-			return "Proteus 1000";
-		case 0x16:
-			return "Vintage Pro";
-		case 0x17:
-			return "Vintage Keys";
-		case 0x18:
-			return "PX-7";
-		default:
-			static char buf[20];
-			snprintf(buf, 20, "Unknown (%X)", code);
-			return buf;
+		strncpy(message, pxk->status_message.back().c_str(), 40);
+		pxk->status_message.clear(); // delete old messages
+		ui->status->label(message);
+		Fl::repeat_timeout(1.5, status);
+		return;
 	}
+	ui->status->label(0);
+}
+}
+
+// currently spasce for ~30 characters max!
+void PXK::display_status(const char* message, bool top)
+{
+pmesg("PXK::display_status(%s, %s) \n", message, top ? "true" : "false");
+if (top) // important stuff
+{
+	if (!launch)
+		status_message.push_back(message);
+	else
+	{
+		launch = false;
+		Fl::remove_timeout(status, 0);
+		Fl::add_timeout(0, status, (void*) message);
+	}
+}
+else
+{
+	if (launch)
+	{
+		Fl::remove_timeout(status, 0);
+		Fl::add_timeout(0, status, (void*) message);
+	}
+	else
+		status_message.push_back(message);
+}
 }

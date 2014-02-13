@@ -887,7 +887,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 1.19102e+06 maximum 0 step 1
+    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 1.19102e+006 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2654,14 +2654,14 @@ open_device->show();}
               callback {if (pd->preset)
 pd->preset->copy(SAVE_PRESET, -1, pd->selected_preset);
 else
-pd->display_status("*** Nothing to save.");}
+pxk->display_status("*** Nothing to save.");}
               tooltip {Save the edit buffer to the current selected preset slot} xywh {5 5 36 21} shortcut 0x50073 labelsize 12
             }
             MenuItem {} {
               label Export
               callback {if (!pd->preset)
 {
-	pd->display_status("*** Nothing to export.");
+	pxk->display_status("*** Nothing to export.");
 	return;
 }
 pd->preset->save_file();}
@@ -2685,13 +2685,13 @@ pd->preset->save_file();}
             MenuItem {} {
               label Undo
               callback {if (pd->preset) pd->preset->undo();
-else pd->display_status("*** Nothing to Undo.");}
+else pxk->display_status("*** Nothing to Undo.");}
               xywh {5 5 36 21} shortcut 0x4007a labelsize 12
             }
             MenuItem {} {
               label Redo
               callback {if (pd->preset) pd->preset->redo();
-else pd->display_status("*** Nothing to Redo.");}
+else pxk->display_status("*** Nothing to Redo.");}
               xywh {15 15 36 21} shortcut 0x5007a labelsize 12
             }
             MenuItem {} {
@@ -2715,13 +2715,13 @@ else pd->display_status("*** Nothing to Redo.");}
 {
 ui->main->b_audit->value(1);
 ui->main->b_audit->do_callback();
-pd->display_status("Audit: ON");
+pxk->display_status("Audit: ON");
 }
 else
 {
 ui->main->b_audit->value(0);
 ui->main->b_audit->do_callback();
-pd->display_status("Audit: OFF");
+pxk->display_status("Audit: OFF");
 }}
               xywh {5 5 30 20} type Toggle shortcut 0x75 labelsize 12 labelcolor 49
             }
@@ -2742,13 +2742,13 @@ if (!eall && pd->preset)
 {
 ui->b_bypass->value(1);
 ui->b_bypass->do_callback();
-pd->display_status("FX bypass: ON");
+pxk->display_status("FX bypass: ON");
 }
 else
 {
 ui->b_bypass->value(0);
 ui->b_bypass->do_callback();
-pd->display_status("FX bypass: OFF");
+pxk->display_status("FX bypass: OFF");
 }}
               xywh {5 5 30 20} type Toggle shortcut 0x78 labelsize 12 labelcolor 49
             }
@@ -2829,7 +2829,7 @@ Fl::focus(b_links);}
 piano_w->hide();
 else{
 piano_w->show();
-pd->display_status("Hint: [ESC] closes windows.");}}
+pxk->display_status("Hint: [ESC] closes windows.");}}
               xywh {5 5 36 21} shortcut 0x6b labelsize 12
             }
             MenuItem {} {
@@ -2929,13 +2929,13 @@ b_fs3->clear();}
 {
 Fl_Tooltip::enable();
 cfg->set_cfg_option(CFG_TOOLTIPS, 1);
-pd->display_status("Tooltips enabled.");
+pxk->display_status("Tooltips enabled.");
 }
 else
 {
 Fl_Tooltip::disable();
 cfg->set_cfg_option(CFG_TOOLTIPS, 0);
-pd->display_status("Tooltips disabled.");
+pxk->display_status("Tooltips disabled.");
 }}
               xywh {5 5 36 21} type Toggle shortcut 0x69 labelsize 12 labelcolor 49
             }
@@ -3404,7 +3404,7 @@ if (o->value())
 {
 if (b_copy_p->value())
 	b_copy_p->value(0);
-pd->display_status("Hint: Give me a name over there --->");
+pxk->display_status("Hint: Give me a name over there --->");
 // load user list and deactivate rom choice
 if (pd->selected_preset_rom != 0)
 	preset_rom->set_value(0);
@@ -3863,7 +3863,7 @@ midi->request_device_inquiry(127);}
 //device_info->label(0);
 //midi->request_device_inquiry(device_id->value());
 delete pxk;
-pxk = new PXK("cfg2.txt", 1);} selected
+pxk = new PXK("cfg2.txt", 1);}
         tooltip {Request device information.} xywh {15 265 55 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49 align 20
       }
       Fl_Box {} {
@@ -3891,13 +3891,14 @@ pxk = new PXK("cfg2.txt", 1);} selected
       }
       Fl_Button connect {
         label {Open @returnarrow}
-        callback {open_device->hide();
-connect->deactivate();
+        callback {if (pxk->Synchronize())
+{
+open_device->hide();
 cfg->set_cfg_option(CFG_MIDI_OUT, midi_outs->value());
 cfg->set_cfg_option(CFG_MIDI_IN, midi_ins->value());
 cfg->set_cfg_option(CFG_DEVICE_ID, device_id->value());
-midi->request_setup_dump();}
-        xywh {140 375 70 25} box THIN_UP_BOX shortcut 0xff0d selection_color 15 labelsize 12 align 20 deactivate
+}} selected
+        xywh {140 375 70 25} box THIN_UP_BOX shortcut 0xff0d selection_color 15 labelsize 12 align 20
       }
       Fl_Button {} {
         label Close
@@ -4494,7 +4495,7 @@ select(0);} {}
   }
   Function {~PD_UI()} {open
   } {
-    code {//pd->display_status("Bye!");
+    code {//pxk->display_status("Bye!");
 cfg->set_cfg_option(CFG_SYNCVIEW, syncview);
 cfg->set_cfg_option(CFG_WINDOW_WIDTH, main_window->w());
 cfg->set_cfg_option(CFG_WINDOW_HEIGHT, main_window->h());
