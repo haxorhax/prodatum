@@ -23,16 +23,19 @@
 #include <FL/fl_ask.H>
 
 #include "ringbuffer.H"
-#include "midi.H"
-#include "pd.H"
 #include "ui.H"
-#include "cfg.H"
 
 extern PD* pd;
 extern PD_UI* ui;
 extern Cfg* cfg;
+extern PXK* pxk;
 
-#include "debug.H"
+static bool timer_running = false;
+static bool thru_active = false;
+static bool midi_active = false;
+static bool process_midi_exit_flag = false;
+static bool automap = true;
+extern unsigned char request_delay;
 
 /**
  * midi core implementation (sender/receiver/decoder).
@@ -42,7 +45,6 @@ extern Cfg* cfg;
  * for new messages.
  */
 static void process_midi(PtTimestamp, void*);
-static bool timer_running = false;
 /*! \fn process_midi_in
  * connects the MIDI receiver with the main thread.
  * all incoming MIDI messages are passed to this function via the
@@ -59,27 +61,23 @@ static void process_midi_in(void*);
 #endif
 
 static PmError pmerror = pmNoError;
-
 static PortMidiStream *port_in;
 static PortMidiStream *port_out;
 static PortMidiStream *port_thru; // controller port (eg keyboard)
-static bool thru_active;
-static bool midi_active;
-static bool process_midi_exit_flag;
+
 static jack_ringbuffer_t *read_buffer;
 static jack_ringbuffer_t *write_buffer;
 static int midi_device_id;
-static bool seed_randomizer = true;
-static bool requested = false;
-static int requested_names = 0;
 static bool got_answer;
-static unsigned int messages_to_send = 0;
+static unsigned int messages_to_send;
+
+// TODO check these
 // used by watchdog in PD
 timeval tv_incoming;
 bool time_incoming_midi = false;
-bool automap;
-// set in cfg
-extern int request_delay;
+static bool seed_randomizer = true;
+static bool requested = false;
+static int requested_names = 0;
 
 static void show_error(void)
 {
@@ -328,16 +326,10 @@ static void process_midi_in(void*)
 			{
 				pmesg("ERRROROOR (%d)\n", len); // TODO
 			}
-			// log sysex messages
-			if (ui->log_sysex_in->value())
-			{
-				char* buf = new char[2 * len + 18];
-				int n = snprintf(buf, 18, "\nIS.%lu::", ++count);
-				for (int i = 0; i < len; i++)
-					sprintf(n + buf + 2 * i, "%02X", sysex[i]);
-				ui->logbuf->append(buf);
-				delete[] buf;
-			}
+			// TODO
+			pxk->r_sysex(sysex, len);
+
+			return;
 			// e-mu sysex
 			if (sysex[1] == 0x18)
 			{
@@ -438,7 +430,7 @@ static void process_midi_in(void*)
 					{
 						pmesg("device inquiry response\n");
 						requested = false;
-						pd->incoming_inquiry_data(sysex, len);
+						pxk->incoming_inquiry_data(sysex, len);
 					}
 				}
 			}
@@ -592,29 +584,20 @@ MIDI::MIDI()
 {
 	pmesg("MIDI::MIDI()\n");
 	midi_device_id = cfg->get_cfg_option(CFG_DEVICE_ID);
+	messages_to_send = 0;
 	// initialize (global) variables and buffers
-	timer_running = false;
-	midi_active = false;
-	thru_active = false;
-	process_midi_exit_flag = false;
-	port_in = 0;
-	port_out = 0;
-	port_thru = 0;
 	selected_port_out = -1;
 	selected_port_in = -1;
 	selected_port_thru = -1;
+#ifndef WIN32
+	if (pipe(p) == -1)
+		fprintf(stderr, "*** Could not open pipe\n%s", strerror(errno));
+#endif
 	read_buffer = jack_ringbuffer_create(RINGBUFFER_READ);
 	write_buffer = jack_ringbuffer_create(RINGBUFFER_WRITE);
 #ifdef USE_MLOCK
 	jack_ringbuffer_mlock(write_buffer);
 	jack_ringbuffer_mlock(read_buffer);
-#endif
-#ifndef WIN32
-	if (pipe(p) == -1)
-	{
-		fprintf(stderr, "*** Could not open pipe\n%s", strerror(errno));
-		throw 1;
-	}
 #endif
 	populate_ports();
 }
@@ -622,7 +605,6 @@ MIDI::MIDI()
 MIDI::~MIDI()
 {
 	pmesg("MIDI::~MIDI()\n");
-	ui->b_auto_detect->deactivate();
 	stop_timer();
 	if (selected_port_in != -1)
 		Pm_Close(port_in);
@@ -631,6 +613,10 @@ MIDI::~MIDI()
 	if (selected_port_thru != -1)
 		Pm_Close(port_thru);
 	Pm_Terminate();
+#ifndef WIN32
+	close(p[0]);
+	close(p[1]);
+#endif
 	// free buffers
 	jack_ringbuffer_free(read_buffer);
 	jack_ringbuffer_free(write_buffer);
@@ -641,11 +627,14 @@ void MIDI::populate_ports()
 {
 	pmesg("MIDI::populate_ports()\n");
 	ui->midi_outs->clear();
+	ui->midi_outs->copy_label("Select...");
 	ui->midi_ins->clear();
+	ui->midi_ins->copy_label("Select...");
 	ui->midi_ctrl->clear();
+	ui->midi_ctrl->copy_label("Select...(Optional)");
 	ports_out.clear();
 	ports_in.clear();
-	for (int i = 0; i < Pm_CountDevices(); i++)
+	for (unsigned char i = 0; i < Pm_CountDevices(); i++)
 	{
 		const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
 		if (info->output)
@@ -653,7 +642,6 @@ void MIDI::populate_ports()
 			ui->midi_outs->add("foo");
 			ui->midi_outs->replace(ui->midi_outs->size() - 2, info->name);
 			ports_out.push_back(i);
-			pd->display_status(info->name);
 		}
 		else
 		{
@@ -662,7 +650,6 @@ void MIDI::populate_ports()
 			ui->midi_ctrl->add("foo");
 			ui->midi_ctrl->replace(ui->midi_ctrl->size() - 2, info->name);
 			ports_in.push_back(i);
-			pd->display_status(info->name);
 		}
 	}
 	Fl::wait(.1);
@@ -719,6 +706,7 @@ void MIDI::stop_timer()
 	while (!process_midi_exit_flag)
 		mysleep(10);
 	Pt_Stop();
+	timer_running = false;
 #ifndef WIN32
 	Fl::remove_fd(p[0]);
 	close(p[0]);
@@ -726,7 +714,6 @@ void MIDI::stop_timer()
 #else
 	Fl::remove_timeout(process_midi_in, 0);
 #endif
-	timer_running = false;
 }
 
 int MIDI::connect_out(int port)

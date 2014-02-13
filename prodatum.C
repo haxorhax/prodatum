@@ -23,149 +23,22 @@
 #include <unistd.h>
 #endif
 
-#include <FL/Fl_Tooltip.H>
-#include <FL/filename.H>
-#include <FL/fl_ask.H>
 #include "ui.H"
-#include "midi.H"
-#include "pd.H"
-#include "cfg.H"
-#include "debug.H"
 
 static void load_data();
 
 PD_UI* ui;
-MIDI* midi;
-PD* pd;
-Cfg* cfg;
+extern MIDI* midi;
+PD* pd = 0;
+PXK* pxk = 0;
 
-extern unsigned char colors[5];
 extern FilterMap FM[51];
 extern const char* rates[25];
 extern PD_Arp_Step* arp_step[32];
 
 // default config
 static char config[32];
-static int auto_connect = 1;
-static bool use_system_colors = false;
-
-//// delete name files
-void reset(int user_data, int rom_data)
-{
-	if (!cfg || (user_data == -1 && rom_data == -1))
-	{
-		ui->reset_w->hide();
-		ui->b_reset->activate();
-		pd->display_status("Changed your mind?");
-		return;
-	}
-	pmesg("reset(%d, %d)\n", user_data, rom_data);
-	// stop MIDI
-	delete midi;
-	midi = 0;
-	// delete ROMS
-	delete pd;
-	pd = 0;
-	// delete files
-	dirent **files;
-	int num_files = fl_filename_list(cfg->get_config_dir(), &files);
-	char buf[PATH_MAX];
-	int f_size = 20;
-	char f[f_size];
-	int deleted = 0;
-	if (user_data >= 0)
-	{
-		if (user_data == 127) // delete all user data
-			snprintf(f, f_size, "n_???_0_*");
-		else
-			snprintf(f, f_size, "n_???_0_%d", user_data);
-		for (int i = 0; i < num_files; i++)
-		{
-			if (fl_filename_match(files[i]->d_name, f))
-			{
-				snprintf(buf, PATH_MAX, "%s/%s", cfg->get_config_dir(), files[i]->d_name);
-				pmesg(" - - deleting %s ... ", buf);
-#ifdef WIN32
-				if (_unlink(buf))
-#else
-				if (unlink(buf))
-#endif
-				{
-					fl_message("Could not delete\n%s", buf);
-					pmesg(" failed!\n", buf);
-				}
-				else
-				{
-					pmesg(" success!\n", buf);
-					++deleted;
-				}
-			}
-		}
-	}
-	if (rom_data >= 1)
-	{
-		if (rom_data == 1) // delete all rom data
-			snprintf(f, f_size, "n_???_[123456789]*");
-		else
-			snprintf(f, f_size, "n_???_%d", rom_data);
-		for (int i = 0; i < num_files; i++)
-		{
-			if (fl_filename_match(files[i]->d_name, f))
-			{
-				snprintf(buf, PATH_MAX, "%s/%s", cfg->get_config_dir(), files[i]->d_name);
-				pmesg(" - - deleting %s! ... ", buf);
-#ifdef WIN32
-				if (_unlink(buf))
-#else
-				if (unlink(buf))
-#endif
-				{
-					fl_message("Could not delete\n%s", buf);
-					pmesg(" failed!\n", buf);
-				}
-				else
-				{
-					pmesg(" success!\n", buf);
-					++deleted;
-				}
-			}
-		}
-	}
-	// clean up
-	for (int i = num_files; i > 0;)
-		free((void*) (files[--i]));
-	free((void*) files);
-	// reload
-	midi = new MIDI();
-	pd = new PD();
-	ui->reset_w->hide();
-	ui->b_reset->activate();
-	fl_message("Deleted %d files from\n%s", deleted, cfg->get_config_dir());
-	// select previous
-	ui->midi_outs->label("Select...");
-	ui->midi_ins->label("Select...");
-	ui->midi_ctrl->label("Select... (optional)");
-	ui->open_device->show();
-	int selection;
-	selection = cfg->get_cfg_option(CFG_MIDI_OUT);
-	if (selection != -1)
-	{
-		ui->midi_outs->value(selection);
-		ui->midi_outs->do_callback();
-	}
-	selection = cfg->get_cfg_option(CFG_MIDI_IN);
-	if (selection != -1)
-	{
-		ui->midi_ins->value(selection);
-		ui->midi_ins->do_callback();
-	}
-	selection = cfg->get_cfg_option(CFG_MIDI_THRU);
-	if (selection != -1)
-	{
-		ui->midi_ctrl->value(selection);
-		ui->midi_ctrl->do_callback();
-	}
-}
+static char auto_connect = 1;
 
 /**
  * command line option parser
@@ -186,13 +59,6 @@ int options(int argc, char **argv, int &i)
 		i += 2;
 		return 2;
 	}
-	if (argv[i][1] == 'y')
-	{
-		use_system_colors = true;
-		i++;
-		return 1;
-	}
-	// ignore color settings
 	return 0;
 }
 
@@ -206,128 +72,20 @@ int main(int argc, char *argv[])
 	{
 		printf("prodatum (ng) options:\n"
 				" -c file\tConfig file to use (default: cfg.txt)\n"
-				" -a     \tdo not open device at startup\n"
-				" -y     \tuse system colors/colors specified below\n"
-				"FLTK options:\n"
-				"%s\n", Fl::help);
+				" -a     \tdo not open device at startup\n");
 		return 1;
-	}
-	ui = 0;
-	midi = 0;
-	pd = 0;
-	cfg = 0;
-	try
-	{
-		cfg = new Cfg((const char*) config, auto_connect);
-	} catch (int e)
-	{
-		if (e == 1) // couldnt create config dir
-			return -1;
 	}
 	// load some data
 	load_data();
-	// create controller
-	pd = new PD();
 	// create user interface
 	ui = new PD_UI();
-	ui->status->label("Welcome! Populating MIDI ports...");
-	ui->main_window->show(argc, argv);
-	if (!use_system_colors)
-		ui->set_color(CURRENT, 0);
-	Fl::wait(.1);
-	try
-	{
-		midi = new MIDI();
-	} catch (int e)
-	{
-		if (e == 1) // couldnt create pipe
-			return -2;
-	}
-	pd->display_status("...success! Have fun!");
-	pd->connect();
-	pmesg("Fl::run()\n");
+	if (!ui)
+		return 1;
+	ui->main_window->show();
+	pxk = new PXK(config, auto_connect);
+	if (!pxk)
+		return 2;
 	return Fl::run();
-}
-
-static void logbuffer_cb(void*)
-{
-	if (ui->logbuf->length() >= LOG_BUFFER_SIZE)
-		ui->logbuf->remove(0, LOG_BUFFER_SIZE / 2);
-	ui->log->insert_position(ui->logbuf->length());
-	if (!ui->scroll_lock->value())
-		ui->log->show_insert_position();
-}
-
-void PD_UI::initialize()
-{
-	pmesg("PD_UI::initialize()\n");
-	// UI INIT
-	// midi options
-	device_id->value(cfg->get_cfg_option(CFG_DEVICE_ID));
-	r_user_id->value(cfg->get_cfg_option(CFG_DEVICE_ID));
-	cfg->get_cfg_option(CFG_AUTOCONNECT) ? autoconnect->set() : autoconnect->clear();
-	midi_ctrl_ch->value(cfg->get_cfg_option(CFG_CONTROL_CHANNEL));
-	midi_automap->value(cfg->get_cfg_option(CFG_AUTOMAP));
-	speed->value(cfg->get_cfg_option(CFG_SPEED));
-
-	// preferences
-	confirm->value(cfg->get_cfg_option(CFG_CONFIRM_EXIT));
-	confirm_rand->value(cfg->get_cfg_option(CFG_CONFIRM_RAND));
-	confirm_dismiss->value(cfg->get_cfg_option(CFG_CONFIRM_DISMISS));
-	((Fl_Button*) g_knobmode->child(cfg->get_cfg_option(CFG_KNOBMODE)))->setonly();
-	cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD) ? closed_loop_upload->set() : closed_loop_upload->clear();
-	cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD) ? closed_loop_download->set() : closed_loop_download->clear();
-	export_dir->value(cfg->get_export_dir());
-
-	// UI misc
-	if (cfg->get_cfg_option(CFG_TOOLTIPS))
-	{
-		tooltips->set();
-		Fl_Tooltip::enable();
-	}
-	else
-	{
-		tooltips->clear();
-		Fl_Tooltip::disable();
-	}
-	if (cfg->get_cfg_option(CFG_DRLS))
-	{
-		drls->value(1);
-		value_input->when(FL_WHEN_ENTER_KEY);
-	}
-	else
-	{
-		drls->value(0);
-		value_input->when(FL_WHEN_CHANGED);
-	}
-	progress->minimum(.0);
-	progress->maximum(1600.);
-	progress->value(1600.);
-	init_progress->minimum(.0);
-	init_progress->maximum(1.);
-	syncview = cfg->get_cfg_option(CFG_SYNCVIEW);
-	selected_step = -1;
-	eall = false;
-	arp_name_changed = false;
-	selected = 5;
-	filter_tmp = 0;
-	select(0);
-
-	// log
-	logbuf = new Fl_Text_Buffer(LOG_BUFFER_SIZE);
-	logbuf->add_modify_callback((Fl_Text_Modify_Cb) logbuffer_cb, 0);
-	log->buffer(logbuf);
-	log_sysex_out->value(cfg->get_cfg_option(CFG_LOG_SYSEX_OUT));
-	log_sysex_in->value(cfg->get_cfg_option(CFG_LOG_SYSEX_IN));
-	log_events_out->value(cfg->get_cfg_option(CFG_LOG_EVENTS_OUT));
-	log_events_in->value(cfg->get_cfg_option(CFG_LOG_EVENTS_IN));
-
-	create_about();
-	Fl::add_handler(handler);
-
-	main_window->free_position();
-	main_window->size(cfg->get_cfg_option(CFG_WINDOW_WIDTH), cfg->get_cfg_option(CFG_WINDOW_HEIGHT));
-	Fl::focus(selector);
 }
 
 /**
@@ -511,113 +269,6 @@ void PD_UI::edit_arp_x(int x)
 		else
 			midi->request_arp_dump(ui->main->arp->value() - 1, 0);
 	}
-}
-
-void PD_UI::set_color(int type, int value)
-{
-	pmesg("PD_UI::set_color(%d, %d)\n", type, value);
-	switch (type)
-	{
-		case BG:
-			colors[type] = value;
-			cfg->set_cfg_option(CFG_BG, value);
-			break;
-		case BG2:
-			colors[type] = value;
-			cfg->set_cfg_option(CFG_BG2, value);
-			break;
-		case RR:
-			colors[type] = value;
-			cfg->set_cfg_option(CFG_RR, value);
-			break;
-		case GG:
-			colors[type] = value;
-			cfg->set_cfg_option(CFG_GG, value);
-			break;
-		case BB:
-			colors[type] = value;
-			cfg->set_cfg_option(CFG_BB, value);
-			break;
-		case KNOBS:
-			if (value == 1)
-				shiny_knobs = true;
-			else
-				shiny_knobs = false;
-			cfg->set_cfg_option(CFG_SHINY_KNOBS, value);
-			break;
-		case DEFAULT:
-			colors[BG] = cfg->getset_default(CFG_BG);
-			colors[BG2] = cfg->getset_default(CFG_BG2);
-			colors[RR] = cfg->getset_default(CFG_RR);
-			colors[GG] = cfg->getset_default(CFG_GG);
-			colors[BB] = cfg->getset_default(CFG_BB);
-			(cfg->getset_default(CFG_SHINY_KNOBS)) ? shiny_knobs = true : shiny_knobs = false;
-			c_bg->value(colors[BG]);
-			c_bg2->value(colors[BG2]);
-			c_rr->value(colors[RR]);
-			c_gg->value(colors[GG]);
-			c_bb->value(colors[BB]);
-			c_cbg->value(cfg->getset_default(CFG_COLORED_BG));
-			c_sk->value((int) shiny_knobs);
-			break;
-		case CURRENT:
-			colors[BG] = cfg->get_cfg_option(CFG_BG);
-			colors[BG2] = cfg->get_cfg_option(CFG_BG2);
-			colors[RR] = cfg->get_cfg_option(CFG_RR);
-			colors[GG] = cfg->get_cfg_option(CFG_GG);
-			colors[BB] = cfg->get_cfg_option(CFG_BB);
-			c_cbg->value(cfg->get_cfg_option(CFG_COLORED_BG));
-			(cfg->get_cfg_option(CFG_SHINY_KNOBS)) ? shiny_knobs = true : shiny_knobs = false;
-			c_sk->value(shiny_knobs ? 1 : 0);
-			c_bg->value(colors[BG]);
-			c_bg2->value(colors[BG2]);
-			c_rr->value(colors[RR]);
-			c_gg->value(colors[GG]);
-			c_bb->value(colors[BB]);
-			break;
-		default:
-			break;
-	}
-	// Background2
-	Fl::set_color(FL_BACKGROUND2_COLOR, colors[BG2], colors[BG2], colors[BG2]);
-	if (!cfg->get_cfg_option(CFG_COLORED_BG))
-	{
-		// Background
-		Fl::set_color(FL_BACKGROUND_COLOR, colors[BG], colors[BG], colors[BG]);
-		// Selection
-		Fl::set_color(FL_SELECTION_COLOR, colors[RR], colors[GG], colors[BB]);
-		// inactive
-		//if (colors[BG2] > colors[BG])
-		Fl::set_color(FL_INACTIVE_COLOR, fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .7f));
-		//		else
-		//			Fl::set_color(FL_INACTIVE_COLOR, fl_color_average(
-		//					FL_BACKGROUND2_COLOR, FL_WHITE, .75f));
-	}
-	else // colored background
-
-	{
-		// Background
-		Fl::set_color(FL_BACKGROUND_COLOR, colors[RR], colors[GG], colors[BB]);
-		// Selection
-		Fl::set_color(FL_SELECTION_COLOR, colors[BG], colors[BG], colors[BG]);
-		// inactive
-		int luma = (colors[RR] + colors[RR] + colors[BB] + colors[GG] + colors[GG] + colors[GG]) / 6;
-		if (luma > 128)
-			Fl::set_color(FL_INACTIVE_COLOR, fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .75f));
-		else
-			Fl::set_color(FL_INACTIVE_COLOR, fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .75f));
-	}
-	// Text
-	Fl::set_color(FL_FOREGROUND_COLOR, colors[BG2], colors[BG2], colors[BG2]);
-	// Tooltips
-	Fl_Tooltip::textcolor(FL_BACKGROUND_COLOR);
-	Fl_Tooltip::color(FL_BACKGROUND2_COLOR);
-	Fl::reload_scheme();
-	// update highlight buttons
-	if (pd && pd->preset)
-		pd->preset->update_highlight_buttons();
-	if (pd && pd->setup)
-		pd->setup->update_highlight_buttons();
 }
 
 /**
@@ -1078,4 +729,123 @@ static void load_data()
 	FM[50].value = 161;
 	FM[50].name = "Resonance/ToothComb   12 REZ";
 	FM[50].info = "Highly resonant harmonic peaks\nshift in unison.\nTry mid Q.";
+}
+
+// TODO
+//// delete name files
+void reset(int user_data, int rom_data)
+{
+//	if (!cfg || (user_data == -1 && rom_data == -1))
+//	{
+//		ui->reset_w->hide();
+//		ui->b_reset->activate();
+//		pd->display_status("Changed your mind?");
+//		return;
+//	}
+//	pmesg("reset(%d, %d)\n", user_data, rom_data);
+//	// stop MIDI
+//	delete midi;
+//	midi = 0;
+//	// delete ROMS
+//	delete pd;
+//	pd = 0;
+//	// delete files
+//	dirent **files;
+//	int num_files = fl_filename_list(cfg->get_config_dir(), &files);
+//	char buf[PATH_MAX];
+//	int f_size = 20;
+//	char f[f_size];
+//	int deleted = 0;
+//	if (user_data >= 0)
+//	{
+//		if (user_data == 127) // delete all user data
+//			snprintf(f, f_size, "n_???_0_*");
+//		else
+//			snprintf(f, f_size, "n_???_0_%d", user_data);
+//		for (int i = 0; i < num_files; i++)
+//		{
+//			if (fl_filename_match(files[i]->d_name, f))
+//			{
+//				snprintf(buf, PATH_MAX, "%s/%s", cfg->get_config_dir(), files[i]->d_name);
+//				pmesg(" - - deleting %s ... ", buf);
+//#ifdef WIN32
+//				if (_unlink(buf))
+//#else
+//				if (unlink(buf))
+//#endif
+//				{
+//					fl_message("Could not delete\n%s", buf);
+//					pmesg(" failed!\n", buf);
+//				}
+//				else
+//				{
+//					pmesg(" success!\n", buf);
+//					++deleted;
+//				}
+//			}
+//		}
+//	}
+//	if (rom_data >= 1)
+//	{
+//		if (rom_data == 1) // delete all rom data
+//			snprintf(f, f_size, "n_???_[123456789]*");
+//		else
+//			snprintf(f, f_size, "n_???_%d", rom_data);
+//		for (int i = 0; i < num_files; i++)
+//		{
+//			if (fl_filename_match(files[i]->d_name, f))
+//			{
+//				snprintf(buf, PATH_MAX, "%s/%s", cfg->get_config_dir(), files[i]->d_name);
+//				pmesg(" - - deleting %s! ... ", buf);
+//#ifdef WIN32
+//				if (_unlink(buf))
+//#else
+//				if (unlink(buf))
+//#endif
+//				{
+//					fl_message("Could not delete\n%s", buf);
+//					pmesg(" failed!\n", buf);
+//				}
+//				else
+//				{
+//					pmesg(" success!\n", buf);
+//					++deleted;
+//				}
+//			}
+//		}
+//	}
+//	// clean up
+//	for (int i = num_files; i > 0;)
+//		free((void*) (files[--i]));
+//	free((void*) files);
+//	// reload
+//	midi = new MIDI();
+//	pd = new PD();
+//	ui->reset_w->hide();
+//	ui->b_reset->activate();
+//	fl_message("Deleted %d files from\n%s", deleted, cfg->get_config_dir());
+//	// select previous
+//	ui->midi_outs->label("Select...");
+//	ui->midi_ins->label("Select...");
+//	ui->midi_ctrl->label("Select... (optional)");
+//	ui->open_device->show();
+//	int selection;
+//	selection = cfg->get_cfg_option(CFG_MIDI_OUT);
+//	if (selection != -1)
+//	{
+//		ui->midi_outs->value(selection);
+//		ui->midi_outs->do_callback();
+//	}
+//	selection = cfg->get_cfg_option(CFG_MIDI_IN);
+//	if (selection != -1)
+//	{
+//		ui->midi_ins->value(selection);
+//		ui->midi_ins->do_callback();
+//	}
+//	selection = cfg->get_cfg_option(CFG_MIDI_THRU);
+//	if (selection != -1)
+//	{
+//		ui->midi_ctrl->value(selection);
+//		ui->midi_ctrl->do_callback();
+//	}
 }

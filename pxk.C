@@ -18,23 +18,131 @@
 
 #include <string>
 #include "pxk.H"
+#include "cfg.H"
+
+extern PD_UI* ui;
+MIDI* midi = 0;
+Cfg* cfg = 0;
+
+// to open another device:
+// delete PXK, new PXK :)
+PXK::PXK(const char* file, char auto_c)
+{
+	// initialize
+	midi = 0;
+	device_id = -1;
+	device_code = -1;
+	synchronized = false;
+	preset = 0;
+	preset_copy = 0;
+	setup = 0;
+	setup_copy = 0;
+	setup_names = 0;
+	arp = 0;
+	for (unsigned char i = 0; i <= 5; i++)
+		rom[i] = 0;
+	// populate ports && load config
+	if (LoadConfig(file) && PopulatePorts())
+	{
+		if (auto_c == 0)
+		{
+			// show open_device
+			ui->open_device->show();
+			Fl::wait(.1);
+			return;
+		}
+		//Synchronize(cfg->get_cfg_option(CFG_DEVICE_ID));
+	}
+}
+
+PXK::~PXK()
+{
+	unsigned char i;
+	for (i = 0; i < 4; i++)
+		// unmute eventually muted voices
+		;//mute(0, i); // TODO
+	if (preset)
+		delete preset;
+	if (preset_copy)
+		delete preset_copy;
+	for (i = 0; i <= roms; i++)
+		delete rom[i];
+	if (setup)
+		delete setup;
+	if (setup_copy)
+		delete setup_copy;
+	if (setup_names)
+		delete[] setup_names;
+	if (cfg)
+	{
+		delete cfg;
+		cfg = 0;
+	}
+	if (midi)
+	{
+		delete midi;
+		midi = 0;
+	}
+}
+
+bool PXK::LoadConfig(const char* name) const
+{
+	pmesg("PXK::LoadConfig()\n");
+	if (cfg)
+	{
+		delete cfg;
+		cfg = 0;
+	}
+	cfg = new Cfg(name, ui->autoconnect->value());
+	if (!cfg)
+		return false;
+	cfg->apply();
+	cfg->set_color(CURRENT, 0);
+	return true;
+}
+
+bool PXK::PopulatePorts() const
+{
+	pmesg("PXK::PopulatePorts()\n");
+	if (midi)
+	{
+		delete midi;
+		midi = 0;
+	}
+	midi = new MIDI();
+	if (!midi)
+		return false;
+	return true;
+}
 
 /* if autoconnection is enabled but the device is not powered
  we end up with an unconnected main window. this shows
  the open dialog if there is no answer*/
 static void check_connection(void* p)
 {
-	if (((PXK*) p)->device_code <= 0 && !((PXK*) p)->prodatum->init->shown())
-		((PXK*) p)->prodatum->init->show();
+	if (((PXK*) p)->device_code <= 0 && !ui->init->shown())
+		ui->open_device->show();
 }
 
-bool PXK::synchronize(PD_UI* pd, MIDI* m, char id, char delay)
+void PXK::Synchronize(unsigned char id)
 {
-	prodatum = pd;
-	mo = m;
-	request_delay = delay;
-	m->request_device_inquiry(id);
+	midi->request_device_inquiry(id);
 	Fl::add_timeout(.5, check_connection, (void*) this);
+}
+
+void PXK::r_sysex(const unsigned char* sysex, const int len) const
+{
+	// log sysex messages
+	static unsigned int count = 0;
+	if (ui->log_sysex_in->value())
+	{
+		char* buf = new char[2 * len + 18];
+		int n = snprintf(buf, 18, "\nIS.%lu::", ++count);
+		for (int i = 0; i < len; i++)
+			sprintf(n + buf + 2 * i, "%02X", sysex[i]);
+		ui->logbuf->append(buf);
+		delete[] buf;
+	}
 }
 
 void PXK::incoming_inquiry_data(const unsigned char* data, int len)
@@ -44,32 +152,32 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 	if (device_code == 516) // talking to an PXK!
 	{
 		device_id = data[2];
-		mo->set_device_id(device_id); // so further sysex comes through
-		mo->edit_parameter_value(405, request_delay);
-		mo->request_hardware_config();
+		midi->set_device_id(device_id); // so further sysex comes through
+		midi->edit_parameter_value(405, request_delay);
+		midi->request_hardware_config();
 		snprintf(os_rev, 5, "%c%c%c%c", data[10], data[11], data[12], data[13]);
 		member_code = data[9] * 128 + data[8];
 		switch (member_code)
 		{
 			case 2: // AUDITY
-				prodatum->main->b_audit->hide();
-				prodatum->m_audit->hide();
-				prodatum->main->g_riff->deactivate();
-				prodatum->preset_editor->g_riff->deactivate();
-				prodatum->main->post_d->hide();
-				prodatum->main->pre_d->label("Delay");
-				prodatum->preset_editor->post_d->hide();
-				prodatum->preset_editor->pre_d->label("Delay");
+				ui->main->b_audit->hide();
+				ui->m_audit->hide();
+				ui->main->g_riff->deactivate();
+				ui->preset_editor->g_riff->deactivate();
+				ui->main->post_d->hide();
+				ui->main->pre_d->label("Delay");
+				ui->preset_editor->post_d->hide();
+				ui->preset_editor->pre_d->label("Delay");
 				break;
 			default:
-				prodatum->main->b_audit->show();
-				prodatum->m_audit->show();
-				prodatum->main->g_riff->activate();
-				prodatum->preset_editor->g_riff->activate();
-				prodatum->main->post_d->show();
-				prodatum->main->pre_d->label("Pre D");
-				prodatum->preset_editor->post_d->show();
-				prodatum->preset_editor->pre_d->label("Pre D");
+				ui->main->b_audit->show();
+				ui->m_audit->show();
+				ui->main->g_riff->activate();
+				ui->preset_editor->g_riff->activate();
+				ui->main->post_d->show();
+				ui->main->pre_d->label("Pre D");
+				ui->preset_editor->post_d->show();
+				ui->preset_editor->pre_d->label("Pre D");
 		}
 	}
 	else
@@ -92,8 +200,8 @@ void PXK::incoming_hardware_config(const unsigned char* data, int len)
 	create_device_info();
 	if (roms != 0)
 	{
-		prodatum->open_device->hide();
-		mo->request_setup_dump();
+		ui->open_device->hide();
+		midi->request_setup_dump();
 	}
 }
 void PXK::create_device_info()
@@ -121,7 +229,7 @@ void PXK::create_device_info()
 			info += buf;
 		}
 	}
-	prodatum->device_info->copy_label(info.data());
+	ui->device_info->copy_label(info.data());
 }
 const char* PXK::get_name(int code) const
 {

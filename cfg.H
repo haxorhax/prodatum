@@ -60,7 +60,7 @@ enum CONFIG
  */
 enum
 {
-	BG, BG2, RR, GG, BB, DEFAULT, CURRENT, KNOBS
+	BG, BG2, RR, GG, BB, DEFAULT, CURRENT
 };
 
 /**
@@ -82,7 +82,7 @@ public:
 	/**
 	 * CTOR parses config file
 	 */
-	Cfg(const char* n, int ac);
+	Cfg(const char* n, char ac);
 	/**
 	 * DTOR saves config file
 	 */
@@ -104,6 +104,8 @@ public:
 	 */
 	int get_cfg_option(int option) const;
 	int getset_default(int option);
+	void apply();
+	void set_color(int, int);
 };
 
 #endif /* CFG_H_ */

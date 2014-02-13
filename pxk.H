@@ -9,11 +9,13 @@
 #define PXK_H_
 
 #include <map>
+#include <vector>
 
+#include "ui.H"
 #include "data.H"
 #include "debug.H"
-#include "midi.H"
-#include "ui.H"
+//#include "midi.H"
+
 
 class PXK
 {
@@ -21,14 +23,19 @@ class PXK
 	 * general
 	 */
 public:
-	PD_UI* prodatum;
+
 private:
-	MIDI* mo;
+	std::vector<int> system_ports_in;
+	std::vector<int> system_ports_out;
 	char device_id;
 	unsigned char request_delay;
 	bool synchronized;
 public:
-	bool synchronize(PD_UI* pd, MIDI* m, char id, char delay);
+	bool LoadConfig(const char*) const;
+	bool PopulatePorts() const;
+	void Synchronize(unsigned char);
+	void r_sysex(const unsigned char*, const int) const;
+	void r_event(const unsigned char*);
 private:
 	/// maps controller values to CC widget numbers (device -> UI)
 	std::map<int, int> cc_to_ctrl;
@@ -114,32 +121,9 @@ public:
 
 public:
 	/// CTOR
-	PXK()
-	{
-		device_code = -1;
-		device_id = -1;
-		synchronized = false;
-	}
+	PXK(const char*, char);
 	/// DTOR
-	~PXK()
-	{
-		unsigned char i;
-		for (i = 0; i < 4; i++) // unmute eventually muted voices
-			mute(0, i);
-		if (preset)
-			delete preset;
-		if (preset_copy)
-			delete preset_copy;
-		for (i = 0; i <= roms; i++)
-			delete rom[i];
-		if (setup)
-			delete setup;
-		if (setup_copy)
-			delete setup_copy;
-		if (setup_names)
-			delete[] setup_names;
-	}
+	~PXK();
 };
-
 
 #endif /* PXK_H_ */
