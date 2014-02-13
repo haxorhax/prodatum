@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 	ui = new PD_UI();
 	if (!ui)
 		return 1;
-	ui->main_window->show();
+	//ui->main_window->show();
 	pxk = new PXK(config, auto_connect);
 	if (!pxk)
 		return 2;

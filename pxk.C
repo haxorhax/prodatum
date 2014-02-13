@@ -51,7 +51,31 @@ PXK::PXK(const char* file, char auto_c)
 			Fl::wait(.1);
 			return;
 		}
-		//Synchronize(cfg->get_cfg_option(CFG_DEVICE_ID));
+		// open midi ports
+		bool success = true;
+		if (!midi->connect_out(cfg->get_cfg_option(CFG_MIDI_OUT)))
+			success = false;
+		if (!success || !midi->connect_in(cfg->get_cfg_option(CFG_MIDI_IN)))
+			success = false;
+		if (success)
+		{
+			ui->midi_outs->label(ui->midi_outs->text(cfg->get_cfg_option(CFG_MIDI_OUT)));
+			ui->midi_outs->value(cfg->get_cfg_option(CFG_MIDI_OUT));
+			ui->midi_ins->label(ui->midi_ins->text(cfg->get_cfg_option(CFG_MIDI_IN)));
+			ui->midi_ins->value(cfg->get_cfg_option(CFG_MIDI_IN));
+		}
+		if (cfg->get_cfg_option(CFG_MIDI_THRU) != -1 && midi->connect_thru(cfg->get_cfg_option(CFG_MIDI_THRU)))
+		{
+			ui->midi_ctrl->label(ui->midi_ctrl->text(cfg->get_cfg_option(CFG_MIDI_THRU)));
+			ui->midi_ctrl->value(cfg->get_cfg_option(CFG_MIDI_THRU));
+		}
+		if (success)
+			Synchronize(cfg->get_cfg_option(CFG_DEVICE_ID));
+		else
+		{
+			ui->open_device->show();
+			Fl::wait(.1);
+		}
 	}
 }
 
@@ -98,6 +122,8 @@ bool PXK::LoadConfig(const char* name) const
 		return false;
 	cfg->apply();
 	cfg->set_color(CURRENT, 0);
+	ui->main_window->show();
+	Fl::wait(.1);
 	return true;
 }
 
@@ -137,7 +163,7 @@ void PXK::r_sysex(const unsigned char* sysex, const int len) const
 	if (ui->log_sysex_in->value())
 	{
 		char* buf = new char[2 * len + 18];
-		int n = snprintf(buf, 18, "\nIS.%lu::", ++count);
+		int n = snprintf(buf, 18, "\nIS.%du::", ++count);
 		for (int i = 0; i < len; i++)
 			sprintf(n + buf + 2 * i, "%02X", sysex[i]);
 		ui->logbuf->append(buf);

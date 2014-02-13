@@ -2043,9 +2043,9 @@ void Fl_Knob::draw()
 	fl_rectf(ox, oy, side, side);
 	// surrounding
 	if (!ui->shiny_knobs)
-		fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_SELECTION_COLOR, .6));
+		fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_SELECTION_COLOR, .2));
 	else
-		fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BACKGROUND2_COLOR, .6));
+		fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BACKGROUND2_COLOR, .3));
 	fl_pie(ox + 1, oy + 3, side - 2, side - 12, 0, 360);
 	// scale
 	draw_scale(ox, oy, side);
@@ -2068,7 +2068,7 @@ void Fl_Knob::draw()
 	else
 	{
 		if (!ui->shiny_knobs)
-			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .6));
+			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .9));
 		else
 			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .6));
 	}

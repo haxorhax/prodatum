@@ -9,7 +9,6 @@
 #define PXK_H_
 
 #include <map>
-#include <vector>
 
 #include "ui.H"
 #include "data.H"
@@ -25,8 +24,6 @@ class PXK
 public:
 
 private:
-	std::vector<int> system_ports_in;
-	std::vector<int> system_ports_out;
 	char device_id;
 	unsigned char request_delay;
 	bool synchronized;
