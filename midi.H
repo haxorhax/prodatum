@@ -45,7 +45,8 @@ class MIDI
 	int start_timer();
 	/// method to stop the MIDI sender/receiver
 	void stop_timer();
-
+	/// populates the UI with available system MIDI ports
+	void populate_ports();
 public:
 	/**
 	 * CTOR for the MIDI class
@@ -59,8 +60,6 @@ public:
 	 * the MIDI sender/receiver
 	 */
 	~MIDI();
-	/// populates the UI with available system MIDI ports
-	void populate_ports();
 	/// allows for switching the device ID on the fly
 	void set_device_id(int id);
 	/// sets the incoming channel filter for the control port

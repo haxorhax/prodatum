@@ -42,9 +42,9 @@ unsigned char request_delay;
 // colors used in ui and widgets
 unsigned char colors[5];
 
-Cfg::Cfg(const char* n, char ac)
+Cfg::Cfg(const char* n)
 {
-	pmesg("Cfg::Cfg(%s, %d)  \n", n, ac);
+	pmesg("Cfg::Cfg(%s, %d)  \n", n);
 	// defaults
 #ifdef WIN32
 	set_export_dir(getenv("USERPROFILE"));
@@ -61,7 +61,7 @@ Cfg::Cfg(const char* n, char ac)
 	defaults[CFG_CONTROL_CHANNEL] = 0;
 	defaults[CFG_AUTOMAP] = 1;
 	defaults[CFG_DEVICE_ID] = 0;
-	defaults[CFG_AUTOCONNECT] = ac;
+	defaults[CFG_AUTOCONNECT] = 1;
 	defaults[CFG_SPEED] = 0;
 	defaults[CFG_CLOSED_LOOP_UPLOAD] = 0;
 	defaults[CFG_CLOSED_LOOP_DOWNLOAD] = 0;

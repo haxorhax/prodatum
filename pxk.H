@@ -115,7 +115,6 @@ private:
 public:
 	char midi_mode;
 	char selected_fx_channel;
-	char setups_to_load;
 	const Setup_Dump* setup_init;
 	void save_setup(int, const char*);
 	void incoming_setup_dump(const unsigned char*, int);

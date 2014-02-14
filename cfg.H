@@ -82,7 +82,7 @@ public:
 	/**
 	 * CTOR parses config file
 	 */
-	Cfg(const char* n, char ac);
+	Cfg(const char* n);
 	/**
 	 * DTOR saves config file
 	 */

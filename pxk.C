@@ -249,13 +249,17 @@ void PXK::cc_callback(int controller, int value)
 static void check_connection(void* p)
 {
 	if (*(char*) p == -1 && !ui->init->shown())
+	{
 		ui->open_device->show();
+		Fl::wait(.1);
+	}
 }
 
 // to open another device:
 // delete PXK, new PXK :)
 PXK::PXK(const char* file, char auto_c)
 {
+	pmesg("PXK::PXK()\n");
 	// initialize
 	midi = 0;
 	device_id = -1;
@@ -269,7 +273,6 @@ PXK::PXK(const char* file, char auto_c)
 	selected_fx_channel = -1;
 	midi_mode = -1;
 	setup_names = 0;
-	setups_to_load = 0;
 	arp = 0;
 	nak_count = 0;
 	cc_changed = false;
@@ -312,10 +315,7 @@ PXK::PXK(const char* file, char auto_c)
 			ui->midi_ctrl->value(cfg->get_cfg_option(CFG_MIDI_THRU));
 		}
 		if (success)
-		{
-			midi->request_device_inquiry();
-			Fl::add_timeout(.5, check_connection, (void*) &device_id);
-		}
+			Fl::add_timeout(.2, check_connection, (void*) &device_id);
 		else
 		{
 			ui->open_device->show();
@@ -365,7 +365,7 @@ bool PXK::LoadConfig(const char* name) const
 		delete cfg;
 		cfg = 0;
 	}
-	cfg = new Cfg(name, ui->autoconnect->value());
+	cfg = new Cfg(name);
 	if (!cfg)
 		return false;
 	cfg->apply();
@@ -393,7 +393,11 @@ static void sync_progress(void* f)
 {
 	if (!(*(bool*) f))
 	{
-		ui->init_progress->value((float) init_progress);
+		if (!ui->init->shown())
+		{
+			ui->init->show();
+			Fl::wait();
+		}
 		Fl::repeat_timeout(.1, sync_progress, f);
 	}
 	else
@@ -420,6 +424,47 @@ static void *sync_bro(void* p)
 	unsigned char rom_nr, type;
 	unsigned int name;
 	int names;
+	// load setup names
+	unsigned char setups_to_load = 0;
+	Fl::lock();
+	setups_to_load = pxk->load_setup_names(99);
+	Fl::unlock();
+	if (setups_to_load)
+	{
+		// save init setup
+		Fl::lock();
+		midi->request_setup_dump();
+		Fl::unlock();
+		bool got_setup = false;
+		while (!got_setup)
+		{
+			mysleep(5);
+			Fl::lock();
+			(pxk->setup_init == 0) ? got_setup = false : got_setup = true;
+			Fl::unlock();
+		}
+		Fl::lock();
+		ui->init_progress->maximum((float) 64);
+		init_progress = 0;
+		Fl::unlock();
+		for (name = 0; name < 63; name++)
+		{
+			Fl::lock();
+			ui->init_progress->value((float) init_progress);
+			got_answer = false;
+			pxk->load_setup_names(name);
+			Fl::remove_timeout(keep_running_bro);
+			Fl::add_timeout(.3, keep_running_bro);
+			Fl::unlock();
+			while (!got_answer)
+				mysleep(5);
+		}
+		Fl::remove_timeout(keep_running_bro);
+		mysleep(50);
+		Fl::lock();
+		pxk->load_setup_names(63);
+		Fl::unlock();
+	}
 	// ID, PRESET, INSTRUMENT, ARP, SETUP, DEMO, RIFF
 	for (rom_nr = 0; rom_nr < 5; rom_nr++) // for every rom
 	{
@@ -441,7 +486,6 @@ static void *sync_bro(void* p)
 							names = MAX_RIFFS;
 					}
 					Fl::lock();
-					ui->init_progress->value(.0);
 					ui->init_progress->maximum((float) names);
 					init_progress = 0;
 					name_set_incomplete = true;
@@ -450,6 +494,7 @@ static void *sync_bro(void* p)
 					while (name_set_incomplete && name < names)
 					{
 						Fl::lock();
+						ui->init_progress->value((float) init_progress);
 						got_answer = false;
 						pxk->rom[rom_nr]->load_name(type, name);
 						Fl::remove_timeout(keep_running_bro);
@@ -463,31 +508,6 @@ static void *sync_bro(void* p)
 				}
 			}
 	}
-	// load setup names
-	if (pxk->setups_to_load)
-	{
-		Fl::lock();
-		ui->init_progress->value(.0);
-		ui->init_progress->maximum((float) 64);
-		init_progress = 0;
-		Fl::unlock();
-		for (name = 0; name < 63; name++)
-		{
-			Fl::lock();
-			got_answer = false;
-			pxk->load_setup_names(name);
-			Fl::remove_timeout(keep_running_bro);
-			Fl::add_timeout(.3, keep_running_bro);
-			Fl::unlock();
-			while (!got_answer)
-				mysleep(5);
-		}
-		Fl::remove_timeout(keep_running_bro);
-		mysleep(33);
-		Fl::lock();
-		pxk->load_setup_names(63);
-		Fl::unlock();
-	}
 	Fl::lock();
 	*(bool*) p = true;
 	Fl::unlock();
@@ -495,23 +515,15 @@ static void *sync_bro(void* p)
 
 bool PXK::Synchronize()
 {
+	pmesg("PXK::Synchronize()\n");
 	if (synchronized)
 		return false;
 	midi->filter_strict(); // filter everything but sysex for init
 	synchronized = false;
-	setups_to_load = load_setup_names(99);
-	if (setups_to_load) // wait for initial setup
-	{
-		// keep current setup around
-		midi->request_setup_dump();
-		while (!got_answer)
-			Fl::wait(.1);
-	}
 	init_progress = 0;
 	// request rom infos
 	Fl_Thread sync_hardware;
 	fl_create_thread(sync_hardware, sync_bro, (void*) &synchronized);
-	ui->init->show();
 	Fl::add_timeout(.1, sync_progress, (void*) &synchronized);
 	return true;
 }
@@ -540,6 +552,7 @@ void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned c
 
 void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 {
+	pmesg("PXK::incoming_inquiry_data(data, %d)\n", len);
 	Fl::remove_timeout(check_connection);
 	device_code = data[7] * 128 + data[6];
 	if (device_code == 516) // talking to an PXK!
@@ -579,6 +592,7 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 }
 void PXK::incoming_hardware_config(const unsigned char* data, int len)
 {
+	pmesg("PXK::incoming_hardware_config(data, %d)\n", len);
 	user_presets = data[8] * 128 + data[7];
 	roms = data[9];
 	rom_id_map.clear();
@@ -788,7 +802,7 @@ void PXK::incoming_setup_dump(const unsigned char* data, int len)
 	if (!synchronized)
 	{
 		// "init setup"
-		setup_copy = new Setup_Dump(len, data);
+		setup_init = new Setup_Dump(len, data);
 		return;
 	}
 	display_status("Received setup dump.");
@@ -1750,6 +1764,8 @@ void PXK::start_over()
 		return;
 	// select a different basic channel (erases edit buffer)
 	midi->edit_parameter_value(139, (selected_channel + 1) % 15);
+	// let it think..
+	mysleep(53);
 	midi->edit_parameter_value(139, selected_channel);
 	preset_copy->clone(preset);
 	preset->set_changed(false);
