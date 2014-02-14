@@ -25,10 +25,10 @@
 #include "ringbuffer.H"
 #include "ui.H"
 
-extern PD* pd;
 extern PD_UI* ui;
 extern Cfg* cfg;
 extern PXK* pxk;
+bool got_answer;
 
 static bool timer_running = false;
 static bool thru_active = false;
@@ -68,16 +68,9 @@ static PortMidiStream *port_thru; // controller port (eg keyboard)
 static jack_ringbuffer_t *read_buffer;
 static jack_ringbuffer_t *write_buffer;
 static int midi_device_id;
-static bool got_answer;
 static unsigned int messages_to_send;
-
-// TODO check these
-// used by watchdog in PD
-timeval tv_incoming;
-bool time_incoming_midi = false;
 static bool seed_randomizer = true;
 static bool requested = false;
-static int requested_names = 0;
 
 static void show_error(void)
 {
@@ -180,8 +173,6 @@ static void process_midi(PtTimestamp, void*)
 								if (!write(p[1], " ", 1) == 1)
 									pmesg("*** Could not write into pipe!\n");
 #endif
-								if (time_incoming_midi)
-									gettimeofday(&tv_incoming, 0);
 							}
 							else
 							{
@@ -240,8 +231,8 @@ static void process_midi(PtTimestamp, void*)
 					if (event[0] >= 0x80 && event[0] <= 0xEF)
 					{
 						// automap
-						if (automap && pd->midi_mode != OMNI)
-							event[0] = (event[0] & ~0xf) | (pd->selected_channel & 0xff);
+						if (automap && pxk->midi_mode != OMNI)
+							event[0] = (event[0] & ~0xf) | (pxk->selected_channel & 0xff);
 						event[1] = Pm_MessageData1(ev.message);
 						event[2] = Pm_MessageData2(ev.message);
 						event[3] = 1;
@@ -330,35 +321,34 @@ static void process_midi_in(void*)
 			// e-mu sysex
 			if (sysex[1] == 0x18)
 			{
-				// TODO
-				pxk->r_sysex(sysex, len);
-
+				if (ui->log_sysex_in->value())
+					pxk->log_add(sysex, len, 1);
 				//return;
 				switch (sysex[5])
 				{
 					case 0x70: // error
-						pd->incoming_ERROR(sysex[7] * 128 + sysex[6], sysex[9] * 128 + sysex[8]);
+						pxk->incoming_ERROR(sysex[7] * 128 + sysex[6], sysex[9] * 128 + sysex[8]);
 						break;
 
 					case 0x7f: // ACK
-						pd->incoming_ACK(sysex[7] * 128 + sysex[6]);
+						pxk->incoming_ACK(sysex[7] * 128 + sysex[6]);
 						break;
 
 					case 0x7e: // NAK
-						pd->incoming_NAK(sysex[7] * 128 + sysex[6]);
+						pxk->incoming_NAK(sysex[7] * 128 + sysex[6]);
 						break;
 
 					case 0x7c: // WAIT
-						pd->incoming_WAIT();
+						pxk->incoming_WAIT();
 						Pt_Sleep(request_delay);
 						break;
 
 					case 0x7b: // EOF
-						pd->incoming_EOF();
+						pxk->incoming_EOF();
 						break;
 
 					case 0x7d: // CANCEL
-						pd->incoming_CANCEL();
+						pxk->incoming_CANCEL();
 						break;
 
 					case 0x09: // hardware configuration
@@ -370,28 +360,20 @@ static void process_midi_in(void*)
 						break;
 
 					case 0x0b: // generic name
-						if (requested_names > 0)
-						{
-							--requested_names;
-							pd->incoming_generic_name(sysex);
-						}
+							pxk->incoming_generic_name(sysex);
 						break;
 
 					case 0x1c: // setup dumps
 						if (requested)
 						{
 							requested = false;
-							pd->incoming_setup_dump(sysex, len);
+							pxk->incoming_setup_dump(sysex, len);
 						}
 						break;
 
 					case 0x18: // arp pattern dump
-						pd->incoming_arp_dump(sysex, len);
+						pxk->incoming_arp_dump(sysex, len);
 						break;
-
-						//				case 0x16: // program change/preset map dump
-						//					pd->incoming_pc_dump(sysex, len);
-						//					break;
 
 					case 0x10: // preset dumps
 						if (requested)
@@ -399,11 +381,11 @@ static void process_midi_in(void*)
 							{
 								case 0x01: // dump header (closed)
 								case 0x03: // dump header (open)
-									pd->incoming_preset_dump(sysex, len);
+									pxk->incoming_preset_dump(sysex, len);
 									break;
 								case 0x02: // dump data (closed)
 								case 0x04: // dump data (open)
-									pd->incoming_preset_dump(sysex, len);
+									pxk->incoming_preset_dump(sysex, len);
 									if (len < 253) // last packet
 										requested = false;
 									break;
@@ -473,9 +455,9 @@ static void process_midi_in(void*)
 						break;
 					case 0xb: // controller event
 					{
-						if (pd->cc_to_ctrl.find(event[1]) != pd->cc_to_ctrl.end())
+						if (pxk->cc_to_ctrl.find(event[1]) != pxk->cc_to_ctrl.end())
 						{
-							int controller = pd->cc_to_ctrl[event[1]];
+							int controller = pxk->cc_to_ctrl[event[1]];
 							if (controller <= 12)
 								// sliders
 								((Fl_Slider*) ui->main->ctrl_x[controller])->value((double) event[2]);
@@ -531,9 +513,9 @@ static void process_midi_in(void*)
 						break;
 					case 0xb: // controller event
 					{
-						if (pd->cc_to_ctrl.find(event[1]) != pd->cc_to_ctrl.end())
+						if (pxk->cc_to_ctrl.find(event[1]) != pxk->cc_to_ctrl.end())
 						{
-							int controller = pd->cc_to_ctrl[event[1]];
+							int controller = pxk->cc_to_ctrl[event[1]];
 							if (controller <= 12)
 								// sliders
 								((Fl_Slider*) ui->main->ctrl_x[controller])->value((double) event[2]);
@@ -842,9 +824,10 @@ int MIDI::connect_in(int port)
 		return 0;
 	}
 	// filter messages we dont process
-	pmerror = Pm_SetFilter(port_in,
-			PM_FILT_SYSTEMCOMMON | PM_FILT_ACTIVE | PM_FILT_CLOCK | PM_FILT_PLAY | PM_FILT_TICK | PM_FILT_FD | PM_FILT_RESET
-					| PM_FILT_AFTERTOUCH | PM_FILT_PROGRAM | PM_FILT_PITCHBEND);
+	// only allow sysex for now
+	pmerror = Pm_SetFilter(port_in, ~1); // TODO: test
+//			PM_FILT_SYSTEMCOMMON | PM_FILT_ACTIVE | PM_FILT_CLOCK | PM_FILT_PLAY | PM_FILT_TICK | PM_FILT_FD | PM_FILT_RESET
+//					| PM_FILT_AFTERTOUCH | PM_FILT_PROGRAM | PM_FILT_PITCHBEND);
 	if (pmerror < 0)
 	{
 		show_error();
@@ -938,10 +921,10 @@ void MIDI::set_control_channel_filter(int channel) const
 	pmesg("MIDI::set_control_channel_filter(%d)\n", channel);
 	cfg->set_cfg_option(CFG_CONTROL_CHANNEL, channel);
 	if (channel == 16)
-		pmerror = Pm_SetChannelMask(port_thru,
-				Pm_Channel(0) | Pm_Channel(1) | Pm_Channel(2) | Pm_Channel(3) | Pm_Channel(4) | Pm_Channel(5) | Pm_Channel(6)
-				| Pm_Channel(7) | Pm_Channel(8) | Pm_Channel(9) | Pm_Channel(10) | Pm_Channel(11) | Pm_Channel(12)
-				| Pm_Channel(13) | Pm_Channel(14) | Pm_Channel(15));
+		pmerror = Pm_SetChannelMask(port_thru, ~0); // TODO: test
+//				Pm_Channel(0) | Pm_Channel(1) | Pm_Channel(2) | Pm_Channel(3) | Pm_Channel(4) | Pm_Channel(5) | Pm_Channel(6)
+//				| Pm_Channel(7) | Pm_Channel(8) | Pm_Channel(9) | Pm_Channel(10) | Pm_Channel(11) | Pm_Channel(12)
+//				| Pm_Channel(13) | Pm_Channel(14) | Pm_Channel(15));
 	else
 		pmerror = Pm_SetChannelMask(port_thru, Pm_Channel(channel));
 	if (pmerror < 0)
@@ -956,23 +939,37 @@ void MIDI::set_channel_filter(int channel) const
 		show_error();
 }
 
-// TODO (unused yet)
-//static void check_answer(void*)
-//{
-//	pmesg("check_answer()\n");
-//	if (!got_answer)
-//	{
-//		fl_alert("PXK did not respond! prodatum will close.");
-//		delete ui;
-//	}
-//}
+void MIDI::filter_loose() const
+{
+	pmesg("MIDI::filter_loose()\n");
+	int filter = ~0; // filter everything
+	filter ^= (PM_FILT_SYSEX + PM_FILT_NOTE + PM_FILT_CONTROL + PM_FILT_PITCHBEND);
+	pmerror = Pm_SetFilter(port_in, filter);
+	if (pmerror < 0)
+		show_error();
+	pmerror = Pm_SetFilter(port_thru, PM_FILT_REALTIME | PM_FILT_SYSTEMCOMMON);
+	if (pmerror < 0)
+		show_error();
+
+}
+
+void MIDI::filter_strict() const
+{
+	pmesg("MIDI::filter_strict()\n");
+	pmerror = Pm_SetFilter(port_in, ~1); // only sysex on input
+	if (pmerror < 0)
+		show_error();
+	pmerror = Pm_SetFilter(port_thru, ~0); // everything on thru
+	if (pmerror < 0)
+		show_error();
+}
 
 void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 {
 	pmesg("MIDI::write_sysex(data, len: %d)\n", len);
 	// dont use if (!midi_active) here because we wanna be able to send
 	// everything important (eg the setup_init) before the midi thread goes void
-	static unsigned long count = 0;
+	static unsigned int count = 0;
 	static unsigned char header[3];
 	if (!midi_active || len > SYSEX_MAX_SIZE)
 	{
@@ -987,24 +984,11 @@ void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 	header[2] = len % 128;
 	while (jack_ringbuffer_write_space(write_buffer) < len + 3)
 		mysleep(10);
-//	while (!got_answer)
-//		Fl::wait(.05);
-//	Fl::remove_timeout (check_answer);
-//	Fl::add_timeout(.2, check_answer);
-//	got_answer = false;
 	jack_ringbuffer_write(write_buffer, header, 3);
 	jack_ringbuffer_write(write_buffer, sysex, len);
 	++messages_to_send;
-	// log sysex messages
 	if (ui->log_sysex_out->value())
-	{
-		char* buf = new char[2 * len + 18];
-		int n = snprintf(buf, 18, "\nOS.%lu::", ++count);
-		for (int i = 0; i < len; i++)
-			sprintf(n + buf + 2 * i, "%02x", sysex[i]);
-		ui->logbuf->append(buf);
-		delete[] buf;
-	}
+		pxk->log_add(sysex, len, 0);
 }
 
 void MIDI::write_event(int status, int value1, int value2, int channel) const
@@ -1014,7 +998,7 @@ void MIDI::write_event(int status, int value1, int value2, int channel) const
 	if (!midi_active)
 		return;
 	if (channel == -1)
-		channel = pd->selected_channel;
+		channel = pxk->selected_channel;
 	unsigned char stat = ((status & ~0xf) | channel) & 0xff;
 	const unsigned char msg[] =
 	{ stat, value1 & 0xff, value2 & 0xff };
@@ -1095,6 +1079,15 @@ void MIDI::request_hardware_config() const
 	requested = true;
 }
 
+// TODO
+static void loading_screen(void*)
+{
+	ui->loading_w->free_position();
+	ui->loading_w->show();
+	while (!got_answer)
+		Fl::repeat_timeout(.1, loading_screen, 0);
+}
+
 void MIDI::request_preset_dump(int preset, int rom_id) const
 {
 	pmesg("MIDI::request_preset_dump(preset: %d, rom: %d) \n", preset, rom_id);
@@ -1107,7 +1100,8 @@ void MIDI::request_preset_dump(int preset, int rom_id) const
 	uchar request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x11, cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD) ? 0x02 : 0x04, preset
 			% 128, preset / 128, rom_id % 128, rom_id / 128, 0xf7 };
-	pd->loading();
+	//Fl::add_timeout(.1, loading_screen); // TODO
+	got_answer = false;
 	write_sysex(request, 12);
 	requested = true;
 }
@@ -1117,8 +1111,6 @@ void MIDI::request_setup_dump() const
 	pmesg("MIDI::request_setup_dump() \n");
 	if (requested || !midi_active)
 		return;
-	// now we know that we have initialzed we don't accept any more name data
-	requested_names = 0;
 	uchar request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x1d, 0xf7 };
 	write_sysex(request, 7);
@@ -1145,7 +1137,6 @@ void MIDI::request_name(int type, int number, int rom_id) const
 	uchar request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x0c, type, number % 128, number / 128, rom_id % 128, rom_id / 128, 0xf7 };
 	write_sysex(request, 12);
-	requested_names++;
 }
 
 void MIDI::edit_parameter_value(int id, int value) const

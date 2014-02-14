@@ -35,6 +35,7 @@
 #include "debug.H"
 
 extern PD_UI* ui;
+extern PXK* pxk;
 
 // ms to wait between name requests on init and when a WAIT is received
 unsigned char request_delay;
@@ -284,7 +285,6 @@ void Cfg::apply()
 	ui->main_window->size(option[CFG_WINDOW_WIDTH], option[CFG_WINDOW_HEIGHT]);
 }
 
-// TODO
 void Cfg::set_color(int type, int value)
 {
 	pmesg("Cfg::set_color(%d, %d)\n", type, value);
@@ -349,9 +349,9 @@ void Cfg::set_color(int type, int value)
 	Fl_Tooltip::textcolor(FL_BACKGROUND_COLOR);
 	Fl_Tooltip::color(FL_BACKGROUND2_COLOR);
 	Fl::reload_scheme();
-	// TODO update highlight buttons
-//	if (pd && pd->preset)
-//		pd->preset->update_highlight_buttons();
-//	if (pd && pd->setup)
-//		pd->setup->update_highlight_buttons();
+	// update highlight buttons
+	if (pxk && pxk->preset)
+		pxk->preset->update_highlight_buttons();
+	if (pxk && pxk->setup)
+		pxk->setup->update_highlight_buttons();
 }

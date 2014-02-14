@@ -29,7 +29,6 @@ static void load_data();
 
 PD_UI* ui;
 extern MIDI* midi;
-PD* pd = 0;
 PXK* pxk = 0;
 
 extern FilterMap FM[51];
@@ -78,6 +77,7 @@ int main(int argc, char *argv[])
 	// load some data
 	load_data();
 	// create user interface
+	Fl::lock();
 	ui = new PD_UI();
 	if (!ui)
 		return 1;
@@ -212,7 +212,7 @@ void PD_Arp_Step::edit_value(int id, int value)
 	}
 	midi->edit_parameter_value(id, value);
 	if (id != 785)
-		pd->arp->update_sequence_length_information();
+		pxk->arp->update_sequence_length_information();
 }
 
 void PD_Arp_Step::set_values(int off, int vel, int dur, int rep)
@@ -249,7 +249,7 @@ void PD_UI::edit_arp_x(int x)
 	pmesg("PD_UI::edit_arp_x(%d)\n", x);
 	if (x == 0 || x == -1) // preset arp
 	{
-		if (pd->arp && pd->arp->get_number() == ui->preset_editor->arp->value() - 1)
+		if (pxk->arp && pxk->arp->get_number() == ui->preset_editor->arp->value() - 1)
 		{
 			ui->g_arp_edit->show();
 			ui->g_main->hide();
@@ -260,7 +260,7 @@ void PD_UI::edit_arp_x(int x)
 	}
 	else if (x == 1) // master arp
 	{
-		if (pd->arp && pd->arp->get_number() == ui->main->arp->value() - 1)
+		if (pxk->arp && pxk->arp->get_number() == ui->main->arp->value() - 1)
 		{
 			ui->g_arp_edit->show();
 			ui->g_main->hide();
@@ -280,9 +280,9 @@ void PD_UI::set_eall(int v)
 	pmesg("PD_UI::set_eall(%d)\n", v);
 	if (v && !eall)
 	{
-		pd->widget_callback(269, 1); // enable edit all layers
+		pxk->widget_callback(269, 1); // enable edit all layers
 		midi->edit_parameter_value(898, -1); // select all layers
-		pd->selected_layer = 0;
+		pxk->selected_layer = 0;
 		// update UI
 		//ui->select(0);
 		m_voice2->hide();
@@ -322,7 +322,7 @@ void PD_UI::set_eall(int v)
 	}
 	if (!v && eall)
 	{
-		pd->widget_callback(269, 0);
+		pxk->widget_callback(269, 0);
 		midi->edit_parameter_value(898, 0);
 		m_voice2->show();
 		m_voice3->show();
@@ -361,7 +361,7 @@ void PD_UI::set_eall(int v)
 void PD_UI::show_copy_layer(int type, int src_layer)
 {
 	pmesg("PD_UI::show_copy_layer(%d, %d)\n", type, src_layer);
-	if (!pd->preset)
+	if (!pxk->preset)
 		return;
 	// reset buttons
 	for (int i = 0; i < layer_dst->children(); i++)
@@ -408,7 +408,7 @@ void PD_UI::show_copy_layer(int type, int src_layer)
 void PD_UI::show_copy_preset(int type)
 {
 	pmesg("PD_UI::show_copy_preset(%d)\n", type);
-	if (!pd->preset)
+	if (!pxk->preset)
 	{
 		pxk->display_status("*** Nothing to save or copy.");
 		return;

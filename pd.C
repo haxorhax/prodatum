@@ -31,7 +31,7 @@
 static bool init_complete;
 static int init_timeout;
 
-extern PD* pd;
+PD* pd;
 extern MIDI* midi;
 extern PD_UI* ui;
 extern Cfg* cfg;
@@ -108,26 +108,26 @@ PD::~PD()
  */
 static void *init_watchdog(void*)
 {
-	timeval tv_last_sleep;
-	timeval tv_sub;
-	gettimeofday(&tv_incoming, 0);
-	++tv_incoming.tv_sec;
-	while (time_incoming_midi)
-	{
-		gettimeofday(&tv_last_sleep, 0);
-		mysleep(100);
-		tv_sub.tv_sec = tv_incoming.tv_sec - tv_last_sleep.tv_sec;
-		tv_sub.tv_usec = tv_incoming.tv_usec - tv_last_sleep.tv_usec;
-		if (tv_sub.tv_usec < 0)
-		{
-			--tv_sub.tv_sec;
-			tv_sub.tv_usec += 1000000;
-		}
-		//pmesg("wd time: %d\n", tv_sub.tv_sec * 1000000 + tv_sub.tv_usec);
-		if ((tv_sub.tv_sec * 1000000 + tv_sub.tv_usec) < init_timeout)
-			time_incoming_midi = false;
-	}
-	return 0;
+//	timeval tv_last_sleep;
+//	timeval tv_sub;
+//	gettimeofday(&tv_incoming, 0);
+//	++tv_incoming.tv_sec;
+//	while (time_incoming_midi)
+//	{
+//		gettimeofday(&tv_last_sleep, 0);
+//		mysleep(100);
+//		tv_sub.tv_sec = tv_incoming.tv_sec - tv_last_sleep.tv_sec;
+//		tv_sub.tv_usec = tv_incoming.tv_usec - tv_last_sleep.tv_usec;
+//		if (tv_sub.tv_usec < 0)
+//		{
+//			--tv_sub.tv_sec;
+//			tv_sub.tv_usec += 1000000;
+//		}
+//		//pmesg("wd time: %d\n", tv_sub.tv_sec * 1000000 + tv_sub.tv_usec);
+//		if ((tv_sub.tv_sec * 1000000 + tv_sub.tv_usec) < init_timeout)
+//			time_incoming_midi = false;
+//	}
+//	return 0;
 }
 
 /**
@@ -136,36 +136,36 @@ static void *init_watchdog(void*)
  */
 static void wait_for_init(void*)
 {
-	pmesg("wait_for_init() \n");
-	static char buf[30];
-	if (init_complete && !time_incoming_midi)
-	{
-		// might have been canceled
-		if (ui->init->shown())
-		{
-			// wait a bit, might loading a setup here which
-			// makes the device ignore all requests
-			mysleep(25);
-			// load setup
-			pd->load_setup();
-			ui->init->hide();
-		}
-	}
-	else
-	{
-		// might have been canceled
-		if (ui->init->shown())
-		{
-			if (!time_incoming_midi)
-				ui->init_progress->value((float) init_progress);
-			else
-			{
-				snprintf(buf, 30, "Loading RIFF/ARP names: %d", init_progress);
-				ui->init_progress->label(buf);
-			}
-			Fl::repeat_timeout(.1, wait_for_init);
-		}
-	}
+//	pmesg("wait_for_init() \n");
+//	static char buf[30];
+//	if (init_complete && !time_incoming_midi)
+//	{
+//		// might have been canceled
+//		if (ui->init->shown())
+//		{
+//			// wait a bit, might loading a setup here which
+//			// makes the device ignore all requests
+//			mysleep(25);
+//			// load setup
+//			pd->load_setup();
+//			ui->init->hide();
+//		}
+//	}
+//	else
+//	{
+//		// might have been canceled
+//		if (ui->init->shown())
+//		{
+//			if (!time_incoming_midi)
+//				ui->init_progress->value((float) init_progress);
+//			else
+//			{
+//				snprintf(buf, 30, "Loading RIFF/ARP names: %d", init_progress);
+//				ui->init_progress->label(buf);
+//			}
+//			Fl::repeat_timeout(.1, wait_for_init);
+//		}
+//	}
 }
 
 /**
@@ -248,26 +248,26 @@ void PD::display_status(const char* message, bool top)
 
 void PD::init_arp_riff_names()
 {
-	pmesg("PD::init_arp_riff_names() \n");
-	time_incoming_midi = true;
-	init_complete = true;
-	names_to_download = 0;
-	for (int j = 1; j <= roms; j++)
-	{
-		if (member_code != 2) // AUDITY
-			names_to_download += rom[j]->load_names(RIFF, 0);
-		names_to_download += rom[j]->load_names(ARP, 0);
-	}
-	if (names_to_download)
-	{
-		ui->init_progress->value((float) names_to_download);
-		init_progress = 0;
-		// launch init watchdog
-		Fl_Thread watchdog_t;
-		fl_create_thread(watchdog_t, init_watchdog, 0);
-	}
-	else
-		time_incoming_midi = false;
+//	pmesg("PD::init_arp_riff_names() \n");
+//	time_incoming_midi = true;
+//	init_complete = true;
+//	names_to_download = 0;
+////	for (int j = 1; j <= roms; j++)
+////	{
+////		if (member_code != 2) // AUDITY
+////			names_to_download += rom[j]->load_names(RIFF, 0);
+////		names_to_download += rom[j]->load_names(ARP, 0);
+////	}
+//	if (names_to_download)
+//	{
+//		ui->init_progress->value((float) names_to_download);
+//		init_progress = 0;
+//		// launch init watchdog
+//		Fl_Thread watchdog_t;
+//		fl_create_thread(watchdog_t, init_watchdog, 0);
+//	}
+//	else
+//		time_incoming_midi = false;
 }
 
 void PD::widget_callback(int id, int value, int layer)
@@ -769,12 +769,12 @@ void PD::initialize()
 	// check for preset, instrument and arp files
 	for (j = 0; j <= roms; j++)
 	{
-		names_to_download += rom[j]->load_names(PRESET, 0);
-		if (j == 0) // rom arp quantity unknown
-			names_to_download += rom[j]->load_names(ARP, 0);
-		if (j == 0)
-			continue;
-		names_to_download += rom[j]->load_names(INSTRUMENT, 0);
+//		names_to_download += rom[j]->load_names(PRESET, 0);
+//		if (j == 0) // rom arp quantity unknown
+//			names_to_download += rom[j]->load_names(ARP, 0);
+//		if (j == 0)
+//			continue;
+//		names_to_download += rom[j]->load_names(INSTRUMENT, 0);
 	}
 	if (names_to_download)
 		ui->init_progress->label("Loading ROM data");
@@ -819,7 +819,7 @@ void PD::cancel_init()
 	}
 	names_to_download = -1;
 	init_complete = true;
-	time_incoming_midi = false;
+//	time_incoming_midi = false;
 	delete midi;
 	midi = new MIDI();
 	ui->midi_outs->label("Select...");
@@ -1201,38 +1201,38 @@ void PD::show_preset()
 
 void PD::incoming_arp_dump(const unsigned char* data, int len)
 {
-	pmesg("PD::incoming_arp_dump(data, %d)\n", len);
-	// on init we are only interested in the names
-	if (names_to_download == -1)
-		return;
-	if (time_incoming_midi) // init
-	{
-		if (data[14] < 32) // not ascii
-			return;
-		// some roms dont have arpeggios and return "(not instld)"
-		if (strncmp((const char*) data + 14, "(not", 4) == 0)
-			return;
-		int number = data[6] + 128 * data[7];
-		if (number > MAX_ARPS)
-		{
-			pmesg("PD::incoming_arp_dump(len: %d) *** returning: MAX_ARPS reached\n", len);
-			return;
-		}
-		int rom_id = data[len - 3] + 128 * data[len - 2];
-		if (rom_id_map.find(rom_id) != rom_id_map.end())
-		{
-			pmesg("PD::incoming_arp_dump(len:%d) (#:%d-%d)\n ", len, number, data[len - 3] + 128 * data[len - 2]);
-			rom[rom_id_map[rom_id]]->load_names(ARP, number + 1);
-			rom[rom_id_map[rom_id]]->set_name(ARP, number, data + 14);
-			++init_progress;
-		}
-	}
-	else // this is a dump we like to edit ")
-	{
-		delete arp;
-		arp = new Arp_Dump(len, data);
-		display_status("Arp dump loaded.");
-	}
+//	pmesg("PD::incoming_arp_dump(data, %d)\n", len);
+//	// on init we are only interested in the names
+//	if (names_to_download == -1)
+//		return;
+//	if (time_incoming_midi) // init
+//	{
+//		if (data[14] < 32) // not ascii
+//			return;
+//		// some roms dont have arpeggios and return "(not instld)"
+//		if (strncmp((const char*) data + 14, "(not", 4) == 0)
+//			return;
+//		int number = data[6] + 128 * data[7];
+//		if (number > MAX_ARPS)
+//		{
+//			pmesg("PD::incoming_arp_dump(len: %d) *** returning: MAX_ARPS reached\n", len);
+//			return;
+//		}
+//		int rom_id = data[len - 3] + 128 * data[len - 2];
+//		if (rom_id_map.find(rom_id) != rom_id_map.end())
+//		{
+//			pmesg("PD::incoming_arp_dump(len:%d) (#:%d-%d)\n ", len, number, data[len - 3] + 128 * data[len - 2]);
+//			//rom[rom_id_map[rom_id]]->load_names(ARP, number + 1);
+//			rom[rom_id_map[rom_id]]->set_name(ARP, number, data + 14);
+//			++init_progress;
+//		}
+//	}
+//	else // this is a dump we like to edit ")
+//	{
+//		delete arp;
+//		arp = new Arp_Dump(len, data);
+//		display_status("Arp dump loaded.");
+//	}
 }
 
 //void PD::incoming_pc_dump(const unsigned char* data, int len)
@@ -1302,7 +1302,8 @@ void PD::incoming_generic_name(const unsigned char* data)
 		++name_counter[rom_id][type];
 		--names_to_download;
 		if (names_to_download)
-			rom[rom_id]->load_names(type, name_counter[rom_id][type]);
+			//rom[rom_id]->load_names(type, name_counter[rom_id][type]);
+			;
 		else
 		{
 			names_to_download = load_setup_names(0, true);

@@ -17,9 +17,6 @@ decl {\#include "debug.H"} {public global
 decl {\#include "midi.H"} {public global
 } 
 
-decl {\#include "pd.H"} {public global
-} 
-
 decl {\#include "pxk.H"} {public global
 } 
 
@@ -42,8 +39,6 @@ decl {\#include <string.h>} {}
 decl {extern MIDI* midi;} {} 
 
 decl {extern PXK* pxk;} {} 
-
-decl {extern PD* pd;} {} 
 
 decl {extern Cfg* cfg;} {} 
 
@@ -785,7 +780,7 @@ widget_class PD_Layer_Strip {
   }
   Fl_Dial coarse {
     label Coarse
-    private tooltip {Coarse tune (±36 semitones)} xywh {7 23 40 40} color 7 labelsize 10 minimum -36 maximum 36 step 1
+    private tooltip {Coarse tune (ï¿½36 semitones)} xywh {7 23 40 40} color 7 labelsize 10 minimum -36 maximum 36 step 1
     class Fl_Knob
   }
   Fl_Button {} {
@@ -818,7 +813,7 @@ coarse->do_callback();
   }
   Fl_Dial fine {
     label Fine
-    private tooltip {Fine tune (±1 semitone by 1/64 semitone intervals (1.56 cents))} xywh {53 23 40 40} color 7 labelsize 10 minimum -63 maximum 63 step 1
+    private tooltip {Fine tune (ï¿½1 semitone by 1/64 semitone intervals (1.56 cents))} xywh {53 23 40 40} color 7 labelsize 10 minimum -63 maximum 63 step 1
     class Fl_Knob
   }
   Fl_Dial offset {
@@ -876,7 +871,7 @@ coarse->do_callback();
   }
   Fl_Dial bend {
     label {Bend R.}
-    private tooltip {Pitch-Bend Range: 0 to ±12 semitones or Master (-1)} xywh {52 310 40 40} color 7 labelsize 10 minimum -1 maximum 12 step 1
+    private tooltip {Pitch-Bend Range: 0 to ï¿½12 semitones or Master (-1)} xywh {52 310 40 40} color 7 labelsize 10 minimum -1 maximum 12 step 1
     class Fl_Knob
   }
   Fl_Box {} {
@@ -887,18 +882,18 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 1.19102e+006 maximum 0 step 1
+    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX selection_color 7 labelfont 1 labelsize 10 labelcolor 49 align 64 minimum 1.19102e+06 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
     label M
-    callback {pd->mute(o->value(), layer);}
+    callback {pxk->mute(o->value(), layer);}
     tooltip {Mute Voice} xywh {49 366 19 17} type Toggle down_box UP_BOX color 7 selection_color 81 labelfont 1 labelsize 10 labelcolor 49 when 1
     class Fixed_Button
   }
   Fl_Button solo_b {
     label S
-    callback {pd->solo(o->value(), layer);}
+    callback {pxk->solo(o->value(), layer);}
     tooltip {Solo Voice} xywh {76 366 19 17} type Toggle down_box UP_BOX color 7 selection_color 134 labelfont 1 labelsize 10 labelcolor 49 when 1
     class Fixed_Button
   }
@@ -1323,7 +1318,7 @@ riff_filter->do_callback();}
       }
       Fl_Button edit_arp {
         label EDIT
-        callback {if (pd->arp && pd->arp->get_number() == arp->value()-1)
+        callback {if (pxk->arp && pxk->arp->get_number() == arp->value()-1)
 {
 ui->g_arp_edit->show();
 ui->g_main->hide();
@@ -1779,7 +1774,7 @@ else // initial controller amounts
       }
       Fl_Button b_store {
         label SET
-        callback {pd->store_play_as_initial();}
+        callback {pxk->store_play_as_initial();}
         tooltip {Copy controller settings to initial controller amounts} xywh {160 257 40 17} down_box UP_BOX color 7 selection_color 15 labelsize 10 labelcolor 49 align 80 deactivate
       }
       Fl_Group {} {
@@ -1867,84 +1862,84 @@ else // initial controller amounts
         } {
           Fl_Slider {} {
             label A
-            callback {pd->cc_callback(1, (int) o->value());}
+            callback {pxk->cc_callback(1, (int) o->value());}
             xywh {10 278 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[1] = o;}
             class Slider
           }
           Fl_Slider {} {
             label B
-            callback {pd->cc_callback(2, (int) o->value());}
+            callback {pxk->cc_callback(2, (int) o->value());}
             xywh {42 278 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[2] = o;}
             class Slider
           }
           Fl_Slider {} {
             label C
-            callback {pd->cc_callback(3, (int) o->value());}
+            callback {pxk->cc_callback(3, (int) o->value());}
             xywh {74 278 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[3] = o;}
             class Slider
           }
           Fl_Slider {} {
             label D
-            callback {pd->cc_callback(4, (int) o->value());}
+            callback {pxk->cc_callback(4, (int) o->value());}
             xywh {105 278 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[4] = o;}
             class Slider
           }
           Fl_Slider {} {
             label E
-            callback {pd->cc_callback(5, (int) o->value());}
+            callback {pxk->cc_callback(5, (int) o->value());}
             xywh {137 278 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[5] = o;}
             class Slider
           }
           Fl_Slider {} {
             label F
-            callback {pd->cc_callback(6, (int) o->value());}
+            callback {pxk->cc_callback(6, (int) o->value());}
             xywh {169 278 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[6] = o;}
             class Slider
           }
           Fl_Slider {} {
             label G
-            callback {pd->cc_callback(7, (int) o->value());}
+            callback {pxk->cc_callback(7, (int) o->value());}
             xywh {10 421 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[7] = o;}
             class Slider
           }
           Fl_Slider {} {
             label H
-            callback {pd->cc_callback(8, (int) o->value());}
+            callback {pxk->cc_callback(8, (int) o->value());}
             xywh {42 421 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[8] = o;}
             class Slider
           }
           Fl_Slider {} {
             label I
-            callback {pd->cc_callback(9, (int) o->value());}
+            callback {pxk->cc_callback(9, (int) o->value());}
             xywh {74 421 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[9] = o;}
             class Slider
           }
           Fl_Slider {} {
             label J
-            callback {pd->cc_callback(10, (int) o->value());}
+            callback {pxk->cc_callback(10, (int) o->value());}
             xywh {105 421 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[10] = o;}
             class Slider
           }
           Fl_Slider {} {
             label K
-            callback {pd->cc_callback(11, (int) o->value());}
+            callback {pxk->cc_callback(11, (int) o->value());}
             xywh {137 421 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[11] = o;}
             class Slider
           }
           Fl_Slider {} {
             label L
-            callback {pd->cc_callback(12, (int) o->value());}
+            callback {pxk->cc_callback(12, (int) o->value());}
             xywh {169 421 25 141} box THIN_DOWN_BOX labelfont 1 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[12] = o;}
             class Slider
@@ -2292,7 +2287,7 @@ else // initial controller amounts
         }
         Fl_Button edit_arp {
           label EDIT
-          callback {if (pd->arp && pd->arp->get_number() == arp->value()-1)
+          callback {if (pxk->arp && pxk->arp->get_number() == arp->value()-1)
 {
 ui->g_arp_edit->show();
 ui->g_main->hide();
@@ -2377,7 +2372,7 @@ riff_filter->do_callback();}
         } {}
         Fl_Choice {} {
           label {Ctrl Up} open
-          tooltip {Allows a MIDI controller to change the Master Tempo. You can assign any controller number from 1-31, mono key pressure, or the pitch wheel to change the Global Tempo. MIDI Controller values are added to the Base Tempo with a range of ±64. When the controller is set to "Off" the tempo returns to its original setting. This control has no effect when using an external clock} xywh {490 366 60 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
+          tooltip {Allows a MIDI controller to change the Master Tempo. You can assign any controller number from 1-31, mono key pressure, or the pitch wheel to change the Global Tempo. MIDI Controller values are added to the Base Tempo with a range of ï¿½64. When the controller is set to "Off" the tempo returns to its original setting. This control has no effect when using an external clock} xywh {490 366 60 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
           code0 {o->set_id(402);}
           code1 {o->add("Off");o->add("MNP");o->add("PW");}
           code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("17");o->add("18");o->add("19");o->add("20");o->add("21");o->add("22");o->add("23");o->add("24");o->add("25");o->add("26");o->add("27");o->add("28");o->add("29");o->add("30");o->add("31");}
@@ -2385,7 +2380,7 @@ riff_filter->do_callback();}
         } {}
         Fl_Choice {} {
           label {Ctrl Down} open
-          tooltip {Allows a MIDI controller to change the Master Tempo. You can assign any controller number from 1-31, mono key pressure, or the pitch wheel to change the Global Tempo. MIDI Controller values are added to the Base Tempo with a range of ±64. When the controller is set to "Off" the tempo returns to its original setting. This control has no effect when using an external clock} xywh {555 366 60 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
+          tooltip {Allows a MIDI controller to change the Master Tempo. You can assign any controller number from 1-31, mono key pressure, or the pitch wheel to change the Global Tempo. MIDI Controller values are added to the Base Tempo with a range of ï¿½64. When the controller is set to "Off" the tempo returns to its original setting. This control has no effect when using an external clock} xywh {555 366 60 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 5 textsize 13
           code0 {o->set_id(403);}
           code1 {o->add("Off");o->add("MNP");o->add("PW");}
           code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("17");o->add("18");o->add("19");o->add("20");o->add("21");o->add("22");o->add("23");o->add("24");o->add("25");o->add("26");o->add("27");o->add("28");o->add("29");o->add("30");o->add("31");}
@@ -2473,19 +2468,19 @@ riff_filter->do_callback();}
       }
       Fl_Dial {} {
         label {Transp.}
-        tooltip {Master Transpose. Transposes the key of all presets, in semitone intervals. The transpose range is ± 24 semitones} xywh {688 510 40 40} color 7 selection_color 39 labelsize 10 minimum -24 maximum 24 step 1
+        tooltip {Master Transpose. Transposes the key of all presets, in semitone intervals. The transpose range is ï¿½ 24 semitones} xywh {688 510 40 40} color 7 selection_color 39 labelsize 10 minimum -24 maximum 24 step 1
         code0 {o->set_id(259);}
         class Fl_Knob
       }
       Fl_Dial {} {
         label Tune
-        tooltip {Master Tune (cents). Adjusts the fine tuning of all presets so that you can tune your device to other instruments. The master tuning range is ± 1 semitone in 1/64th semitone increments} xywh {737 510 40 40} color 7 selection_color 39 labelsize 10 minimum -63 maximum 63 step 1
+        tooltip {Master Tune (cents). Adjusts the fine tuning of all presets so that you can tune your device to other instruments. The master tuning range is ï¿½ 1 semitone in 1/64th semitone increments} xywh {737 510 40 40} color 7 selection_color 39 labelsize 10 minimum -63 maximum 63 step 1
         code0 {o->set_id(260);}
         class Fl_Knob
       }
       Fl_Dial {} {
         label {Bend R.}
-        tooltip {Bend Range. Sets the range of the pitch wheel. This affects only presets that have their individual Pitch Bend range set to Master. The maximum pitch bend range is ±12 semitones or one octave in each direction} xywh {786 510 40 40} color 7 selection_color 39 labelsize 10 maximum 12 step 1 value 2
+        tooltip {Bend Range. Sets the range of the pitch wheel. This affects only presets that have their individual Pitch Bend range set to Master. The maximum pitch bend range is ï¿½12 semitones or one octave in each direction} xywh {786 510 40 40} color 7 selection_color 39 labelsize 10 maximum 12 step 1 value 2
         code0 {o->set_id(264);}
         class Fl_Knob
       }
@@ -2570,7 +2565,7 @@ delete this;} open
 				"x all other characters must be matched exactly.\\n"
 				"NOTE: Your query is automatically expanded to '*query*' to mimic prodatum's original filter behaviour.");} {}
     Fl_Window main_window {
-      callback {/*if (pd->preset && pd->preset->is_changed())
+      callback {/*if (pxk->preset && pxk->preset->is_changed())
 {
 	if (dismiss(true) == 1)
 		delete this;
@@ -2601,8 +2596,8 @@ delete this;}
         }
         Fl_Input n_cat_m {
           label {:}
-          callback {if (pd->preset)
-pd->preset->set_name(o->value(), 0, o->position());}
+          callback {if (pxk->preset)
+pxk->preset->set_name(o->value(), 0, o->position());}
           tooltip {Program category (3 characters max.)} xywh {716 1 27 19} box FLAT_BOX labelfont 5 labelsize 12 labelcolor 49 when 1 textfont 5 textsize 12 textcolor 49
           code0 {o->maximum_size(3);}
           code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
@@ -2611,8 +2606,8 @@ pd->preset->set_name(o->value(), 0, o->position());}
         }
         Fl_Input n_name_m {
           label {:}
-          callback {if (pd->preset)
-pd->preset->set_name(o->value(), 1, o->position());}
+          callback {if (pxk->preset)
+pxk->preset->set_name(o->value(), 1, o->position());}
           tooltip {Program name (12 characters max.) [CTRL+N to focus]} xywh {752 1 90 19} box FLAT_BOX labelfont 5 labelsize 12 labelcolor 49 when 1 textfont 5 textsize 12 textcolor 49
           code0 {o->maximum_size(12);}
           code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
@@ -2651,20 +2646,20 @@ open_device->show();}
             }
             MenuItem {} {
               label {Save (quick)}
-              callback {if (pd->preset)
-pd->preset->copy(SAVE_PRESET, -1, pd->selected_preset);
+              callback {if (pxk->preset)
+pxk->preset->copy(SAVE_PRESET, -1, pxk->selected_preset);
 else
 pxk->display_status("*** Nothing to save.");}
               tooltip {Save the edit buffer to the current selected preset slot} xywh {5 5 36 21} shortcut 0x50073 labelsize 12
             }
             MenuItem {} {
               label Export
-              callback {if (!pd->preset)
+              callback {if (!pxk->preset)
 {
 	pxk->display_status("*** Nothing to export.");
 	return;
 }
-pd->preset->save_file();}
+pxk->preset->save_file();}
               tooltip {Saves the edit buffer to a file into the export directory (the preset name is used as file name)} xywh {5 5 29 19} shortcut 0x40078 labelsize 12
             }
             MenuItem {} {
@@ -2684,19 +2679,19 @@ pd->preset->save_file();}
           } {
             MenuItem {} {
               label Undo
-              callback {if (pd->preset) pd->preset->undo();
+              callback {if (pxk->preset) pxk->preset->undo();
 else pxk->display_status("*** Nothing to Undo.");}
               xywh {5 5 36 21} shortcut 0x4007a labelsize 12
             }
             MenuItem {} {
               label Redo
-              callback {if (pd->preset) pd->preset->redo();
+              callback {if (pxk->preset) pxk->preset->redo();
 else pxk->display_status("*** Nothing to Redo.");}
               xywh {15 15 36 21} shortcut 0x5007a labelsize 12
             }
             MenuItem {} {
               label {Start Over}
-              callback {pd->start_over();}
+              callback {pxk->start_over();}
               tooltip {Clear the edit buffer, start from the beginning} xywh {15 15 36 21} shortcut 0x40075 labelsize 12
             }
             MenuItem {} {
@@ -2706,7 +2701,7 @@ else pxk->display_status("*** Nothing to Redo.");}
             }
             MenuItem rand_m {
               label {&Randomize}
-              callback {pd->randomize();}
+              callback {pxk->randomize();}
               xywh {5 5 36 21} shortcut 0x40072 labelsize 12
             }
             MenuItem m_audit {
@@ -2728,9 +2723,9 @@ pxk->display_status("Audit: OFF");
             MenuItem m_eall {
               label {&Edit All}
               callback {eall ? set_eall(0) : set_eall(1);
-if (!eall && pd->preset)
+if (!eall && pxk->preset)
 {
-	pd->preset->show();
+	pxk->preset->show();
 	if (piano_w->shown())
 		piano->redraw();
 }}
@@ -3018,56 +3013,56 @@ if (((Fl_Button*) o->array()[i])->value())
           }
           Fl_Button {} {
             label M
-            callback {pd->mute(o->value(), 0);}
+            callback {pxk->mute(o->value(), 0);}
             tooltip {Mute Voice} xywh {213 26 19 17} type Toggle down_box UP_BOX shortcut 0x40031 color 7 selection_color 81 labelfont 1 labelsize 10 labelcolor 49 when 1
             code0 {mute_b[0] = o;}
             class Fixed_Button
           }
           Fl_Button {} {
             label S
-            callback {pd->solo(o->value(), 0);}
+            callback {pxk->solo(o->value(), 0);}
             tooltip {Solo Voice} xywh {294 26 19 17} type Toggle down_box UP_BOX shortcut 0x80031 color 7 selection_color 134 labelfont 1 labelsize 10 labelcolor 49 when 1
             code0 {solo_b[0] = o;}
             class Fixed_Button
           }
           Fl_Button {} {
             label M
-            callback {pd->mute(o->value(), 1);}
+            callback {pxk->mute(o->value(), 1);}
             tooltip {Mute Voice} xywh {319 26 19 17} type Toggle down_box UP_BOX shortcut 0x40032 color 7 selection_color 81 labelfont 1 labelsize 10 labelcolor 49 when 1
             code0 {mute_b[1] = o;}
             class Fixed_Button
           }
           Fl_Button {} {
             label S
-            callback {pd->solo(o->value(), 1);}
+            callback {pxk->solo(o->value(), 1);}
             tooltip {Solo Voice} xywh {400 26 19 17} type Toggle down_box UP_BOX shortcut 0x80032 color 7 selection_color 134 labelfont 1 labelsize 10 labelcolor 49 when 1
             code0 {solo_b[1] = o;}
             class Fixed_Button
           }
           Fl_Button {} {
             label M
-            callback {pd->mute(o->value(), 2);}
+            callback {pxk->mute(o->value(), 2);}
             tooltip {Mute Voice} xywh {425 26 19 17} type Toggle down_box UP_BOX shortcut 0x40033 color 7 selection_color 81 labelfont 1 labelsize 10 labelcolor 49 when 1
             code0 {mute_b[2] = o;}
             class Fixed_Button
           }
           Fl_Button {} {
             label S
-            callback {pd->solo(o->value(), 2);}
+            callback {pxk->solo(o->value(), 2);}
             tooltip {Solo Voice} xywh {506 26 19 17} type Toggle down_box UP_BOX shortcut 0x80033 color 7 selection_color 134 labelfont 1 labelsize 10 labelcolor 49 when 1
             code0 {solo_b[2] = o;}
             class Fixed_Button
           }
           Fl_Button {} {
             label M
-            callback {pd->mute(o->value(), 3);}
+            callback {pxk->mute(o->value(), 3);}
             tooltip {Mute Voice} xywh {531 26 19 17} type Toggle down_box UP_BOX shortcut 0x40034 color 7 selection_color 81 labelfont 1 labelsize 10 labelcolor 49 when 1
             code0 {mute_b[3] = o;}
             class Fixed_Button
           }
           Fl_Button {} {
             label S
-            callback {pd->solo(o->value(), 3);}
+            callback {pxk->solo(o->value(), 3);}
             tooltip {Solo Voice} xywh {612 26 19 17} type Toggle down_box UP_BOX shortcut 0x80034 color 7 selection_color 134 labelfont 1 labelsize 10 labelcolor 49 when 1
             code0 {solo_b[3] = o;}
             class Fixed_Button
@@ -3189,12 +3184,12 @@ else
           }
           Fl_Button undo_b {
             label {@<-}
-            callback {if (pd->preset) pd->preset->undo();}
+            callback {if (pxk->preset) pxk->preset->undo();}
             tooltip {Undo program parameter change} xywh {642 91 28 28} color 7 selection_color 78 labelfont 4 labelsize 18 labelcolor 49 deactivate
           }
           Fl_Button redo_b {
             label {@->}
-            callback {if (pd->preset) pd->preset->redo();}
+            callback {if (pxk->preset) pxk->preset->redo();}
             tooltip {Redo program parameter change} xywh {672 91 28 28} color 7 selection_color 78 labelfont 4 labelsize 18 labelcolor 49 deactivate
           }
           Fl_Value_Input value_input {
@@ -3219,10 +3214,10 @@ cfg->set_cfg_option(CFG_DRLS, 0);
           Fl_Button b_eall {
             label {&Eall}
             callback {set_eall(o->value());
-if (!o->value() && pd->preset)
-if (!eall && pd->preset)
+if (!o->value() && pxk->preset)
+if (!eall && pxk->preset)
 {
-	pd->preset->show();
+	pxk->preset->show();
 	if (piano_w->shown())
 			piano->redraw();
 }}
@@ -3369,7 +3364,7 @@ if (o->value())
 if (b_save_p->value())
 	b_save_p->value(0);
 // load user list and deactivate rom choice
-if (pd->selected_preset_rom != 0)
+if (pxk->selected_preset_rom != 0)
 	preset_rom->set_value(0);
 preset_rom->deactivate();
 g_program->label("TARGET");
@@ -3385,9 +3380,9 @@ Fl::focus(preset);
 }
 else
 {
-preset_rom->set_value(pd->selected_preset_rom);
+preset_rom->set_value(pxk->selected_preset_rom);
 preset_rom->activate();
-preset->select(pd->selected_preset + 1);
+preset->select(pxk->selected_preset + 1);
 preset_filter->value(filter_tmp);
 preset_filter->do_callback();
 delete filter_tmp;
@@ -3406,7 +3401,7 @@ if (b_copy_p->value())
 	b_copy_p->value(0);
 pxk->display_status("Hint: Give me a name over there --->");
 // load user list and deactivate rom choice
-if (pd->selected_preset_rom != 0)
+if (pxk->selected_preset_rom != 0)
 	preset_rom->set_value(0);
 preset_rom->deactivate();
 g_program->label("TARGET");
@@ -3422,9 +3417,9 @@ Fl::focus(preset);
 }
 else
 {
-preset_rom->set_value(pd->selected_preset_rom);
+preset_rom->set_value(pxk->selected_preset_rom);
 preset_rom->activate();
-preset->select(pd->selected_preset + 1);
+preset->select(pxk->selected_preset + 1);
 preset_filter->value(filter_tmp);
 preset_filter->do_callback();
 delete filter_tmp;
@@ -3486,7 +3481,7 @@ midi->request_setup_dump();}
           Fl_Button do_save {
             label {Save @returnarrow}
             callback {o->deactivate();
-pd->save_setup(multisetups->value() - 1, s_name->value());}
+pxk->save_setup(multisetups->value() - 1, s_name->value());}
             tooltip {Save MultiSetup} xywh {649 424 60 20} box THIN_UP_BOX shortcut 0xff0d selection_color 15 labelsize 12
           }
           Fl_Button {} {
@@ -3669,7 +3664,7 @@ pd->save_setup(multisetups->value() - 1, s_name->value());}
         }
         Fl_Button {} {
           label {Close @returnarrow}
-          callback {if (arp_name_changed && pd->arp) pd->arp->rename(arp_name->value());
+          callback {if (arp_name_changed && pxk->arp) pxk->arp->rename(arp_name->value());
 arp_name_changed = false;
 g_main->show();
 g_arp_edit->hide();
@@ -3678,7 +3673,7 @@ Fl::focus(g_main);}
         }
         Fl_Button {} {
           label Reset
-          callback {if (pd->arp) pd->arp->reset_pattern();
+          callback {if (pxk->arp) pxk->arp->reset_pattern();
 arp_name_changed = false;}
           tooltip {Undo all changes} xywh {781 584 51 20} box THIN_UP_BOX selection_color 15 labelsize 12
         }
@@ -3734,7 +3729,7 @@ arp_name_changed = false;}
     }
     Fl_Window init {
       label Initializing
-      callback {;}
+      callback {;} open
       xywh {403 206 290 145} type Double box BORDER_BOX hide modal
     } {
       Fl_Box {} {
@@ -3754,16 +3749,12 @@ arp_name_changed = false;}
       }
       Fl_Button {} {
         label Cancel
-        callback {init_progress->value(0.);
-init_progress->label("Waiting for MIDI queue to exit...");
-init_progress->redraw();
-pd->cancel_init();}
         xywh {220 117 60 20} box THIN_UP_BOX selection_color 15 labelsize 12
       }
     }
     Fl_Window open_device {
       label {Open Device} open
-      xywh {222 465 300 410} type Double box BORDER_BOX labelcolor 15 hide modal
+      xywh {423 513 300 410} type Double box BORDER_BOX labelcolor 15 hide modal
     } {
       Fl_Box {} {
         label {Open Device}
@@ -3859,12 +3850,16 @@ midi->request_device_inquiry(127);}
       }
       Fl_Button {} {
         label Update
-        callback {//connect->deactivate();
-//device_info->label(0);
-//midi->request_device_inquiry(device_id->value());
-delete pxk;
-pxk = new PXK("cfg2.txt", 1);}
+        callback {connect->deactivate();
+device_info->label(0);
+midi->request_device_inquiry(device_id->value());}
         tooltip {Request device information.} xywh {15 265 55 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49 align 20
+      }
+      Fl_Button {} {
+        label {New PXK}
+        callback {delete pxk;
+pxk = new PXK("cfg2.txt", 1);}
+        xywh {15 375 55 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49 align 20
       }
       Fl_Box {} {
         label {Device Info}
@@ -3886,19 +3881,21 @@ pxk = new PXK("cfg2.txt", 1);}
       }
       Fl_Button b_rescan {
         label {Populate Ports}
-        callback {pxk->PopulatePorts();}
+        callback {connect->deactivate();
+pxk->PopulatePorts();}
         tooltip {Populate (newly) available MIDI ports.} xywh {75 155 90 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 labelcolor 49 align 20
       }
       Fl_Button connect {
         label {Open @returnarrow}
-        callback {if (pxk->Synchronize())
+        callback {o->deactivate();
+if (pxk->Synchronize())
 {
 open_device->hide();
 cfg->set_cfg_option(CFG_MIDI_OUT, midi_outs->value());
 cfg->set_cfg_option(CFG_MIDI_IN, midi_ins->value());
 cfg->set_cfg_option(CFG_DEVICE_ID, device_id->value());
-}} selected
-        xywh {140 375 70 25} box THIN_UP_BOX shortcut 0xff0d selection_color 15 labelsize 12 align 20
+}}
+        xywh {140 375 70 25} box THIN_UP_BOX shortcut 0xff0d selection_color 15 labelsize 12 align 20 deactivate
       }
       Fl_Button {} {
         label Close
@@ -4083,7 +4080,7 @@ if (((Fl_Button*) o->array()[i])->value())
         callback {int val = 0;
 if (o->value())
 val = 127;
-pd->cc_callback(13, val);}
+pxk->cc_callback(13, val);}
         xywh {609 4 69 20} type Toggle down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15 align 20 when 6
         code0 {main->ctrl_x[13] = o;}
       }
@@ -4092,7 +4089,7 @@ pd->cc_callback(13, val);}
         callback {int val = 0;
 if (o->value())
 val = 127;
-pd->cc_callback(14, val);}
+pxk->cc_callback(14, val);}
         xywh {679 4 69 20} type Toggle down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15 align 20 when 6
         code0 {main->ctrl_x[14] = o;}
       }
@@ -4101,7 +4098,7 @@ pd->cc_callback(14, val);}
         callback {int val = 0;
 if (o->value())
 val = 127;
-pd->cc_callback(15, val);}
+pxk->cc_callback(15, val);}
         xywh {749 4 69 20} type Toggle down_box UP_BOX selection_color 15 labelsize 10 labelcolor 15 align 20 when 6
         code0 {main->ctrl_x[15] = o;}
       }
@@ -4223,7 +4220,7 @@ if (((Fl_Button*) o->array()[i])->value())
         xywh {85 10 180 40} labelfont 1 labelsize 18 align 144
       }
       Fl_Box {} {
-        label {Copyright © Jan Eidtmann
+        label {Copyright ï¿½ Jan Eidtmann
 2008-2011}
         xywh {85 55 180 40} labelsize 12 align 144
       }
@@ -4246,7 +4243,7 @@ if (((Fl_Button*) o->array()[i])->value())
           callback {if (Fl::event_clicks())
 {
 Fl::event_clicks(0);
-pd->preset->copy(copy_type, copy_src, 0);
+pxk->preset->copy(copy_type, copy_src, 0);
 if (Fl::event_state(FL_SHIFT))
 copy_layer->hide();
 else
@@ -4259,7 +4256,7 @@ o->deactivate();
           callback {if (Fl::event_clicks())
 {
 Fl::event_clicks(0);
-pd->preset->copy(copy_type, copy_src, 1);
+pxk->preset->copy(copy_type, copy_src, 1);
 if (Fl::event_state(FL_SHIFT))
 copy_layer->hide();
 else
@@ -4272,7 +4269,7 @@ o->deactivate();
           callback {if (Fl::event_clicks())
 {
 Fl::event_clicks(0);
-pd->preset->copy(copy_type, copy_src, 2);
+pxk->preset->copy(copy_type, copy_src, 2);
 if (Fl::event_state(FL_SHIFT))
 copy_layer->hide();
 else
@@ -4285,7 +4282,7 @@ o->deactivate();
           callback {if (Fl::event_clicks())
 {
 Fl::event_clicks(0);
-pd->preset->copy(copy_type, copy_src, 3);
+pxk->preset->copy(copy_type, copy_src, 3);
 if (Fl::event_state(FL_SHIFT))
 copy_layer->hide();
 else
@@ -4464,7 +4461,7 @@ if (r_rom->value())
 if (r_rom_all->value())
 	romdata = 1;
 else
-	romdata = pd->rom[r_rom_rom->value() + 1]->get_attribute(ID);
+	romdata = pxk->rom[r_rom_rom->value() + 1]->get_attribute(ID);
 }
 reset(userdata, romdata);}
         tooltip {Delete chosen data and show the Open Device dialog when finished.} xywh {125 140 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20

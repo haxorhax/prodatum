@@ -77,6 +77,8 @@ public:
 	 * @param in the MIDI port to open
 	 */
 	int connect_in(int in);
+	void filter_loose() const;
+	void filter_strict() const;
 	/**
 	 * opens readable MIDI controller port, starts MIDI timer if not running yet.
 	 * @param thru the MIDI port to open

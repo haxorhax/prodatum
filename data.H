@@ -318,12 +318,7 @@ class ROM
 	unsigned char* arp_names;
 	/// storage pointer to the array of riff names
 	unsigned char* riff_names;
-	/**
-	 * load a name file from disk.
-	 * @param type of name file (PRESET; INSTRUMENT,..)
-	 * @returns number of names to request if load fails, otherwise 0
-	 */
-	int disk_load_names(int type);
+
 
 public:
 	/**
@@ -342,10 +337,15 @@ public:
 	/**
 	 * loads name files or triggers name request commands if loading fails
 	 * @param type of name file (PRESET; INSTRUMENT,..)
-	 * @param number number of name to request
-	 * @returns the number of names to request, or 0
+	 * @param number index number of name to request
 	 */
-	int load_names(int type, int number);
+	void load_name(unsigned char type, int number);
+	/**
+	 * load a name file from disk.
+	 * @param type of name file (PRESET; INSTRUMENT,..)
+	 * @returns number of available names
+	 */
+	int disk_load_names(unsigned char type);
 	/**
 	 * set the name of type X with number Z to name Y
 	 * @param type of name (PRESET; INSTRUMENT,..)

@@ -22,7 +22,7 @@
 #include <string.h>
 
 #include "ui.H"
-#include "pd.H"
+#include "pxk.H"
 #include "midi.H"
 #include "cfg.H"
 
@@ -41,7 +41,7 @@ FilterMap FM[51];
 const char* rates[25];
 
 extern PD_UI* ui;
-extern PD* pd;
+extern PXK* pxk;
 extern Cfg* cfg;
 extern MIDI* midi;
 extern std::map<int, int> rom_id_map;
@@ -50,7 +50,7 @@ extern unsigned char colors[5];
 /// show warning when we are about to erase an edited edit buffer
 int dismiss(bool exit)
 {
-	if (!pd->preset || !pd->preset->is_changed() || !ui->confirm_dismiss->value())
+	if (!pxk->preset || !pxk->preset->is_changed() || !ui->confirm_dismiss->value())
 		return 1; // dismiss
 	int answer;
 	if (exit)
@@ -75,15 +75,15 @@ void PWid::cb(PWid*, void* p)
 		// reset to previous value and return
 		if (((int*) p)[0] == 129)
 		{
-			pwid[129][0]->set_value(pd->selected_channel);
+			pwid[129][0]->set_value(pxk->selected_channel);
 			ui->main->channel_select->activate();
 			ui->value_input->activate();
 		}
 		else if (((int*) p)[0] == 138)
-			pwid[138][0]->set_value(pd->setup->get_value(138, pd->selected_channel));
+			pwid[138][0]->set_value(pxk->setup->get_value(138, pxk->selected_channel));
 		else if (((int*) p)[0] == 897)
 		{
-			pwid[897][0]->set_value(pd->setup->get_value(130, pd->selected_channel));
+			pwid[897][0]->set_value(pxk->setup->get_value(130, pxk->selected_channel));
 			ui->g_preset->activate();
 			ui->value_input->activate();
 		}
@@ -115,7 +115,7 @@ void PWid::cb(PWid*, void* p)
 		ui->forma_out->set_value(layer_id[0], layer_id[1], value);
 		if (layer_id[0] == 897 && (ui->b_save_p->value() || ui->b_copy_p->value())) // saving in the preset browser
 			return;
-		pd->widget_callback(layer_id[0], value, layer_id[1]);
+		pxk->widget_callback(layer_id[0], value, layer_id[1]);
 	}
 	else
 	{
@@ -136,7 +136,7 @@ void PWid::cb(PWid*, void* p)
 		ui->forma_out->set_value(((int*) p)[0], ((int*) p)[1], value);
 		if (((int*) p)[0] == 897 && (ui->b_save_p->value() || ui->b_copy_p->value())) // saving in the preset browser
 			return;
-		pd->widget_callback(((int*) p)[0], value, ((int*) p)[1]);
+		pxk->widget_callback(((int*) p)[0], value, ((int*) p)[1]);
 	}
 }
 
@@ -218,7 +218,7 @@ int DND_Box::handle(int ev)
 }
 void DND_Box::dnd()
 {
-	pd->load_export(evt_txt);
+	pxk->load_export(evt_txt);
 }
 
 // ###################
@@ -297,7 +297,7 @@ void Browser::set_value(int v)
 		}
 		else if (v >= 0)
 		{
-			Fl::wait();
+			Fl::wait(.1);
 			value(v + 1);
 		}
 		else
@@ -319,10 +319,10 @@ void Browser::set_value(int v)
 
 void Browser::load_n(int type, int rom_id, int preset)
 {
-	pmesg("Browser::load_n(%d, %d, %d) (id:%d layer:%d)\n", type, rom_id, preset, id_layer[0], id_layer[1]);
+	//pmesg("Browser::load_n(%d, %d, %d) (id:%d layer:%d)\n", type, rom_id, preset, id_layer[0], id_layer[1]);
 	if (rom_id_map.find(rom_id) == rom_id_map.end())
 		return;
-	if (!pd->rom[rom_id_map[rom_id]])
+	if (!pxk->rom[rom_id_map[rom_id]])
 		return;
 	int val = value();
 	// only load a new list if its different from the loaded one
@@ -333,8 +333,8 @@ void Browser::load_n(int type, int rom_id, int preset)
 		// load a new list
 		if (preset == -1)
 		{
-			int number = pd->rom[rom_id_map[rom_id]]->get_attribute(type);
-			const unsigned char* names = pd->rom[rom_id_map[rom_id]]->get_name(type, 0);
+			int number = pxk->rom[rom_id_map[rom_id]]->get_attribute(type);
+			const unsigned char* names = pxk->rom[rom_id_map[rom_id]]->get_name(type, 0);
 			clear();
 			if (id_layer[0] == 1409) // instruments
 			{
@@ -363,7 +363,7 @@ void Browser::load_n(int type, int rom_id, int preset)
 		// replace single item
 		else
 		{
-			snprintf(name, 21, "%03d %s", preset, pd->rom[rom_id_map[rom_id]]->get_name(type, preset));
+			snprintf(name, 21, "%03d %s", preset, pxk->rom[rom_id_map[rom_id]]->get_name(type, preset));
 			if (id_layer[0] == 1281 || id_layer[0] == 1290) // preset links
 				text(preset + 2, name);
 			else
@@ -444,7 +444,7 @@ int Browser::handle(int ev)
 		case FL_MOVE: // sent to Fl::belowmouse()
 			return 1;
 		case FL_PUSH: // 1 = receive FL_DRAG and the matching (Fl::event_button()) FL_RELEASE event (becomes Fl::pushed())
-			if (ev == Fl::event_clicks() && pd->preset) // double click
+			if (ev == Fl::event_clicks() && pxk->preset) // double click
 			{
 				Fl::event_clicks(0);
 				if (id_layer[0] == 643 && ui->main->arp_rom->value() == 0) //master arp browser
@@ -462,7 +462,7 @@ int Browser::handle(int ev)
 				{
 					if (ui->b_save_p->value())
 					{
-						pd->preset->copy(SAVE_PRESET, -1, value() - 1);
+						pxk->preset->copy(SAVE_PRESET, -1, value() - 1);
 						if (Fl::event_state(FL_SHIFT))
 						{
 							ui->b_save_p->clear();
@@ -472,7 +472,7 @@ int Browser::handle(int ev)
 					}
 					else if (ui->b_copy_p->value())
 					{
-						pd->preset->copy(C_PRESET, -1, value() - 1);
+						pxk->preset->copy(C_PRESET, -1, value() - 1);
 						if (Fl::event_state(FL_SHIFT))
 						{
 							ui->b_copy_p->clear();
@@ -483,7 +483,7 @@ int Browser::handle(int ev)
 				}
 				if (id_layer[0] >= 0x20 && id_layer[0] <= 0x2d) // copy browsers
 				{
-					pd->preset->copy(id_layer[0], -1, value() - 1); // check enum in pd.H for id meaning
+					pxk->preset->copy(id_layer[0], -1, value() - 1); // check enum in pxk.H for id meaning
 					if (Fl::event_state(FL_SHIFT))
 						ui->copy_preset->hide();
 					return 1;
@@ -494,63 +494,63 @@ int Browser::handle(int ev)
 			break;
 		case FL_RELEASE:
 			// right-click "undo"
-			if (FL_RIGHT_MOUSE == Fl::event_button() && pd->setup_copy && pd->preset_copy)
+			if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->setup_copy && pxk->preset_copy)
 			{
 				if (id_layer[0] == 897) // preset
 				{
 					// select preset in browser
-					select(pd->setup_copy->get_value(130, pd->selected_channel) + 1);
+					select(pxk->setup_copy->get_value(130, pxk->selected_channel) + 1);
 					// set rom (will also trigger the browser callback)
-					pwid[138][0]->set_value(pd->setup_copy->get_value(138, pd->selected_channel));
+					pwid[138][0]->set_value(pxk->setup_copy->get_value(138, pxk->selected_channel));
 					ui->preset_rom->do_callback();
 				}
 				else if (id_layer[0] == 928) // preset riff
 				{
-					pwid[929][0]->set_value(pd->preset_copy->get_value(929));
+					pwid[929][0]->set_value(pxk->preset_copy->get_value(929));
 					ui->preset_editor->riff_rom->do_callback();
-					set_value(pd->preset_copy->get_value(id_layer[0]));
+					set_value(pxk->preset_copy->get_value(id_layer[0]));
 					do_callback();
 				}
 				else if (id_layer[0] == 1409) // instrument
 				{
-					pwid[1439][id_layer[1]]->set_value(pd->preset_copy->get_value(1439, id_layer[1]));
+					pwid[1439][id_layer[1]]->set_value(pxk->preset_copy->get_value(1439, id_layer[1]));
 					ui->layer_editor[id_layer[1]]->instrument_rom->do_callback();
-					set_value(pd->preset_copy->get_value(id_layer[0], id_layer[1]));
+					set_value(pxk->preset_copy->get_value(id_layer[0], id_layer[1]));
 					do_callback();
 				}
 				else if (id_layer[0] == 278) // master riff
 				{
-					pwid[277][0]->set_value(pd->setup_copy->get_value(277));
+					pwid[277][0]->set_value(pxk->setup_copy->get_value(277));
 					ui->main->riff_rom->do_callback();
-					set_value(pd->setup_copy->get_value(id_layer[0]));
+					set_value(pxk->setup_copy->get_value(id_layer[0]));
 					do_callback();
 				}
 				else if (id_layer[0] == 1027) // preset arp
 				{
-					pwid[1042][0]->set_value(pd->preset_copy->get_value(1042));
+					pwid[1042][0]->set_value(pxk->preset_copy->get_value(1042));
 					ui->preset_editor->arp_rom->do_callback();
-					set_value(pd->preset_copy->get_value(id_layer[0]));
+					set_value(pxk->preset_copy->get_value(id_layer[0]));
 					do_callback();
 				}
 				else if (id_layer[0] == 1281) // link1
 				{
-					pwid[1299][0]->set_value(pd->preset_copy->get_value(1299));
+					pwid[1299][0]->set_value(pxk->preset_copy->get_value(1299));
 					ui->preset_editor->l1_rom->do_callback();
-					set_value(pd->preset_copy->get_value(id_layer[0]));
+					set_value(pxk->preset_copy->get_value(id_layer[0]));
 					do_callback();
 				}
 				else if (id_layer[0] == 1290) // link2
 				{
-					pwid[1300][0]->set_value(pd->preset_copy->get_value(1300));
+					pwid[1300][0]->set_value(pxk->preset_copy->get_value(1300));
 					ui->preset_editor->l2_rom->do_callback();
-					set_value(pd->preset_copy->get_value(id_layer[0]));
+					set_value(pxk->preset_copy->get_value(id_layer[0]));
 					do_callback();
 				}
 				else if (id_layer[0] == 643) // master arp
 				{
-					pwid[660][0]->set_value(pd->setup_copy->get_value(660));
+					pwid[660][0]->set_value(pxk->setup_copy->get_value(660));
 					ui->main->arp_rom->do_callback();
-					set_value(pd->setup_copy->get_value(id_layer[0]));
+					set_value(pxk->setup_copy->get_value(id_layer[0]));
 					do_callback();
 				}
 				return 1;
@@ -584,7 +584,7 @@ int Browser::handle(int ev)
 				{
 					if (ui->b_save_p->value())
 					{
-						pd->preset->copy(SAVE_PRESET, -1, value() - 1);
+						pxk->preset->copy(SAVE_PRESET, -1, value() - 1);
 						if (Fl::event_state(FL_SHIFT))
 						{
 							ui->b_save_p->clear();
@@ -594,7 +594,7 @@ int Browser::handle(int ev)
 					}
 					else if (ui->b_copy_p->value())
 					{
-						pd->preset->copy(C_PRESET, -1, value() - 1);
+						pxk->preset->copy(C_PRESET, -1, value() - 1);
 						if (Fl::event_state(FL_SHIFT))
 						{
 							ui->b_copy_p->clear();
@@ -605,7 +605,7 @@ int Browser::handle(int ev)
 				}
 				if (id_layer[0] >= 0x20 && id_layer[0] <= 0x2d) // copy browsers
 				{
-					pd->preset->copy(id_layer[0], -1, value() - 1); // check enum in pd.H for id meaning
+					pxk->preset->copy(id_layer[0], -1, value() - 1); // check enum in pxk.H for id meaning
 					if (Fl::event_state(FL_SHIFT))
 						ui->copy_preset->hide();
 					return 1;
@@ -630,7 +630,7 @@ int Browser::handle(int ev)
 				}
 				else if (id_layer[0] >= 0x20 && id_layer[0] <= 0x2d) // copy browsers
 				{
-					ui->copy_preset->hide(); // check enum in pd.H for id meaning
+					ui->copy_preset->hide(); // check enum in pxk.H for id meaning
 					return 1;
 				}
 			}
@@ -678,7 +678,7 @@ int ROM_Choice::get_value() const
 {
 	if (!size())
 		return 0;
-	int v = pd->rom[value() + no_user]->get_attribute(ID);
+	int v = pxk->rom[value() + no_user]->get_attribute(ID);
 	dependency(v, true);
 	return v;
 }
@@ -702,7 +702,7 @@ void ROM_Choice::dependency(int v, bool get) const
 			if (get)
 			{
 				ui->main->riff->select(1);
-				pd->setup->set_value(278, 0);
+				pxk->setup->set_value(278, 0);
 			}
 			ui->main->riff->load_n(RIFF, v);
 			break;
@@ -710,7 +710,7 @@ void ROM_Choice::dependency(int v, bool get) const
 			if (get)
 			{
 				ui->main->arp->set_value(0);
-				pd->setup->set_value(643, 0);
+				pxk->setup->set_value(643, 0);
 			}
 			ui->main->arp->load_n(ARP, v);
 			if (v)
@@ -730,7 +730,7 @@ void ROM_Choice::dependency(int v, bool get) const
 			if (get)
 			{
 				ui->preset_editor->riff->select(1);
-				pd->preset->set_value(928, 0);
+				pxk->preset->set_value(928, 0);
 			}
 			ui->preset_editor->riff->load_n(RIFF, v);
 			break;
@@ -738,7 +738,7 @@ void ROM_Choice::dependency(int v, bool get) const
 			if (get)
 			{
 				ui->preset_editor->arp->set_value(0);
-				pd->preset->set_value(1027, 0);
+				pxk->preset->set_value(1027, 0);
 			}
 			ui->preset_editor->arp->load_n(ARP, v);
 			if (v)
@@ -758,7 +758,7 @@ void ROM_Choice::dependency(int v, bool get) const
 			if (get)
 			{
 				ui->preset_editor->l1->select(2);
-				pd->preset->set_value(1281, 0);
+				pxk->preset->set_value(1281, 0);
 				ui->preset_editor->g_link1->activate();
 			}
 			ui->preset_editor->l1->load_n(PRESET, v);
@@ -767,7 +767,7 @@ void ROM_Choice::dependency(int v, bool get) const
 			if (get)
 			{
 				ui->preset_editor->l2->select(2);
-				pd->preset->set_value(1290, 0);
+				pxk->preset->set_value(1290, 0);
 				ui->preset_editor->g_link2->activate();
 			}
 			ui->preset_editor->l2->load_n(PRESET, v);
@@ -776,7 +776,7 @@ void ROM_Choice::dependency(int v, bool get) const
 			if (get)
 			{
 				ui->layer_editor[id_layer[1]]->instrument->select(1);
-				pd->preset->set_value(1409, 0, id_layer[1]);
+				pxk->preset->set_value(1409, 0, id_layer[1]);
 			}
 			ui->layer_editor[id_layer[1]]->instrument->load_n(INSTRUMENT, v);
 			break;
@@ -792,12 +792,12 @@ int ROM_Choice::handle(int ev)
 				return 1;
 			break;
 		case FL_RELEASE:
-			if (FL_RIGHT_MOUSE == Fl::event_button() && pd->setup_copy && pd->preset_copy)
+			if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->setup_copy && pxk->preset_copy)
 			{
 				if (id_layer[0] < 788) // master setting
-					set_value((double) pd->setup_copy->get_value(id_layer[0], pd->selected_channel));
+					set_value((double) pxk->setup_copy->get_value(id_layer[0], pxk->selected_channel));
 				else
-					set_value((double) pd->preset_copy->get_value(id_layer[0], id_layer[1]));
+					set_value((double) pxk->preset_copy->get_value(id_layer[0], id_layer[1]));
 				do_callback();
 				return 1;
 			}
@@ -892,14 +892,14 @@ int Value_Input::handle(int ev)
 				return 1;
 			break;
 		case FL_RELEASE:
-			if (FL_RIGHT_MOUSE == Fl::event_button() && pd->setup_copy && pd->preset_copy) // reset to initial value
+			if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->setup_copy && pxk->preset_copy) // reset to initial value
 			{
 				int* la_id = pwid_editing->get_id_layer();
 				if (la_id[0] < 788) // master setting
-					value((double) pd->setup_copy->get_value(la_id[0], pd->selected_channel));
+					value((double) pxk->setup_copy->get_value(la_id[0], pxk->selected_channel));
 				else
 					// preset
-					value((double) pd->preset_copy->get_value(la_id[0], la_id[1]));
+					value((double) pxk->preset_copy->get_value(la_id[0], la_id[1]));
 				do_callback();
 				return 1;
 			}
@@ -1343,12 +1343,12 @@ int Value_Output::handle(int ev)
 		case FL_RELEASE:
 			if (FL_RIGHT_MOUSE == Fl::event_button())
 			{
-				if (pd->setup_copy && pd->preset_copy && id_layer[0] != -1)
+				if (pxk->setup_copy && pxk->preset_copy && id_layer[0] != -1)
 				{
 					if (id_layer[0] < 788) // master setting
-						value((double) pd->setup_copy->get_value(id_layer[0], pd->selected_channel));
+						value((double) pxk->setup_copy->get_value(id_layer[0], pxk->selected_channel));
 					else
-						value((double) pd->preset_copy->get_value(id_layer[0], id_layer[1]));
+						value((double) pxk->preset_copy->get_value(id_layer[0], id_layer[1]));
 					do_callback();
 				}
 				return 1;
@@ -1476,20 +1476,20 @@ int Slider::handle(int ev)
 		case FL_RELEASE:
 			if (FL_RIGHT_MOUSE == Fl::event_button())
 			{
-				if (pd->setup_copy && pd->preset_copy)
+				if (pxk->setup_copy && pxk->preset_copy)
 				{
 					if (id_layer[0] == 1410) // layer volume fader
 					{
-						int v = pd->preset_copy->get_value(id_layer[0], id_layer[1]);
+						int v = pxk->preset_copy->get_value(id_layer[0], id_layer[1]);
 						value((double) pow(v + 96, 3));
 						prev_value = v;
 					}
 					else
 					{
 						if (id_layer[0] < 788) // master setting
-							value((double) pd->setup_copy->get_value(id_layer[0], pd->selected_channel));
+							value((double) pxk->setup_copy->get_value(id_layer[0], pxk->selected_channel));
 						else
-							value((double) pd->preset_copy->get_value(id_layer[0], id_layer[1]));
+							value((double) pxk->preset_copy->get_value(id_layer[0], id_layer[1]));
 					}
 					do_callback();
 				}
@@ -1623,12 +1623,12 @@ int Spinner::handle(int ev)
 				return 1;
 			break;
 		case FL_RELEASE:
-			if (FL_RIGHT_MOUSE == Fl::event_button() && pd->setup_copy && pd->preset_copy)
+			if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->setup_copy && pxk->preset_copy)
 			{
 				if (id_layer[0] < 788) // master setting
-					value((double) pd->setup_copy->get_value(id_layer[0], pd->selected_channel));
+					value((double) pxk->setup_copy->get_value(id_layer[0], pxk->selected_channel));
 				else
-					value((double) pd->preset_copy->get_value(id_layer[0], id_layer[1]));
+					value((double) pxk->preset_copy->get_value(id_layer[0], id_layer[1]));
 				do_callback();
 				return 1;
 			}
@@ -1684,12 +1684,12 @@ int Counter::handle(int ev)
 				return 1;
 			break;
 		case FL_RELEASE:
-			if (FL_RIGHT_MOUSE == Fl::event_button() && pd->setup_copy && pd->preset_copy)
+			if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->setup_copy && pxk->preset_copy)
 			{
 				if (id_layer[0] < 788) // master setting
-					value((double) pd->setup_copy->get_value(id_layer[0], pd->selected_channel));
+					value((double) pxk->setup_copy->get_value(id_layer[0], pxk->selected_channel));
 				else
-					value((double) pd->preset_copy->get_value(id_layer[0], id_layer[1]));
+					value((double) pxk->preset_copy->get_value(id_layer[0], id_layer[1]));
 				do_callback();
 				return 1;
 			}
@@ -1752,7 +1752,7 @@ void Group::set_id(int v, int l)
 
 void Group::set_value(int v)
 {
-	pmesg("Group::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
+	//pmesg("Group::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
 	int childs = children();
 	if (id_layer[0] == 1041 || id_layer[0] == 659 || id_layer[0] == 134) // arp pattern speed / multimode arp
 	{
@@ -1807,12 +1807,12 @@ int Group::handle(int ev)
 				return 1;
 			break;
 		case FL_RELEASE:
-			if (FL_RIGHT_MOUSE == Fl::event_button() && pd->setup_copy && pd->preset_copy)
+			if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->setup_copy && pxk->preset_copy)
 			{
 				if (id_layer[0] < 788 && id_layer[0] != 129) // master setting
-					set_value(pd->setup_copy->get_value(id_layer[0], pd->selected_channel));
+					set_value(pxk->setup_copy->get_value(id_layer[0], pxk->selected_channel));
 				else
-					set_value(pd->preset_copy->get_value(id_layer[0], id_layer[1]));
+					set_value(pxk->preset_copy->get_value(id_layer[0], id_layer[1]));
 				do_callback();
 				return 1;
 			}
@@ -1827,7 +1827,7 @@ void Group::dependency(int v) const
 	{
 		//((Fl_Widget*) this)->deactivate();
 		//ui->value_input->deactivate();
-		if (MULTI != pd->midi_mode || v == pd->selected_fx_channel || -1 == pd->selected_fx_channel)
+		if (MULTI != pxk->midi_mode || v == pxk->selected_fx_channel || -1 == pxk->selected_fx_channel)
 			ui->fx->activate();
 		else
 			ui->fx->deactivate();
@@ -2091,12 +2091,12 @@ int Fl_Knob::handle(int ev)
 			return 1;
 		case FL_PUSH: // 1 = receive FL_DRAG and the matching (Fl::event_button()) FL_RELEASE event (becomes Fl::pushed())
 			handle_push();
-			if (FL_RIGHT_MOUSE == Fl::event_button() && pd->setup_copy && pd->preset_copy)
+			if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->setup_copy && pxk->preset_copy)
 			{
 				if (id_layer[0] < 788) // master setting
-					value((double) pd->setup_copy->get_value(id_layer[0], pd->selected_channel));
+					value((double) pxk->setup_copy->get_value(id_layer[0], pxk->selected_channel));
 				else
-					value((double) pd->preset_copy->get_value(id_layer[0], id_layer[1]));
+					value((double) pxk->preset_copy->get_value(id_layer[0], id_layer[1]));
 				do_callback();
 				take_focus();
 			}
@@ -2421,12 +2421,12 @@ int Button::handle(int ev)
 				return 1;
 			break;
 		case FL_RELEASE:
-			if (id_layer[0] != -1 && FL_RIGHT_MOUSE == Fl::event_button() && pd->setup_copy && pd->preset_copy)
+			if (id_layer[0] != -1 && FL_RIGHT_MOUSE == Fl::event_button() && pxk->setup_copy && pxk->preset_copy)
 			{
 				if (id_layer[0] < 788) // master setting
-					set_value(pd->setup_copy->get_value(id_layer[0], pd->selected_channel));
+					set_value(pxk->setup_copy->get_value(id_layer[0], pxk->selected_channel));
 				else
-					set_value(pd->preset_copy->get_value(id_layer[0], id_layer[1]));
+					set_value(pxk->preset_copy->get_value(id_layer[0], id_layer[1]));
 				do_callback();
 				return 1;
 			}
@@ -2512,7 +2512,7 @@ void Choice::set_id(int v, int l)
 
 void Choice::set_value(int v)
 {
-	pmesg("Choice::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
+	//pmesg("Choice::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
 	if (id_layer[0] == 140) // FX channel
 	{
 		dependency(v);
@@ -2608,12 +2608,12 @@ int Choice::handle(int ev)
 				return 1;
 			break;
 		case FL_RELEASE:
-			if (FL_RIGHT_MOUSE == Fl::event_button() && pd->setup_copy && pd->preset_copy)
+			if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->setup_copy && pxk->preset_copy)
 			{
 				if (id_layer[0] < 788) // master setting
-					set_value((double) pd->setup_copy->get_value(id_layer[0], pd->selected_channel));
+					set_value((double) pxk->setup_copy->get_value(id_layer[0], pxk->selected_channel));
 				else
-					set_value((double) pd->preset_copy->get_value(id_layer[0], id_layer[1]));
+					set_value((double) pxk->preset_copy->get_value(id_layer[0], id_layer[1]));
 				do_callback();
 				return 1;
 			}
@@ -2671,7 +2671,7 @@ void Choice::dependency(int v) const
 	{
 		if (v != -1)
 		{
-			if (v == pd->selected_channel)
+			if (v == pxk->selected_channel)
 				ui->fx->activate();
 			else
 				ui->fx->deactivate();
@@ -2909,8 +2909,8 @@ void Choice::dependency(int v) const
 // ###################
 void PCS_Choice::set_value(int v)
 {
-	if (!initialized && pd->preset)
-		init(pd->preset->get_extra_controller());
+	if (!initialized && pxk->preset)
+		init(pxk->preset->get_extra_controller());
 	int i;
 	for (i = 0; i < 78; i++)
 		if (src[i].value == v)
@@ -2933,7 +2933,7 @@ int PCS_Choice::get_value() const
 // ###################
 void PCD_Choice::set_value(int v)
 {
-	pmesg("PCD_Choice::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
+	//pmesg("PCD_Choice::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
 	int i;
 	for (i = 0; i < 68; i++)
 		if (dst[i].value == v)
@@ -2956,7 +2956,7 @@ int PCD_Choice::get_value() const
 // ###################
 void PPCD_Choice::set_value(int v)
 {
-	pmesg("PPCD_Choice::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
+	//pmesg("PPCD_Choice::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
 	int i;
 	for (i = 0; i < 28; i++)
 		if (dst[i].value == v)
@@ -3635,7 +3635,7 @@ int Envelope_Editor::handle(int ev)
 						{
 							if (env[mode].mode != FACTORY)
 							{
-								pd->widget_callback(1793, FACTORY, layer);
+								pxk->widget_callback(1793, FACTORY, layer);
 								env[mode].mode = FACTORY;
 							}
 						}
@@ -3643,12 +3643,12 @@ int Envelope_Editor::handle(int ev)
 						{
 							if (env[FILTER].repeat)
 							{
-								pd->widget_callback(1833, 0, layer);
+								pxk->widget_callback(1833, 0, layer);
 								env[FILTER].repeat = 0;
 							}
 							else
 							{
-								pd->widget_callback(1833, 1, layer);
+								pxk->widget_callback(1833, 1, layer);
 								env[FILTER].repeat = 1;
 							}
 						}
@@ -3656,12 +3656,12 @@ int Envelope_Editor::handle(int ev)
 						{
 							if (env[AUXILIARY].repeat)
 							{
-								pd->widget_callback(1834, 0, layer);
+								pxk->widget_callback(1834, 0, layer);
 								env[AUXILIARY].repeat = 0;
 							}
 							else
 							{
-								pd->widget_callback(1834, 1, layer);
+								pxk->widget_callback(1834, 1, layer);
 								env[AUXILIARY].repeat = 1;
 							}
 						}
@@ -3669,14 +3669,14 @@ int Envelope_Editor::handle(int ev)
 					case TIME_BASED:
 						if (env[mode].mode != TIME_BASED)
 						{
-							pd->widget_callback(1793 + mode * 13, TIME_BASED, layer);
+							pxk->widget_callback(1793 + mode * 13, TIME_BASED, layer);
 							env[mode].mode = TIME_BASED;
 						}
 						break;
 					case TEMPO_BASED:
 						if (env[mode].mode != TEMPO_BASED)
 						{
-							pd->widget_callback(1793 + mode * 13, TEMPO_BASED, layer);
+							pxk->widget_callback(1793 + mode * 13, TEMPO_BASED, layer);
 							env[mode].mode = TEMPO_BASED;
 						}
 						break;
@@ -3751,7 +3751,7 @@ int Envelope_Editor::handle(int ev)
 						env[mode].stage[hover][0] += dx;
 					else
 						env[mode].stage[hover][0] = 127;
-					pd->widget_callback(1793 + 1 + mode * 13 + hover * 2, env[mode].stage[hover][0], layer);
+					pxk->widget_callback(1793 + 1 + mode * 13 + hover * 2, env[mode].stage[hover][0], layer);
 					push_x = Fl::event_x() - dx_jump;
 				}
 				else if (dx < 0 && env[mode].stage[hover][0] != 0)
@@ -3760,7 +3760,7 @@ int Envelope_Editor::handle(int ev)
 						env[mode].stage[hover][0] += dx;
 					else
 						env[mode].stage[hover][0] = 0;
-					pd->widget_callback(1793 + 1 + mode * 13 + hover * 2, env[mode].stage[hover][0], layer);
+					pxk->widget_callback(1793 + 1 + mode * 13 + hover * 2, env[mode].stage[hover][0], layer);
 					push_x = Fl::event_x() - dx_jump;
 				}
 
@@ -3770,7 +3770,7 @@ int Envelope_Editor::handle(int ev)
 						env[mode].stage[hover][1] += dy;
 					else
 						env[mode].stage[hover][1] = 100;
-					pd->widget_callback(1793 + 2 + mode * 13 + hover * 2, env[mode].stage[hover][1], layer);
+					pxk->widget_callback(1793 + 2 + mode * 13 + hover * 2, env[mode].stage[hover][1], layer);
 					push_y = Fl::event_y();
 				}
 				else if (dy < 0)
@@ -3781,7 +3781,7 @@ int Envelope_Editor::handle(int ev)
 							env[mode].stage[hover][1] += dy;
 						else
 							env[mode].stage[hover][1] = 0;
-						pd->widget_callback(1793 + 2 + mode * 13 + hover * 2, env[mode].stage[hover][1], layer);
+						pxk->widget_callback(1793 + 2 + mode * 13 + hover * 2, env[mode].stage[hover][1], layer);
 						push_y = Fl::event_y();
 					}
 					else if (mode != VOLUME && env[mode].stage[hover][1] != -100)
@@ -3790,7 +3790,7 @@ int Envelope_Editor::handle(int ev)
 							env[mode].stage[hover][1] += dy;
 						else
 							env[mode].stage[hover][1] = -100;
-						pd->widget_callback(1793 + 2 + mode * 13 + hover * 2, env[mode].stage[hover][1], layer);
+						pxk->widget_callback(1793 + 2 + mode * 13 + hover * 2, env[mode].stage[hover][1], layer);
 						push_y = Fl::event_y();
 					}
 				}
@@ -3868,7 +3868,7 @@ int Envelope_Editor::handle(int ev)
 
 void Envelope_Editor::set_data(int type, int* stages, int mode, int repeat)
 {
-	pmesg("Envelope_Editor::set_data(%d, int*, %d, %d)\n", type, mode, repeat);
+	//pmesg("Envelope_Editor::set_data(%d, int*, %d, %d)\n", type, mode, repeat);
 	env[type].mode = mode;
 	env[type].repeat = repeat;
 	for (int i = 0; i < 6; i++)
@@ -3889,8 +3889,8 @@ void Envelope_Editor::copy_envelope(int src, int dst)
 		env[dst].stage[i][1] = env[src].stage[i][1];
 		if (dst == VOLUME && env[src].stage[i][1] < 0)
 			env[dst].stage[i][1] = 0;
-		pd->widget_callback(1793 + 1 + dst * 13 + i * 2, env[dst].stage[i][0], layer);
-		pd->widget_callback(1793 + 1 + dst * 13 + i * 2 + 1, env[dst].stage[i][1], layer);
+		pxk->widget_callback(1793 + 1 + dst * 13 + i * 2, env[dst].stage[i][0], layer);
+		pxk->widget_callback(1793 + 1 + dst * 13 + i * 2 + 1, env[dst].stage[i][1], layer);
 	}
 	redraw();
 }
@@ -3957,12 +3957,12 @@ void Envelope_Editor::set_shape(int dst, int shape)
 			break;
 	}
 	redraw();
-	if (!pd) // not there on init
+	if (!pxk) // not there on init
 		return;
 	for (int i = 0; i < 6; i++)
 	{
-		pd->widget_callback(1793 + 1 + dst * 13 + i * 2, env[dst].stage[i][0], layer);
-		pd->widget_callback(1793 + 1 + dst * 13 + i * 2 + 1, env[dst].stage[i][1], layer);
+		pxk->widget_callback(1793 + 1 + dst * 13 + i * 2, env[dst].stage[i][0], layer);
+		pxk->widget_callback(1793 + 1 + dst * 13 + i * 2 + 1, env[dst].stage[i][1], layer);
 	}
 }
 
@@ -4160,7 +4160,7 @@ int Piano::handle(int ev)
 					if (Fl::event_inside(keyboard_x0, keyboard_y0, keyboard_w, h_white) && mode == KEYRANGE)
 					{
 						transpose[selected_transpose_layer] = 72 - hovered_key;
-						pd->widget_callback(1429, transpose[selected_transpose_layer], selected_transpose_layer);
+						pxk->widget_callback(1429, transpose[selected_transpose_layer], selected_transpose_layer);
 						damage(D_KEYS | D_HIGHLIGHT);
 					}
 					break;
@@ -4862,7 +4862,7 @@ void Piano::reset_active_keys()
 // map keys to 2-d space
 void Piano::set_range_values(int md, int layer, int low_k, int low_f, int high_k, int high_f)
 {
-	pmesg("Piano::set_range_values(%d, %d, %d, %d, %d, %d)\n", md, layer, low_k, low_f, high_k, high_f);
+	//pmesg("Piano::set_range_values(%d, %d, %d, %d, %d, %d)\n", md, layer, low_k, low_f, high_k, high_f);
 	if (low_k < 0 || low_k > 127)
 		low_k = 0;
 	if (low_f < 0 || low_f + low_k > 127)
@@ -4895,7 +4895,7 @@ void Piano::set_range_values(int md, int layer, int low_k, int low_f, int high_k
 
 void Piano::set_transpose(int l1, int l2, int l3, int l4)
 {
-	pmesg("Piano::set_transpose(%d, %d, %d, %d)\n", l1, l2, l3, l4);
+	//pmesg("Piano::set_transpose(%d, %d, %d, %d)\n", l1, l2, l3, l4);
 	transpose[0] = l1;
 	transpose[1] = l2;
 	transpose[2] = l3;
@@ -4918,16 +4918,16 @@ void Piano::commit_changes()
 				switch (range)
 				{
 					case LOW_KEY:
-						pd->widget_callback(id + LOW_KEY + mode * 4, new_key_value[mode][pushed][range], pushed);
+						pxk->widget_callback(id + LOW_KEY + mode * 4, new_key_value[mode][pushed][range], pushed);
 						break;
 					case LOW_FADE:
-						pd->widget_callback(id + LOW_FADE + mode * 4, new_key_value[mode][pushed][range], pushed);
+						pxk->widget_callback(id + LOW_FADE + mode * 4, new_key_value[mode][pushed][range], pushed);
 						break;
 					case HIGH_KEY:
-						pd->widget_callback(id + HIGH_KEY + mode * 4, new_key_value[mode][pushed][range], pushed);
+						pxk->widget_callback(id + HIGH_KEY + mode * 4, new_key_value[mode][pushed][range], pushed);
 						break;
 					case HIGH_FADE:
-						pd->widget_callback(id + HIGH_FADE + mode * 4, new_key_value[mode][pushed][range], pushed);
+						pxk->widget_callback(id + HIGH_FADE + mode * 4, new_key_value[mode][pushed][range], pushed);
 				}
 				prev_key_value[mode][pushed][range] = new_key_value[mode][pushed][range];
 			}
@@ -4941,27 +4941,27 @@ void Piano::commit_changes()
 			{
 				case PRESET_ARP:
 					if (pushed_range == LOW_KEY)
-						pd->widget_callback(1039, new_key_value[0][pushed][pushed_range], 0);
+						pxk->widget_callback(1039, new_key_value[0][pushed][pushed_range], 0);
 					else
-						pd->widget_callback(1040, new_key_value[0][pushed][pushed_range], 0);
+						pxk->widget_callback(1040, new_key_value[0][pushed][pushed_range], 0);
 					break;
 				case MASTER_ARP:
 					if (pushed_range == LOW_KEY)
-						pd->widget_callback(655, new_key_value[0][pushed][pushed_range], 0);
+						pxk->widget_callback(655, new_key_value[0][pushed][pushed_range], 0);
 					else
-						pd->widget_callback(656, new_key_value[0][pushed][pushed_range], 0);
+						pxk->widget_callback(656, new_key_value[0][pushed][pushed_range], 0);
 					break;
 				case LINK_ONE:
 					if (pushed_range == LOW_KEY)
-						pd->widget_callback(1286, new_key_value[0][pushed][pushed_range], 0);
+						pxk->widget_callback(1286, new_key_value[0][pushed][pushed_range], 0);
 					else
-						pd->widget_callback(1287, new_key_value[0][pushed][pushed_range], 0);
+						pxk->widget_callback(1287, new_key_value[0][pushed][pushed_range], 0);
 					break;
 				case LINK_TWO:
 					if (pushed_range == LOW_KEY)
-						pd->widget_callback(1295, new_key_value[0][pushed][pushed_range], 0);
+						pxk->widget_callback(1295, new_key_value[0][pushed][pushed_range], 0);
 					else
-						pd->widget_callback(1296, new_key_value[0][pushed][pushed_range], 0);
+						pxk->widget_callback(1296, new_key_value[0][pushed][pushed_range], 0);
 					break;
 			}
 			prev_key_value[0][pushed][pushed_range] = new_key_value[0][pushed][pushed_range];
@@ -5448,9 +5448,9 @@ int Step_Type::handle(int ev)
 				return 1;
 			break;
 		case FL_RELEASE:
-			if (FL_RIGHT_MOUSE == Fl::event_button() && pd->arp)
+			if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->arp)
 			{
-				pd->arp->reset_step(s);
+				pxk->arp->reset_step(s);
 				return 1;
 			}
 			break;
@@ -5476,9 +5476,9 @@ int Step_Value::handle(int ev)
 				return 1;
 			break;
 		case FL_RELEASE:
-			if (FL_RIGHT_MOUSE == Fl::event_button() && pd->arp)
+			if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->arp)
 			{
-				value((double) pd->arp->get_value(id, s));
+				value((double) pxk->arp->get_value(id, s));
 				do_callback();
 				return 1;
 			}
@@ -5527,9 +5527,9 @@ int Step_Offset::handle(int ev)
 			take_focus();
 			break;
 		case FL_RELEASE:
-			if (FL_RIGHT_MOUSE == Fl::event_button() && pd->arp)
+			if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->arp)
 			{
-				int val = pd->arp->get_value(784, s);
+				int val = pxk->arp->get_value(784, s);
 				if (val > -49)
 					value((double) val);
 				else

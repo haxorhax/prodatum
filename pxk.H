@@ -10,12 +10,40 @@
 
 #include <map>
 #include <vector>
+#include <string>
 
 #include "ui.H"
 #include "data.H"
 #include "debug.H"
-//#include "midi.H"
 
+/**
+ * Enum for the three MIDI modes
+ */
+enum
+{
+	OMNI, POLY, MULTI
+};
+
+/**
+ * Enum for the various copy commands of the device
+ */
+enum
+{
+	C_PRESET = 0x20,
+	C_PRESET_COMMON,
+	C_ARP,
+	C_FX,
+	C_PRESET_LINK,
+	C_LAYER,
+	C_LAYER_COMMON,
+	C_LAYER_FILTER,
+	C_LAYER_LFO,
+	C_LAYER_ENVELOPE,
+	C_LAYER_PATCHCORD,
+	C_ARP_PATTERN,
+	C_SETUP,
+	SAVE_PRESET
+};
 
 class PXK
 {
@@ -32,24 +60,25 @@ public:
 	bool LoadConfig(const char*) const;
 	bool PopulatePorts() const;
 	bool Synchronize();
-	void r_sysex(const unsigned char*, const int) const;
-	void r_event(const unsigned char*);
-private:
+	void log_add(const unsigned char*, const unsigned int, unsigned char) const;
+	//void r_event(const unsigned char*);
 	/// maps controller values to CC widget numbers (device -> UI)
 	std::map<int, int> cc_to_ctrl;
+private:
 	/// maps CC widget numbers to actual controller values (UI -> device)
 	std::map<int, int> ctrl_to_cc;
+	unsigned char nak_count;
 public:
-	void incoming_generic_name(const unsigned char* data);
-	void incoming_ERROR(int cmd, int sub);
-	void incoming_ACK(int packet);
-	void incoming_NAK(int packet);
+	void incoming_generic_name(const unsigned char*);
+	void incoming_ERROR(int, int);
+	void incoming_ACK(int);
+	void incoming_NAK(int);
 	void incoming_CANCEL();
 	void incoming_WAIT();
 	void incoming_EOF();
-	void widget_callback(int id, int value, int layer = -2);
-	void cc_callback(int controller, int value);
-	void display_status(const char* message, bool top = false);
+	void widget_callback(int, int, int layer = -2);
+	void cc_callback(int, int);
+	void display_status(const char*, bool top = false);
 
 	/*
 	 * device specific
@@ -62,59 +91,76 @@ private:
 	int user_presets; // available user presets
 	void create_device_info();
 public:
-	void incoming_inquiry_data(const unsigned char* data, int len);
-	void incoming_hardware_config(const unsigned char* data, int len);
+	void incoming_inquiry_data(const unsigned char*, int);
+	void incoming_hardware_config(const unsigned char*, int);
 
 	/*
 	 * setup specific
 	 */
-private:
+public: // these are used by lot's of widgets
 	Setup_Dump* setup;
 	const Setup_Dump* setup_copy;
-	char selected_multisetup;
-	unsigned char* setup_names;
 	char selected_channel;
 	char selected_preset_rom;
 	int selected_preset;
-	char midi_mode;
-	char selected_fx_channel;
-	void store_play_as_initial();
-	void update_fx_values(int id, int value) const;
+private:
+	char selected_multisetup;
+	unsigned char* setup_names;
+	bool cc_changed;
+	void update_fx_values(int, int) const;
 	void update_cc_sliders();
 	void update_control_map();
+	void set_setup_name(unsigned char, const unsigned char*);
+	void save_setup_names() const;
 public:
-	void incoming_setup_dump(const unsigned char* data, int len);
+	char midi_mode;
+	char selected_fx_channel;
+	char setups_to_load;
+	const Setup_Dump* setup_init;
+	void save_setup(int, const char*);
+	void incoming_setup_dump(const unsigned char*, int);
+	unsigned char load_setup_names(unsigned char);
+	void load_setup();
+	void store_play_as_initial();
 
 	/*
 	 * rom specific
 	 */
 private:
-	ROM* rom[5];
 	unsigned char roms; // number of roms
 	std::map<int, int> rom_id_map;
-	const char* get_name(int code) const;
+	const char* get_name(int) const;
+public:
+	ROM* rom[5];
 
 	/*
 	 * preset specific
 	 */
 private:
-	Preset_Dump* preset;
-	const Preset_Dump* preset_copy;
 	unsigned int mute_volume[4]; // volume of muted voices
 	bool is_solo[4];
+	int test_checksum(const unsigned char*, int, int);
+	bool randomizing;
 public:
+	Preset_Dump* preset;
+	const Preset_Dump* preset_copy;
+	void show_preset();
 	int selected_layer;
 	void mute(int state, int layer);
 	void solo(int state, int layer);
-	void incoming_preset_dump(const unsigned char* data, int len);
+	void incoming_preset_dump(const unsigned char*, int);
+	void load_export(const char*);
+	void start_over();
+	void randomize();
 
 	/*
 	 * arp specific
 	 */
 private:
-	Arp_Dump* arp;
+
 public:
-	void incoming_arp_dump(const unsigned char* data, int len);
+	Arp_Dump* arp;
+	void incoming_arp_dump(const unsigned char*, int);
 
 
 public:

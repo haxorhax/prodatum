@@ -12,34 +12,7 @@
 
 #include "data.H"
 
-/**
- * Enum for the various copy commands of the device
- */
-enum
-{
-	C_PRESET = 0x20,
-	C_PRESET_COMMON,
-	C_ARP,
-	C_FX,
-	C_PRESET_LINK,
-	C_LAYER,
-	C_LAYER_COMMON,
-	C_LAYER_FILTER,
-	C_LAYER_LFO,
-	C_LAYER_ENVELOPE,
-	C_LAYER_PATCHCORD,
-	C_ARP_PATTERN,
-	C_SETUP,
-	SAVE_PRESET
-};
 
-/**
- * Enum for the three MIDI modes
- */
-enum
-{
-	OMNI, POLY, MULTI
-};
 
 /**
  * prodatum's control class.
