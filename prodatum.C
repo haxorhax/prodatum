@@ -24,11 +24,14 @@
 #endif
 
 #include "ui.H"
+#include <FL/filename.H>
+#include <FL/fl_ask.H>
 
 static void load_data();
 
 PD_UI* ui;
 extern MIDI* midi;
+extern Cfg* cfg;
 PXK* pxk = 0;
 
 extern FilterMap FM[51];
@@ -731,121 +734,94 @@ static void load_data()
 	FM[50].info = "Highly resonant harmonic peaks\nshift in unison.\nTry mid Q.";
 }
 
-// TODO
 //// delete name files
 void reset(int user_data, int rom_data)
 {
-//	if (!cfg || (user_data == -1 && rom_data == -1))
-//	{
-//		ui->reset_w->hide();
-//		ui->b_reset->activate();
-//		pxk->display_status("Changed your mind?");
-//		return;
-//	}
-//	pmesg("reset(%d, %d)\n", user_data, rom_data);
-//	// stop MIDI
-//	delete midi;
-//	midi = 0;
-//	// delete ROMS
-//	delete pd;
-//	pd = 0;
-//	// delete files
-//	dirent **files;
-//	int num_files = fl_filename_list(cfg->get_config_dir(), &files);
-//	char buf[PATH_MAX];
-//	int f_size = 20;
-//	char f[f_size];
-//	int deleted = 0;
-//	if (user_data >= 0)
-//	{
-//		if (user_data == 127) // delete all user data
-//			snprintf(f, f_size, "n_???_0_*");
-//		else
-//			snprintf(f, f_size, "n_???_0_%d", user_data);
-//		for (int i = 0; i < num_files; i++)
-//		{
-//			if (fl_filename_match(files[i]->d_name, f))
-//			{
-//				snprintf(buf, PATH_MAX, "%s/%s", cfg->get_config_dir(), files[i]->d_name);
-//				pmesg(" - - deleting %s ... ", buf);
-//#ifdef WIN32
-//				if (_unlink(buf))
-//#else
-//				if (unlink(buf))
-//#endif
-//				{
-//					fl_message("Could not delete\n%s", buf);
-//					pmesg(" failed!\n", buf);
-//				}
-//				else
-//				{
-//					pmesg(" success!\n", buf);
-//					++deleted;
-//				}
-//			}
-//		}
-//	}
-//	if (rom_data >= 1)
-//	{
-//		if (rom_data == 1) // delete all rom data
-//			snprintf(f, f_size, "n_???_[123456789]*");
-//		else
-//			snprintf(f, f_size, "n_???_%d", rom_data);
-//		for (int i = 0; i < num_files; i++)
-//		{
-//			if (fl_filename_match(files[i]->d_name, f))
-//			{
-//				snprintf(buf, PATH_MAX, "%s/%s", cfg->get_config_dir(), files[i]->d_name);
-//				pmesg(" - - deleting %s! ... ", buf);
-//#ifdef WIN32
-//				if (_unlink(buf))
-//#else
-//				if (unlink(buf))
-//#endif
-//				{
-//					fl_message("Could not delete\n%s", buf);
-//					pmesg(" failed!\n", buf);
-//				}
-//				else
-//				{
-//					pmesg(" success!\n", buf);
-//					++deleted;
-//				}
-//			}
-//		}
-//	}
-//	// clean up
-//	for (int i = num_files; i > 0;)
-//		free((void*) (files[--i]));
-//	free((void*) files);
-//	// reload
-//	midi = new MIDI();
-//	pd = new PD();
-//	ui->reset_w->hide();
-//	ui->b_reset->activate();
-//	fl_message("Deleted %d files from\n%s", deleted, cfg->get_config_dir());
-//	// select previous
-//	ui->midi_outs->label("Select...");
-//	ui->midi_ins->label("Select...");
-//	ui->midi_ctrl->label("Select... (optional)");
-//	ui->open_device->show();
-//	int selection;
-//	selection = cfg->get_cfg_option(CFG_MIDI_OUT);
-//	if (selection != -1)
-//	{
-//		ui->midi_outs->value(selection);
-//		ui->midi_outs->do_callback();
-//	}
-//	selection = cfg->get_cfg_option(CFG_MIDI_IN);
-//	if (selection != -1)
-//	{
-//		ui->midi_ins->value(selection);
-//		ui->midi_ins->do_callback();
-//	}
-//	selection = cfg->get_cfg_option(CFG_MIDI_THRU);
-//	if (selection != -1)
-//	{
-//		ui->midi_ctrl->value(selection);
-//		ui->midi_ctrl->do_callback();
-//	}
+	if (!cfg || (user_data == -1 && rom_data == -1))
+	{
+		ui->reset_w->hide();
+		ui->b_reset->activate();
+		return;
+	}
+	pmesg("reset(%d, %d)\n", user_data, rom_data);
+	char cfg_file[PATH_MAX];
+	snprintf(cfg_file, PATH_MAX, "%s", cfg->get_config_dir());
+	char cfg_name[32];
+	snprintf(cfg_name, 32, "cfg.txt"); // todo
+	delete pxk;
+	pxk = 0;
+	// delete files
+	dirent **files;
+	int num_files = fl_filename_list(cfg_file, &files);
+	char buf[PATH_MAX];
+	int f_size = 20;
+	char f[f_size];
+	int deleted = 0;
+	if (user_data >= 0)
+	{
+		if (user_data == 127) // delete all user data
+			snprintf(f, f_size, "n_???_0_*");
+		else
+			snprintf(f, f_size, "n_???_0_%d", user_data);
+		for (int i = 0; i < num_files; i++)
+		{
+			if (fl_filename_match(files[i]->d_name, f))
+			{
+				snprintf(buf, PATH_MAX, "%s/%s", cfg_file, files[i]->d_name);
+				pmesg(" - - deleting %s ... ", buf);
+#ifdef WIN32
+				if (_unlink(buf))
+#else
+				if (unlink(buf))
+#endif
+				{
+					fl_message("Could not delete\n%s", buf);
+					pmesg(" failed!\n", buf);
+				}
+				else
+				{
+					pmesg(" success!\n", buf);
+					++deleted;
+				}
+			}
+		}
+	}
+	if (rom_data >= 1)
+	{
+		if (rom_data == 1) // delete all rom data
+			snprintf(f, f_size, "n_???_[123456789]*");
+		else
+			snprintf(f, f_size, "n_???_%d", rom_data);
+		for (int i = 0; i < num_files; i++)
+		{
+			if (fl_filename_match(files[i]->d_name, f))
+			{
+				snprintf(buf, PATH_MAX, "%s/%s", cfg_file, files[i]->d_name);
+				pmesg(" - - deleting %s! ... ", buf);
+#ifdef WIN32
+				if (_unlink(buf))
+#else
+				if (unlink(buf))
+#endif
+				{
+					fl_message("Could not delete\n%s", buf);
+					pmesg(" failed!\n", buf);
+				}
+				else
+				{
+					pmesg(" success!\n", buf);
+					++deleted;
+				}
+			}
+		}
+	}
+	// clean up
+	for (int i = num_files; i > 0;)
+		free((void*) (files[--i]));
+	free((void*) files);
+	// reload
+	ui->reset_w->hide();
+	ui->b_reset->activate();
+	fl_message("Deleted %d files from\n%s", deleted, cfg_file);
+	pxk = new PXK(cfg_name, 1);
 }

@@ -269,6 +269,7 @@ PXK::PXK(const char* file, char auto_c)
 	preset_copy = 0;
 	setup = 0;
 	setup_copy = 0;
+	setup_init = 0;
 	selected_multisetup = -1;
 	selected_fx_channel = -1;
 	midi_mode = -1;
@@ -283,7 +284,10 @@ PXK::PXK(const char* file, char auto_c)
 		is_solo[i] = 0;
 	}
 	for (unsigned char i = 0; i < 5; i++)
+	{
 		rom[i] = 0;
+		rom_index[i] = -1;
+	}
 	ui->device_info->label("");
 	// populate ports && load config
 	if (LoadConfig(file) && PopulatePorts())
@@ -590,21 +594,32 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 	else
 		device_code = -1;
 }
+
+char PXK::get_rom_index(char id) const
+{
+	if (id == 0)
+		return 0;
+	for (unsigned char i = 1; i < 5; i++)
+	{
+		if (rom_index[i] == id)
+			return i;
+	}
+	return -1;
+}
+
 void PXK::incoming_hardware_config(const unsigned char* data, int len)
 {
 	pmesg("PXK::incoming_hardware_config(data, %d)\n", len);
 	user_presets = data[8] * 128 + data[7];
 	roms = data[9];
-	rom_id_map.clear();
-	//rom_id_map[0] = 0;
+	rom_index[0] = 0;
 	rom[0] = new ROM(0, user_presets);
-	rom_id_map[0] = 0;
 	for (unsigned char j = 1; j <= roms; j++)
 	{
 		int idx = 11 + (j - 1) * 6;
 		rom[j] = new ROM(data[idx + 1] * 128 + data[idx], data[idx + 3] * 128 + data[idx + 2],
 				data[idx + 5] * 128 + data[idx + 4]);
-		rom_id_map[data[idx + 1] * 128 + data[idx]] = j;
+		rom_index[j] = data[idx + 1] * 128 + data[idx];
 	}
 	create_device_info();
 	if (roms != 0)
@@ -657,6 +672,8 @@ unsigned char PXK::load_setup_names(unsigned char start)
 	if (start < 63)
 	{
 		midi->copy(C_SETUP, start, -1);
+		// let it think
+		mysleep(50);
 		midi->request_name(SETUP, start, 0);
 	}
 	else // last setup name
@@ -792,6 +809,7 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 			ui->g_preset->deactivate();
 		// hide loading window
 		ui->loading_w->hide();
+		Fl::wait(.1);
 	}
 }
 
@@ -816,6 +834,25 @@ void PXK::incoming_setup_dump(const unsigned char* data, int len)
 	load_setup();
 }
 
+static void check_loading(void*)
+{
+	if (ui->loading_w->shown())
+	{
+		ui->loading_w->hide();
+		fl_alert("Device did not respond to our request.");
+	}
+}
+
+void PXK::Loading() const
+{
+	pmesg("PXK::Loading() \n");
+	Fl::remove_timeout(check_loading);
+	ui->loading_w->free_position();
+	ui->loading_w->show();
+	Fl::wait(.1);
+	Fl::add_timeout(1, check_loading);
+}
+
 void PXK::load_setup()
 {
 	pmesg("PXK::load_setup() \n");
@@ -823,6 +860,8 @@ void PXK::load_setup()
 	if (setup_init)
 	{
 		setup_init->upload();
+		// let it eat
+		mysleep(200);
 		setup = new Setup_Dump(setup_init->get_dump_size(), setup_init->get_data());
 		setup_copy = new Setup_Dump(setup_init->get_dump_size(), setup_init->get_data());
 		delete setup_init;
@@ -870,7 +909,7 @@ void PXK::incoming_generic_name(const unsigned char* data)
 		return;
 	}
 	int rom_id = data[9] + 128 * data[10];
-	if (rom_id_map.find(rom_id) == rom_id_map.end())
+	if (get_rom_index(rom_id) == -1)
 	{
 		pmesg("*** ROM %d does not exist\n", data[9] + 128 * data[10]);
 		display_status("*** Received unknown name type.", true);
@@ -888,7 +927,7 @@ void PXK::incoming_generic_name(const unsigned char* data)
 		}
 	if (type == SETUP)
 		set_setup_name(number, data + 11);
-	else if (0 == rom[rom_id_map[rom_id]]->set_name(type, number, data + 11))
+	else if (0 == rom[get_rom_index(rom_id)]->set_name(type, number, data + 11))
 		name_set_incomplete = false;
 	++init_progress;
 }
@@ -920,11 +959,10 @@ void PXK::incoming_arp_dump(const unsigned char* data, int len)
 			return;
 		}
 		int rom_id = data[len - 3] + 128 * data[len - 2];
-		if (rom_id_map.find(rom_id) != rom_id_map.end())
+		if (get_rom_index(rom_id) != -1)
 		{
 			pmesg("PXK::incoming_arp_dump(len:%d) (#:%d-%d)\n ", len, number, data[len - 3] + 128 * data[len - 2]);
-			//rom[rom_id_map[rom_id]]->load_names(ARP, number + 1);
-			rom[rom_id_map[rom_id]]->set_name(ARP, number, data + 14);
+			rom[get_rom_index(rom_id)]->set_name(ARP, number, data + 14);
 			++init_progress;
 		}
 	}

@@ -44,7 +44,7 @@ unsigned char colors[5];
 
 Cfg::Cfg(const char* n)
 {
-	pmesg("Cfg::Cfg(%s, %d)  \n", n);
+	pmesg("Cfg::Cfg(%s)  \n", n);
 	// defaults
 #ifdef WIN32
 	set_export_dir(getenv("USERPROFILE"));

@@ -60,8 +60,8 @@ public:
 	bool LoadConfig(const char*) const;
 	bool PopulatePorts() const;
 	bool Synchronize();
+	void Loading() const;
 	void log_add(const unsigned char*, const unsigned int, unsigned char) const;
-	//void r_event(const unsigned char*);
 	/// maps controller values to CC widget numbers (device -> UI)
 	std::map<int, int> cc_to_ctrl;
 private:
@@ -127,10 +127,11 @@ public:
 	 */
 private:
 	unsigned char roms; // number of roms
-	std::map<int, int> rom_id_map;
+	char rom_index[5];
 	const char* get_name(int) const;
 public:
 	ROM* rom[5];
+	char get_rom_index(char) const;
 
 	/*
 	 * preset specific

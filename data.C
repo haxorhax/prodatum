@@ -33,7 +33,6 @@ extern Cfg* cfg;
 extern PXK* pxk;
 extern PD_UI* ui;
 extern bool time_incoming_midi;
-extern std::map<int, int> rom_id_map;
 extern PD_Arp_Step* arp_step[32];
 
 /**
@@ -388,7 +387,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		show_preset = show;
 		update_checksum();
 		if (closed_loop)
-			; //pxk->loading(); // TODO
+			pxk->Loading(); // TODO
 	}
 	ui->progress->value((float) status);
 	if (closed_loop)
@@ -595,7 +594,7 @@ void Preset_Dump::copy(int type, int src, int dst)
 		{
 			midi->copy(C_PRESET, number, dst, 0, 0, rom_id);
 			// update names and browsers
-			pxk->rom[0]->set_name(PRESET, dst, pxk->rom[rom_id_map[rom_id]]->get_name(PRESET, number));
+			pxk->rom[0]->set_name(PRESET, dst, pxk->rom[pxk->get_rom_index(rom_id)]->get_name(PRESET, number));
 			if (ui->preset_rom->value() == 0)
 				ui->preset->load_n(PRESET, 0, dst);
 			ui->copy_browser->load_n(PRESET, 0, dst);
@@ -649,7 +648,7 @@ void Preset_Dump::copy(int type, int src, int dst)
 			break;
 		case C_ARP_PATTERN:
 		{
-			int source_rom;
+			char source_rom;
 			if (ui->preset_editor->arp->visible_r())
 			{
 				src = ui->preset_editor->arp->get_value();
@@ -662,7 +661,7 @@ void Preset_Dump::copy(int type, int src, int dst)
 			}
 			midi->copy(C_ARP_PATTERN, src, dst, 0, 0, source_rom);
 			// update names
-			pxk->rom[0]->set_name(ARP, dst, pxk->rom[rom_id_map[source_rom]]->get_name(ARP, src));
+			pxk->rom[0]->set_name(ARP, dst, pxk->rom[pxk->get_rom_index(source_rom)]->get_name(ARP, src));
 			ui->copy_arp_pattern_browser->load_n(ARP, 0, dst);
 			if (ui->preset_editor->arp_rom->value() == 0)
 				ui->preset_editor->arp->load_n(ARP, 0, dst);

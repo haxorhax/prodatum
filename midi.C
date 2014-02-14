@@ -635,7 +635,6 @@ void MIDI::populate_ports()
 			ports_in.push_back(i);
 		}
 	}
-	Fl::wait(.1);
 }
 
 void MIDI::set_device_id(int id)
@@ -1079,15 +1078,6 @@ void MIDI::request_hardware_config() const
 	requested = true;
 }
 
-// TODO
-static void loading_screen(void*)
-{
-	ui->loading_w->free_position();
-	ui->loading_w->show();
-	while (!got_answer)
-		Fl::repeat_timeout(.1, loading_screen, 0);
-}
-
 void MIDI::request_preset_dump(int preset, int rom_id) const
 {
 	pmesg("MIDI::request_preset_dump(preset: %d, rom: %d) \n", preset, rom_id);
@@ -1100,8 +1090,7 @@ void MIDI::request_preset_dump(int preset, int rom_id) const
 	uchar request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x11, cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD) ? 0x02 : 0x04, preset
 			% 128, preset / 128, rom_id % 128, rom_id / 128, 0xf7 };
-	//Fl::add_timeout(.1, loading_screen); // TODO
-	got_answer = false;
+	pxk->Loading();
 	write_sysex(request, 12);
 	requested = true;
 }
@@ -1154,7 +1143,7 @@ void MIDI::edit_parameter_value(int id, int value) const
 	write_sysex(request, 12);
 	// display request message in menu
 	static char buf[25];
-	for (size_t i = 0; i < 12; i++)
+	for (unsigned char i = 0; i < 12; i++)
 		sprintf(buf + 2 * i, "%02X", request[i]);
 	buf[24] = '\0';
 	pxk->display_status(buf);

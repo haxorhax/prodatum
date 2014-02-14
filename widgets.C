@@ -44,7 +44,6 @@ extern PD_UI* ui;
 extern PXK* pxk;
 extern Cfg* cfg;
 extern MIDI* midi;
-extern std::map<int, int> rom_id_map;
 extern unsigned char colors[5];
 
 /// show warning when we are about to erase an edited edit buffer
@@ -320,9 +319,10 @@ void Browser::set_value(int v)
 void Browser::load_n(int type, int rom_id, int preset)
 {
 	//pmesg("Browser::load_n(%d, %d, %d) (id:%d layer:%d)\n", type, rom_id, preset, id_layer[0], id_layer[1]);
-	if (rom_id_map.find(rom_id) == rom_id_map.end())
+	char rom_ = pxk->get_rom_index(rom_id);
+	if (rom_ == -1)
 		return;
-	if (!pxk->rom[rom_id_map[rom_id]])
+	if (!pxk->rom[rom_])
 		return;
 	int val = value();
 	// only load a new list if its different from the loaded one
@@ -333,8 +333,8 @@ void Browser::load_n(int type, int rom_id, int preset)
 		// load a new list
 		if (preset == -1)
 		{
-			int number = pxk->rom[rom_id_map[rom_id]]->get_attribute(type);
-			const unsigned char* names = pxk->rom[rom_id_map[rom_id]]->get_name(type, 0);
+			int number = pxk->rom[rom_]->get_attribute(type);
+			const unsigned char* names = pxk->rom[rom_]->get_name(type, 0);
 			clear();
 			if (id_layer[0] == 1409) // instruments
 			{
@@ -363,7 +363,7 @@ void Browser::load_n(int type, int rom_id, int preset)
 		// replace single item
 		else
 		{
-			snprintf(name, 21, "%03d %s", preset, pxk->rom[rom_id_map[rom_id]]->get_name(type, preset));
+			snprintf(name, 21, "%03d %s", preset, pxk->rom[rom_]->get_name(type, preset));
 			if (id_layer[0] == 1281 || id_layer[0] == 1290) // preset links
 				text(preset + 2, name);
 			else
@@ -666,10 +666,11 @@ void ROM_Choice::set_id(int v, int l)
 
 void ROM_Choice::set_value(int v)
 {
-	pmesg("ROM_Choice::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
-	if (v == 0 || rom_id_map.find(v) != rom_id_map.end())
+	if(id_layer[0] == 1439)
+		pmesg("ROM_Choice::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
+	if (v == 0 || pxk->get_rom_index(v) != -1)
 	{
-		value(rom_id_map[v] - no_user);
+		value(pxk->get_rom_index(v) - no_user);
 		dependency(v, false);
 	}
 }
