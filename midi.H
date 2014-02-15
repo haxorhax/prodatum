@@ -114,7 +114,7 @@ public:
 	/// sends a EOF command
 	void eof() const;
 	/// sends a device inquiry
-	void request_device_inquiry(int id = -1) const;
+//	void request_device_inquiry(int id = -1) const;
 	/**
 	 * sends a preset dump request.
 	 * @param preset the preset number

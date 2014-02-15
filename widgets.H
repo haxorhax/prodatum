@@ -69,7 +69,7 @@ struct FilterMap
  * @param exit wether to act as an exit dialog
  * @return the chosen answer
  */
-int dismiss(bool exit);
+int dismiss(char exit);
 
 /**
  * PWid abstract class.

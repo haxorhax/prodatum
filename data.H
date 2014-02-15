@@ -299,9 +299,9 @@ class ROM
 	/// rom ID
 	int id;
 	/// for user data (programs, arps) we need to know which device we belong to
-	int device_id;
+	char device_id;
 	/// if data (PROGRAM, INSTRUMENT,..) is on disk already, this gets true
-	bool is_saved_already[7];
+	bool on_disk[7];
 	/// number of available instruments in this ROM
 	int instruments;
 	/// number of available presets in this ROM

@@ -62,6 +62,7 @@ public:
 	bool Synchronize();
 	void Loading() const;
 	void log_add(const unsigned char*, const unsigned int, unsigned char) const;
+	bool Synchronized() const;
 	/// maps controller values to CC widget numbers (device -> UI)
 	std::map<int, int> cc_to_ctrl;
 private:
@@ -79,6 +80,7 @@ public:
 	void widget_callback(int, int, int layer = -2);
 	void cc_callback(int, int);
 	void display_status(const char*, bool top = false);
+	void Join();
 
 	/*
 	 * device specific
@@ -91,6 +93,7 @@ private:
 	int user_presets; // available user presets
 	void create_device_info();
 public:
+	void Inquire(unsigned char);
 	void incoming_inquiry_data(const unsigned char*, int);
 	void incoming_hardware_config(const unsigned char*, int);
 

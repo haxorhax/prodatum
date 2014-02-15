@@ -47,12 +47,14 @@ extern MIDI* midi;
 extern unsigned char colors[5];
 
 /// show warning when we are about to erase an edited edit buffer
-int dismiss(bool exit)
+int dismiss(char exit)
 {
 	if (!pxk->preset || !pxk->preset->is_changed() || !ui->confirm_dismiss->value())
 		return 1; // dismiss
 	int answer;
-	if (exit)
+	if (exit == 2)
+		answer = fl_choice("Dismiss changes and open a different device?", "Cancel", "Dismiss and open", "Save");
+	else if (exit == 1)
 		answer = fl_choice("Dismiss changes and exit?", "Cancel", "Dismiss and exit", "Save");
 	else
 		answer = fl_choice("Dismiss changes?", "Cancel", "Dismiss", "Save");
@@ -69,7 +71,7 @@ void PWid::cb(PWid*, void* p)
 	pmesg("cb: id: %d, layer: %d\n", ((int*) p)[0], ((int*) p)[1]);
 	if (((int*) p)[0] == 897 && (ui->b_save_p->value() || ui->b_copy_p->value())) // saving in the preset browser
 		goto SKIP_DISMISS;
-	if ((((int*) p)[0] == 129 || ((int*) p)[0] == 138 || ((int*) p)[0] == 897) && dismiss(false) != 1)
+	if ((((int*) p)[0] == 129 || ((int*) p)[0] == 138 || ((int*) p)[0] == 897) && dismiss(0) != 1)
 	{
 		// reset to previous value and return
 		if (((int*) p)[0] == 129)

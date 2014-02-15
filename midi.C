@@ -1,20 +1,20 @@
 /*
-    This file is part of prodatum.
-    Copyright 2011-2014 Jan Eidtmann
+ This file is part of prodatum.
+ Copyright 2011-2014 Jan Eidtmann
 
-    prodatum is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ prodatum is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    prodatum is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ prodatum is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <string.h>
 #include <errno.h>
@@ -28,11 +28,12 @@
 extern PD_UI* ui;
 extern Cfg* cfg;
 extern PXK* pxk;
+
 bool got_answer;
+bool midi_active = false;
 
 static bool timer_running = false;
 static bool thru_active = false;
-static bool midi_active = false;
 static bool process_midi_exit_flag = false;
 static bool automap = true;
 extern unsigned char request_delay;
@@ -360,7 +361,7 @@ static void process_midi_in(void*)
 						break;
 
 					case 0x0b: // generic name
-							pxk->incoming_generic_name(sysex);
+						pxk->incoming_generic_name(sysex);
 						break;
 
 					case 0x1c: // setup dumps
@@ -409,12 +410,8 @@ static void process_midi_in(void*)
 				// device inquiry
 				if (sysex[3] == 0x06 && sysex[4] == 0x02 && sysex[5] == 0x18)
 				{
-					if (requested)
-					{
-						pmesg("device inquiry response\n");
-						requested = false;
-						pxk->incoming_inquiry_data(sysex, len);
-					}
+					pmesg("device inquiry response\n");
+					pxk->incoming_inquiry_data(sysex, len);
 				}
 			}
 			else
@@ -757,7 +754,7 @@ int MIDI::connect_out(int port)
 	{
 		midi_active = true;
 		ui->b_auto_detect->activate();
-		request_device_inquiry();
+		//request_device_inquiry();
 	}
 	if (selected_port_thru != -1)
 		thru_active = true;
@@ -837,7 +834,7 @@ int MIDI::connect_in(int port)
 	{
 		midi_active = true;
 		ui->b_auto_detect->activate();
-		request_device_inquiry();
+		//request_device_inquiry();
 	}
 	return 1;
 }
@@ -1020,59 +1017,58 @@ void MIDI::write_event(int status, int value1, int value2, int channel) const
 void MIDI::ack(int packet) const
 {
 	pmesg("MIDI::ack(packet: %d) \n", packet);
-	uchar ack[] =
+	unsigned char ack[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7f, packet % 128, packet / 128, 0xf7 };
 	write_sysex(ack, 9);
 }
 void MIDI::nak(int packet) const
 {
 	pmesg("MIDI::nak(packet: %d) \n", packet);
-	uchar nak[] =
+	unsigned char nak[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7e, packet % 128, packet / 128, 0xf7 };
 	write_sysex(nak, 9);
 }
 void MIDI::cancel() const
 {
 	pmesg("MIDI::cancel() \n");
-	uchar cancel[] =
+	unsigned char cancel[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7d, 0xf7 };
 	write_sysex(cancel, 7);
 }
 void MIDI::wait() const
 {
 	pmesg("MIDI::wait() \n");
-	uchar wait[] =
+	unsigned char wait[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7c, 0xf7 };
 	write_sysex(wait, 7);
 }
 void MIDI::eof() const
 {
 	pmesg("MIDI::eof() \n");
-	uchar endof[] =
+	unsigned char endof[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7b, 0xf7 };
 	write_sysex(endof, 7);
 }
 
-void MIDI::request_device_inquiry(int id) const
-{
-	pmesg("MIDI::request_device_inquiry(%d) \n", id);
-	if (!midi_active)
-		return;
-	int check_id = id;
-	if (check_id == -1)
-		check_id = midi_device_id;
-	uchar request[] =
-	{ 0xf0, 0x7e, check_id, 0x06, 0x01, 0xf7 };
-	write_sysex(request, 6);
-	requested = true;
-}
+//void MIDI::request_device_inquiry(int id) const
+//{
+//	pmesg("MIDI::request_device_inquiry(%d) \n", id);
+//	if (!midi_active)
+//		return;
+//	if (id == -1)
+//		id = midi_device_id;
+//	unsigned char request[] =
+//	{ 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
+//	write_sysex(request, 6);
+//	requested = true;
+//}
 
 void MIDI::request_hardware_config() const
 {
 	pmesg("MIDI::request_hardware_config() \n");
 	if (requested)
 		return;
-	uchar request[] =
+	unsigned char request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x0a, 0xf7 };
 	write_sysex(request, 7);
 	requested = true;
@@ -1087,7 +1083,7 @@ void MIDI::request_preset_dump(int preset, int rom_id) const
 		preset += 16384;
 	else
 		seed_randomizer = true;
-	uchar request[] =
+	unsigned char request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x11, cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD) ? 0x02 : 0x04, preset
 			% 128, preset / 128, rom_id % 128, rom_id / 128, 0xf7 };
 	pxk->Loading();
@@ -1100,7 +1096,7 @@ void MIDI::request_setup_dump() const
 	pmesg("MIDI::request_setup_dump() \n");
 	if (requested || !midi_active)
 		return;
-	uchar request[] =
+	unsigned char request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x1d, 0xf7 };
 	write_sysex(request, 7);
 	requested = true;
@@ -1113,7 +1109,7 @@ void MIDI::request_arp_dump(int number, int rom_id) const
 	pmesg("MIDI::request_arp_dump(#: %d, rom: %d)\n", number, rom_id);
 	if (number < 0)
 		number += 16384;
-	uchar request[] =
+	unsigned char request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x19, number % 128, number / 128, rom_id % 128, rom_id / 128, 0xf7 };
 	write_sysex(request, 11);
 }
@@ -1123,7 +1119,7 @@ void MIDI::request_name(int type, int number, int rom_id) const
 	if (!midi_active)
 		return;
 	pmesg("MIDI::request_name(type: %d, #: %d, rom_id: %d)\n", type, number, rom_id);
-	uchar request[] =
+	unsigned char request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x0c, type, number % 128, number / 128, rom_id % 128, rom_id / 128, 0xf7 };
 	write_sysex(request, 12);
 }
@@ -1138,7 +1134,7 @@ void MIDI::edit_parameter_value(int id, int value) const
 		id += 16384;
 	if (value < 0)
 		value += 16384;
-	uchar request[] =
+	unsigned char request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x01, 0x02, id % 128, id / 128, value % 128, value / 128, 0xf7 };
 	write_sysex(request, 12);
 	// display request message in menu
@@ -1154,7 +1150,7 @@ void MIDI::master_volume(int volume) const
 	if (!midi_active)
 		return;
 	pmesg("MIDI::master_volume() \n");
-	uchar master_vol[] =
+	unsigned char master_vol[] =
 	{ 0xf0, 0x7f, midi_device_id, 0x04, 0x01, volume % 128, volume / 128, 0xf7 };
 	write_sysex(master_vol, 8);
 }
@@ -1171,7 +1167,7 @@ void MIDI::copy(int cmd, int src, int dst, int src_l, int dst_l, int rom_id) con
 	// layer dependent
 	if (cmd > 0x24 && cmd < 0x2b)
 	{
-		uchar copy[] =
+		unsigned char copy[] =
 		{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, cmd, src % 128, src / 128, src_l, 0, dst % 128, dst / 128, dst_l, 0,
 				rom_id % 128, rom_id / 128, 0xf7 };
 		write_sysex(copy, 17);
@@ -1181,7 +1177,7 @@ void MIDI::copy(int cmd, int src, int dst, int src_l, int dst_l, int rom_id) con
 	{
 		if (cmd == 0x2c) // copy setup
 		{
-			uchar copy[] =
+			unsigned char copy[] =
 			{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, cmd, src % 128, src / 128, dst % 128, dst / 128, 0xf7 };
 			write_sysex(copy, 11);
 			// set device id to our chosen device id
@@ -1192,7 +1188,7 @@ void MIDI::copy(int cmd, int src, int dst, int src_l, int dst_l, int rom_id) con
 		}
 		else
 		{
-			uchar copy[] =
+			unsigned char copy[] =
 			{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, cmd, src % 128, src / 128, dst % 128, dst / 128, rom_id % 128, rom_id
 					/ 128, 0xf7 };
 			write_sysex(copy, 13);
@@ -1206,13 +1202,13 @@ void MIDI::audit() const
 		return;
 	pmesg("MIDI::audit()\n");
 	// open session
-	uchar os[] =
+	unsigned char os[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x40, 0x10, 0xf7 };
 	write_sysex(os, 8);
-	uchar press[] =
+	unsigned char press[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x40, 0x20, 0x04, 0x0, 0x01, 0xf7 };
 	write_sysex(press, 11);
-	uchar cs[] =
+	unsigned char cs[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x40, 0x11, 0xf7 };
 	write_sysex(cs, 8);
 }
@@ -1231,13 +1227,13 @@ void MIDI::randomize() const
 		int byte1 = random() % 16384;
 		int byte2 = random() % 16384;
 #endif
-		uchar seedr[] =
+		unsigned char seedr[] =
 		{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x72, 0x7f, 0x7f, 0, 0, byte1 % 128, byte1 / 128, byte2 % 128, byte2
 				/ 128, 0xf7 };
 		write_sysex(seedr, 15);
 		seed_randomizer = false;
 	}
-	uchar randomize[] =
+	unsigned char randomize[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x71, 0x7f, 0x7f, 0, 0, 0xf7 };
 	write_sysex(randomize, 11);
 

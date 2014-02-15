@@ -30,6 +30,7 @@ extern PD_UI* ui;
 extern PXK* pxk;
 
 extern bool got_answer;
+extern bool midi_active;
 extern FilterMap FM[51];
 MIDI* midi = 0;
 Cfg* cfg = 0;
@@ -95,7 +96,9 @@ void PXK::widget_callback(int id, int value, int layer)
 		selected_preset_rom = setup->get_value(138, selected_channel);
 		selected_preset = setup->get_value(130, selected_channel);
 		ui->preset_rom->set_value(selected_preset_rom);
+		Fl::wait(.1);
 		ui->preset->set_value(selected_preset);
+		Fl::wait(.1);
 		mysleep(33);
 		midi->request_preset_dump(-1, 0);
 		// FX channel
@@ -319,7 +322,15 @@ PXK::PXK(const char* file, char auto_c)
 			ui->midi_ctrl->value(cfg->get_cfg_option(CFG_MIDI_THRU));
 		}
 		if (success)
+		{
+			Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
 			Fl::add_timeout(.2, check_connection, (void*) &device_id);
+			if (ui->open_device->shown())
+			{
+				ui->open_device->hide();
+				Fl::wait(.1);
+			}
+		}
 		else
 		{
 			ui->open_device->show();
@@ -361,6 +372,7 @@ PXK::~PXK()
 	}
 }
 
+// TODO: config selection
 bool PXK::LoadConfig(const char* name) const
 {
 	pmesg("PXK::LoadConfig()\n");
@@ -400,7 +412,7 @@ static void sync_progress(void* f)
 		if (!ui->init->shown())
 		{
 			ui->init->show();
-			Fl::wait();
+			Fl::wait(.1);
 		}
 		Fl::repeat_timeout(.1, sync_progress, f);
 	}
@@ -427,6 +439,7 @@ static void *sync_bro(void* p)
 {
 	unsigned char rom_nr, type;
 	unsigned int name;
+	char _label[64];
 	int names;
 	// load setup names
 	unsigned char setups_to_load = 0;
@@ -448,12 +461,17 @@ static void *sync_bro(void* p)
 			Fl::unlock();
 		}
 		Fl::lock();
+		ui->init_progress->label("Loading multisetup names...");
 		ui->init_progress->maximum((float) 64);
 		init_progress = 0;
+		if (*(bool*) p) // Join()
+			goto Hell;
 		Fl::unlock();
 		for (name = 0; name < 63; name++)
 		{
 			Fl::lock();
+			if (*(bool*) p) // Join()
+				goto Hell;
 			ui->init_progress->value((float) init_progress);
 			got_answer = false;
 			pxk->load_setup_names(name);
@@ -473,6 +491,7 @@ static void *sync_bro(void* p)
 	for (rom_nr = 0; rom_nr < 5; rom_nr++) // for every rom
 	{
 		if (pxk->rom[rom_nr])
+		{
 			for (type = 1; type <= RIFF; type++) // for every type
 			{
 				if (type == SETUP || type == DEMO)
@@ -489,7 +508,29 @@ static void *sync_bro(void* p)
 						else if (type == RIFF)
 							names = MAX_RIFFS;
 					}
+					// set progress bar label
+					const char* _type = 0;
+					switch (type)
+					{
+						case PRESET:
+							_type = "preset";
+							break;
+						case INSTRUMENT:
+							_type = "instrument";
+							break;
+						case ARP:
+							_type = "arp (estimated progress)";
+							break;
+						case RIFF:
+							_type = "riff (estimated progress)";
+							break;
+					}
 					Fl::lock();
+					if (rom_nr == 0)
+						snprintf(_label, 64, "Loading flash %s names...", _type);
+					else
+						snprintf(_label, 64, "Loading %s %s names...", pxk->rom[rom_nr]->name(), _type);
+					ui->init_progress->label(_label);
 					ui->init_progress->maximum((float) names);
 					init_progress = 0;
 					name_set_incomplete = true;
@@ -498,6 +539,8 @@ static void *sync_bro(void* p)
 					while (name_set_incomplete && name < names)
 					{
 						Fl::lock();
+						if (*(bool*) p) // Join()
+							goto Hell;
 						ui->init_progress->value((float) init_progress);
 						got_answer = false;
 						pxk->rom[rom_nr]->load_name(type, name);
@@ -506,15 +549,37 @@ static void *sync_bro(void* p)
 						Fl::unlock();
 						name++;
 						while (!got_answer)
+						{
 							mysleep(5);
+							if (type == ARP && rom_nr != 0) // wait a bit longer to process ROM arp dumps
+								mysleep(5);
+						}
 					}
 					Fl::remove_timeout(keep_running_bro);
 				}
 			}
+		}
 	}
 	Fl::lock();
 	*(bool*) p = true;
 	Fl::unlock();
+	return ((void*) 0);
+	Hell: // Join()
+	midi->cancel();
+	Fl::remove_timeout(keep_running_bro);
+	*(bool*) p = false;
+	Fl::unlock();
+}
+
+void PXK::Join()
+{
+	if (!synchronized)
+	{
+		Fl::remove_timeout(sync_progress);
+		synchronized = true;
+		while (synchronized)
+			Fl::wait(.1);
+	}
 }
 
 bool PXK::Synchronize()
@@ -525,11 +590,17 @@ bool PXK::Synchronize()
 	midi->filter_strict(); // filter everything but sysex for init
 	synchronized = false;
 	init_progress = 0;
+	ui->init_progress->label("Initializing...");
 	// request rom infos
 	Fl_Thread sync_hardware;
 	fl_create_thread(sync_hardware, sync_bro, (void*) &synchronized);
 	Fl::add_timeout(.1, sync_progress, (void*) &synchronized);
 	return true;
+}
+
+bool PXK::Synchronized() const
+{
+	return synchronized;
 }
 
 void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned char io) const
@@ -554,15 +625,29 @@ void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned c
 		ui->log->show_insert_position();
 }
 
+void PXK::Inquire(unsigned char id)
+{
+	if (!synchronized && midi_active)
+	{
+		device_id = id;
+		unsigned char s[] = { 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
+		midi->write_sysex(s, 6);
+	}
+}
+
 void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 {
 	pmesg("PXK::incoming_inquiry_data(data, %d)\n", len);
 	Fl::remove_timeout(check_connection);
-	device_code = data[7] * 128 + data[6];
-	if (device_code == 516) // talking to an PXK!
+	if (!synchronized && data[7] * 128 + data[6] == 516 && (data[2] == device_id || device_id == 127)) // talking to our PXK!
 	{
-		device_id = data[2];
-		ui->device_id->value((double) device_id);
+		if (device_id == 127)
+		{
+			device_id = data[2];
+			ui->device_id->value((double) device_id);
+		}
+		cfg->set_cfg_option(CFG_DEVICE_ID, device_id);
+		device_code = 516;
 		midi->set_device_id(device_id); // so further sysex comes through
 		midi->edit_parameter_value(405, request_delay);
 		midi->request_hardware_config();
@@ -591,8 +676,6 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 				ui->preset_editor->pre_d->label("Pre D");
 		}
 	}
-	else
-		device_code = -1;
 }
 
 char PXK::get_rom_index(char id) const
@@ -643,7 +726,7 @@ unsigned char PXK::load_setup_names(unsigned char start)
 			setup_names = 0;
 		}
 		char filename[PATH_MAX];
-		snprintf(filename, PATH_MAX, "%s/n_set_%d", cfg->get_config_dir(), cfg->get_cfg_option(CFG_DEVICE_ID));
+		snprintf(filename, PATH_MAX, "%s/n_set_0_%d", cfg->get_config_dir(), cfg->get_cfg_option(CFG_DEVICE_ID));
 		std::fstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
 		if (file.is_open())
 		{
@@ -849,8 +932,7 @@ void PXK::Loading() const
 	Fl::remove_timeout(check_loading);
 	ui->loading_w->free_position();
 	ui->loading_w->show();
-	Fl::wait(.1);
-	Fl::add_timeout(1, check_loading);
+	Fl::add_timeout(1.5, check_loading);
 }
 
 void PXK::load_setup()
@@ -935,7 +1017,7 @@ void PXK::incoming_generic_name(const unsigned char* data)
 void PXK::incoming_arp_dump(const unsigned char* data, int len)
 {
 	pmesg("PXK::incoming_arp_dump(data, %d)\n", len);
-	if (!synchronized) // init
+	if (!synchronized || ui->init->shown()) // init
 	{
 		if (data[14] < 32) // not ascii, not a "real" arp dump
 		{
@@ -1034,7 +1116,7 @@ void PXK::save_setup_names() const
 	if (midi_mode != -1 && setup_names)
 	{
 		char filename[PATH_MAX];
-		snprintf(filename, PATH_MAX, "%s/n_set_%d", cfg->get_config_dir(), device_id);
+		snprintf(filename, PATH_MAX, "%s/n_set_0_%d", cfg->get_config_dir(), device_id);
 		std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
 		file.write((char*) setup_names, 1024);
 		file.close();
@@ -1283,7 +1365,7 @@ void PXK::create_device_info()
 	{
 		for (unsigned char i = 1; i <= roms; i++)
 		{
-			snprintf(buf, 512, "\n - %s: %d sam, %d prg", rom[i]->name(), rom[i]->get_attribute(INSTRUMENT),
+			snprintf(buf, 512, "\n * %s: %d instr, %d prgs", rom[i]->name(), rom[i]->get_attribute(INSTRUMENT),
 					rom[i]->get_attribute(PRESET));
 			info += buf;
 		}
@@ -1798,7 +1880,7 @@ void PXK::solo(int state, int layer)
 void PXK::start_over()
 {
 	pmesg("PXK::start_over() \n");
-	if (!preset || !preset_copy || !preset->is_changed() || dismiss(false) != 1)
+	if (!preset || !preset_copy || !preset->is_changed() || dismiss(0) != 1)
 		return;
 	// select a different basic channel (erases edit buffer)
 	midi->edit_parameter_value(139, (selected_channel + 1) % 15);

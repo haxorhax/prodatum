@@ -70,7 +70,8 @@ enum
 class Cfg
 {
 	/// config name
-	char config_name[64];
+	char* config_name;
+	char _name[64];
 	/// configuration directory
 	char config_dir[PATH_MAX];
 	/// path to export directory
@@ -90,6 +91,7 @@ public:
 	/// returns the config directory path
 	const char* get_config_dir() const;
 	const char* get_export_dir() const;
+	const char* get_config_name() const;
 	bool set_export_dir(const char* dir);
 	/**
 	 * updates a configuration value

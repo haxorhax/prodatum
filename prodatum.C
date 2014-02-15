@@ -39,7 +39,7 @@ extern const char* rates[25];
 extern PD_Arp_Step* arp_step[32];
 
 // default config
-static char config[32];
+static char* config;
 static char auto_connect = 1;
 
 /**
@@ -57,7 +57,8 @@ int options(int argc, char **argv, int &i)
 	{
 		if (i + 1 >= argc)
 			return 0;
-		snprintf(config, 32, "%s", argv[i + 1]);
+		config = (char*) malloc(64 * sizeof(char));
+		snprintf(config, 64, "%s", argv[i + 1]);
 		i += 2;
 		return 2;
 	}
@@ -66,13 +67,13 @@ int options(int argc, char **argv, int &i)
 
 int main(int argc, char *argv[])
 {
-	snprintf(config, 32, "cfg.txt");
 	Fl::scheme("gleam");
 	// command line options
+	config = 0;
 	int i = 1;
 	if (!Fl::args(argc, argv, i, options))
 	{
-		printf("prodatum (ng) options:\n"
+		printf("prodatum options:\n"
 				" -c file\tConfig file to use (default: cfg.txt)\n"
 				" -a     \tdo not open device at startup\n");
 		return 1;
@@ -476,7 +477,7 @@ void PD_UI::create_about()
 	OS = "GNU/Linux";
 #endif
 	char buf[512];
-	snprintf(buf, 512, "prodatum-ng\nfor %s", OS);
+	snprintf(buf, 512, "prodatum\nfor %s", OS);
 	about_text->copy_label(buf);
 }
 
@@ -735,24 +736,28 @@ static void load_data()
 }
 
 //// delete name files
-void reset(int user_data, int rom_data)
+void PD_UI::Reset(char user_data, char rom_data)
 {
 	if (!cfg || (user_data == -1 && rom_data == -1))
 	{
-		ui->reset_w->hide();
-		ui->b_reset->activate();
+		reset_w->hide();
+		b_reset->activate();
 		return;
 	}
 	pmesg("reset(%d, %d)\n", user_data, rom_data);
-	char cfg_file[PATH_MAX];
-	snprintf(cfg_file, PATH_MAX, "%s", cfg->get_config_dir());
-	char cfg_name[32];
-	snprintf(cfg_name, 32, "cfg.txt"); // todo
+	char config_dir[PATH_MAX];
+	snprintf(config_dir, PATH_MAX, "%s", cfg->get_config_dir());
+	char* cfg_name = 0;
+	if (cfg->get_config_name()) // if name was set
+	{
+		cfg_name = (char*) malloc(64 * sizeof(char));
+		snprintf(cfg_name, 64, cfg->get_config_name());
+	}
 	delete pxk;
 	pxk = 0;
 	// delete files
 	dirent **files;
-	int num_files = fl_filename_list(cfg_file, &files);
+	int num_files = fl_filename_list(config_dir, &files);
 	char buf[PATH_MAX];
 	int f_size = 20;
 	char f[f_size];
@@ -767,7 +772,7 @@ void reset(int user_data, int rom_data)
 		{
 			if (fl_filename_match(files[i]->d_name, f))
 			{
-				snprintf(buf, PATH_MAX, "%s/%s", cfg_file, files[i]->d_name);
+				snprintf(buf, PATH_MAX, "%s/%s", config_dir, files[i]->d_name);
 				pmesg(" - - deleting %s ... ", buf);
 #ifdef WIN32
 				if (_unlink(buf))
@@ -796,7 +801,7 @@ void reset(int user_data, int rom_data)
 		{
 			if (fl_filename_match(files[i]->d_name, f))
 			{
-				snprintf(buf, PATH_MAX, "%s/%s", cfg_file, files[i]->d_name);
+				snprintf(buf, PATH_MAX, "%s/%s", config_dir, files[i]->d_name);
 				pmesg(" - - deleting %s! ... ", buf);
 #ifdef WIN32
 				if (_unlink(buf))
@@ -820,8 +825,23 @@ void reset(int user_data, int rom_data)
 		free((void*) (files[--i]));
 	free((void*) files);
 	// reload
-	ui->reset_w->hide();
-	ui->b_reset->activate();
-	fl_message("Deleted %d files from\n%s", deleted, cfg_file);
+	reset_w->hide();
+	b_reset->activate();
+	fl_message("Deleted %d files from\n%s", deleted, config_dir);
 	pxk = new PXK(cfg_name, 1);
+	if (cfg_name)
+		free(cfg_name);
+}
+
+void PD_UI::Cancel()
+{
+	pmesg("PD_UI::Cancel() \n");
+	pxk->Join();
+	char config[64];
+	snprintf(config, 64, cfg->get_config_name());
+	delete pxk;
+	init->hide();
+	while (init->shown())
+		Fl::wait(.1);
+	pxk = new PXK(config, 0);
 }

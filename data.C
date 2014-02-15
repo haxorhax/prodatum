@@ -1,20 +1,20 @@
 /*
-    This file is part of prodatum.
-    Copyright 2011-2014 Jan Eidtmann
+ This file is part of prodatum.
+ Copyright 2011-2014 Jan Eidtmann
 
-    prodatum is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ prodatum is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    prodatum is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ prodatum is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <string.h>
 #include <fstream>
@@ -285,7 +285,7 @@ void Preset_Dump::show() const
 		pwid[1299][0]->set_value(get_value(1299));
 	if (pwid[1300][0]) // link 2
 		pwid[1300][0]->set_value(get_value(1300));
-
+	Fl::wait(.1);
 	for (int i = 915; i <= 1300; i++) // preset params
 	{
 		if ((i > 1152 && i < 1169) || i == 929) // skip fx & riff rom
@@ -874,7 +874,8 @@ void Preset_Dump::idmap(const int& id, const int& layer, int& id_mapped) const
 	else if (id - 1834 <= 0) // Preset Layer Envelope Edit Parameters
 		pos = id - 1793 + 167 + extra_controller - a2k + layer * 158;
 
-	else // Preset Layer PatchCords Edit Parameters
+	else
+		// Preset Layer PatchCords Edit Parameters
 		pos = id - 1921 + 209 + extra_controller - a2k + layer * 158;
 
 	pos = (pos - 16) * 2 + 16;
@@ -1251,27 +1252,20 @@ ROM::ROM(int i, int pr, int in)
 	arp_names = 0;
 	riff_names = 0;
 	for (unsigned char i = 0; i < 7; i++)
-		is_saved_already[i] = false;
+		on_disk[i] = false;
 	const char* rom_name = name();
 	ui->preset_rom->add(rom_name);
 	ui->preset_editor->l1_rom->add(rom_name);
 	ui->preset_editor->l2_rom->add(rom_name);
 	// some roms have no arps but we have to add them anyway
-	// so we the rom indizes are still working correctly.
+	// so the rom indizes are still working correctly.
 	ui->preset_editor->arp_rom->add(rom_name);
 	ui->main->arp_rom->add(rom_name);
 	ui->copy_arp_rom->add(rom_name);
 	// reset rom choice
 	if (id != 0)
+	{
 		ui->r_rom_rom->add(rom_name);
-
-	if (id == 0)
-	{
-		arps = 100;
-		device_id = (int) ui->device_id->value();
-	}
-	else
-	{
 		const Fl_Menu_Item* item;
 		item = ui->preset_editor->arp_rom->find_item(rom_name);
 		const_cast<Fl_Menu_Item*>(item)->hide();
@@ -1283,7 +1277,12 @@ ROM::ROM(int i, int pr, int in)
 			ui->layer_editor[i]->instrument_rom->add(rom_name);
 		ui->preset_editor->riff_rom->add(rom_name);
 		ui->main->riff_rom->add(rom_name);
-		device_id = -1;
+		device_id = -1; // roms are not device specific
+	}
+	else
+	{
+		arps = 100;
+		device_id = cfg->get_cfg_option(CFG_DEVICE_ID);
 	}
 }
 
@@ -1305,12 +1304,12 @@ ROM::~ROM()
 		ui->copy_arp_rom->clear();
 	}
 	// save names but only if we successfully initialized
-	if (pxk->midi_mode != -1) // TODO
+	if (pxk->Synchronized()) // TODO
 	{
 		const char* path = cfg->get_config_dir();
 		char filename[PATH_MAX];
 		// instruments
-		if (id != 0 && instrument_names && !is_saved_already[INSTRUMENT])
+		if (id != 0 && instrument_names && !on_disk[INSTRUMENT])
 		{
 			snprintf(filename, PATH_MAX, "%s/n_ins_%d", path, id);
 			std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
@@ -1318,7 +1317,7 @@ ROM::~ROM()
 			file.close();
 		}
 		// riffs
-		if (id != 0 && riff_names && !is_saved_already[RIFF])
+		if (id != 0 && riff_names && !on_disk[RIFF])
 		{
 			snprintf(filename, PATH_MAX, "%s/n_rff_%d", path, id);
 			std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
@@ -1326,7 +1325,7 @@ ROM::~ROM()
 			file.close();
 		}
 		// presets
-		if (preset_names && !is_saved_already[PRESET])
+		if (preset_names && !on_disk[PRESET])
 		{
 			if (id == 0)
 				snprintf(filename, PATH_MAX, "%s/n_prs_%d_%d", path, id, device_id);
@@ -1337,28 +1336,16 @@ ROM::~ROM()
 			file.close();
 		}
 		// arps
-		if (!is_saved_already[ARP])
+		if (arp_names && !on_disk[ARP])
 		{
-			if (arp_names)
-			{
-				if (id == 0)
-					snprintf(filename, PATH_MAX, "%s/n_arp_%d_%d", path, id, device_id);
-				else
-					snprintf(filename, PATH_MAX, "%s/n_arp_%d", path, id);
-				std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
-				file.write((char*) arp_names, arps * 16);
-				file.close();
-			}
-			else if (id != 0)
-			{
-				// save dummy file so we dont get init window on each startup
+			if (id == 0)
+				snprintf(filename, PATH_MAX, "%s/n_arp_%d_%d", path, id, device_id);
+			else
 				snprintf(filename, PATH_MAX, "%s/n_arp_%d", path, id);
-				std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
-				file.write("none            ", 16);
-				file.close();
-			}
+			std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
+			file.write((char*) arp_names, arps * 16);
+			file.close();
 		}
-
 	}
 	delete[] instrument_names;
 	delete[] preset_names;
@@ -1417,7 +1404,7 @@ int ROM::disk_load_names(unsigned char type)
 	std::fstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
 	if (file.is_open())
 	{
-		size_t size = file.tellg();
+		int size = file.tellg();
 		if (size % 16)
 		{
 			file.close();
@@ -1429,18 +1416,21 @@ int ROM::disk_load_names(unsigned char type)
 		file.read((char*) *data, size);
 		file.close();
 		if (id != 0 || *number == 1)
-			is_saved_already[type] = true;
+			on_disk[type] = true;
 		// show this rom in arp selections
-		if (type == ARP && id != 0 && *number > 1)
+		if (type == ARP && id != 0)
 		{
-			const char* rom_name = ROM::name();
-			const Fl_Menu_Item* item;
-			item = ui->preset_editor->arp_rom->find_item(rom_name);
-			const_cast<Fl_Menu_Item*>(item)->show();
-			item = ui->main->arp_rom->find_item(rom_name);
-			const_cast<Fl_Menu_Item*>(item)->show();
-			item = ui->copy_arp_rom->find_item(rom_name);
-			const_cast<Fl_Menu_Item*>(item)->show();
+			if (*number > 1)
+			{
+				const char* rom_name = ROM::name();
+				const Fl_Menu_Item* item;
+				item = ui->preset_editor->arp_rom->find_item(rom_name);
+				const_cast<Fl_Menu_Item*>(item)->show();
+				item = ui->main->arp_rom->find_item(rom_name);
+				const_cast<Fl_Menu_Item*>(item)->show();
+				item = ui->copy_arp_rom->find_item(rom_name);
+				const_cast<Fl_Menu_Item*>(item)->show();
+			}
 		}
 		return -1;
 	}

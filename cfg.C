@@ -53,14 +53,14 @@ Cfg::Cfg(const char* n)
 	set_export_dir(getenv("HOME"));
 	snprintf(config_dir, PATH_MAX, "%s/.prodatum", export_dir);
 #endif
-	snprintf(config_name, 32, "%s", n);
 	defaults.resize(NOOPTION, 0);
+	option.resize(NOOPTION, 0);
 	defaults[CFG_MIDI_OUT] = -1;
 	defaults[CFG_MIDI_IN] = -1;
 	defaults[CFG_MIDI_THRU] = -1;
 	defaults[CFG_CONTROL_CHANNEL] = 0;
 	defaults[CFG_AUTOMAP] = 1;
-	defaults[CFG_DEVICE_ID] = 0;
+	defaults[CFG_DEVICE_ID] = 127;
 	defaults[CFG_AUTOCONNECT] = 1;
 	defaults[CFG_SPEED] = 0;
 	defaults[CFG_CLOSED_LOOP_UPLOAD] = 0;
@@ -72,11 +72,11 @@ Cfg::Cfg(const char* n)
 	defaults[CFG_CONFIRM_DISMISS] = 1;
 	defaults[CFG_SYNCVIEW] = 0;
 	defaults[CFG_DRLS] = 1;
-	defaults[CFG_BG] = 170; // 170 140
-	defaults[CFG_BG2] = 55; // 5 215
-	defaults[CFG_RR] = 100; // 82 68
-	defaults[CFG_GG] = 102; // 92 74
-	defaults[CFG_BB] = 110; // 87 77
+	defaults[CFG_BG] = 212; // 170 140
+	defaults[CFG_BG2] = 50; // 5 215
+	defaults[CFG_RR] = 126; // 82 68
+	defaults[CFG_GG] = 132; // 92 74
+	defaults[CFG_BB] = 142; // 87 77
 	defaults[CFG_COLORED_BG] = 1;
 	defaults[CFG_SHINY_KNOBS] = 0;
 	defaults[CFG_LOG_SYSEX_OUT] = 0;
@@ -86,81 +86,94 @@ Cfg::Cfg(const char* n)
 	defaults[CFG_WINDOW_WIDTH] = 843;
 	defaults[CFG_WINDOW_HEIGHT] = 615;
 	// load config
-	struct stat sbuf;
-	if (stat(config_dir, &sbuf) == -1)
+	config_name = 0;
+	if (n != 0)
 	{
-		if (mkdir(config_dir, S_IRWXU| S_IRWXG | S_IROTH | S_IXOTH) == -1)
+		snprintf(_name, 64, "%s", n);
+		config_name = _name;
+		struct stat sbuf;
+		if (stat(config_dir, &sbuf) == -1)
 		{
-			fl_alert("Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
-			fprintf(stderr, "Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
+			if (mkdir(config_dir, S_IRWXU| S_IRWXG | S_IROTH | S_IXOTH) == -1)
+			{
+				fl_alert("Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
+				fprintf(stderr, "Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
 #ifdef WIN32
-			fflush(stderr);
+				fflush(stderr);
 #endif
+			}
 		}
+		// load config
+		char config_path[PATH_MAX];
+		snprintf(config_path, PATH_MAX, "%s/%s", config_dir, config_name);
+		std::ifstream file(config_path);
+		if (!file.is_open()) // new config
+		{
+			for (int i = 0; i < NOOPTION; i++)
+				option[i] = defaults[i];
+			return;
+		}
+		int check_file, check = 1;
+		for (unsigned char i = 0; i < NOOPTION; i++)
+		{
+			file >> option[i];
+			check += option[i] * ((i % 5) + 1);
+		}
+		// checksum
+		file >> check_file;
+		// get export directory
+		char buf[PATH_MAX];
+		file.getline(0, 0);
+		file.getline(buf, PATH_MAX);
+		if (!file.fail())
+			set_export_dir(buf);
+		file.close();
+		if (check_file != check)
+		{
+			fl_message("Configuration updated, using default values.\n"
+					"Sorry for the inconvenience! I've opted for a\n"
+					"brainless but uber-fast configuration parser.");
+			for (unsigned char i = 0; i < NOOPTION; i++)
+				option[i] = defaults[i];
+		}
+		request_delay = option[CFG_SPEED] * 25 + 25;
 	}
-	// load config
-	option.resize(NOOPTION, 0);
-	char config_path[PATH_MAX];
-	snprintf(config_path, PATH_MAX, "%s/%s", config_dir, config_name);
-	std::ifstream file(config_path);
-	if (!file.is_open()) // new config
+	else // no config
 	{
-		for (int i = 0; i < NOOPTION; i++)
-			option[i] = defaults[i];
-		return;
-	}
-	int check_file, check = 1;
-	for (unsigned char i = 0; i < NOOPTION; i++)
-	{
-		file >> option[i];
-		check += option[i] * ((i % 5) + 1);
-	}
-	// checksum
-	file >> check_file;
-	// get export directory
-	char buf[PATH_MAX];
-	file.getline(0, 0);
-	file.getline(buf, PATH_MAX);
-	if (!file.fail())
-		set_export_dir(buf);
-	file.close();
-	if (check_file != check)
-	{
-		fl_message("Configuration updated, using default values.\n"
-				"Sorry for the inconvenience! I've opted for a\n"
-				"brainless but uber-fast configuration parser.");
 		for (unsigned char i = 0; i < NOOPTION; i++)
 			option[i] = defaults[i];
 	}
-	request_delay = option[CFG_SPEED] * 25 + 25;
 }
 
 Cfg::~Cfg()
 {
 	pmesg("Cfg::~Cfg()  \n");
 	// save config
-	char config_path[PATH_MAX];
-	snprintf(config_path, PATH_MAX, "%s/%s", config_dir, config_name);
-	std::ofstream file(config_path, std::ios::trunc);
-	if (!file.is_open())
+	if (config_name != 0)
 	{
-		fl_alert("Warning:\nCould not write the config file.");
-		fprintf(stderr, "Warning:\nCould not write the config file.");
+		char config_path[PATH_MAX];
+		snprintf(config_path, PATH_MAX, "%s/%s", config_dir, config_name);
+		std::ofstream file(config_path, std::ios::trunc);
+		if (!file.is_open())
+		{
+			fl_alert("Warning:\nCould not write the config file.");
+			fprintf(stderr, "Warning:\nCould not write the config file.");
 #ifdef WIN32
-		fflush(stderr);
+			fflush(stderr);
 #endif
-		return;
+			return;
+		}
+		// calc checksum
+		int check = 1;
+		for (int i = 0; i < NOOPTION; i++)
+		{
+			file << option[i] << " ";
+			check += option[i] * ((i % 5) + 1);
+		}
+		file << check << std::endl;
+		file << export_dir << std::endl;
+		file.close();
 	}
-	// calc checksum
-	int check = 1;
-	for (int i = 0; i < NOOPTION; i++)
-	{
-		file << option[i] << " ";
-		check += option[i] * ((i % 5) + 1);
-	}
-	file << check << std::endl;
-	file << export_dir << std::endl;
-	file.close();
 }
 
 void Cfg::set_cfg_option(int opt, int value)
@@ -201,6 +214,12 @@ const char* Cfg::get_export_dir() const
 {
 	pmesg("Cfg::get_export_dir()  \n");
 	return export_dir;
+}
+
+const char* Cfg::get_config_name() const
+{
+	pmesg("Cfg::get_config_name()  \n");
+	return config_name;
 }
 
 bool Cfg::set_export_dir(const char* dir)
@@ -339,7 +358,8 @@ void Cfg::set_color(int type, int value)
 	{
 		Fl::set_color(FL_BACKGROUND_COLOR, option[CFG_RR], option[CFG_GG], option[CFG_BB]);
 		Fl::set_color(FL_SELECTION_COLOR, option[CFG_BG], option[CFG_BG], option[CFG_BG]);
-		int luma = (option[CFG_RR] + option[CFG_RR] + option[CFG_BB] + option[CFG_GG] + option[CFG_GG] + option[CFG_GG]) / 6;
+		int luma = (option[CFG_RR] + option[CFG_RR] + option[CFG_BB] + option[CFG_GG] + option[CFG_GG] + option[CFG_GG])
+				/ 6;
 		if (luma > 128)
 			Fl::set_color(FL_INACTIVE_COLOR, fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .75f));
 		else
