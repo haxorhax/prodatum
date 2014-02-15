@@ -29,7 +29,7 @@ extern PD_UI* ui;
 extern Cfg* cfg;
 extern PXK* pxk;
 
-bool got_answer;
+volatile bool got_answer;
 bool midi_active = false;
 
 static bool timer_running = false;

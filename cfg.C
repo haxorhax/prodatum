@@ -85,25 +85,25 @@ Cfg::Cfg(const char* n)
 	defaults[CFG_LOG_EVENTS_IN] = 0;
 	defaults[CFG_WINDOW_WIDTH] = 843;
 	defaults[CFG_WINDOW_HEIGHT] = 615;
+	// check/create cfg dir
+	snprintf(_name, 64, "%s", n);
+	config_name = _name;
+	struct stat sbuf;
+	if (stat(config_dir, &sbuf) == -1)
+	{
+		if (mkdir(config_dir, S_IRWXU| S_IRWXG | S_IROTH | S_IXOTH) == -1)
+		{
+			fl_alert("Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
+			fprintf(stderr, "Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
+#ifdef WIN32
+			fflush(stderr);
+#endif
+		}
+	}
 	// load config
 	config_name = 0;
 	if (n != 0)
 	{
-		snprintf(_name, 64, "%s", n);
-		config_name = _name;
-		struct stat sbuf;
-		if (stat(config_dir, &sbuf) == -1)
-		{
-			if (mkdir(config_dir, S_IRWXU| S_IRWXG | S_IROTH | S_IXOTH) == -1)
-			{
-				fl_alert("Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
-				fprintf(stderr, "Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
-#ifdef WIN32
-				fflush(stderr);
-#endif
-			}
-		}
-		// load config
 		char config_path[PATH_MAX];
 		snprintf(config_path, PATH_MAX, "%s/%s", config_dir, config_name);
 		std::ifstream file(config_path);

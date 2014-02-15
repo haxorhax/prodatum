@@ -55,7 +55,7 @@ public:
 private:
 	char device_id;
 	unsigned char request_delay;
-	bool synchronized;
+	volatile bool synchronized;
 public:
 	bool LoadConfig(const char*) const;
 	bool PopulatePorts() const;

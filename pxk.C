@@ -35,8 +35,8 @@ extern FilterMap FM[51];
 MIDI* midi = 0;
 Cfg* cfg = 0;
 
-static bool name_set_incomplete;
-static int init_progress;
+volatile static bool name_set_incomplete;
+volatile static int init_progress;
 
 void PXK::widget_callback(int id, int value, int layer)
 {
@@ -87,7 +87,7 @@ void PXK::widget_callback(int id, int value, int layer)
 		selected_channel = value;
 		// select multimode channel (to make pan and channel related controls work)
 		midi->edit_parameter_value(id, selected_channel);
-		mysleep(15);
+		mysleep(50);
 		// select basic channel (to get the edit buffer of the channels preset below)
 		midi->edit_parameter_value(139, selected_channel);
 		// update midi input filter
@@ -96,10 +96,9 @@ void PXK::widget_callback(int id, int value, int layer)
 		selected_preset_rom = setup->get_value(138, selected_channel);
 		selected_preset = setup->get_value(130, selected_channel);
 		ui->preset_rom->set_value(selected_preset_rom);
-		Fl::wait(.1);
 		ui->preset->set_value(selected_preset);
 		Fl::wait(.1);
-		mysleep(33);
+		mysleep(50);
 		midi->request_preset_dump(-1, 0);
 		// FX channel
 		if (midi_mode != MULTI)
@@ -343,33 +342,33 @@ PXK::PXK(const char* file, char auto_c)
 PXK::~PXK()
 {
 	pmesg("PXK::~PXK()\n");
+	save_setup_names();
 	unsigned char i;
 	for (i = 0; i < 4; i++)
 		// unmute eventually muted voices
 		mute(0, i);
-	save_setup_names();
+	for (i = 0; i <= roms; i++)
+		if (rom[i])
+			delete rom[i];
 	if (preset)
 		delete preset;
 	if (preset_copy)
 		delete preset_copy;
-	for (i = 0; i <= roms; i++)
-		if (rom[i])
-			delete rom[i];
 	if (setup)
 		delete setup;
 	if (setup_copy)
 		delete setup_copy;
 	if (setup_names)
 		delete[] setup_names;
-	if (cfg)
-	{
-		delete cfg;
-		cfg = 0;
-	}
 	if (midi)
 	{
 		delete midi;
-		midi = 0;
+		midi = 0; // global object
+	}
+	if (cfg)
+	{
+		delete cfg;
+		cfg = 0; // global object
 	}
 }
 
@@ -406,16 +405,16 @@ bool PXK::PopulatePorts() const
 	return true;
 }
 
-static void sync_progress(void* f)
+static void sync_progress(void* synced)
 {
-	if (!(*(bool*) f))
+	if (!(*(bool*) synced))
 	{
 		if (!ui->init->shown())
 		{
 			ui->init->show();
 			Fl::wait(.1);
 		}
-		Fl::repeat_timeout(.1, sync_progress, f);
+		Fl::repeat_timeout(.1, sync_progress, synced);
 	}
 	else
 	{
@@ -444,49 +443,49 @@ static void *sync_bro(void* p)
 	int names;
 	// load setup names
 	unsigned char setups_to_load = 0;
-	Fl::lock();
+//	Fl::lock();
 	setups_to_load = pxk->load_setup_names(99);
-	Fl::unlock();
+//	Fl::unlock();
 	if (setups_to_load)
 	{
 		// save init setup
-		Fl::lock();
+//		Fl::lock();
 		midi->request_setup_dump();
-		Fl::unlock();
+//		Fl::unlock();
 		bool got_setup = false;
 		while (!got_setup)
 		{
 			mysleep(5);
-			Fl::lock();
+//			Fl::lock();
 			(pxk->setup_init == 0) ? got_setup = false : got_setup = true;
-			Fl::unlock();
+//			Fl::unlock();
 		}
-		Fl::lock();
+//		Fl::lock();
 		ui->init_progress->label("Loading multisetup names...");
 		ui->init_progress->maximum((float) 64);
 		init_progress = 0;
 		if (*(bool*) p) // Join()
 			goto Hell;
-		Fl::unlock();
+//		Fl::unlock();
 		for (name = 0; name < 63; name++)
 		{
-			Fl::lock();
+//			Fl::lock();
 			if (*(bool*) p) // Join()
 				goto Hell;
 			ui->init_progress->value((float) init_progress);
 			got_answer = false;
 			pxk->load_setup_names(name);
-			Fl::remove_timeout(keep_running_bro);
-			Fl::add_timeout(.3, keep_running_bro);
-			Fl::unlock();
+//			Fl::remove_timeout(keep_running_bro);
+//			Fl::add_timeout(.3, keep_running_bro);
+//			Fl::unlock();
 			while (!got_answer)
 				mysleep(5);
 		}
-		Fl::remove_timeout(keep_running_bro);
+//		Fl::remove_timeout(keep_running_bro);
 		mysleep(50);
-		Fl::lock();
+//		Fl::lock();
 		pxk->load_setup_names(63);
-		Fl::unlock();
+//		Fl::unlock();
 	}
 	// ID, PRESET, INSTRUMENT, ARP, SETUP, DEMO, RIFF
 	for (rom_nr = 0; rom_nr < 5; rom_nr++) // for every rom
@@ -526,7 +525,7 @@ static void *sync_bro(void* p)
 							_type = "riff (estimated progress)";
 							break;
 					}
-					Fl::lock();
+//					Fl::lock();
 					if (rom_nr == 0)
 						snprintf(_label, 64, "Loading flash %s names...", _type);
 					else
@@ -535,19 +534,19 @@ static void *sync_bro(void* p)
 					ui->init_progress->maximum((float) names);
 					init_progress = 0;
 					name_set_incomplete = true;
-					Fl::unlock();
+//					Fl::unlock();
 					name = 0;
 					while (name_set_incomplete && name < names)
 					{
-						Fl::lock();
+//						Fl::lock();
 						if (*(bool*) p) // Join()
 							goto Hell;
 						ui->init_progress->value((float) init_progress);
 						got_answer = false;
 						pxk->rom[rom_nr]->load_name(type, name);
-						Fl::remove_timeout(keep_running_bro);
-						Fl::add_timeout(.3, keep_running_bro);
-						Fl::unlock();
+//						Fl::remove_timeout(keep_running_bro);
+//						Fl::add_timeout(.3, keep_running_bro);
+//						Fl::unlock();
 						name++;
 						while (!got_answer)
 						{
@@ -556,20 +555,20 @@ static void *sync_bro(void* p)
 								mysleep(5);
 						}
 					}
-					Fl::remove_timeout(keep_running_bro);
+//					Fl::remove_timeout(keep_running_bro);
 				}
 			}
 		}
 	}
-	Fl::lock();
+//	Fl::lock();
 	*(bool*) p = true;
-	Fl::unlock();
+//	Fl::unlock();
 	return ((void*) 0);
 	Hell: // Join()
 	midi->cancel();
-	Fl::remove_timeout(keep_running_bro);
+//	Fl::remove_timeout(keep_running_bro);
 	*(bool*) p = false;
-	Fl::unlock();
+//	Fl::unlock();
 }
 
 void PXK::Join()
@@ -943,15 +942,13 @@ void PXK::load_setup()
 	if (setup_init)
 	{
 		setup_init->upload();
-		// let it eat
-		mysleep(200);
 		setup = new Setup_Dump(setup_init->get_dump_size(), setup_init->get_data());
 		setup_copy = new Setup_Dump(setup_init->get_dump_size(), setup_init->get_data());
 		delete setup_init;
 		setup_init = 0;
 	}
-	if (!setup) // might have been called before the device sent the dump
-		return;
+//	if (!setup) // might have been called before the device sent the dump
+//		return;
 	midi_mode = setup->get_value(385);
 	selected_fx_channel = setup->get_value(140);
 

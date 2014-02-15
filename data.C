@@ -1179,6 +1179,8 @@ void Setup_Dump::upload() const
 {
 	pmesg("Setup_Dump::upload()\n");
 	midi->write_sysex(data, size);
+	// let it eat
+	mysleep(500);
 }
 
 // maps Parameter IDs from the device to data position in preset dump
@@ -1304,8 +1306,7 @@ ROM::~ROM()
 		ui->main->arp_rom->clear();
 		ui->copy_arp_rom->clear();
 	}
-	// save names but only if we successfully initialized
-	if (pxk->Synchronized()) // TODO
+	if (pxk->Synchronized())
 	{
 		const char* path = cfg->get_config_dir();
 		char filename[PATH_MAX];
