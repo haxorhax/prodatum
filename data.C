@@ -58,6 +58,7 @@ Preset_Dump::Preset_Dump(int dump_size, const unsigned char* dump_data, int p_si
 	pmesg("Preset_Dump::Preset_Dump(size: %d, data, packet_size: %d)\n", dump_size, p_size);
 	disable_add_undo = false;
 	data_is_changed = false;
+	data = 0;
 	size = dump_size;
 	packet_size = p_size;
 	(size > 1607) ? extra_controller = 4 : extra_controller = 0;

@@ -268,6 +268,7 @@ PXK::PXK(const char* file, char auto_c)
 	device_id = -1;
 	device_code = -1;
 	synchronized = false;
+	roms = 0;
 	preset = 0;
 	preset_copy = 0;
 	setup = 0;
@@ -1113,7 +1114,7 @@ void PXK::set_setup_name(unsigned char number, const unsigned char* name)
 void PXK::save_setup_names() const
 {
 	pmesg("PXK::save_setup_names() \n");
-	if (midi_mode != -1 && setup_names)
+	if (synchronized)
 	{
 		char filename[PATH_MAX];
 		snprintf(filename, PATH_MAX, "%s/n_set_0_%d", cfg->get_config_dir(), device_id);

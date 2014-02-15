@@ -837,11 +837,18 @@ void PD_UI::Cancel()
 {
 	pmesg("PD_UI::Cancel() \n");
 	pxk->Join();
-	char config[64];
-	snprintf(config, 64, cfg->get_config_name());
+	char* config = 0;
+	if (cfg->get_config_name())
+	{
+		config = (char*) malloc (64 * sizeof(char));
+		snprintf(config, 64, cfg->get_config_name());
+	}
 	delete pxk;
+	pxk = 0;
 	init->hide();
 	while (init->shown())
 		Fl::wait(.1);
 	pxk = new PXK(config, 0);
+	if (config)
+		free(config);
 }
