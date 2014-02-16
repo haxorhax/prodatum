@@ -37,8 +37,6 @@ extern PXK* pxk;
 
 // ms to wait between name requests on init and when a WAIT is received
 unsigned char request_delay;
-// colors used in ui and widgets
-unsigned char colors[5];
 
 Cfg::Cfg(int device_id)
 {
@@ -69,13 +67,6 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_CONFIRM_DISMISS] = 1;
 	defaults[CFG_SYNCVIEW] = 0;
 	defaults[CFG_DRLS] = 1;
-	defaults[CFG_BG] = 212; // 170 140
-	defaults[CFG_BG2] = 50; // 5 215
-	defaults[CFG_RR] = 126; // 82 68
-	defaults[CFG_GG] = 132; // 92 74
-	defaults[CFG_BB] = 142; // 87 77
-	defaults[CFG_COLORED_BG] = 1;
-	defaults[CFG_SHINY_KNOBS] = 0;
 	defaults[CFG_LOG_SYSEX_OUT] = 0;
 	defaults[CFG_LOG_SYSEX_IN] = 0;
 	defaults[CFG_LOG_EVENTS_OUT] = 0;
@@ -305,76 +296,4 @@ void Cfg::apply()
 	ui->log_events_out->value(option[CFG_LOG_EVENTS_OUT]);
 	ui->log_events_in->value(option[CFG_LOG_EVENTS_IN]);
 	ui->main_window->size(option[CFG_WINDOW_WIDTH], option[CFG_WINDOW_HEIGHT]);
-}
-
-void Cfg::set_color(int type, int value)
-{
-	pmesg("Cfg::set_color(%d, %d)\n", type, value);
-	switch (type)
-	{
-		case CFG_BG:
-		case CFG_BG2:
-		case CFG_RR:
-		case CFG_GG:
-		case CFG_BB:
-			option[type] = value;
-			colors[type - CFG_BG] = value; // Knobs
-			break;
-		case CFG_SHINY_KNOBS:
-			if (value == 1)
-				ui->shiny_knobs = true;
-			else
-				ui->shiny_knobs = false;
-			option[CFG_SHINY_KNOBS] = value;
-			break;
-		case DEFAULT:
-			ui->c_bg->value(getset_default(CFG_BG));
-			ui->c_bg2->value(getset_default(CFG_BG2));
-			ui->c_rr->value(getset_default(CFG_RR));
-			ui->c_gg->value(getset_default(CFG_GG));
-			ui->c_bb->value(getset_default(CFG_BB));
-			ui->c_cbg->value(getset_default(CFG_COLORED_BG));
-			(getset_default(CFG_SHINY_KNOBS)) ? ui->shiny_knobs = true : ui->shiny_knobs = false;
-			ui->c_sk->value(option[CFG_SHINY_KNOBS]);
-			break;
-		case CURRENT:
-			ui->c_bg->value(option[CFG_BG]);
-			ui->c_bg2->value(option[CFG_BG2]);
-			ui->c_rr->value(option[CFG_RR]);
-			ui->c_gg->value(option[CFG_GG]);
-			ui->c_bb->value(option[CFG_BB]);
-			ui->c_cbg->value(option[CFG_COLORED_BG]);
-			(option[CFG_SHINY_KNOBS]) ? ui->shiny_knobs = true : ui->shiny_knobs = false;
-			ui->c_sk->value(option[CFG_SHINY_KNOBS]);
-			break;
-		default:
-			break;
-	}
-	Fl::set_color(FL_BACKGROUND2_COLOR, option[CFG_BG2], option[CFG_BG2], option[CFG_BG2]);
-	if (!option[CFG_COLORED_BG])
-	{
-		Fl::set_color(FL_BACKGROUND_COLOR, option[CFG_BG], option[CFG_BG], option[CFG_BG]);
-		Fl::set_color(FL_SELECTION_COLOR, option[CFG_RR], option[CFG_GG], option[CFG_BB]);
-		Fl::set_color(FL_INACTIVE_COLOR, fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .7f));
-	}
-	else // colored background
-	{
-		Fl::set_color(FL_BACKGROUND_COLOR, option[CFG_RR], option[CFG_GG], option[CFG_BB]);
-		Fl::set_color(FL_SELECTION_COLOR, option[CFG_BG], option[CFG_BG], option[CFG_BG]);
-		int luma = (option[CFG_RR] + option[CFG_RR] + option[CFG_BB] + option[CFG_GG] + option[CFG_GG] + option[CFG_GG])
-				/ 6;
-		if (luma > 128)
-			Fl::set_color(FL_INACTIVE_COLOR, fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .75f));
-		else
-			Fl::set_color(FL_INACTIVE_COLOR, fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .75f));
-	}
-	Fl::set_color(FL_FOREGROUND_COLOR, option[CFG_BG2], option[CFG_BG2], option[CFG_BG2]);
-	Fl_Tooltip::textcolor(FL_BACKGROUND_COLOR);
-	Fl_Tooltip::color(FL_BACKGROUND2_COLOR);
-	Fl::reload_scheme();
-	// update highlight buttons
-	if (pxk && pxk->preset)
-		pxk->preset->update_highlight_buttons();
-	if (pxk && pxk->setup)
-		pxk->setup->update_highlight_buttons();
 }

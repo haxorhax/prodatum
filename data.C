@@ -32,7 +32,6 @@ extern MIDI* midi;
 extern Cfg* cfg;
 extern PXK* pxk;
 extern PD_UI* ui;
-extern bool time_incoming_midi;
 extern PD_Arp_Step* arp_step[32];
 
 /**
@@ -251,12 +250,6 @@ void Preset_Dump::set_name(const char* val, int type, int position)
 		midi->edit_parameter_value(899 + i, *(name + i));
 }
 
-void Preset_Dump::update_highlight_buttons() const
-{
-	// used by set color to update the colors of the highlight buttons in the navi bar
-	pwid[1025][0]->set_value(get_value(1025)); // preset arp
-}
-
 void Preset_Dump::show() const
 {
 	pmesg("Preset_Dump::show()\n");
@@ -387,8 +380,8 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		closed_loop = closed;
 		show_preset = show;
 		update_checksum();
-		if (closed_loop)
-			pxk->Loading(); // TODO
+//		if (closed_loop)
+//			pxk->Loading(); // TODO
 	}
 	ui->progress->value((float) status);
 	if (closed_loop)
@@ -1131,14 +1124,6 @@ int Setup_Dump::set_value(int id, int value, int channel)
 	if (id < 142 || id > 157) // for name only one byte per char
 		data[offset + 1] = value / 128;
 	return 1;
-}
-
-void Setup_Dump::update_highlight_buttons() const
-{
-	pmesg("Setup_Dump::update_highlight_buttons()\n");
-	// used by set color to update the colors of the highlight buttons in the navi bar
-	pwid[258][0]->set_value(get_value(258)); // fx bypass
-	pwid[641][0]->set_value(get_value(641)); // master arp
 }
 
 void Setup_Dump::show() const

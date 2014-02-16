@@ -133,7 +133,6 @@ public:
 	int set_value(int id, int value, int layer = -2);
 	/// set category and name
 	void set_name(const char* val, int type, int position);
-	void update_highlight_buttons() const;
 	/**
 	 * update UI widgets with the parameter values of this dump.
 	 * this calls \c get_value() for all parameters (except FX parameters)
@@ -257,7 +256,6 @@ public:
 	 * @param channel parameter channel to update
 	 */
 	int set_value(int id, int value, int channel = -1);
-	void update_highlight_buttons() const;
 	/**
 	 * update UI widgets with the parameter values of this dump.
 	 * this calls \c get_value() for all setup parameters

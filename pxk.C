@@ -250,10 +250,7 @@ void PXK::cc_callback(int controller, int value)
 static void check_connection(void* p)
 {
 	if (*(char*) p == -1 && !ui->init->shown())
-	{
 		ui->open_device->show();
-		Fl::wait(.1);
-	}
 }
 
 // to open another device:
@@ -360,7 +357,6 @@ bool PXK::LoadConfig(int id) const
 	if (!cfg)
 		return false;
 	cfg->apply();
-	cfg->set_color(CURRENT, 0);
 	ui->main_window->show();
 	Fl::wait(.1);
 	return true;
@@ -385,29 +381,18 @@ static void sync_progress(void* synced)
 	if (!(*(bool*) synced))
 	{
 		if (!ui->init->shown())
-		{
 			ui->init->show();
-			Fl::wait(.1);
-		}
 		Fl::repeat_timeout(.1, sync_progress, synced);
 	}
 	else
 	{
 		ui->init->hide();
-		Fl::wait(.1);
+		midi->filter_loose();
 		if (pxk->setup_init)
 			pxk->load_setup();
 		else
 			midi->request_setup_dump();
-		midi->filter_loose();
 	}
-}
-
-// keep thread running
-static void keep_running_bro(void*)
-{
-	got_answer = true;
-	name_set_incomplete = true;
 }
 
 static void *sync_bro(void* p)
@@ -623,7 +608,8 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 			ui->device_id->value((double) device_id);
 			Fl::wait();
 		}
-		LoadConfig((int) device_id);
+		if (device_id != cfg->get_cfg_option(CFG_DEVICE_ID))
+			LoadConfig((int) device_id);
 		//cfg->set_cfg_option(CFG_DEVICE_ID, device_id);
 		device_code = 516;
 		midi->set_device_id(device_id); // so further sysex comes through
@@ -708,7 +694,7 @@ unsigned char PXK::load_setup_names(unsigned char start)
 		std::fstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
 		if (file.is_open())
 		{
-			size_t size = file.tellg();
+			unsigned int size = file.tellg();
 			if (size != 1024)
 			{
 				file.close();
@@ -861,15 +847,14 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 	{
 		ui->progress->value(1600.);
 		show_preset();
-		display_status("Edit buffer loaded.");
 		// only activate preset selection if program
 		// change is enabled for the channel
 		if (setup && setup->get_value(137, selected_channel))
 			ui->g_preset->activate();
 		else
 			ui->g_preset->deactivate();
-		// hide loading window
 		ui->loading_w->hide();
+		display_status("Edit buffer loaded.");
 		Fl::wait(.1);
 	}
 }
@@ -880,7 +865,6 @@ void PXK::incoming_setup_dump(const unsigned char* data, int len)
 	selected_multisetup = data[0x4A]; // needed to select it in the multisetup choice
 	if (!synchronized)
 	{
-		// "init setup"
 		setup_init = new Setup_Dump(len, data);
 		return;
 	}
@@ -947,11 +931,11 @@ void PXK::load_setup()
 	ui->s_name->value(n);
 	// show setup
 	setup->show();
+	// get realtime controller assignments
+	update_control_map();
 	// select basic channel on startup
 	pwid[129][0]->set_value(setup->get_value(139));
 	ui->main->channel_select->do_callback();
-	// get realtime controller assignments
-	update_control_map();
 }
 
 void PXK::incoming_generic_name(const unsigned char* data)

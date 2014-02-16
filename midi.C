@@ -32,10 +32,10 @@ extern PXK* pxk;
 volatile bool got_answer;
 bool midi_active = false;
 
-static bool timer_running = false;
-static bool thru_active = false;
-static bool process_midi_exit_flag = false;
-static bool automap = true;
+volatile static bool timer_running = false;
+volatile static bool thru_active = false;
+volatile static bool process_midi_exit_flag = false;
+volatile static bool automap = true;
 extern unsigned char request_delay;
 
 /**
@@ -266,7 +266,7 @@ static void process_midi(PtTimestamp, void*)
 				jack_ringbuffer_read(write_buffer, local_write_buffer, 2); // read header
 				unsigned int len = local_write_buffer[0] * 128 + local_write_buffer[1];
 				while (jack_ringbuffer_peek(write_buffer, local_write_buffer, 1) != 1) // wait for data
-					mysleep(10);
+					Pt_Sleep(10);
 				if (jack_ringbuffer_read(write_buffer, local_write_buffer, len) != len)
 				{
 					pmesg("ERRROROOR (%d)\n", len); // TODO

@@ -38,13 +38,6 @@ enum CONFIG
 	CFG_CONFIRM_DISMISS,
 	CFG_SYNCVIEW,
 	CFG_DRLS,
-	CFG_BG,
-	CFG_BG2,
-	CFG_RR,
-	CFG_GG,
-	CFG_BB,
-	CFG_COLORED_BG,
-	CFG_SHINY_KNOBS,
 	CFG_LOG_SYSEX_OUT,
 	CFG_LOG_SYSEX_IN,
 	CFG_LOG_EVENTS_OUT,
@@ -52,14 +45,6 @@ enum CONFIG
 	CFG_WINDOW_WIDTH,
 	CFG_WINDOW_HEIGHT,
 	NOOPTION
-};
-
-/**
- * Enum of colors
- */
-enum
-{
-	BG, BG2, RR, GG, BB, DEFAULT, CURRENT
 };
 
 /**
@@ -102,7 +87,6 @@ public:
 	int get_cfg_option(int option) const;
 	int getset_default(int option);
 	void apply();
-	void set_color(int, int);
 };
 
 #endif /* CFG_H_ */

@@ -1,20 +1,20 @@
 /*
-    This file is part of prodatum.
-    Copyright 2011-2014 Jan Eidtmann
+ This file is part of prodatum.
+ Copyright 2011-2014 Jan Eidtmann
 
-    prodatum is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ prodatum is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    prodatum is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ prodatum is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <FL/fl_ask.H>
 #include <FL/filename.H>
@@ -38,7 +38,6 @@ extern PD_UI* ui;
 extern PXK* pxk;
 extern Cfg* cfg;
 extern MIDI* midi;
-extern unsigned char colors[5];
 
 /// show warning when we are about to erase an edited edit buffer
 int dismiss(char exit)
@@ -662,7 +661,7 @@ void ROM_Choice::set_id(int v, int l)
 
 void ROM_Choice::set_value(int v)
 {
-	if(id_layer[0] == 1439)
+	if (id_layer[0] == 1439)
 		pmesg("ROM_Choice::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
 	if (v == 0 || pxk->get_rom_index(v) != -1)
 	{
@@ -901,7 +900,7 @@ int Value_Input::handle(int ev)
 				return 1;
 			}
 			fl_cursor(FL_CURSOR_DEFAULT);
-			if (when() & FL_WHEN_ENTER_KEY && changed())
+			if ((when() & FL_WHEN_ENTER_KEY) && changed())
 			{
 				do_callback();
 				return 1;
@@ -909,7 +908,7 @@ int Value_Input::handle(int ev)
 			break;
 		case FL_KEYUP: // don't unfocus if we press enter
 		case FL_KEYDOWN:
-			if (when() & FL_WHEN_CHANGED && Fl::event_key() == FL_Enter)
+			if ((when() & FL_WHEN_CHANGED) && Fl::event_key() == FL_Enter)
 			{
 				if (ev == FL_KEYDOWN)
 					input.mark(0);
@@ -1286,6 +1285,7 @@ int Formatted_Output::format(char *buf)
 				default:
 					return sprintf(buf, "%0+4d", v);
 			}
+			break;
 		}
 		default:
 			return sprintf(buf, "%d", (int) value());
@@ -1442,8 +1442,8 @@ void Slider::draw(int X, int Y, int W, int H)
 	wsl = W - 1;
 	fl_push_clip(X, Y, W, H);
 	draw_box();
-	draw_box(FL_FLAT_BOX, X + 2, Y + 2, W - 5, xx + 5, FL_INACTIVE_COLOR);
-	//draw_box(FL_FLAT_BOX, X, Y + xx, W - 1, H - xx, FL_INACTIVE_COLOR);
+	//draw_box(FL_BORDER_BOX, X + 2, Y + 2, W - 5, xx + 5, FL_INACTIVE_COLOR);
+	draw_box(FL_THIN_UP_BOX, X, Y + xx, W - 1, H - xx, FL_INACTIVE_COLOR);
 	fl_pop_clip();
 	if (wsl > 0 && hsl > 0)
 		draw_box(FL_THIN_UP_BOX, xsl, ysl, wsl, hsl, selection_color());
@@ -2038,37 +2038,35 @@ void Fl_Knob::draw()
 	// background
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_rectf(ox, oy, side, side);
-	// surrounding
-	if (!ui->shiny_knobs)
-		fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_SELECTION_COLOR, .2));
-	else
-		fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BACKGROUND2_COLOR, .3));
-	fl_pie(ox + 1, oy + 3, side - 2, side - 12, 0, 360);
 	// scale
+	fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .9));
+	fl_pie(ox + 1, oy + 3, side - 2, side - 12, 0, 360);
 	draw_scale(ox, oy, side);
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_pie(ox + 6, oy + 6, side - 12, side - 12, 0, 360);
 	// shadow
-	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .8f));
+	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .8));
 	fl_pie(ox + 8, oy + 12, side - 16, side - 16, 0, 360);
-	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .2f));
+	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .2));
 	fl_pie(ox + 9, oy + 12, side - 18, side - 18, 0, 360);
 	// knob edge
-	if (!ui->shiny_knobs)
-		fl_color(active_r() ? fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .4) : FL_INACTIVE_COLOR);
-	else
-		fl_color(active_r() ? fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .7) : FL_INACTIVE_COLOR);
+//	if (!ui->shiny_knobs)
+//		fl_color(active_r() ? fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .4) : FL_INACTIVE_COLOR);
+//	else
+//		fl_color(active_r() ? fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .7) : FL_INACTIVE_COLOR);
+	fl_color(active_r() ? FL_FOREGROUND_COLOR : FL_INACTIVE_COLOR);
 	fl_pie(ox + 8, oy + 8, side - 16, side - 16, 0, 360);
 	// top
-	if (selected)
-		fl_color(FL_SELECTION_COLOR);
-	else
-	{
-		if (!ui->shiny_knobs)
-			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .9));
-		else
-			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .6));
-	}
+	(selected) ? fl_color(FL_SELECTION_COLOR) : fl_color(FL_BACKGROUND2_COLOR);
+//	if (selected)
+//		fl_color(FL_SELECTION_COLOR);
+//	else
+//	{
+//		if (!ui->shiny_knobs)
+//			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .9));
+//		else
+//			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .6));
+//	}
 	fl_pie(ox + 10, oy + 10, side - 20, side - 20, 0, 360);
 	draw_cursor(ox, oy, side);
 	fl_pop_clip();
@@ -2258,15 +2256,16 @@ void Fl_Knob::draw_cursor(const int ox, const int oy, const int side)
 	float rds, cur, cx, cy;
 	double angle;
 	// top
-	if (selected)
-		fl_color(fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR));
-	else
-	{
-		if (!ui->shiny_knobs)
-			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .7f));
-		else
-			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .7f));
-	}
+	(selected) ? fl_color(FL_BACKGROUND2_COLOR) : fl_color(FL_FOREGROUND_COLOR);
+//	if (selected)
+//		fl_color(fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR));
+//	else
+//	{
+//		if (!ui->shiny_knobs)
+//			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .7f));
+//		else
+//			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .7f));
+//	}
 	rds = (side - 18) / 2.0;
 	cur = _percent * rds / 2;
 	cx = ox + side / 2;
@@ -2328,8 +2327,8 @@ void Button::set_value(int v)
 	if (id_layer[0] == 258) // fx bypass
 	{
 		v ? ui->m_bypass->set() : ui->m_bypass->clear();
-		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_BACKGROUND_COLOR, .3)) : ui->b_pfx->color(
-						FL_BACKGROUND_COLOR);
+		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_BACKGROUND2_COLOR, .6)) : ui->b_pfx->color(
+						FL_BACKGROUND2_COLOR);
 		ui->b_pfx->redraw();
 	}
 	else if (id_layer[0] == 1025) // arp preset
@@ -2341,7 +2340,7 @@ void Button::set_value(int v)
 		}
 		else
 		{
-			((Fl_Button*) ui->main->g_main_arp->child(2))->color(FL_BACKGROUND_COLOR, FL_SELECTION_COLOR);
+			((Fl_Button*) ui->main->g_main_arp->child(2))->color(FL_BACKGROUND2_COLOR, FL_SELECTION_COLOR);
 		}
 		ui->main->g_main_arp->redraw();
 	}
@@ -2350,11 +2349,11 @@ void Button::set_value(int v)
 		if (v)
 		{
 			((Fl_Button*) ui->main->g_main_arp->child(3))->color(this->selection_color(),
-					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .3));
+					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .4));
 		}
 		else
 		{
-			((Fl_Button*) ui->main->g_main_arp->child(3))->color(FL_BACKGROUND_COLOR, FL_SELECTION_COLOR);
+			((Fl_Button*) ui->main->g_main_arp->child(3))->color(FL_BACKGROUND2_COLOR, FL_SELECTION_COLOR);
 		}
 		ui->main->g_main_arp->redraw();
 	}
@@ -2367,8 +2366,8 @@ int Button::get_value() const
 	if (id_layer[0] == 258) // fx bypass
 	{
 		v ? ui->m_bypass->set() : ui->m_bypass->clear();
-		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_BACKGROUND_COLOR, .3)) : ui->b_pfx->color(
-						FL_BACKGROUND_COLOR);
+		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_BACKGROUND2_COLOR, .6)) : ui->b_pfx->color(
+						FL_BACKGROUND2_COLOR);
 		ui->b_pfx->redraw();
 	}
 	if (id_layer[0] == 258 || id_layer[0] == 1669 || id_layer[0] == 1674 || id_layer[0] == 1033 || id_layer[0] == 649) // fx bypass / lfo syncs / arp syncs
@@ -2398,7 +2397,7 @@ int Button::get_value() const
 		if (v)
 		{
 			((Fl_Button*) ui->main->g_main_arp->child(3))->color(this->selection_color(),
-					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .3));
+					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .4));
 		}
 		else
 		{
@@ -3000,26 +2999,26 @@ void Envelope_Editor::draw()
 	shape_button[2] = shape_button[1] - 20;
 	shape_button[3] = shape_button[2] - 20;
 
-	Fl_Color light, contrast;
-	bg = colors[BG];
-	if (cfg->get_cfg_option(CFG_COLORED_BG))
-		bg = (colors[RR] * 2 + colors[GG] * 3 + colors[BB]) / 6;
-	if (bg > 160)
-	{
-		light = fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .8f);
-		contrast = fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .5f);
-	}
-	else
-	{
-		light = fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .8f);
-		contrast = fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .5f);
-	}
+//	Fl_Color light, contrast;
+//	bg = colors[BG];
+//	if (cfg->get_cfg_option(CFG_COLORED_BG))
+//		bg = (colors[RR] * 2 + colors[GG] * 3 + colors[BB]) / 6;
+//	if (bg > 160)
+//	{
+//		light = fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .8f);
+//		contrast = fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .5f);
+//	}
+//	else
+//	{
+//		light = fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .8f);
+//		contrast = fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .5f);
+//	}
 	if (!active_r())
 		return;
 	// top bar
 	// envelope type
 	fl_font(FL_HELVETICA_BOLD, 14);
-	fl_color(FL_SELECTION_COLOR);
+	fl_color(FL_BACKGROUND2_COLOR);
 	switch (mode)
 	{
 		case VOLUME:
@@ -3033,13 +3032,12 @@ void Envelope_Editor::draw()
 			break;
 	}
 	fl_font(FL_COURIER, 10);
-	fl_line_style(FL_SOLID, 1);
+	//fl_line_style(FL_SOLID, 1);
 	unsigned char i;
 	for (i = 0; i < 5; i++)
 	{
-		// Borders
-		fl_color(light);
-		fl_rect(mode_button[i], ee_y0 + 5, 50, 14);
+		fl_color(FL_BACKGROUND2_COLOR);
+		fl_rectf(mode_button[i], ee_y0 + 5, 50, 14);
 		// highlight pushed
 		fl_color(FL_SELECTION_COLOR);
 		if (button_push && button_hover == i)
@@ -3054,7 +3052,6 @@ void Envelope_Editor::draw()
 			fl_rect(mode_button[i] - 1, ee_y0 + 4, 52, 16);
 		}
 		// text
-		//fl_color(contrast);
 		fl_color(FL_FOREGROUND_COLOR);
 		if (i == 0)
 		{
@@ -3073,12 +3070,11 @@ void Envelope_Editor::draw()
 			fl_draw("(( Y ))", mode_button[i] + 4, ee_y0 + 15);
 	}
 	// lower bar
-	// Borders
-	fl_color(light);
+	fl_color(FL_BACKGROUND2_COLOR);
 	for (i = 0; i < 6; i++)
-		fl_rect(copy_button[i], ee_y0 + ee_h - 18, 16, 14);
+		fl_rectf(copy_button[i], ee_y0 + ee_h - 18, 16, 14);
 	for (i = 0; i < 4; i++)
-		fl_rect(shape_button[i], ee_y0 + ee_h - 18, 16, 14);
+		fl_rectf(shape_button[i], ee_y0 + ee_h - 18, 16, 14);
 	// selected
 	fl_color(FL_SELECTION_COLOR);
 	int ypos = ee_y0 + ee_h - 8;
@@ -3127,11 +3123,12 @@ void Envelope_Editor::draw()
 		return;
 
 	// center (coordinate system)
-	fl_color(light);
 	// 0.0 position of coordinate system
 	int x0 = ee_x0 + 5;
 	float y0 = (float) ee_y0 + 25. + ((float) ee_h - 50.) / 2.;
-
+	fl_color(FL_BACKGROUND2_COLOR);
+	fl_rectf(x0, (float) ee_y0 + 25., ee_w - 10, ee_h - 50);
+	fl_color(FL_BACKGROUND_COLOR);
 	// vertikale
 	float x_step = ((float) (ee_w - 10) / 384.) * (float) zoomlevel; // 3*128 = 384
 	float x_val = (float) x0 + 8. * x_step;
@@ -3157,7 +3154,7 @@ void Envelope_Editor::draw()
 	// rahmen
 	fl_rect(x0, ee_y0 + 25, ee_w - 9, ee_h - 49);
 	// nulllinie
-	fl_color(contrast);
+	fl_color(FL_FOREGROUND_COLOR);
 	fl_line(x0 + 1, y0, x0 + ee_w - 11, y0);
 	// envelopes
 	if (overlay)
@@ -3170,6 +3167,7 @@ void Envelope_Editor::draw()
 		}
 	}
 	draw_envelope(mode, x0, y0);
+	fl_color(FL_FOREGROUND_COLOR);
 	// value fields
 	// calc number of hovers
 	int hovers = 0;
@@ -3290,9 +3288,9 @@ void Envelope_Editor::draw()
 			else
 				snprintf(info, 15, "%s %5d%4d", tmp, env[mode].stage[i][0], env[mode].stage[i][1]);
 			if (i == hover)
-				fl_font(FL_COURIER_BOLD_ITALIC, 14);
+				fl_font(FL_COURIER_ITALIC, 10);
 			else
-				fl_font(FL_COURIER_ITALIC, 14);
+				fl_font(FL_COURIER, 10);
 			// when we drag out of the visible area, keep the info text inside
 			int x_offset = 15;
 			if (dragbox[hover][0] + 120 > ee_x0 + ee_w)
@@ -3328,31 +3326,22 @@ void Envelope_Editor::draw_envelope(int type, int x0, int y0)
 
 	// draw lines between dragboxes (rrbggg)
 	int out = -1;
+	Fl_Color col;
 	switch (type)
 	{
 		case VOLUME:
-			fl_color(170, 90, 70);
+			fl_color(255, 0, 0);
 			break;
 		case FILTER:
-			fl_color(80, 180, 70);
+			fl_color(0, 0, 200);
 			break;
 		case AUXILIARY:
-			fl_color(80, 90, 160);
+			fl_color(0, 150, 0);
 	}
 
-	Fl_Color col = fl_color();
-	if (bg > 160)
-		fl_color(fl_color_average(col, FL_BLACK, .7f));
-	else
-		fl_color(fl_color_average(col, FL_WHITE, .4f));
-	col = fl_color();
+	col = fl_color_average(FL_FOREGROUND_COLOR, fl_color(), .3);
 	if (type != mode)
-	{
-		if (bg > 160)
-			fl_color(fl_color_average(col, FL_WHITE, .6f));
-		else
-			fl_color(fl_color_average(col, FL_BLACK, .6f));
-	}
+			fl_color(fl_color_average(col, FL_BACKGROUND2_COLOR, .5f));
 	col = fl_color();
 	fl_line_style(FL_SOLID, 2);
 	if (dragbox[DCY_2][0] <= ee_x0 + ee_w - 5)
@@ -4377,8 +4366,8 @@ void Piano::draw_ranges()
 	fl_push_clip(keyboard_x0 - 10, keyboard_y0 + h_white, keyboard_w + 15, 120);
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_rectf(keyboard_x0 - 10, keyboard_y0 + h_white + 1, keyboard_w + 15, 119);
-	fl_color(FL_SELECTION_COLOR);
-	fl_font(FL_COURIER, 10);
+	fl_color(FL_FOREGROUND_COLOR);
+	fl_font(FL_HELVETICA, 10);
 	static unsigned char show_layers;
 	ui->eall ? show_layers = 1 : show_layers = 4;
 	char buf[4];
@@ -4402,10 +4391,7 @@ void Piano::draw_ranges()
 		fl_draw(buf, keyboard_x0 - 9, dragbox[0][7][0][1] + 7);
 	}
 	// draw grid
-	if (colors[BG] > 120)
-		fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .8f));
-	else
-		fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .8f));
+	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .8f));
 	if (mode == KEYRANGE)
 	{
 		for (i = 0; i < 128; i++)
@@ -4432,14 +4418,14 @@ void Piano::draw_ranges()
 	for (i = 0; i < show_layers; i++) // for all 4 layers
 	{
 		// key ranges
-		fl_color(fl_darker(FL_BACKGROUND2_COLOR));
+		fl_color(FL_BACKGROUND2_COLOR);
 		fl_rectf(dragbox[mode][i][LOW_KEY][0], dragbox[mode][i][LOW_KEY][1],
 				dragbox[mode][i][HIGH_KEY][0] - dragbox[mode][i][LOW_KEY][0] + w_black, 4);
 		// fade ranges
 		// we want the selected range on top
 		if (highlight_dragbox[i][0] || highlight_dragbox[i][1])
 		{
-			fl_color(FL_BACKGROUND2_COLOR);
+			fl_color(fl_darker(FL_BACKGROUND2_COLOR));
 			fl_rectf(dragbox[mode][i][HIGH_FADE][0], dragbox[mode][i][HIGH_FADE][1],
 					dragbox[mode][i][HIGH_KEY][0] - dragbox[mode][i][HIGH_FADE][0] + w_black, 4);
 			fl_color(FL_SELECTION_COLOR);
@@ -4448,7 +4434,7 @@ void Piano::draw_ranges()
 		}
 		else if (highlight_dragbox[i][2] || highlight_dragbox[i][3])
 		{
-			fl_color(FL_BACKGROUND2_COLOR);
+			fl_color(fl_darker(FL_BACKGROUND2_COLOR));
 			fl_rectf(dragbox[mode][i][LOW_KEY][0], dragbox[mode][i][LOW_FADE][1],
 					dragbox[mode][i][LOW_FADE][0] - dragbox[mode][i][LOW_KEY][0] + w_black, 4);
 			fl_color(FL_SELECTION_COLOR);
@@ -4457,7 +4443,7 @@ void Piano::draw_ranges()
 		}
 		else
 		{
-			fl_color(FL_BACKGROUND2_COLOR);
+			fl_color(fl_darker(FL_BACKGROUND2_COLOR));
 			fl_rectf(dragbox[mode][i][LOW_KEY][0], dragbox[mode][i][LOW_FADE][1],
 					dragbox[mode][i][LOW_FADE][0] - dragbox[mode][i][LOW_KEY][0] + w_black, 4);
 			fl_rectf(dragbox[mode][i][HIGH_FADE][0], dragbox[mode][i][HIGH_FADE][1],
@@ -4469,7 +4455,7 @@ void Piano::draw_ranges()
 			if (highlight_dragbox[i][j])
 				fl_color(FL_SELECTION_COLOR);
 			else
-				fl_color(FL_FOREGROUND_COLOR);
+				fl_color(FL_BACKGROUND2_COLOR);
 			if (j % 2)
 				fl_rectf(dragbox[mode][i][j][0], dragbox[mode][i][j][1], w_black, 8);
 			else
@@ -4494,43 +4480,43 @@ void Piano::draw_ranges()
 		if (highlight_dragbox[4][LOW_KEY])
 			fl_color(FL_SELECTION_COLOR);
 		else
-			fl_color(FL_FOREGROUND_COLOR);
+			fl_color(FL_BACKGROUND2_COLOR);
 		fl_rectf(dragbox[0][4][LOW_KEY][0], dragbox[0][4][LOW_KEY][1], w_black, 8);
 		if (highlight_dragbox[4][HIGH_KEY])
 			fl_color(FL_SELECTION_COLOR);
 		else
-			fl_color(FL_FOREGROUND_COLOR);
+			fl_color(FL_BACKGROUND2_COLOR);
 		fl_rectf(dragbox[0][4][HIGH_KEY][0], dragbox[0][4][HIGH_KEY][1], w_black, 8);
 		if (highlight_dragbox[5][LOW_KEY])
 			fl_color(FL_SELECTION_COLOR);
 		else
-			fl_color(FL_FOREGROUND_COLOR);
+			fl_color(FL_BACKGROUND2_COLOR);
 		fl_rectf(dragbox[0][5][LOW_KEY][0], dragbox[0][5][LOW_KEY][1], w_black, 8);
 		if (highlight_dragbox[5][HIGH_KEY])
 			fl_color(FL_SELECTION_COLOR);
 		else
-			fl_color(FL_FOREGROUND_COLOR);
+			fl_color(FL_BACKGROUND2_COLOR);
 		fl_rectf(dragbox[0][5][HIGH_KEY][0], dragbox[0][5][HIGH_KEY][1], w_black, 8);
 		// link handles
 		if (highlight_dragbox[6][LOW_KEY])
 			fl_color(FL_SELECTION_COLOR);
 		else
-			fl_color(FL_FOREGROUND_COLOR);
+			fl_color(FL_BACKGROUND2_COLOR);
 		fl_rectf(dragbox[0][6][LOW_KEY][0], dragbox[0][6][LOW_KEY][1], w_black, 8);
 		if (highlight_dragbox[6][HIGH_KEY])
 			fl_color(FL_SELECTION_COLOR);
 		else
-			fl_color(FL_FOREGROUND_COLOR);
+			fl_color(FL_BACKGROUND2_COLOR);
 		fl_rectf(dragbox[0][6][HIGH_KEY][0], dragbox[0][6][HIGH_KEY][1], w_black, 8);
 		if (highlight_dragbox[7][LOW_KEY])
 			fl_color(FL_SELECTION_COLOR);
 		else
-			fl_color(FL_FOREGROUND_COLOR);
+			fl_color(FL_BACKGROUND2_COLOR);
 		fl_rectf(dragbox[0][7][LOW_KEY][0], dragbox[0][7][LOW_KEY][1], w_black, 8);
 		if (highlight_dragbox[7][HIGH_KEY])
 			fl_color(FL_SELECTION_COLOR);
 		else
-			fl_color(FL_FOREGROUND_COLOR);
+			fl_color(FL_BACKGROUND2_COLOR);
 		fl_rectf(dragbox[0][7][HIGH_KEY][0], dragbox[0][7][HIGH_KEY][1], w_black, 8);
 	}
 	fl_line_style(0);
@@ -4604,17 +4590,17 @@ void Piano::draw_highlights()
 			else // white keys
 			{
 				if (key == 72 - transpose[selected_transpose_layer] && active_keys[key] == -1)
-					fl_color(fl_color_average(FL_FOREGROUND_COLOR, FL_GREEN, .8));
+					fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_GREEN, .8));
 				else
 				{
 					if (active_keys[key] == 2)
-						fl_color(fl_color_average(FL_FOREGROUND_COLOR, FL_RED, .7));
+						fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_RED, .7));
 					else
 					{
 						if (pushed == PIANO && key == hovered_key)
 							fl_color(fl_darker(FL_SELECTION_COLOR));
 						else if (active_keys[key] < 0) // deactivate key
-							fl_color(FL_FOREGROUND_COLOR);
+							fl_color(FL_BACKGROUND2_COLOR);
 						else
 							fl_color(FL_SELECTION_COLOR);
 					}
@@ -4682,8 +4668,8 @@ void Piano::draw_case()
 	fl_push_clip(keyboard_x0, keyboard_y0 - 12, keyboard_w + 1, 12);
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_rectf(keyboard_x0, keyboard_y0 - 12, keyboard_w + 1, 12);
-	fl_color(FL_SELECTION_COLOR);
-	fl_font(FL_COURIER, 10);
+	fl_color(FL_FOREGROUND_COLOR);
+	fl_font(FL_HELVETICA, 10);
 	unsigned char offset = 7 * (w_white - 1); // octave
 	char buf[9];
 	for (unsigned char i = 0; i < 11; i++)
@@ -4691,7 +4677,7 @@ void Piano::draw_case()
 		snprintf(buf, 9, "C%d", i - 2);
 		fl_draw(buf, keyboard_x0 + i * offset, keyboard_y0 - 3);
 	}
-	fl_color(FL_FOREGROUND_COLOR);
+//	fl_color(FL_BACKGROUND2_COLOR);
 	snprintf(buf, 9, "pd");
 	fl_draw(buf, keyboard_x0 + keyboard_w - 15, keyboard_y0 - 3);
 	// velocity
@@ -4705,10 +4691,11 @@ void Piano::draw_curve(int type)
 	fl_push_clip(keyboard_x0, keyboard_y0 - 12, keyboard_w + 1, 12 + h_white);
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_rectf(keyboard_x0, keyboard_y0 - 12, keyboard_w + 1, 12 + h_white);
-	fl_color(FL_SELECTION_COLOR);
+	fl_color(FL_BACKGROUND2_COLOR);
 	fl_polygon(keyboard_x0 + 110, keyboard_h + keyboard_y0, keyboard_w + keyboard_x0 - 3, keyboard_h + keyboard_y0,
 			keyboard_w + keyboard_x0 - 3, keyboard_y0);
-	fl_font(FL_COURIER, 10);
+	fl_color(FL_FOREGROUND_COLOR);
+	fl_font(FL_HELVETICA, 10);
 	switch (type)
 	{
 		case VELOCITY:
@@ -4720,7 +4707,6 @@ void Piano::draw_curve(int type)
 	}
 	// values
 	char buf[30];
-	fl_color(FL_FOREGROUND_COLOR);
 	fl_font(FL_COURIER, 8);
 	for (unsigned char i = 0; i < 4; i++)
 	{
@@ -4989,7 +4975,7 @@ void MiniPiano::draw_case()
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_rectf(key_x, keyboard_y0, key_w, 12);
 	fl_color(FL_FOREGROUND_COLOR);
-	fl_font(FL_COURIER, 10);
+	fl_font(FL_HELVETICA, 10);
 	// velocity
 	char buf[8];
 	snprintf(buf, 8, "Vel %3d", key_velocity);
@@ -4998,7 +4984,7 @@ void MiniPiano::draw_case()
 	snprintf(buf, 4, "C%d", octave - 1);
 	fl_draw(buf, key_x + key_w / 2 - 8, key_y - 3);
 	// octave shift
-	fl_color(FL_SELECTION_COLOR);
+	fl_color(FL_BACKGROUND2_COLOR);
 	fl_polygon(key_x + key_w / 2 - 15, key_y - 3, key_x + key_w / 2 - 15, key_y - 10, key_x + key_w / 2 - 30, key_y - 6);
 	fl_polygon(key_x + key_w / 2 + 15, key_y - 3, key_x + key_w / 2 + 15, key_y - 10, key_x + key_w / 2 + 30, key_y - 6);
 }
@@ -5024,16 +5010,16 @@ void MiniPiano::draw_highlights()
 				}
 				fl_rectf(taste_x0[mapped_key][0], key_y, w_black, h_black);
 			}
-			else // white keys FL_FOREGROUND_COLOR
+			else
 			{
 				if (active_keys[key] == 2)
-					fl_color(fl_color_average(FL_FOREGROUND_COLOR, FL_RED, .7));
+					fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_RED, .7));
 				else
 				{
 					if (pushed == PIANO && key == hovered_key)
 						fl_color(fl_darker(FL_SELECTION_COLOR));
 					else if (active_keys[key] < 0) // deactivate key
-						fl_color(FL_FOREGROUND_COLOR);
+						fl_color(FL_BACKGROUND2_COLOR);
 					else
 						fl_color(FL_SELECTION_COLOR);
 				}
@@ -5148,7 +5134,7 @@ void MiniPiano::draw_piano()
 	// keys
 	int octa;
 	// white keys
-	fl_color(FL_FOREGROUND_COLOR);
+	fl_color(FL_BACKGROUND2_COLOR);
 	for (i = 0; i < 3; i++)
 	{
 		octa = 12 * i;
