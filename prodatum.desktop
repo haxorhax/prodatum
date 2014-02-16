@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=prodatum
+Comment=Sysex editor for the E-Mu Protheus 1000/2000 synthesizer family
+Exec=prodatum
+Terminal=false
+StartupNotify=false
+Icon=prodatum
+Type=Application
+Categories=Audio;AudioVideo;Midi;X-Alsa;

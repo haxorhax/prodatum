@@ -5,6 +5,8 @@
 !*.C
 /ui.C
 !prodatum.fl
+!prodatum.png
+!prodatum.desktop
 !config.h.in
 !CMakeLists.txt
 !README

@@ -14,7 +14,6 @@
 
 #include "ui.H"
 #include "data.H"
-#include "debug.H"
 
 /**
  * Enum for the three MIDI modes
@@ -57,7 +56,7 @@ private:
 	unsigned char request_delay;
 	volatile bool synchronized;
 public:
-	bool LoadConfig(const char*) const;
+	bool LoadConfig(int id = -1) const;
 	bool PopulatePorts() const;
 	bool Synchronize();
 	void Loading() const;
@@ -168,7 +167,7 @@ public:
 
 public:
 	/// CTOR
-	PXK(const char*, char);
+	PXK(bool);
 	/// DTOR
 	~PXK();
 };

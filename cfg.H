@@ -28,7 +28,6 @@ enum CONFIG
 	CFG_CONTROL_CHANNEL,
 	CFG_AUTOMAP,
 	CFG_DEVICE_ID,
-	CFG_AUTOCONNECT,
 	CFG_SPEED,
 	CFG_CLOSED_LOOP_UPLOAD,
 	CFG_CLOSED_LOOP_DOWNLOAD,
@@ -69,9 +68,6 @@ enum
  */
 class Cfg
 {
-	/// config name
-	char* config_name;
-	char _name[64];
 	/// configuration directory
 	char config_dir[PATH_MAX];
 	/// path to export directory
@@ -83,7 +79,7 @@ public:
 	/**
 	 * CTOR parses config file
 	 */
-	Cfg(const char* n);
+	Cfg(int id = -1);
 	/**
 	 * DTOR saves config file
 	 */
@@ -91,7 +87,6 @@ public:
 	/// returns the config directory path
 	const char* get_config_dir() const;
 	const char* get_export_dir() const;
-	const char* get_config_name() const;
 	bool set_export_dir(const char* dir);
 	/**
 	 * updates a configuration value

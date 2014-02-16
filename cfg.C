@@ -31,8 +31,6 @@
 #include <stdlib.h>
 
 #include "ui.H"
-#include "cfg.H"
-#include "debug.H"
 
 extern PD_UI* ui;
 extern PXK* pxk;
@@ -42,9 +40,9 @@ unsigned char request_delay;
 // colors used in ui and widgets
 unsigned char colors[5];
 
-Cfg::Cfg(const char* n)
+Cfg::Cfg(int device_id)
 {
-	pmesg("Cfg::Cfg(%s)  \n", n);
+	pmesg("Cfg::Cfg(%d)  \n", device_id);
 	// defaults
 #ifdef WIN32
 	set_export_dir(getenv("USERPROFILE"));
@@ -60,8 +58,7 @@ Cfg::Cfg(const char* n)
 	defaults[CFG_MIDI_THRU] = -1;
 	defaults[CFG_CONTROL_CHANNEL] = 0;
 	defaults[CFG_AUTOMAP] = 1;
-	defaults[CFG_DEVICE_ID] = 127;
-	defaults[CFG_AUTOCONNECT] = 1;
+	defaults[CFG_DEVICE_ID] = device_id;
 	defaults[CFG_SPEED] = 0;
 	defaults[CFG_CLOSED_LOOP_UPLOAD] = 0;
 	defaults[CFG_CLOSED_LOOP_DOWNLOAD] = 0;
@@ -86,8 +83,6 @@ Cfg::Cfg(const char* n)
 	defaults[CFG_WINDOW_WIDTH] = 843;
 	defaults[CFG_WINDOW_HEIGHT] = 615;
 	// check/create cfg dir
-	snprintf(_name, 64, "%s", n);
-	config_name = _name;
 	struct stat sbuf;
 	if (stat(config_dir, &sbuf) == -1)
 	{
@@ -101,79 +96,94 @@ Cfg::Cfg(const char* n)
 		}
 	}
 	// load config
-	config_name = 0;
-	if (n != 0)
+	char _fname[PATH_MAX];
+	if (device_id == -1)
 	{
-		char config_path[PATH_MAX];
-		snprintf(config_path, PATH_MAX, "%s/%s", config_dir, config_name);
-		std::ifstream file(config_path);
-		if (!file.is_open()) // new config
+		snprintf(_fname, 64, "%s/default.cfg", config_dir); // read default.cfg
+		std::ifstream file(_fname);
+		if (file.is_open())
 		{
-			for (int i = 0; i < NOOPTION; i++)
-				option[i] = defaults[i];
-			return;
+			file >> device_id;
+			file.close();
 		}
-		int check_file, check = 1;
-		for (unsigned char i = 0; i < NOOPTION; i++)
-		{
-			file >> option[i];
-			check += option[i] * ((i % 5) + 1);
-		}
-		// checksum
-		file >> check_file;
-		// get export directory
-		char buf[PATH_MAX];
-		file.getline(0, 0);
-		file.getline(buf, PATH_MAX);
-		if (!file.fail())
-			set_export_dir(buf);
-		file.close();
-		if (check_file != check)
-		{
-			fl_message("Configuration updated, using default values.\n"
-					"Sorry for the inconvenience! I've opted for a\n"
-					"brainless but uber-fast configuration parser.");
-			for (unsigned char i = 0; i < NOOPTION; i++)
-				option[i] = defaults[i];
-		}
-		request_delay = option[CFG_SPEED] * 25 + 25;
 	}
-	else // no config
+	snprintf(_fname, 64, "%s/%d.cfg", config_dir, device_id); // load actual config
+	std::ifstream file(_fname);
+	unsigned char i;
+	if (!file.is_open()) // new config
 	{
-		for (unsigned char i = 0; i < NOOPTION; i++)
+		for (i = 0; i < NOOPTION; i++)
+			option[i] = defaults[i];
+		return;
+	}
+	int check_file, check = 1;
+	for (i = 0; i < NOOPTION; i++)
+	{
+		file >> option[i];
+		check += option[i] * ((i % 5) + 1);
+	}
+	// checksum
+	file >> check_file;
+	// get export directory
+	char buf[PATH_MAX];
+	file.getline(0, 0);
+	file.getline(buf, PATH_MAX);
+	if (!file.fail())
+		set_export_dir(buf);
+	file.close();
+	if (check_file != check)
+	{
+		fl_message("Configuration updated, using default values.\n"
+				"Sorry for the inconvenience! I've opted for a\n"
+				"brainless but uber-fast configuration parser.");
+		for (i = 0; i < NOOPTION; i++)
 			option[i] = defaults[i];
 	}
+	request_delay = option[CFG_SPEED] * 25 + 25;
 }
 
 Cfg::~Cfg()
 {
 	pmesg("Cfg::~Cfg()  \n");
-	// save config
-	if (config_name != 0)
+	if (option[CFG_DEVICE_ID] == -1 || option[CFG_DEVICE_ID] == 127)
+		return;
+	// save default
+	char _file[PATH_MAX];
+	snprintf(_file, PATH_MAX, "%s/default.cfg", config_dir);
+	std::ofstream defaults(_file, std::ios::trunc);
+	if (!defaults.is_open())
 	{
-		char config_path[PATH_MAX];
-		snprintf(config_path, PATH_MAX, "%s/%s", config_dir, config_name);
-		std::ofstream file(config_path, std::ios::trunc);
-		if (!file.is_open())
-		{
-			fl_alert("Warning:\nCould not write the config file.");
-			fprintf(stderr, "Warning:\nCould not write the config file.");
+		fl_alert("Warning:\nCould not write the config file.");
+		fprintf(stderr, "Warning:\nCould not write the config file.");
 #ifdef WIN32
-			fflush(stderr);
+		fflush(stderr);
 #endif
-			return;
-		}
-		// calc checksum
-		int check = 1;
-		for (int i = 0; i < NOOPTION; i++)
-		{
-			file << option[i] << " ";
-			check += option[i] * ((i % 5) + 1);
-		}
-		file << check << std::endl;
-		file << export_dir << std::endl;
-		file.close();
+		return;
 	}
+	defaults << option[CFG_DEVICE_ID] << " ";
+	defaults.close();
+	// save actual config
+	snprintf(_file, PATH_MAX, "%s/%d.cfg", config_dir, option[CFG_DEVICE_ID]);
+	std::ofstream config(_file, std::ios::trunc);
+	if (!config.is_open())
+	{
+		fl_alert("Warning:\nCould not write the config file.");
+		fprintf(stderr, "Warning:\nCould not write the config file.");
+#ifdef WIN32
+		fflush(stderr);
+#endif
+		return;
+	}
+	// calc checksum
+	int check = 1;
+	for (unsigned char i = 0; i < NOOPTION; i++)
+	{
+		config << option[i] << " ";
+		check += option[i] * ((i % 5) + 1);
+	}
+	config << check << std::endl;
+	config << export_dir << std::endl;
+	config.close();
 }
 
 void Cfg::set_cfg_option(int opt, int value)
@@ -214,12 +224,6 @@ const char* Cfg::get_export_dir() const
 {
 	pmesg("Cfg::get_export_dir()  \n");
 	return export_dir;
-}
-
-const char* Cfg::get_config_name() const
-{
-	pmesg("Cfg::get_config_name()  \n");
-	return config_name;
 }
 
 bool Cfg::set_export_dir(const char* dir)
@@ -264,7 +268,6 @@ void Cfg::apply()
 	// midi options
 	ui->device_id->value(option[CFG_DEVICE_ID]);
 	ui->r_user_id->value(option[CFG_DEVICE_ID]);
-	option[CFG_AUTOCONNECT] ? ui->autoconnect->set() : ui->autoconnect->clear();
 	ui->midi_ctrl_ch->value(option[CFG_CONTROL_CHANNEL]);
 	ui->midi_automap->value(option[CFG_AUTOMAP]);
 	ui->speed->value(option[CFG_SPEED]);

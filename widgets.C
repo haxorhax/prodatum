@@ -22,12 +22,6 @@
 #include <string.h>
 
 #include "ui.H"
-#include "pxk.H"
-#include "midi.H"
-#include "cfg.H"
-
-#include "debug.H"
-
 /**
  * global array that holds all device parameter widgets.
  * every parameter can be accessed by their ID and layer.
@@ -53,9 +47,9 @@ int dismiss(char exit)
 		return 1; // dismiss
 	int answer;
 	if (exit == 2)
-		answer = fl_choice("Dismiss changes and open a different device?", "Cancel", "Dismiss and open", "Save");
+		answer = fl_choice("Dismiss changes and open a different device?", "Cancel", "Dismiss", "Save");
 	else if (exit == 1)
-		answer = fl_choice("Dismiss changes and exit?", "Cancel", "Dismiss and exit", "Save");
+		answer = fl_choice("Dismiss changes and exit?", "Cancel", "Dismiss", "Save");
 	else
 		answer = fl_choice("Dismiss changes?", "Cancel", "Dismiss", "Save");
 	if (answer == 2)

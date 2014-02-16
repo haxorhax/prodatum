@@ -38,9 +38,7 @@ extern FilterMap FM[51];
 extern const char* rates[25];
 extern PD_Arp_Step* arp_step[32];
 
-// default config
-static char* config;
-static char auto_connect = 1;
+static bool auto_connect = true;
 
 /**
  * command line option parser
@@ -49,18 +47,9 @@ int options(int argc, char **argv, int &i)
 {
 	if (argv[i][1] == 'a')
 	{
-		auto_connect = 0;
+		auto_connect = false;
 		i++;
 		return 1;
-	}
-	if (argv[i][1] == 'c')
-	{
-		if (i + 1 >= argc)
-			return 0;
-		config = (char*) malloc(64 * sizeof(char));
-		snprintf(config, 64, "%s", argv[i + 1]);
-		i += 2;
-		return 2;
 	}
 	return 0;
 }
@@ -69,12 +58,10 @@ int main(int argc, char *argv[])
 {
 	Fl::scheme("gleam");
 	// command line options
-	config = 0;
 	int i = 1;
 	if (!Fl::args(argc, argv, i, options))
 	{
 		printf("prodatum options:\n"
-				" -c file\tConfig file to use (default: cfg.txt)\n"
 				" -a     \tdo not open device at startup\n");
 		return 1;
 	}
@@ -85,8 +72,7 @@ int main(int argc, char *argv[])
 	ui = new PD_UI();
 	if (!ui)
 		return 1;
-	//ui->main_window->show();
-	pxk = new PXK(config, auto_connect);
+	pxk = new PXK(auto_connect);
 	if (!pxk)
 		return 2;
 	return Fl::run();
@@ -747,12 +733,7 @@ void PD_UI::Reset(char user_data, char rom_data)
 	pmesg("reset(%d, %d)\n", user_data, rom_data);
 	char config_dir[PATH_MAX];
 	snprintf(config_dir, PATH_MAX, "%s", cfg->get_config_dir());
-	char* cfg_name = 0;
-	if (cfg->get_config_name()) // if name was set
-	{
-		cfg_name = (char*) malloc(64 * sizeof(char));
-		snprintf(cfg_name, 64, cfg->get_config_name());
-	}
+	char cfg_name = cfg->get_cfg_option(CFG_DEVICE_ID);
 	delete pxk;
 	pxk = 0;
 	// delete files
@@ -828,27 +809,18 @@ void PD_UI::Reset(char user_data, char rom_data)
 	reset_w->hide();
 	b_reset->activate();
 	fl_message("Deleted %d files from\n%s", deleted, config_dir);
-	pxk = new PXK(cfg_name, 1);
-	if (cfg_name)
-		free(cfg_name);
+	pxk = new PXK(true);
 }
 
 void PD_UI::Cancel()
 {
 	pmesg("PD_UI::Cancel() \n");
 	pxk->Join();
-	char* config = 0;
-	if (cfg->get_config_name())
-	{
-		config = (char*) malloc (64 * sizeof(char));
-		snprintf(config, 64, cfg->get_config_name());
-	}
+	char config = cfg->get_cfg_option(CFG_DEVICE_ID);
 	delete pxk;
 	pxk = 0;
 	init->hide();
 	while (init->shown())
 		Fl::wait(.1);
-	pxk = new PXK(config, 0);
-	if (config)
-		free(config);
+	pxk = new PXK(false);
 }

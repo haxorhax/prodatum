@@ -1076,10 +1076,10 @@ instrument_filter->do_callback();}
 } 
 
 widget_class PD_Preset_Editor {
-  xywh {285 127 833 569} type Double box BORDER_BOX hide position_relative
+  xywh {285 127 830 565} type Double box BORDER_BOX hide position_relative
 } {
   Fl_Group g_riff {
-    label RIFF open
+    label RIFF
     xywh {4 23 196 376} box THIN_DOWN_BOX labelfont 1 labelcolor 15
   } {
     Fl_Choice riff_rom {open
@@ -1108,7 +1108,7 @@ riff_filter->do_callback();}
       xywh {164 373 26 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49
     }
   }
-  Fl_Group program {open
+  Fl_Group program {
     xywh {208 1 417 398}
   } {
     Fl_Button copy_arp_b {
@@ -1391,7 +1391,7 @@ arp_filter->do_callback();}
       }
     }
   }
-  Fl_Group links {open
+  Fl_Group links {
     xywh {210 1 414 396} hide
   } {
     Fl_Group {} {
@@ -1542,19 +1542,19 @@ l2_filter->do_callback();}
   }
 } 
 
-widget_class PD_Main {
-  xywh {344 150 830 565} type Double box BORDER_BOX hide position_relative
+widget_class PD_Main {open
+  xywh {494 152 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
   }
   decl {Fl_Widget* ctrl_x[16];} {public
   }
   Fl_Group {} {
-    label main
+    label main open
     xywh {0 0 834 574} labeltype NO_LABEL align 0
   } {
     Fl_Group {} {
-      label {PROGRAM/CHANNEL} open
+      label {PROGRAM/CHANNEL}
       xywh {4 23 200 225} box THIN_DOWN_BOX labelfont 1 labelcolor 15
     } {
       Fl_Button preset_name {
@@ -2050,7 +2050,7 @@ else // initial controller amounts
         }
       }
     }
-    Fl_Group mixer {
+    Fl_Group mixer {selected
       xywh {208 0 421 569}
     } {
       Fl_Box {} {
@@ -2082,7 +2082,7 @@ else // initial controller amounts
         class PD_Layer_Strip
       }
     }
-    Fl_Group master {open
+    Fl_Group master {
       xywh {204 0 425 569} hide
     } {
       Fl_Group {} {
@@ -2440,20 +2440,20 @@ riff_filter->do_callback();}
     } {
       Fl_Counter {} {
         label BPM
-        tooltip {Master Clock. The Master Clock controls SuperBEATS, arpeggiators, synchronizes the LFOs when in tempo-based mode, controls the times of tempo-based envelopes, and can be used as a modulation source in the PatchCords section. Values range from 1 through 300 BPM or you can select "0" to use an external MIDI clock source} xywh {735 484 85 20} box THIN_UP_BOX selection_color 49 labelsize 10 labelcolor 15 align 1 minimum 0 maximum 300 step 1 textfont 4 textcolor 49
+        tooltip {Master Clock. The Master Clock controls SuperBEATS, arpeggiators, synchronizes the LFOs when in tempo-based mode, controls the times of tempo-based envelopes, and can be used as a modulation source in the PatchCords section. Values range from 1 through 300 BPM or you can select "0" to use an external MIDI clock source} xywh {737 484 85 20} box THIN_UP_BOX selection_color 49 labelsize 10 labelcolor 15 align 1 minimum 0 maximum 300 step 1 textfont 4 textcolor 49
         code0 {o->set_id(257);}
         class Counter
       }
       Fl_Choice {} {
         label {MIDI Mode} open
-        tooltip {MIDI Mode. Omni: Responds to note information on all MIDI channels and plays the preset currently displayed in the main screen - Poly: Responds only to note information received on the currently selected MIDI channel and plays that channel's associated preset - Multi: Responds to data on any combination of MIDI channels and plays the specific preset associated with each of the MIDI channels. You must select multi mode for multitimbral operation} xywh {645 484 80 21} down_box BORDER_BOX labelsize 10 labelcolor 15 align 69 textsize 13
+        tooltip {MIDI Mode. Omni: Responds to note information on all MIDI channels and plays the preset currently displayed in the main screen - Poly: Responds only to note information received on the currently selected MIDI channel and plays that channel's associated preset - Multi: Responds to data on any combination of MIDI channels and plays the specific preset associated with each of the MIDI channels. You must select multi mode for multitimbral operation} xywh {640 484 85 21} down_box BORDER_BOX labelsize 10 labelcolor 15 align 69 textsize 13
         code0 {o->add("Omni");o->add("Poly");o->add("Multi");}
         code1 {o->set_id(385);}
         class Choice
       } {}
       Fl_Choice {} {
         label {Velocity Curve} open
-        tooltip {Velocity Curve. Modifies incoming velocity data by a velocity curve in order to provide different types of dynamics in response to your playing, or to better adapt to a MIDI controller} xywh {644 448 85 21} down_box BORDER_BOX labelsize 10 labelcolor 15 align 69 textsize 13
+        tooltip {Velocity Curve. Modifies incoming velocity data by a velocity curve in order to provide different types of dynamics in response to your playing, or to better adapt to a MIDI controller} xywh {640 448 85 21} down_box BORDER_BOX labelsize 10 labelcolor 15 align 69 textsize 13
         code0 {o->add("linear");o->add("compress");o->add("emphasize medium");o->add("expand");o->add("expand ++");o->add("shift up");o->add("shift up ++");o->add("shift up +");o->add("shift up, emphasize mid");o->add("extreme compression");o->add("extreme compression with lows");o->add("extreme compression, no lows");o->add("extreme compression, no lows 2");o->add("extreme expansion");}
         code1 {o->set_id(265);}
         class Choice
@@ -2484,7 +2484,7 @@ riff_filter->do_callback();}
       }
       Fl_Choice {} {
         label {MIDI Transmit} open
-        tooltip {Enables or disables transmission of Riff/Arp note data over MIDI} xywh {740 448 80 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 69 textsize 13
+        tooltip {Enables or disables transmission of Riff/Arp note data over MIDI} xywh {737 448 85 20} down_box BORDER_BOX labelsize 10 labelcolor 15 align 69 textsize 13
         code0 {o->set_id(657);}
         code1 {o->add("Off");o->add("Arps");o->add("Riffs");o->add("Both");}
         class Choice
@@ -2574,9 +2574,9 @@ delete this;} open
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
 delete this;}
-      xywh {1014 282 840 615} type Double hide resizable
+      xywh {1014 282 840 615} type Double resizable
       code0 {o->label("prodatum");}
-      class Double_Window size_range {674 492 843 615}
+      class Double_Window size_range {674 492 843 615} visible
     } {
       Fl_Group {} {
         label name
@@ -2615,7 +2615,7 @@ pxk->preset->set_name(o->value(), 1, o->position());}
         }
       }
       Fl_Group {} {
-        label menu open
+        label menu
         xywh {1 1 420 23} labeltype NO_LABEL
       } {
         Fl_Box {} {
@@ -2638,7 +2638,7 @@ pxk->preset->set_name(o->value(), 1, o->position());}
 	return;
 }
 delete pxk;
-pxk = new PXK(0, 0);}
+pxk = new PXK(false);}
               xywh {10 10 36 21} shortcut 0x6f labelsize 12
             }
             MenuItem {} {
@@ -3165,7 +3165,7 @@ preset_editor->links->hide();
           class PD_Layer_Editor
         }
         Fl_Box preset_editor {
-          xywh {5 43 833 567} labeltype NO_LABEL
+          xywh {5 43 833 567} labeltype NO_LABEL hide
           class PD_Preset_Editor
         }
         Fl_Button {} {
@@ -3464,7 +3464,7 @@ preset_filter->do_callback();}
           }
         }
         Fl_Group g_multisetups {
-          label MULTISETUP open
+          label MULTISETUP
           xywh {639 146 196 304} box THIN_DOWN_BOX labelfont 1 labelcolor 15 hide
         } {
           Fl_Browser multisetups {
@@ -3752,7 +3752,7 @@ arp_name_changed = false;}
       }
     }
     Fl_Window open_device {
-      label {Open Device} open
+      label {Open Device}
       xywh {748 437 300 390} type Double box BORDER_BOX labelcolor 15 hide modal
     } {
       Fl_Box {} {
@@ -3859,7 +3859,7 @@ pxk->Inquire(device_id->value());}
         label {Device Info}
         xywh {75 225 11 20} color 7 labelsize 12 labelcolor 15 align 132
       }
-      Fl_Box device_info {selected
+      Fl_Box device_info {
         tooltip {Shows device information for the selected device (updates automatically on every port or ID change).} xywh {75 225 215 85} box THIN_DOWN_BOX color 7 selection_color 15 labelsize 11 labelcolor 49 align 213
       }
       Fl_Choice speed {
@@ -3868,11 +3868,6 @@ pxk->Inquire(device_id->value());}
         tooltip {Operation Level: Lower settings will work better if your computer or your MIDI device is very slow.} xywh {75 320 105 20} down_box BORDER_BOX labelsize 12 labelcolor 15 textsize 13
         code0 {o->add("Fast");o->add("Slower");o->add("Turtle");}
       } {}
-      Fl_Check_Button autoconnect {
-        label {Open at startup}
-        callback {cfg->set_cfg_option(CFG_AUTOCONNECT, o->value());}
-        tooltip {Wether you want prodatum to automatically connect to your device at startup.} xywh {185 320 105 20} down_box DOWN_BOX value 1 selection_color 49 labelsize 12
-      }
       Fl_Button b_rescan {
         label {Populate Ports}
         callback {connect->deactivate();
@@ -3908,7 +3903,7 @@ delete ui;}
     Fl_Window preferences {
       label Preferences
       callback {b_close_prefs->do_callback();}
-      xywh {669 349 615 365} type Double box UP_BOX labelsize 11 hide modal
+      xywh {282 338 615 365} type Double box UP_BOX labelsize 11 hide modal
     } {
       Fl_Box {} {
         label Preferences
@@ -4171,9 +4166,9 @@ if (((Fl_Button*) o->array()[i])->value())
         xywh {1 225 489 37}
       } {
         Fl_Button {} {
-          label CLR
+          label CLEAR
           callback {logbuf->remove(0, logbuf->length());}
-          tooltip {Clear Buffer} xywh {265 230 70 25} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 labelcolor 49 align 84
+          tooltip {Clear Buffer} xywh {265 230 70 25} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 labelcolor 49 align 80
         }
         Fl_Check_Button log_sysex_in {
           label IS
@@ -4196,8 +4191,8 @@ if (((Fl_Button*) o->array()[i])->value())
           tooltip {Log Outgoing Events} xywh {235 240 20 20} down_box DOWN_BOX selection_color 49 labelfont 4 labelcolor 15 align 4
         }
         Fl_Button scroll_lock {
-          label {SCR LK}
-          xywh {340 230 70 25} type Toggle box THIN_UP_BOX color 7 selection_color 15 labelsize 10 labelcolor 49 align 84
+          label {SCRL LCK}
+          xywh {340 230 70 25} type Toggle box THIN_UP_BOX color 7 selection_color 15 labelsize 10 labelcolor 49 align 80
         }
         Fl_Button {} {
           label Close
@@ -4380,7 +4375,7 @@ copy_arp_pattern_browser_filter->do_callback();}
     }
     Fl_Window reset_w {
       label Reload
-      callback {;} open
+      callback {;}
       xywh {243 252 285 160} type Double box BORDER_BOX hide modal
     } {
       Fl_Box {} {
@@ -4488,18 +4483,16 @@ select(0);} {}
   }
   Function {~PD_UI()} {open
   } {
-    code {//pxk->display_status("Bye!");
-cfg->set_cfg_option(CFG_SYNCVIEW, syncview);
+    code {cfg->set_cfg_option(CFG_SYNCVIEW, syncview);
 cfg->set_cfg_option(CFG_WINDOW_WIDTH, main_window->w());
 cfg->set_cfg_option(CFG_WINDOW_HEIGHT, main_window->h());
-//if (pd) delete pd;
 delete pxk;
 pmesg("Bye.\\n");
 exit(0);} {}
   }
 } 
 
-Function {handler(int event)} {return_type int
+Function {handler(int event)} {open return_type int
 } {
   code {//pmesg("unused handler event: %d\\n", event);
 return 0;} {}
