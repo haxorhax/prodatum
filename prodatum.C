@@ -27,6 +27,7 @@
 #include <FL/filename.H>
 #include <FL/fl_ask.H>
 #include <FL/Fl_Tooltip.H>
+#include <FL/Fl_Color_Chooser.H>
 
 static void load_data();
 
@@ -58,14 +59,6 @@ int options(int argc, char **argv, int &i)
 int main(int argc, char *argv[])
 {
 	Fl::scheme("gleam");
-	Fl::set_color(FL_BACKGROUND_COLOR, 200, 195, 190);
-	Fl::set_color(FL_BACKGROUND2_COLOR, 250, 245, 240);
-	Fl::set_color(FL_FOREGROUND_COLOR, 30, 30, 50);
-	Fl::set_color(FL_SELECTION_COLOR, 20, 20, 110);
-	Fl::set_color(FL_INACTIVE_COLOR, 150, 10, 10);
-	Fl_Tooltip::textcolor(FL_FOREGROUND_COLOR);
-	Fl_Tooltip::color(FL_BACKGROUND2_COLOR);
-	Fl::reload_scheme();
 	// command line options
 	int i = 1;
 	if (!Fl::args(argc, argv, i, options))
@@ -175,6 +168,37 @@ void PD_UI::select(int l)
 			layer_editor[prev - 1]->hide();
 	}
 	selected = l;
+}
+
+void PD_UI::set_color(Fl_Color t)
+{
+	unsigned char r,g,b;
+	Fl::get_color(t,r,g,b);
+	if (!fl_color_chooser("New color:",r,g,b)) return;
+	Fl::set_color(t, r, g, b);
+	if (t == FL_FOREGROUND_COLOR)
+		Fl_Tooltip::textcolor(t);
+	else if (t == FL_BACKGROUND2_COLOR)
+		Fl_Tooltip::color(FL_BACKGROUND2_COLOR);
+	Fl::reload_scheme();
+}
+
+void PD_UI::set_color(Fl_Color t, unsigned char r, unsigned char g, unsigned char b)
+{
+	Fl::set_color(t, r, g, b);
+	if (t == FL_FOREGROUND_COLOR)
+		Fl_Tooltip::textcolor(t);
+	else if (t == FL_BACKGROUND2_COLOR)
+		Fl_Tooltip::color(FL_BACKGROUND2_COLOR);
+	Fl::reload_scheme();
+}
+
+void PD_UI::set_default_colors()
+{
+	for (unsigned char i = CFG_BGR; i <= CFG_INB; i++)
+		cfg->getset_default(i);
+	cfg->apply(true);
+	Fl::reload_scheme();
 }
 
 /**

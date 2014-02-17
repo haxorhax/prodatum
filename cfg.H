@@ -44,6 +44,21 @@ enum CONFIG
 	CFG_LOG_EVENTS_IN,
 	CFG_WINDOW_WIDTH,
 	CFG_WINDOW_HEIGHT,
+	CFG_BGR,
+	CFG_BGG,
+	CFG_BGB,
+	CFG_BG2R,
+	CFG_BG2G,
+	CFG_BG2B,
+	CFG_FGR,
+	CFG_FGG,
+	CFG_FGB,
+	CFG_SLR,
+	CFG_SLG,
+	CFG_SLB,
+	CFG_INR,
+	CFG_ING,
+	CFG_INB,
 	NOOPTION
 };
 
@@ -86,7 +101,7 @@ public:
 	 */
 	int get_cfg_option(int option) const;
 	int getset_default(int option);
-	void apply();
+	void apply(bool colors_only = false);
 };
 
 #endif /* CFG_H_ */

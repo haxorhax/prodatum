@@ -73,6 +73,21 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_LOG_EVENTS_IN] = 0;
 	defaults[CFG_WINDOW_WIDTH] = 843;
 	defaults[CFG_WINDOW_HEIGHT] = 615;
+	defaults[CFG_BGR] = 200;
+	defaults[CFG_BGG] = 195;
+	defaults[CFG_BGB] = 190;
+	defaults[CFG_BG2R] = 250;
+	defaults[CFG_BG2G] = 245;
+	defaults[CFG_BG2B] = 240;
+	defaults[CFG_FGR] = 30;
+	defaults[CFG_FGG] = 30;
+	defaults[CFG_FGB] = 50;
+	defaults[CFG_SLR] = 20;
+	defaults[CFG_SLG] = 20;
+	defaults[CFG_SLB] = 110;
+	defaults[CFG_INR] = 150;
+	defaults[CFG_ING] = 10;
+	defaults[CFG_INB] = 10;
 	// check/create cfg dir
 	struct stat sbuf;
 	if (stat(config_dir, &sbuf) == -1)
@@ -124,9 +139,8 @@ Cfg::Cfg(int device_id)
 	file.close();
 	if (check_file != check)
 	{
-		fl_message("Configuration updated, using default values.\n"
-				"Sorry for the inconvenience! I've opted for a\n"
-				"brainless but uber-fast configuration parser.");
+		fl_message("Configuration format changed, using default values.\n"
+				"Sorry for the inconvenience.");
 		for (i = 0; i < NOOPTION; i++)
 			option[i] = defaults[i];
 	}
@@ -251,9 +265,21 @@ bool Cfg::set_export_dir(const char* dir)
 	return true;
 }
 
-void Cfg::apply()
+void Cfg::apply(bool colors_only)
 {
 	pmesg("Cfg::apply()\n");
+	ui->set_color(FL_BACKGROUND_COLOR, (unsigned char) option[CFG_BGR], (unsigned char) option[CFG_BGG],
+			(unsigned char) option[CFG_BGB]);
+	ui->set_color(FL_BACKGROUND2_COLOR, (unsigned char) option[CFG_BG2R], (unsigned char) option[CFG_BG2G],
+			(unsigned char) option[CFG_BG2B]);
+	ui->set_color(FL_FOREGROUND_COLOR, (unsigned char) option[CFG_FGR], (unsigned char) option[CFG_FGG],
+			(unsigned char) option[CFG_FGB]);
+	ui->set_color(FL_SELECTION_COLOR, (unsigned char) option[CFG_SLR], (unsigned char) option[CFG_SLG],
+			(unsigned char) option[CFG_SLB]);
+	ui->set_color(FL_INACTIVE_COLOR, (unsigned char) option[CFG_INR], (unsigned char) option[CFG_ING],
+			(unsigned char) option[CFG_INB]);
+	if (colors_only)
+		return;
 	ui->syncview = option[CFG_SYNCVIEW];
 	// UI INIT
 	// midi options

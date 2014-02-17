@@ -153,7 +153,7 @@ widget_class PD_Preset_Patchcords {
 	s12->uninitialize();} {}
   }
   Fl_Box {} {
-    label {1-4} selected
+    label {1-4}
     xywh {1 5 275 20} selection_color 15 labelfont 1 labelcolor 8 align 22
   }
   Fl_Box {} {
@@ -1542,8 +1542,8 @@ l2_filter->do_callback();}
   }
 } 
 
-widget_class PD_Main {open
-  xywh {995 323 830 565} type Double box BORDER_BOX visible position_relative
+widget_class PD_Main {
+  xywh {444 225 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
   }
@@ -2527,6 +2527,10 @@ delete this;} public
   decl {bool arp_name_changed;} {}
   decl {void Cancel();} {}
   decl {void Reset(char, char);} {}
+  decl {void set_color(Fl_Color);} {}
+  decl {void set_default_colors();} {}
+  decl {void set_color(Fl_Color,unsigned char,unsigned char,unsigned char);} {public
+  }
   decl {void select(int l);} {public
   }
   decl {int get_selected();} {public
@@ -2571,7 +2575,7 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open
+delete this;}
       xywh {784 240 840 615} type Double hide resizable
       code0 {o->label("prodatum");}
       class Double_Window size_range {674 492 843 615}
@@ -3901,7 +3905,7 @@ delete ui;}
     Fl_Window preferences {
       label Preferences
       callback {b_close_prefs->do_callback();}
-      xywh {848 528 310 370} type Double box UP_BOX labelsize 11 hide modal
+      xywh {616 107 310 415} type Double box UP_BOX labelsize 11 hide modal
     } {
       Fl_Box {} {
         label Preferences
@@ -3966,12 +3970,12 @@ cfg->set_cfg_option(CFG_KNOBMODE, i);}
         code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
       }
       Fl_Button {} {
-        label Save
+        label SET
         callback {if(!cfg->set_export_dir(export_dir->value()))
 {
 export_dir->value(cfg->get_export_dir());
 }}
-        tooltip {Save export directory} xywh {20 218 60 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 align 16
+        tooltip {Save export directory} xywh {20 218 60 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 16
       }
       Fl_Box {} {
         label {MIDI Performance}
@@ -3987,10 +3991,35 @@ export_dir->value(cfg->get_export_dir());
         callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_UPLOAD, o->value());}
         tooltip {Closed loop uploads require the device to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: disabled, use open loop uploads)} xywh {20 300 251 15} down_box DOWN_BOX color 7 selection_color 15
       }
+      Fl_Button {} {
+        callback {PD_UI::set_color(FL_BACKGROUND_COLOR);}
+        xywh {20 340 35 25}
+      }
+      Fl_Button {} {
+        callback {PD_UI::set_color(FL_BACKGROUND2_COLOR);}
+        xywh {60 340 35 25} color 7 selection_color 7
+      }
+      Fl_Button {} {
+        callback {PD_UI::set_color(FL_FOREGROUND_COLOR);}
+        xywh {100 340 35 25} color 0 selection_color 0
+      }
+      Fl_Button {} {
+        callback {PD_UI::set_color(FL_SELECTION_COLOR);}
+        xywh {140 340 35 25} color 15 selection_color 15
+      }
+      Fl_Button {} {
+        callback {PD_UI::set_color(FL_INACTIVE_COLOR);}
+        xywh {180 340 35 25} color 8 selection_color 8
+      }
+      Fl_Button {} {
+        label DEFAULT
+        callback {set_default_colors();}
+        xywh {225 340 70 25} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 16
+      }
       Fl_Button b_close_prefs {
         label Close
         callback {preferences->hide();}
-        xywh {225 330 70 25} box THIN_UP_BOX shortcut 0x70 selection_color 15 labelsize 12 align 20
+        xywh {225 380 70 25} box THIN_UP_BOX shortcut 0x70 selection_color 15 labelsize 12 align 20
       }
     }
     Fl_Window piano_w {
@@ -4159,8 +4188,8 @@ if (((Fl_Button*) o->array()[i])->value())
       }
     }
     Fl_Window about {
-      label {About prodatum}
-      xywh {848 342 275 130} type Double box BORDER_BOX hide modal
+      label {About prodatum} open selected
+      xywh {848 342 275 115} type Double box BORDER_BOX hide modal
     } {
       Fl_Box {} {
         xywh {1 1 60 50} deactivate
@@ -4170,14 +4199,13 @@ if (((Fl_Button*) o->array()[i])->value())
         xywh {60 1 214 50} box FLAT_BOX color 32 labelfont 1 labelsize 18 labelcolor 49 align 148
       }
       Fl_Box {} {
-        label {Copyright 2008-2014
-Jan Eidtmann}
-        xywh {1 50 273 40} labelsize 12 align 144
+        label {Copyright 2008-2014 Jan Eidtmann}
+        xywh {1 50 273 25} labelsize 12 align 148
       }
       Fl_Button {} {
         label Close
         callback {about->hide();}
-        xywh {195 95 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20
+        xywh {195 80 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20
       }
     }
     Fl_Window copy_layer {
@@ -4433,8 +4461,7 @@ selected = 5;
 filter_tmp = 0;
 select(0);} {}
   }
-  Function {~PD_UI()} {open
-  } {
+  Function {~PD_UI()} {} {
     code {cfg->set_cfg_option(CFG_SYNCVIEW, syncview);
 cfg->set_cfg_option(CFG_WINDOW_WIDTH, main_window->w());
 cfg->set_cfg_option(CFG_WINDOW_HEIGHT, main_window->h());
