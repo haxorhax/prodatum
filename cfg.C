@@ -36,7 +36,7 @@ extern PD_UI* ui;
 extern PXK* pxk;
 
 // ms to wait between name requests on init and when a WAIT is received
-unsigned char request_delay;
+volatile unsigned char request_delay;
 
 Cfg::Cfg(int device_id)
 {
@@ -150,7 +150,7 @@ Cfg::Cfg(int device_id)
 Cfg::~Cfg()
 {
 	pmesg("Cfg::~Cfg()  \n");
-	if (option[CFG_DEVICE_ID] == -1 || option[CFG_DEVICE_ID] == 127)
+	if (!pxk->Synchronized())
 		return;
 	// save default
 	char _file[PATH_MAX];
@@ -197,7 +197,7 @@ void Cfg::set_cfg_option(int opt, int value)
 	if (opt < NOOPTION && opt >= 0)
 		option[opt] = value;
 	if (opt == CFG_SPEED)
-		request_delay = value * 25 + 25;
+		request_delay = value * 20 + 20;
 }
 
 int Cfg::get_cfg_option(int opt) const
@@ -237,18 +237,18 @@ bool Cfg::set_export_dir(const char* dir)
 	struct stat sbuf;
 	if (stat(dir, &sbuf) == -1)
 	{
-		fl_alert("Warning: Directory must exist.\nUsing previous directory.");
+		fl_alert("Directory must exist.\nUsing previous directory.");
 		return false;
 	}
 	else
 	{
 		char buf[PATH_MAX];
-		snprintf(buf, PATH_MAX, "%s/___prodatum-filecheck___", dir);
+		snprintf(buf, PATH_MAX, "%s/.___prdtmchck", dir);
 		FILE *fp = fopen(buf, "w");
 		if (fp == NULL)
 		{
 			if (errno == EACCES)
-				fl_alert("Warning: You don't have write permission at %s.\nUsing previous directory.", dir);
+				fl_alert("You don't have write permission at %s.\nUsing previous directory.", dir);
 			return false;
 		}
 		else

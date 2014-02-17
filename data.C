@@ -380,8 +380,8 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		closed_loop = closed;
 		show_preset = show;
 		update_checksum();
-//		if (closed_loop)
-//			pxk->Loading(); // TODO
+		if (closed_loop)
+			pxk->Loading(); // TODO
 	}
 	ui->progress->value((float) status);
 	if (closed_loop)
@@ -414,6 +414,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		// ack of tail...send eof
 		if (packet == chunks + 2)
 		{
+			ui->loading_w->hide();
 			midi->eof();
 			if (show_preset)
 				pxk->show_preset();
@@ -422,7 +423,6 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 			else
 				pxk->display_status("Program saved.");
 			status = 0;
-			ui->loading_w->hide();
 		}
 		else
 			midi->write_sysex(data + offset, chunk_size);
@@ -488,7 +488,7 @@ void Preset_Dump::save_file()
 	update_checksum(); // save a valid dump
 	file.write((const char*) data, size);
 	file.close();
-	pxk->display_status("Program saved to disk.");
+	pxk->display_status("Saved to export directory.");
 }
 
 void Preset_Dump::move(int new_number)

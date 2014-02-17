@@ -244,15 +244,6 @@ void PXK::cc_callback(int controller, int value)
 	}
 }
 
-/* if autoconnection is enabled but the device is not powered
- we end up with an unconnected main window. this shows
- the open dialog if there is no answer*/
-static void check_connection(void* p)
-{
-	if (*(char*) p == -1 && !ui->init->shown())
-		ui->open_device->show();
-}
-
 // to open another device:
 // delete PXK, new PXK :)
 PXK::PXK(bool autoconnect)
@@ -260,6 +251,7 @@ PXK::PXK(bool autoconnect)
 	pmesg("PXK::PXK()\n");
 	// initialize
 	device_id = -1;
+	inquired = false;
 	device_code = -1;
 	synchronized = false;
 	roms = 0;
@@ -287,28 +279,10 @@ PXK::PXK(bool autoconnect)
 		rom_index[i] = -1;
 	}
 	ui->device_info->label("");
-	// populate ports && load config
-	if (LoadConfig() && PopulatePorts()) // TODO else
-	{
-		if (!autoconnect)
-		{
-			ui->open_device->show();
-			Fl::wait(.1);
-			return;
-		}
-		if (midi->connect_out(cfg->get_cfg_option(CFG_MIDI_OUT)) && midi->connect_in(cfg->get_cfg_option(CFG_MIDI_IN)))
-		{
-			midi->connect_thru(cfg->get_cfg_option(CFG_MIDI_THRU));
-			Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
-			Fl::add_timeout(.2, check_connection, (void*) &device_code);
-		}
-		else
-		{
-			PopulatePorts();
-			ui->open_device->show();
-			Fl::wait(.1);
-		}
-	}
+	LoadConfig();
+	ConnectPorts(autoconnect);
+	ui->main_window->show();
+
 }
 
 PXK::~PXK()
@@ -344,12 +318,13 @@ PXK::~PXK()
 	}
 }
 
-// TODO: config selection
 bool PXK::LoadConfig(int id) const
 {
 	pmesg("PXK::LoadConfig(%d)\n", id);
 	if (cfg)
 	{
+		if (cfg->get_cfg_option(CFG_DEVICE_ID) == id)
+			return true;
 		delete cfg;
 		cfg = 0;
 	}
@@ -357,14 +332,24 @@ bool PXK::LoadConfig(int id) const
 	if (!cfg)
 		return false;
 	cfg->apply();
-	ui->main_window->show();
-	Fl::wait(.1);
 	return true;
 }
 
-bool PXK::PopulatePorts() const
+/* if autoconnection is enabled but the device is not powered
+ we end up with an unconnected main window. this shows
+ the open dialog if there is no answer*/
+static void check_connection(void* p)
 {
-	pmesg("PXK::PopulatePorts()\n");
+	if (*(char*) p == -1)
+	{
+		pxk->ConnectPorts(false);
+		ui->open_device->show();
+	}
+}
+
+bool PXK::ConnectPorts(bool autoconnect)
+{
+	pmesg("PXK::ConnectPorts()\n");
 	if (midi)
 	{
 		delete midi;
@@ -373,6 +358,30 @@ bool PXK::PopulatePorts() const
 	midi = new MIDI();
 	if (!midi)
 		return false;
+	if (autoconnect)
+	{
+		if (midi->connect_out(cfg->get_cfg_option(CFG_MIDI_OUT)) && midi->connect_in(cfg->get_cfg_option(CFG_MIDI_IN)))
+		{
+			Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
+			Fl::add_timeout(.2, check_connection, (void*) &device_code);
+			ui->midi_outs->label(ui->midi_outs->text(cfg->get_cfg_option(CFG_MIDI_OUT)));
+			ui->midi_outs->value(cfg->get_cfg_option(CFG_MIDI_OUT));
+			ui->midi_ins->label(ui->midi_ins->text(cfg->get_cfg_option(CFG_MIDI_IN)));
+			ui->midi_ins->value(cfg->get_cfg_option(CFG_MIDI_IN));
+			if (midi->connect_thru(cfg->get_cfg_option(CFG_MIDI_THRU)))
+			{
+				ui->midi_ctrl->label(ui->midi_ctrl->text(cfg->get_cfg_option(CFG_MIDI_THRU)));
+				ui->midi_ctrl->value(cfg->get_cfg_option(CFG_MIDI_THRU));
+			}
+		}
+		else
+		{
+			ConnectPorts(false); // get clean MIDI object
+			ui->open_device->show();
+		}
+	}
+	else
+		ui->open_device->show();
 	return true;
 }
 
@@ -591,13 +600,18 @@ void PXK::Inquire(unsigned char id)
 	if (!synchronized && midi_active)
 	{
 		device_id = id;
-		unsigned char s[] = { 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
+		unsigned char s[] =
+		{ 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
 		midi->write_sysex(s, 6);
+		inquired = true;
 	}
 }
 
 void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 {
+	if (!inquired)
+		return;
+	inquired = false;
 	pmesg("PXK::incoming_inquiry_data(data, %d)\n", len);
 	Fl::remove_timeout(check_connection);
 	if (!synchronized && data[7] * 128 + data[6] == 516 && (data[2] == device_id || device_id == 127)) // talking to our PXK!
@@ -608,9 +622,7 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 			ui->device_id->value((double) device_id);
 			Fl::wait();
 		}
-		if (device_id != cfg->get_cfg_option(CFG_DEVICE_ID))
-			LoadConfig((int) device_id);
-		//cfg->set_cfg_option(CFG_DEVICE_ID, device_id);
+		LoadConfig((int) device_id);
 		device_code = 516;
 		midi->set_device_id(device_id); // so further sysex comes through
 		midi->edit_parameter_value(405, request_delay);
@@ -781,7 +793,6 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 		// didn't receive a header
 		if (!dump_pos)
 			return;
-		ui->progress->value((float) dump_pos);
 		if (closed_loop)
 		{
 			//pmesg("PXK::incoming_preset_dump(len: %d) data (closed)\n", len);
@@ -798,6 +809,7 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 				midi->ack(data[8] * 128 + data[7]);
 				memcpy(dump + dump_pos, data, len);
 				dump_pos += len;
+				ui->progress->value((float) dump_pos);
 				if (len < 253) // last packet
 				{
 					delete preset;
@@ -823,6 +835,7 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 			//pmesg("PXK::incoming_preset_dump(len: %d) data (open)\n", len);
 			memcpy(dump + dump_pos, data, len);
 			dump_pos += len;
+			ui->progress->value((float) dump_pos);
 			if (len < 253) // last packet
 			{
 				delete preset;
@@ -845,7 +858,7 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 	}
 	if (dump_pos == 0)
 	{
-		ui->progress->value(1600.);
+		ui->loading_w->hide();
 		show_preset();
 		// only activate preset selection if program
 		// change is enabled for the channel
@@ -853,7 +866,6 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 			ui->g_preset->activate();
 		else
 			ui->g_preset->deactivate();
-		ui->loading_w->hide();
 		display_status("Edit buffer loaded.");
 		Fl::wait(.1);
 	}
@@ -894,7 +906,7 @@ void PXK::Loading() const
 	Fl::remove_timeout(check_loading);
 	ui->loading_w->free_position();
 	ui->loading_w->show();
-	Fl::add_timeout(1.5, check_loading);
+	Fl::add_timeout(2., check_loading);
 }
 
 void PXK::load_setup()

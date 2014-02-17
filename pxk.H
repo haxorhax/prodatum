@@ -57,7 +57,7 @@ private:
 	volatile bool synchronized;
 public:
 	bool LoadConfig(int id = -1) const;
-	bool PopulatePorts() const;
+	bool ConnectPorts(bool);
 	bool Synchronize();
 	void Loading() const;
 	void log_add(const unsigned char*, const unsigned int, unsigned char) const;
@@ -91,6 +91,7 @@ private:
 	char os_rev[5]; // OS revision
 	int user_presets; // available user presets
 	void create_device_info();
+	bool inquired;
 public:
 	void Inquire(unsigned char);
 	void incoming_inquiry_data(const unsigned char*, int);

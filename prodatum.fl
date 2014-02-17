@@ -880,7 +880,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX color 15 selection_color 7 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
+    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX color 15 selection_color 7 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -970,7 +970,6 @@ widget_class PD_Layer_Editor {
       callback {instrument->set_filter(o->value());}
       xywh {30 241 129 20} box UP_BOX labelsize 12 when 1 textfont 4 textsize 12
       code0 {o->maximum_size(16);}
-      code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
       code2 {o->tooltip(filter_tooltip);}
       class Input
     }
@@ -1097,7 +1096,6 @@ widget_class PD_Preset_Editor {
       callback {riff->set_filter(o->value());}
       xywh {30 373 129 20} box UP_BOX labelsize 12 when 1 textfont 4 textsize 12
       code0 {o->maximum_size(16);}
-      code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
       code2 {o->tooltip(filter_tooltip);}
       class Input
     }
@@ -1346,7 +1344,6 @@ midi->request_arp_dump(arp->value()-1, 0);}
           callback {arp->set_filter(o->value());}
           xywh {445 293 129 20} box UP_BOX labelsize 12 when 1 textfont 4 textsize 12
           code0 {o->maximum_size(16);}
-          code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
           code2 {o->tooltip(filter_tooltip);}
           class Input
         }
@@ -1413,7 +1410,6 @@ arp_filter->do_callback();}
         callback {l1->set_filter(o->value());}
         xywh {242 264 129 20} box UP_BOX labelsize 12 when 1 textfont 4 textsize 12
         code0 {o->maximum_size(16);}
-        code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
         code2 {o->tooltip(filter_tooltip);}
         class Input
       }
@@ -1483,7 +1479,6 @@ l1_filter->do_callback();}
         callback {l2->set_filter(o->value());}
         xywh {448 264 129 20} box UP_BOX labelsize 12 when 1 textfont 4 textsize 12
         code0 {o->maximum_size(16);}
-        code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
         code2 {o->tooltip(filter_tooltip);}
         class Input
       }
@@ -2315,7 +2310,6 @@ midi->request_arp_dump(arp->value()-1, 0);}
             callback {arp->set_filter(o->value());}
             xywh {445 293 129 20} box UP_BOX labelsize 12 when 1 textfont 4 textsize 12
             code0 {o->maximum_size(16);}
-            code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
             code2 {o->tooltip(filter_tooltip);}
             class Input
           }
@@ -2346,7 +2340,6 @@ arp_filter->do_callback();}
           callback {riff->set_filter(o->value());}
           xywh {234 538 129 20} box UP_BOX labelsize 12 when 1 textfont 4 textsize 12
           code0 {o->maximum_size(16);}
-          code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
           code2 {o->tooltip(filter_tooltip);}
           class Input
         }
@@ -2575,13 +2568,13 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open
+delete this;}
       xywh {784 240 840 615} type Double hide resizable
       code0 {o->label("prodatum");}
       class Double_Window size_range {674 492 843 615}
     } {
       Fl_Group {} {
-        label name
+        label name open
         xywh {1 1 841 23} labeltype NO_LABEL
       } {
         Fl_Box {} {
@@ -2601,7 +2594,6 @@ delete this;} open
 pxk->preset->set_name(o->value(), 0, o->position());}
           tooltip {Program category (3 characters max.)} xywh {716 1 27 19} box FLAT_BOX labelfont 4 labelsize 12 when 1 textfont 4 textsize 12
           code0 {o->maximum_size(3);}
-          code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
           code2 {o->value("cat");}
           class Input
         }
@@ -2611,13 +2603,12 @@ pxk->preset->set_name(o->value(), 0, o->position());}
 pxk->preset->set_name(o->value(), 1, o->position());}
           tooltip {Program name (12 characters max.) [CTRL+N to focus]} xywh {752 1 90 19} box FLAT_BOX labelfont 4 labelsize 12 when 1 textfont 4 textsize 12
           code0 {o->maximum_size(12);}
-          code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
           code2 {o->value("Program Name");}
           class Input
         }
       }
       Fl_Group {} {
-        label menu
+        label menu open
         xywh {1 1 420 23} labeltype NO_LABEL
       } {
         Fl_Box {} {
@@ -2625,7 +2616,7 @@ pxk->preset->set_name(o->value(), 1, o->position());}
           xywh {418 21 1 1} labeltype NO_LABEL resizable
         }
         Fl_Menu_Bar {} {open
-          xywh {1 1 231 19} box FLAT_BOX color 7 labelsize 10 labelcolor 49 textsize 10
+          xywh {1 1 231 19} box FLAT_BOX color 7 labelsize 10 textsize 10
           code0 {o->global();}
         } {
           Submenu {} {
@@ -2678,7 +2669,7 @@ pxk->preset->save_file();}
             }
           }
           Submenu {} {
-            label Edit
+            label Edit open
             xywh {5 5 70 21} labelsize 12
           } {
             MenuItem {} {
@@ -2972,7 +2963,7 @@ about->show();}
           xywh {281 1 281 17} box FLAT_BOX color 7 labelfont 4 labelsize 12 align 18
         }
       }
-      Fl_Group g_main {open
+      Fl_Group g_main {
         xywh {0 19 843 596}
       } {
         Fl_Group selector {
@@ -3229,7 +3220,7 @@ if (!eall && pxk->preset)
           }
         }
         Fl_Group g_minipiano {
-          label MINIPIANO open selected
+          label MINIPIANO open
           xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8 hide
         } {
           Fl_Box global_minipiano {
@@ -3452,7 +3443,6 @@ Fl::focus(preset);
                 callback {preset->set_filter(o->value());}
                 xywh {665 424 129 20} box UP_BOX labelsize 12 when 1 textfont 4 textsize 12
                 code0 {o->maximum_size(16);}
-                code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
                 code2 {o->tooltip(filter_tooltip);}
                 class Input
               }
@@ -3479,7 +3469,6 @@ midi->request_setup_dump();}
             label {Save as}
             tooltip {MultiSetup name (16 characters max.)} xywh {649 393 176 20} box UP_BOX labelsize 10 align 5 when 1 textfont 4 textsize 12
             code0 {o->maximum_size(16);}
-            code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
             class Input
           }
           Fl_Button do_save {
@@ -3663,7 +3652,6 @@ pxk->save_setup(multisetups->value() - 1, s_name->value());}
           callback {arp_name_changed = true;}
           tooltip {Arpeggiator pattern name} xywh {705 554 127 20} box UP_BOX labelsize 10 align 5 when 1 textfont 4 textsize 12
           code0 {o->maximum_size(12);}
-          code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
           class Input
         }
         Fl_Button {} {
@@ -3733,7 +3721,7 @@ arp_name_changed = false;}
     }
     Fl_Window init {
       label Initializing
-      callback {Cancel();}
+      callback {;}
       xywh {486 411 290 130} type Double box BORDER_BOX hide modal
     } {
       Fl_Box {} {
@@ -3755,7 +3743,8 @@ arp_name_changed = false;}
     }
     Fl_Window open_device {
       label {Open Device}
-      xywh {748 437 300 390} type Double box BORDER_BOX labelcolor 15 hide modal
+      callback {delete ui;} open selected
+      xywh {786 236 300 390} type Double box BORDER_BOX labelcolor 15 hide modal
     } {
       Fl_Box {} {
         label {Open Device}
@@ -3839,16 +3828,17 @@ o->label("Select... (optional)");
       Fl_Spinner device_id {
         callback {connect->deactivate();
 device_info->label(0);
-pxk->Inquire(o->value());
+pxk->LoadConfig(o->value());
+pxk->ConnectPorts(true);
 r_user_id->value(o->value());}
         tooltip {ID: Must be unique for every device you intend to use prodatum with (you can set the ID in the Master Menu of your device)!} xywh {75 200 50 20} color 7 selection_color 15 labeltype NO_LABEL labelfont 2 labelsize 12 align 0 when 1 minimum 0 maximum 126 value 0 textfont 4 textsize 13
       }
-      Fl_Button b_auto_detect {
+      Fl_Button {} {
         label {Auto-Detect}
         callback {connect->deactivate();
 device_info->label(0);
 pxk->Inquire(127);}
-        xywh {135 200 80 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 align 20 deactivate
+        xywh {135 200 80 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 align 20
       }
       Fl_Button {} {
         label Update
@@ -3873,7 +3863,7 @@ pxk->Inquire(device_id->value());}
       Fl_Button b_rescan {
         label {Populate Ports}
         callback {connect->deactivate();
-pxk->PopulatePorts();}
+pxk->ConnectPorts(false);}
         tooltip {Populate (newly) available MIDI ports.} xywh {75 135 90 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 align 16
       }
       Fl_Button connect {
@@ -3884,32 +3874,28 @@ if (pxk->Synchronize())
 cfg->set_cfg_option(CFG_MIDI_OUT, midi_outs->value());
 cfg->set_cfg_option(CFG_MIDI_IN, midi_ins->value());
 }
-open_device->hide();
-Fl::wait(.1);}
+open_device->hide();}
         xywh {140 355 70 25} box THIN_UP_BOX shortcut 0xff0d selection_color 15 labelsize 12 align 20 deactivate
       }
       Fl_Button {} {
         label Exit
-        callback {if (pxk->preset && pxk->preset->is_changed())
-{
-	if (dismiss(1) == 1)
-		delete this;
-	return;
-}
-if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
-	return;
-delete ui;}
+        callback {delete ui;}
         xywh {220 355 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20
+      }
+      Fl_Button {} {
+        label {?}
+        callback {device_info->label("A device is identified by it's \\"Device ID\\". prodatum keeps a configuration for every ID. To load a different configuration, use the \\"Device ID\\" selector. prodatum will load the configuration from the previous session on startup.");}
+        xywh {75 355 25 25} box THIN_UP_BOX color 7 selection_color 15 labelsize 12 align 16
       }
     }
     Fl_Window preferences {
       label Preferences
       callback {b_close_prefs->do_callback();}
-      xywh {616 107 310 415} type Double box UP_BOX labelsize 11 hide modal
+      xywh {587 388 305 430} type Double box UP_BOX labelsize 11 hide modal
     } {
       Fl_Box {} {
         label Preferences
-        xywh {60 1 249 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 20
+        xywh {60 1 244 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 20
       }
       Fl_Box {} {
         xywh {1 1 60 50} deactivate
@@ -3965,17 +3951,18 @@ cfg->set_cfg_option(CFG_KNOBMODE, i);}
         xywh {10 185 290 61} labelfont 1 labelcolor 8 align 133
       }
       Fl_Input export_dir {
-        tooltip {The directory is where exports are saved to} xywh {20 192 275 20} box UP_BOX labeltype NO_LABEL labelsize 10 align 0 when 0 textfont 4 textsize 12
+        callback {b_set->activate();}
+        tooltip {Export files will be written here} xywh {20 192 275 20} box UP_BOX labeltype NO_LABEL labelsize 10 align 0 when 1 textfont 4 textsize 12
         code0 {o->maximum_size(PATH_MAX);}
-        code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
       }
-      Fl_Button {} {
+      Fl_Button b_set {
         label SET
         callback {if(!cfg->set_export_dir(export_dir->value()))
 {
 export_dir->value(cfg->get_export_dir());
-}}
-        tooltip {Save export directory} xywh {20 218 60 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 16
+}
+o->deactivate();}
+        tooltip {Confirm new export directory} xywh {20 218 60 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 16 deactivate
       }
       Fl_Box {} {
         label {MIDI Performance}
@@ -3991,35 +3978,41 @@ export_dir->value(cfg->get_export_dir());
         callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_UPLOAD, o->value());}
         tooltip {Closed loop uploads require the device to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: disabled, use open loop uploads)} xywh {20 300 251 15} down_box DOWN_BOX color 7 selection_color 15
       }
+      Fl_Box {} {
+        label Colors
+        xywh {10 345 290 39} labelfont 1 labelcolor 8 align 5
+      }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_BACKGROUND_COLOR);}
-        xywh {20 340 35 25}
+        xywh {20 352 25 20}
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_BACKGROUND2_COLOR);}
-        xywh {60 340 35 25} color 7 selection_color 7
+        xywh {60 352 25 20} color 7 selection_color 7
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_FOREGROUND_COLOR);}
-        xywh {100 340 35 25} color 0 selection_color 0
+        xywh {100 352 25 20} color 0 selection_color 0
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_SELECTION_COLOR);}
-        xywh {140 340 35 25} color 15 selection_color 15
+        xywh {140 352 25 20} color 15 selection_color 15
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_INACTIVE_COLOR);}
-        xywh {180 340 35 25} color 8 selection_color 8
+        xywh {180 352 25 20} color 8 selection_color 8
       }
       Fl_Button {} {
         label DEFAULT
         callback {set_default_colors();}
-        xywh {225 340 70 25} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 16
+        tooltip {Use prodatum's default colors} xywh {225 352 70 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 16
       }
       Fl_Button b_close_prefs {
         label Close
-        callback {preferences->hide();}
-        xywh {225 380 70 25} box THIN_UP_BOX shortcut 0x70 selection_color 15 labelsize 12 align 20
+        callback {preferences->hide();
+export_dir->value(cfg->get_export_dir());
+b_set->deactivate();}
+        xywh {225 395 70 25} box THIN_UP_BOX shortcut 0x70 selection_color 15 labelsize 12 align 20
       }
     }
     Fl_Window piano_w {
@@ -4188,7 +4181,7 @@ if (((Fl_Button*) o->array()[i])->value())
       }
     }
     Fl_Window about {
-      label {About prodatum} open
+      label {About prodatum}
       xywh {848 342 275 115} type Double box BORDER_BOX hide modal
     } {
       Fl_Box {} {
@@ -4296,7 +4289,6 @@ o->deactivate();
           label {F }
           callback {copy_browser->set_filter(o->value());}
           xywh {36 300 129 20} box UP_BOX labelsize 12 when 1 textfont 4 textsize 12
-          code0 {o->cursor_color(FL_BACKGROUND_COLOR);}
           code1 {o->tooltip(filter_tooltip);}
           class Input
         }
@@ -4320,7 +4312,6 @@ copy_browser_filter->do_callback();}
           callback {copy_arp_pattern_browser->set_filter(o->value());}
           xywh {36 300 129 20} box UP_BOX labelsize 10 labelcolor 7 when 1 textfont 5 textsize 12 textcolor 49
           code0 {o->tooltip(filter_tooltip);}
-          code1 {o->cursor_color(FL_BACKGROUND_COLOR);}
           class Input
         }
         Fl_Button {} {
@@ -4337,21 +4328,21 @@ copy_arp_pattern_browser_filter->do_callback();}
       }
     }
     Fl_Window loading_w {
-      label {Please wait...}
+      label {Please wait}
       callback {;}
-      xywh {817 170 290 85} type Double box BORDER_BOX hide modal
+      xywh {616 421 290 55} type Double box BORDER_BOX hide modal
     } {
       Fl_Box {} {
         label {Loading program...}
         xywh {60 1 229 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 148
       }
+      Fl_Progress progress {
+        label label
+        xywh {1 51 288 3} box FLAT_BOX color 32 selection_color 49 labeltype NO_LABEL
+      }
       Fl_Box {} {
         xywh {1 1 60 50} deactivate
         code0 {o->image(image_pd);}
-      }
-      Fl_Progress progress {
-        label label
-        xywh {115 59 60 6} box FLAT_BOX selection_color 15 labeltype NO_LABEL
       }
     }
     Fl_Window reset_w {

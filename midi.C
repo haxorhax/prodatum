@@ -30,7 +30,7 @@ extern Cfg* cfg;
 extern PXK* pxk;
 
 volatile bool got_answer;
-bool midi_active = false;
+volatile bool midi_active = false;
 
 volatile static bool timer_running = false;
 volatile static bool thru_active = false;
@@ -68,9 +68,8 @@ static PortMidiStream *port_thru; // controller port (eg keyboard)
 
 static jack_ringbuffer_t *read_buffer;
 static jack_ringbuffer_t *write_buffer;
-static int midi_device_id;
-static unsigned int messages_to_send;
-static bool seed_randomizer = true;
+volatile static int midi_device_id;
+volatile static unsigned int messages_to_send;
 static bool requested = false;
 
 static void show_error(void)
@@ -269,7 +268,10 @@ static void process_midi(PtTimestamp, void*)
 					Pt_Sleep(10);
 				if (jack_ringbuffer_read(write_buffer, local_write_buffer, len) != len)
 				{
-					pmesg("ERRROROOR (%d)\n", len); // TODO
+					fprintf(stderr, "*** Error reading write ringbuffer!\n");
+	#ifdef WIN32
+					fflush(stderr);
+	#endif
 				}
 				pmerror = Pm_WriteSysEx(port_out, 0, local_write_buffer);
 				if (pmerror < 0)
@@ -316,7 +318,10 @@ static void process_midi_in(void*)
 				mysleep(10);
 			if (jack_ringbuffer_read(read_buffer, sysex, len) != len)
 			{
-				pmesg("ERRROROOR (%d)\n", len); // TODO
+				fprintf(stderr, "*** Error reading read ringbuffer!\n");
+#ifdef WIN32
+				fflush(stderr);
+#endif
 			}
 
 			// e-mu sysex
@@ -563,7 +568,6 @@ static void process_midi_in(void*)
 MIDI::MIDI()
 {
 	pmesg("MIDI::MIDI()\n");
-	midi_device_id = cfg->get_cfg_option(CFG_DEVICE_ID);
 	messages_to_send = 0;
 	// initialize (global) variables and buffers
 	selected_port_out = -1;
@@ -702,7 +706,6 @@ int MIDI::connect_out(int port)
 		return 0;
 	if (midi_active)
 	{
-		ui->b_auto_detect->deactivate();
 		process_midi_exit_flag = false;
 		thru_active = false;
 		midi_active = false;
@@ -751,11 +754,7 @@ int MIDI::connect_out(int port)
 	}
 	selected_port_out = port;
 	if (selected_port_in != -1)
-	{
 		midi_active = true;
-		ui->b_auto_detect->activate();
-		//request_device_inquiry();
-	}
 	if (selected_port_thru != -1)
 		thru_active = true;
 	return 1;
@@ -773,7 +772,6 @@ int MIDI::connect_in(int port)
 	}
 	if (midi_active)
 	{
-		ui->b_auto_detect->deactivate();
 		process_midi_exit_flag = false;
 		midi_active = false;
 		while (!process_midi_exit_flag)
@@ -831,11 +829,7 @@ int MIDI::connect_in(int port)
 	}
 	selected_port_in = port;
 	if (selected_port_out != -1)
-	{
 		midi_active = true;
-		ui->b_auto_detect->activate();
-		//request_device_inquiry();
-	}
 	return 1;
 }
 
@@ -1050,19 +1044,6 @@ void MIDI::eof() const
 	write_sysex(endof, 7);
 }
 
-//void MIDI::request_device_inquiry(int id) const
-//{
-//	pmesg("MIDI::request_device_inquiry(%d) \n", id);
-//	if (!midi_active)
-//		return;
-//	if (id == -1)
-//		id = midi_device_id;
-//	unsigned char request[] =
-//	{ 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
-//	write_sysex(request, 6);
-//	requested = true;
-//}
-
 void MIDI::request_hardware_config() const
 {
 	pmesg("MIDI::request_hardware_config() \n");
@@ -1076,13 +1057,11 @@ void MIDI::request_hardware_config() const
 
 void MIDI::request_preset_dump(int preset, int rom_id) const
 {
-	pmesg("MIDI::request_preset_dump(preset: %d, rom: %d) \n", preset, rom_id);
 	if (requested)
 		return;
-	if (preset < 0)
+	pmesg("MIDI::request_preset_dump(preset: %d, rom: %d) \n", preset, rom_id);
+	if (preset < 0) // edit buffer
 		preset += 16384;
-	else
-		seed_randomizer = true;
 	unsigned char request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x11, cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD) ? 0x02 : 0x04, preset
 			% 128, preset / 128, rom_id % 128, rom_id / 128, 0xf7 };
@@ -1216,8 +1195,10 @@ void MIDI::audit() const
 void MIDI::randomize() const
 {
 	pmesg("MIDI::randomize()\n");
-	if (seed_randomizer)
+	static bool seed = true;
+	if (seed)
 	{
+		seed = false;
 #ifdef WIN32
 		srand(time(0));
 		int byte1 = rand() % 16384;
@@ -1231,11 +1212,10 @@ void MIDI::randomize() const
 		{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x72, 0x7f, 0x7f, 0, 0, byte1 % 128, byte1 / 128, byte2 % 128, byte2
 				/ 128, 0xf7 };
 		write_sysex(seedr, 15);
-		seed_randomizer = false;
 	}
 	unsigned char randomize[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x71, 0x7f, 0x7f, 0, 0, 0xf7 };
 	write_sysex(randomize, 11);
-
+	mysleep(200);
 	request_preset_dump(-1, 0);
 }
