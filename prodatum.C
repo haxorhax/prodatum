@@ -520,7 +520,7 @@ void PD_UI::create_about()
 	const char* OS;
 #if defined(OSX)
 	OS = "Mac OS X";
-#elif defined(WINDOWS)
+#elif defined(WIN32)
 	OS = "Microsoft Windows";
 #else
 	OS = "GNU/Linux";
