@@ -280,9 +280,8 @@ PXK::PXK(bool autoconnect)
 	}
 	ui->device_info->label("");
 	LoadConfig();
-	ConnectPorts(autoconnect);
 	ui->main_window->show();
-
+	ConnectPorts(autoconnect);
 }
 
 PXK::~PXK()
