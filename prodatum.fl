@@ -880,7 +880,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX color 15 selection_color 7 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
+    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX color 15 selection_color 7 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2575,7 +2575,7 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
+delete this;} open
       xywh {784 240 840 615} type Double hide resizable
       code0 {o->label("prodatum");}
       class Double_Window size_range {674 492 843 615}
@@ -3229,8 +3229,8 @@ if (!eall && pxk->preset)
           }
         }
         Fl_Group g_minipiano {
-          label MINIPIANO
-          xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 7 hide
+          label MINIPIANO open selected
+          xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8 hide
         } {
           Fl_Box global_minipiano {
             xywh {640 67 194 54} box FLAT_BOX labeltype NO_LABEL
@@ -4188,7 +4188,7 @@ if (((Fl_Button*) o->array()[i])->value())
       }
     }
     Fl_Window about {
-      label {About prodatum} open selected
+      label {About prodatum} open
       xywh {848 342 275 115} type Double box BORDER_BOX hide modal
     } {
       Fl_Box {} {

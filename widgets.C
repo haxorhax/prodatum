@@ -2999,26 +2999,12 @@ void Envelope_Editor::draw()
 	shape_button[2] = shape_button[1] - 20;
 	shape_button[3] = shape_button[2] - 20;
 
-//	Fl_Color light, contrast;
-//	bg = colors[BG];
-//	if (cfg->get_cfg_option(CFG_COLORED_BG))
-//		bg = (colors[RR] * 2 + colors[GG] * 3 + colors[BB]) / 6;
-//	if (bg > 160)
-//	{
-//		light = fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .8f);
-//		contrast = fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .5f);
-//	}
-//	else
-//	{
-//		light = fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .8f);
-//		contrast = fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .5f);
-//	}
 	if (!active_r())
 		return;
 	// top bar
 	// envelope type
 	fl_font(FL_HELVETICA_BOLD, 14);
-	fl_color(FL_BACKGROUND2_COLOR);
+	fl_color(FL_INACTIVE_COLOR);
 	switch (mode)
 	{
 		case VOLUME:

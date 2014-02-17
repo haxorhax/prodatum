@@ -41,6 +41,7 @@ extern const char* rates[25];
 extern PD_Arp_Step* arp_step[32];
 
 static bool auto_connect = true;
+static const char* VERSION = "2.0r1";
 
 /**
  * command line option parser
@@ -63,8 +64,8 @@ int main(int argc, char *argv[])
 	int i = 1;
 	if (!Fl::args(argc, argv, i, options))
 	{
-		printf("prodatum options:\n"
-				" -a     \tdo not open device at startup\n");
+		printf("prodatum %s options:\n"
+				" -a     \tdo not open device at startup\n", VERSION);
 		return 1;
 	}
 	// load some data
@@ -172,15 +173,44 @@ void PD_UI::select(int l)
 
 void PD_UI::set_color(Fl_Color t)
 {
-	unsigned char r,g,b;
-	Fl::get_color(t,r,g,b);
-	if (!fl_color_chooser("New color:",r,g,b)) return;
+	unsigned char r, g, b;
+	Fl::get_color(t, r, g, b);
+	if (!fl_color_chooser("New color:", r, g, b))
+		return;
 	Fl::set_color(t, r, g, b);
 	if (t == FL_FOREGROUND_COLOR)
 		Fl_Tooltip::textcolor(t);
 	else if (t == FL_BACKGROUND2_COLOR)
 		Fl_Tooltip::color(FL_BACKGROUND2_COLOR);
 	Fl::reload_scheme();
+	switch ((int) t)
+	{
+		case (int) FL_BACKGROUND_COLOR:
+			cfg->set_cfg_option(CFG_BGR, (int) r);
+			cfg->set_cfg_option(CFG_BGG, (int) g);
+			cfg->set_cfg_option(CFG_BGB, (int) b);
+			break;
+		case (int) FL_BACKGROUND2_COLOR:
+			cfg->set_cfg_option(CFG_BG2R, (int) r);
+			cfg->set_cfg_option(CFG_BG2G, (int) g);
+			cfg->set_cfg_option(CFG_BG2B, (int) b);
+			break;
+		case (int) FL_FOREGROUND_COLOR:
+			cfg->set_cfg_option(CFG_FGR, (int) r);
+			cfg->set_cfg_option(CFG_FGG, (int) g);
+			cfg->set_cfg_option(CFG_FGB, (int) b);
+			break;
+		case (int) FL_SELECTION_COLOR:
+			cfg->set_cfg_option(CFG_SLR, (int) r);
+			cfg->set_cfg_option(CFG_SLG, (int) g);
+			cfg->set_cfg_option(CFG_SLB, (int) b);
+			break;
+		case (int) FL_INACTIVE_COLOR:
+			cfg->set_cfg_option(CFG_INR, (int) r);
+			cfg->set_cfg_option(CFG_ING, (int) g);
+			cfg->set_cfg_option(CFG_INB, (int) b);
+			break;
+	}
 }
 
 void PD_UI::set_color(Fl_Color t, unsigned char r, unsigned char g, unsigned char b)
@@ -496,7 +526,7 @@ void PD_UI::create_about()
 	OS = "GNU/Linux";
 #endif
 	char buf[512];
-	snprintf(buf, 512, "prodatum\nfor %s", OS);
+	snprintf(buf, 512, "prodatum %s\nfor %s", VERSION, OS);
 	about_text->copy_label(buf);
 }
 
