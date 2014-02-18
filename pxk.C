@@ -625,11 +625,10 @@ bool PXK::Synchronize()
 	midi->filter_strict(); // filter everything but sysex for init
 	synchronized = false;
 	init_progress = 0;
-	ui->init_progress->label("Initializing...");
+	ui->init_progress->label("Synchronizing...");
 	// request rom infos
 #ifndef NDEBUG
-	ui->init_log->remove(0, ui->init_log->length());
-	ui->init_log->append("PXK::Synchronize() Init starts...\n");
+	ui->init_log->append("PXK::Synchronize()\n\n");
 #endif
 	Fl_Thread sync_hardware;
 	fl_create_thread(sync_hardware, sync_bro, (void*) &synchronized);
@@ -947,7 +946,7 @@ void PXK::incoming_setup_dump(const unsigned char* data, int len)
 	if (!synchronized)
 	{
 #ifndef NDEBUG // init log		char* __buffer = (char*) malloc(48 * sizeof(char));
-		snprintf(__buffer, 128, "PXK::incoming_setup_dump(len: %d)\n", len);
+		snprintf(__buffer, 128, "\nPXK::incoming_setup_dump(len: %d)\n", len);
 		ui->init_log->append(__buffer);
 		free(__buffer);
 #endif // init log		setup_init = new Setup_Dump(len, data);
@@ -1427,6 +1426,11 @@ void PXK::create_device_info()
 		}
 	}
 	ui->device_info->copy_label(info.data());
+#ifndef NDEBUG
+	ui->init_log->remove(0, ui->init_log->length());
+	ui->init_log->append(info.data());
+	ui->init_log->append("\n\n");
+#endif
 }
 const char* PXK::get_name(int code) const
 {
