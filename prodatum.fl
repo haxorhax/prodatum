@@ -55,6 +55,12 @@ if (!ui->scroll_lock->value())
 	ui->log->show_insert_position();} {}
 } 
 
+Function {initlog_cb(void*)} {private C return_type void
+} {
+  code {ui->i_log->insert_position(ui->init_log->length());
+ui->i_log->show_insert_position();} {}
+} 
+
 decl {char filter_tooltip[512];} {} 
 
 widget_class PD_Arp_Step {
@@ -880,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX color 15 selection_color 7 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
+    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX color 15 selection_color 7 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2497,6 +2503,8 @@ class PD_UI {open
   }
   decl {Fl_Text_Buffer* logbuf;} {public
   }
+  decl {Fl_Text_Buffer* init_log;} {public
+  }
   decl {Fl_Double_Window* layer_editor_windows[4];} {public
   }
   decl {Fl_Menu_Item* layer_editor_menu_items[4];} {
@@ -2569,12 +2577,12 @@ delete this;} open
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
 delete this;}
-      xywh {784 240 840 615} type Double resizable
+      xywh {784 240 840 615} type Double hide resizable
       code0 {o->label("prodatum");}
-      class Double_Window xclass prodatum size_range {674 492 843 615} visible
+      class Double_Window xclass prodatum size_range {674 492 843 615}
     } {
       Fl_Group {} {
-        label name open
+        label name
         xywh {1 1 841 23} labeltype NO_LABEL
       } {
         Fl_Box {} {
@@ -2752,7 +2760,7 @@ preferences->show();}
             }
           }
           Submenu {} {
-            label Window
+            label Window open
             xywh {5 5 70 21} labelsize 12
           } {
             MenuItem {} {
@@ -2829,6 +2837,11 @@ log_w->hide();
 else
 log_w->show();}
               xywh {5 5 36 21} shortcut 0x6d labelsize 12
+            }
+            MenuItem init_log_m {
+              label {Initialization Log}
+              callback {init_log_w->show();}
+              xywh {5 5 36 21} labelsize 12
             }
           }
           Submenu {} {
@@ -3737,14 +3750,19 @@ arp_name_changed = false;}
       }
       Fl_Button {} {
         label Cancel
-        callback {Cancel();}
+        callback {Cancel();
+init_log_w->show();}
         xywh {210 95 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20
+      }
+      Fl_Button init_log_b {
+        label Log
+        callback {init_log_w->show();}
+        xywh {130 95 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20
       }
     }
     Fl_Window open_device {
       label {Open Device}
-      callback {delete ui;}
-      xywh {786 236 300 390} type Double box BORDER_BOX labelcolor 15 hide modal xclass prodatum
+      xywh {786 236 300 390} type Double box BORDER_BOX labelcolor 15 hide xclass prodatum
     } {
       Fl_Box {} {
         label {Open Device}
@@ -4130,14 +4148,14 @@ if (((Fl_Button*) o->array()[i])->value())
     }
     Fl_Window log_w {
       label {Message Log}
-      xywh {1018 110 490 265} type Double box BORDER_BOX hide resizable
+      xywh {804 188 490 265} type Double box BORDER_BOX hide resizable
       class Double_Window xclass prodatum size_range {320 108 0 0}
     } {
       Fl_Text_Display log {
         xywh {1 1 489 222} box DOWN_BOX labelcolor 15 align 0 resizable
         class Text_Display
       }
-      Fl_Group {} {open
+      Fl_Group {} {
         xywh {1 225 489 37}
       } {
         Fl_Button {} {
@@ -4177,6 +4195,29 @@ if (((Fl_Button*) o->array()[i])->value())
         Fl_Box {} {
           label label
           xywh {3 258 1 1} labeltype NO_LABEL resizable
+        }
+      }
+    }
+    Fl_Window init_log_w {
+      label {Initialization log}
+      xywh {711 297 490 626} type Double box BORDER_BOX hide resizable
+      class Double_Window xclass prodatum size_range {320 108 0 0}
+    } {
+      Fl_Text_Display i_log {
+        xywh {1 1 489 586} box DOWN_BOX labelcolor 15 align 0 resizable
+        class Text_Display
+      }
+      Fl_Group {} {
+        xywh {0 588 489 37}
+      } {
+        Fl_Button {} {
+          label Close
+          callback {init_log_w->hide();}
+          xywh {414 593 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20
+        }
+        Fl_Box {} {
+          label label
+          xywh {2 621 1 1} labeltype NO_LABEL resizable
         }
       }
     }
@@ -4334,7 +4375,7 @@ copy_arp_pattern_browser_filter->do_callback();}
     } {
       Fl_Box {} {
         label {Loading program...}
-        xywh {60 1 229 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 148
+        xywh {60 1 229 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 148 hotspot
       }
       Fl_Progress progress {
         label label
@@ -4347,7 +4388,7 @@ copy_arp_pattern_browser_filter->do_callback();}
     }
     Fl_Window reset_w {
       label Reload
-      callback {;} selected
+      callback {;}
       xywh {521 464 285 160} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Box {} {
@@ -4435,9 +4476,16 @@ Reset(userdata, romdata);}
         tooltip {Don't delete anything!} xywh {202 125 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20
       }
     }
-    code {logbuf = new Fl_Text_Buffer(LOG_BUFFER_SIZE);
+    code {// midi log
+logbuf = new Fl_Text_Buffer(LOG_BUFFER_SIZE);
 logbuf->add_modify_callback((Fl_Text_Modify_Cb) logbuffer_cb, 0);
 log->buffer(logbuf);
+// init log
+\#ifndef NDEBUG
+init_log = new Fl_Text_Buffer(LOG_BUFFER_SIZE);
+init_log->add_modify_callback((Fl_Text_Modify_Cb) initlog_cb, 0);
+i_log->buffer(init_log);
+\#endif
 create_about();
 main_window->free_position();
 progress->minimum(.0);
@@ -4450,7 +4498,8 @@ eall = false;
 arp_name_changed = false;
 selected = 5;
 filter_tmp = 0;
-select(0);} {}
+select(0);} {selected
+    }
   }
   Function {~PD_UI()} {} {
     code {cfg->set_cfg_option(CFG_SYNCVIEW, syncview);

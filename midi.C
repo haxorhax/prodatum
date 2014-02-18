@@ -589,6 +589,8 @@ MIDI::MIDI()
 MIDI::~MIDI()
 {
 	pmesg("MIDI::~MIDI()\n");
+	cancel();
+	eof();
 	stop_timer();
 	if (selected_port_in != -1)
 		Pm_Close(port_in);
@@ -710,7 +712,7 @@ int MIDI::connect_out(int port)
 		thru_active = false;
 		midi_active = false;
 		while (!process_midi_exit_flag)
-			Fl::wait(.1);
+			mysleep(5);
 	}
 	if (!start_timer())
 		return 0;
@@ -775,7 +777,7 @@ int MIDI::connect_in(int port)
 		process_midi_exit_flag = false;
 		midi_active = false;
 		while (!process_midi_exit_flag)
-			Fl::wait(.1);
+			mysleep(5);
 	}
 	if (!start_timer())
 		return 0;
@@ -957,23 +959,15 @@ void MIDI::filter_strict() const
 void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 {
 	pmesg("MIDI::write_sysex(data, len: %d)\n", len);
-	// dont use if (!midi_active) here because we wanna be able to send
-	// everything important (eg the setup_init) before the midi thread goes void
 	static unsigned int count = 0;
 	static unsigned char header[3];
 	if (!midi_active || len > SYSEX_MAX_SIZE)
-	{
-		fprintf(stderr, "*** Got request to send sysex with deactivated MIDI processor.\n");
-#ifdef WIN32
-		fflush(stderr);
-#endif
 		return;
-	}
 	header[0] = sysex[0];
 	header[1] = len / 128;
 	header[2] = len % 128;
 	while (jack_ringbuffer_write_space(write_buffer) < len + 3)
-		mysleep(10);
+		mysleep(2);
 	jack_ringbuffer_write(write_buffer, header, 3);
 	jack_ringbuffer_write(write_buffer, sysex, len);
 	++messages_to_send;
@@ -993,10 +987,7 @@ void MIDI::write_event(int status, int value1, int value2, int channel) const
 	const unsigned char msg[] =
 	{ stat, value1 & 0xff, value2 & 0xff };
 	while (jack_ringbuffer_write_space(write_buffer) < 3)
-	{
-		pxk->display_status("Throttling upload...", true);
-		Fl::wait(.1);
-	}
+		mysleep(2);
 	jack_ringbuffer_write(write_buffer, msg, 3);
 	++messages_to_send;
 	// log midi events
@@ -1073,7 +1064,7 @@ void MIDI::request_preset_dump(int preset, int rom_id) const
 void MIDI::request_setup_dump() const
 {
 	pmesg("MIDI::request_setup_dump() \n");
-	if (requested || !midi_active)
+	if (requested)
 		return;
 	unsigned char request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x1d, 0xf7 };
@@ -1083,8 +1074,6 @@ void MIDI::request_setup_dump() const
 
 void MIDI::request_arp_dump(int number, int rom_id) const
 {
-	if (!midi_active)
-		return;
 	pmesg("MIDI::request_arp_dump(#: %d, rom: %d)\n", number, rom_id);
 	if (number < 0)
 		number += 16384;
@@ -1095,8 +1084,6 @@ void MIDI::request_arp_dump(int number, int rom_id) const
 
 void MIDI::request_name(int type, int number, int rom_id) const
 {
-	if (!midi_active)
-		return;
 	pmesg("MIDI::request_name(type: %d, #: %d, rom_id: %d)\n", type, number, rom_id);
 	unsigned char request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x0c, type, number % 128, number / 128, rom_id % 128, rom_id / 128, 0xf7 };
@@ -1105,8 +1092,6 @@ void MIDI::request_name(int type, int number, int rom_id) const
 
 void MIDI::edit_parameter_value(int id, int value) const
 {
-	if (!midi_active)
-		return;
 	pmesg("MIDI::edit_parameter_value(id: %d, value: %d) \n", id, value);
 	static unsigned char plsb, pmsb, vlsb, vmsb;
 	if (id < 0)
@@ -1121,13 +1106,11 @@ void MIDI::edit_parameter_value(int id, int value) const
 	for (unsigned char i = 0; i < 12; i++)
 		sprintf(buf + 2 * i, "%02X", request[i]);
 	buf[24] = '\0';
-	pxk->display_status(buf);
+//	pxk->display_status(buf);
 }
 
 void MIDI::master_volume(int volume) const
 {
-	if (!midi_active)
-		return;
 	pmesg("MIDI::master_volume() \n");
 	unsigned char master_vol[] =
 	{ 0xf0, 0x7f, midi_device_id, 0x04, 0x01, volume % 128, volume / 128, 0xf7 };
@@ -1136,8 +1119,6 @@ void MIDI::master_volume(int volume) const
 
 void MIDI::copy(int cmd, int src, int dst, int src_l, int dst_l, int rom_id) const
 {
-	if (!midi_active)
-		return;
 	pmesg("MIDI::copy(cmd: %X, src: %d, src_l: %d, dst: %d, dst_l: %d, rom: %d)\n", cmd, src, src_l, dst, dst_l, rom_id);
 	if (dst < 0)
 		dst += 16384;
@@ -1177,8 +1158,6 @@ void MIDI::copy(int cmd, int src, int dst, int src_l, int dst_l, int rom_id) con
 
 void MIDI::audit() const
 {
-	if (!midi_active)
-		return;
 	pmesg("MIDI::audit()\n");
 	// open session
 	unsigned char os[] =

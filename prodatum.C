@@ -75,6 +75,10 @@ int main(int argc, char *argv[])
 	ui = new PD_UI();
 	if (!ui)
 		return 1;
+#ifdef NDEBUG
+	ui->init_log_b->hide();
+	ui->init_log_m->hide();
+#endif
 	pxk = new PXK(auto_connect);
 	if (!pxk)
 		return 2;
