@@ -2569,9 +2569,9 @@ delete this;} open
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
 delete this;}
-      xywh {784 240 840 615} type Double hide resizable
+      xywh {784 240 840 615} type Double resizable
       code0 {o->label("prodatum");}
-      class Double_Window size_range {674 492 843 615}
+      class Double_Window xclass prodatum size_range {674 492 843 615} visible
     } {
       Fl_Group {} {
         label name open
@@ -3722,7 +3722,7 @@ arp_name_changed = false;}
     Fl_Window init {
       label Initializing
       callback {;}
-      xywh {486 411 290 130} type Double box BORDER_BOX hide modal
+      xywh {486 411 290 130} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Box {} {
         label {Please wait. This may take a few minutes.}
@@ -3743,8 +3743,8 @@ arp_name_changed = false;}
     }
     Fl_Window open_device {
       label {Open Device}
-      callback {delete ui;} open selected
-      xywh {786 236 300 390} type Double box BORDER_BOX labelcolor 15 hide modal
+      callback {delete ui;}
+      xywh {786 236 300 390} type Double box BORDER_BOX labelcolor 15 hide modal xclass prodatum
     } {
       Fl_Box {} {
         label {Open Device}
@@ -3891,7 +3891,7 @@ open_device->hide();}
     Fl_Window preferences {
       label Preferences
       callback {b_close_prefs->do_callback();}
-      xywh {587 388 305 430} type Double box UP_BOX labelsize 11 hide modal
+      xywh {587 388 305 430} type Double box UP_BOX labelsize 11 hide modal xclass prodatum
     } {
       Fl_Box {} {
         label Preferences
@@ -4019,7 +4019,7 @@ b_set->deactivate();}
       label Keyboard
       callback {o->hide();}
       xywh {240 173 930 190} type Double box BORDER_BOX hide
-      class Double_Window
+      class Double_Window xclass prodatum
     } {
       Fl_Group pi_mode {
         label M
@@ -4131,7 +4131,7 @@ if (((Fl_Button*) o->array()[i])->value())
     Fl_Window log_w {
       label {Message Log}
       xywh {1018 110 490 265} type Double box BORDER_BOX hide resizable
-      class Double_Window size_range {320 108 0 0}
+      class Double_Window xclass prodatum size_range {320 108 0 0}
     } {
       Fl_Text_Display log {
         xywh {1 1 489 222} box DOWN_BOX labelcolor 15 align 0 resizable
@@ -4182,7 +4182,7 @@ if (((Fl_Button*) o->array()[i])->value())
     }
     Fl_Window about {
       label {About prodatum}
-      xywh {848 342 275 115} type Double box BORDER_BOX hide modal
+      xywh {848 342 275 115} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Box {} {
         xywh {1 1 60 50} deactivate
@@ -4203,7 +4203,7 @@ if (((Fl_Button*) o->array()[i])->value())
     }
     Fl_Window copy_layer {
       label Copy
-      xywh {699 509 310 100} type Double box BORDER_BOX hide modal
+      xywh {699 509 310 100} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Group layer_dst {
         label TARGET open
@@ -4270,7 +4270,7 @@ o->deactivate();
     }
     Fl_Window copy_preset {
       label Copy
-      xywh {901 209 215 370} type Double box BORDER_BOX hide modal
+      xywh {901 209 215 370} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Group g_copy_preset {
         label DESTINATION open
@@ -4330,7 +4330,7 @@ copy_arp_pattern_browser_filter->do_callback();}
     Fl_Window loading_w {
       label {Please wait}
       callback {;}
-      xywh {616 421 290 55} type Double box BORDER_BOX hide modal
+      xywh {616 421 290 55} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Box {} {
         label {Loading program...}
@@ -4347,8 +4347,8 @@ copy_arp_pattern_browser_filter->do_callback();}
     }
     Fl_Window reset_w {
       label Reload
-      callback {;}
-      xywh {521 464 285 160} type Double box BORDER_BOX hide modal
+      callback {;} selected
+      xywh {521 464 285 160} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Box {} {
         label {Select names to reload}
