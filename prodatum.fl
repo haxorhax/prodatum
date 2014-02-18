@@ -2576,7 +2576,7 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
+delete this;} open
       xywh {784 240 840 615} type Double hide resizable
       code0 {o->label("prodatum");}
       class Double_Window xclass prodatum size_range {674 492 843 615}
@@ -2839,8 +2839,8 @@ log_w->show();}
               xywh {5 5 36 21} shortcut 0x6d labelsize 12
             }
             MenuItem init_log_m {
-              label {Initialization Log}
-              callback {init_log_w->show();}
+              label {Init Log}
+              callback {init_log_w->show();} selected
               xywh {5 5 36 21} labelsize 12
             }
           }
@@ -4199,7 +4199,7 @@ if (((Fl_Button*) o->array()[i])->value())
       }
     }
     Fl_Window init_log_w {
-      label {Initialization log}
+      label {Init log}
       xywh {711 297 490 626} type Double box BORDER_BOX hide resizable
       class Double_Window xclass prodatum size_range {320 108 0 0}
     } {
@@ -4498,8 +4498,7 @@ eall = false;
 arp_name_changed = false;
 selected = 5;
 filter_tmp = 0;
-select(0);} {selected
-    }
+select(0);} {}
   }
   Function {~PD_UI()} {} {
     code {cfg->set_cfg_option(CFG_SYNCVIEW, syncview);

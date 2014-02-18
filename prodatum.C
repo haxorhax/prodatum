@@ -41,7 +41,7 @@ extern const char* rates[25];
 extern PD_Arp_Step* arp_step[32];
 
 static bool auto_connect = true;
-static const char* VERSION = "2.0rc1";
+static const char* VERSION = "2.0rc1d";
 
 /**
  * command line option parser

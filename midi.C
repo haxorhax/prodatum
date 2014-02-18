@@ -38,6 +38,14 @@ volatile static bool process_midi_exit_flag = false;
 volatile static bool automap = true;
 extern unsigned char request_delay;
 
+// check buffer spaces
+#ifndef NDEBUG
+int write_space = RINGBUFFER_WRITE;
+volatile int read_space = RINGBUFFER_READ;
+int max_write = 0;
+volatile int max_read = 0;
+#endif
+
 /**
  * midi core implementation (sender/receiver/decoder).
  * this is where all MIDI bytes (outgoing and incoming) pass through.
@@ -74,16 +82,17 @@ static bool requested = false;
 
 static void show_error(void)
 {
-	char buf[256];
+	char* __buffer = (char*) malloc(256 * sizeof(char));
 	if (pmerror == -10000)
-		Pm_GetHostErrorText(buf, 256);
+		Pm_GetHostErrorText(__buffer, 256);
 	else if (pmerror < 0)
-		snprintf(buf, 256, "%s", Pm_GetErrorText(pmerror));
+		snprintf(__buffer, 256, "%s", Pm_GetErrorText(pmerror));
 	pmerror = pmNoError;
-	fprintf(stderr, "%s", buf);
+	fprintf(stderr, "%s", __buffer);
 #ifdef WIN32
 	fflush(stderr);
 #endif
+	free(__buffer);
 }
 
 static void process_midi(PtTimestamp, void*)
@@ -115,13 +124,6 @@ static void process_midi(PtTimestamp, void*)
 			if (pmerror < 0)
 			{
 				show_error();
-				if (receiving_sysex)
-				{
-					fprintf(stderr, "*** Pm_Read() error while receiving sysex\n");
-#ifdef WIN32
-					fflush(stderr);
-#endif
-				}
 				receiving_sysex = false;
 				break;
 			}
@@ -132,14 +134,8 @@ static void process_midi(PtTimestamp, void*)
 				data = (ev.message >> shift) & 0xFF;
 				if (data == MIDI_SYSEX)
 				{
-					if (receiving_sysex)
-					{
+					if (receiving_sysex) //  Overlapping sysex messages!
 						receiving_sysex = false;
-						fprintf(stderr, "*** Overlapping sysex messages (missing MIDI_EOX)\n");
-#ifdef WIN32
-						fflush(stderr);
-#endif
-					}
 					// filter sysex
 					// e-mu proteus
 					if (((ev.message >> 8) & 0xFF) == 0x18 && ((ev.message >> 16) & 0xFF) == 0x0F
@@ -160,38 +156,28 @@ static void process_midi(PtTimestamp, void*)
 						// hand over a complete sysex message to the main thread
 						if (data == MIDI_EOX)
 						{
-							if (jack_ringbuffer_write_space(read_buffer) >= position + 3)
-							{
-								header[0] = local_read_buffer[0];
-								header[1] = position / 128;
-								header[2] = position % 128;
-								// write a header with length info
-								jack_ringbuffer_write(read_buffer, header, 3);
-								jack_ringbuffer_write(read_buffer, local_read_buffer, position);
-								got_answer = true;
+#ifndef NDEBUG
+							if (read_space > (jack_ringbuffer_write_space(read_buffer) - position - 3))
+								read_space = jack_ringbuffer_write_space(read_buffer) - position - 3;
+							if (max_read < position)
+								max_read = position;
+#endif
+							header[0] = local_read_buffer[0];
+							header[1] = position / 128;
+							header[2] = position % 128;
+							// write a header with length info
+							jack_ringbuffer_write(read_buffer, header, 3);
+							jack_ringbuffer_write(read_buffer, local_read_buffer, position);
+							got_answer = true;
 #ifndef WIN32
-								if (!write(p[1], " ", 1) == 1)
-									pmesg("*** Could not write into pipe!\n");
+							write(p[1], " ", 1);
 #endif
-							}
-							else
-							{
-								fprintf(stderr, "*** RINGBUFFER_READ (%d) overflow\n", RINGBUFFER_READ);
-#ifdef WIN32
-								fflush(stderr);
-#endif
-							}
 							receiving_sysex = false;
 							break;
 						}
-					}
+					} // (position < SYSEX_MAX_SIZE)
 					else
 					{
-						fprintf(stderr, "*** SYSEX_MESSAGE_BUFFER (%d) too small for incoming sysex, dropping message\n",
-						SYSEX_MAX_SIZE);
-#ifdef WIN32
-						fflush(stderr);
-#endif
 						receiving_sysex = false;
 						break;
 					}
@@ -199,19 +185,14 @@ static void process_midi(PtTimestamp, void*)
 				// voice message
 				else if (shift == 0 && data >= 0x80 && data <= 0xEF)
 				{
-					//receiving_sysex = false;
-					if (jack_ringbuffer_write_space(read_buffer) >= 4)
-					{
-						event[0] = Pm_MessageStatus(ev.message);
-						event[1] = Pm_MessageData1(ev.message);
-						event[2] = Pm_MessageData2(ev.message);
-						event[3] = 0;
-						jack_ringbuffer_write(read_buffer, event, 4);
+					event[0] = Pm_MessageStatus(ev.message);
+					event[1] = Pm_MessageData1(ev.message);
+					event[2] = Pm_MessageData2(ev.message);
+					event[3] = 0;
+					jack_ringbuffer_write(read_buffer, event, 4);
 #ifndef WIN32
-						if (!write(p[1], " ", 1) == 1)
-							fprintf(stderr, "*** Could not write into pipe!\n");
+					write(p[1], " ", 1);
 #endif
-					}
 					break;
 				}
 				else
@@ -237,14 +218,10 @@ static void process_midi(PtTimestamp, void*)
 						event[2] = Pm_MessageData2(ev.message);
 						event[3] = 1;
 						// write to ringbuffer for internal processing
-						if (jack_ringbuffer_write_space(read_buffer) >= 4)
-						{
-							jack_ringbuffer_write(read_buffer, event, 4);
+						jack_ringbuffer_write(read_buffer, event, 4);
 #ifndef WIN32
-							if (!write(p[1], " ", 1) == 1)
-								fprintf(stderr, "*** Could not write into pipe!\n");
+						write(p[1], " ", 1);
 #endif
-						}
 						ev.message = Pm_Message(event[0], event[1], event[2]);
 					}
 					// forward message
@@ -253,6 +230,7 @@ static void process_midi(PtTimestamp, void*)
 						show_error();
 				}
 				else
+					// pmerror = (PmError) Pm_Read(port_thru, &ev, 1);
 					show_error();
 			}
 		}
@@ -265,14 +243,8 @@ static void process_midi(PtTimestamp, void*)
 				jack_ringbuffer_read(write_buffer, local_write_buffer, 2); // read header
 				unsigned int len = local_write_buffer[0] * 128 + local_write_buffer[1];
 				while (jack_ringbuffer_peek(write_buffer, local_write_buffer, 1) != 1) // wait for data
-					Pt_Sleep(10);
-				if (jack_ringbuffer_read(write_buffer, local_write_buffer, len) != len)
-				{
-					fprintf(stderr, "*** Error reading write ringbuffer!\n");
-	#ifdef WIN32
-					fflush(stderr);
-	#endif
-				}
+					mysleep(1);
+				jack_ringbuffer_read(write_buffer, local_write_buffer, len);
 				pmerror = Pm_WriteSysEx(port_out, 0, local_write_buffer);
 				if (pmerror < 0)
 					show_error();
@@ -307,7 +279,7 @@ static void process_midi_in(void*)
 #ifndef WIN32
 		char buf;
 		if (!read(fd, &buf, 1) == 1) // this is fatal but very unlikely
-			fprintf(stderr, "*** Could not read from pipe!\n");
+		fprintf(stderr, "*** Could not read from pipe!\n");
 #endif
 		if (poll == MIDI_SYSEX)
 		{
@@ -323,13 +295,11 @@ static void process_midi_in(void*)
 				fflush(stderr);
 #endif
 			}
-
 			// e-mu sysex
 			if (sysex[1] == 0x18)
 			{
-				if (ui->log_sysex_in->value())
+				if (cfg->get_cfg_option(CFG_LOG_SYSEX_IN))
 					pxk->log_add(sysex, len, 1);
-				//return;
 				switch (sysex[5])
 				{
 					case 0x70: // error
@@ -401,17 +371,24 @@ static void process_midi_in(void*)
 						break;
 
 					default:
-						pxk->display_status("Received unrecognized sysex.", true);
-						pmesg("process_midi_in: received unrecognized message:\n");
-						for (int i = 0; i < len; i++)
-							pmesg("%X ", sysex[i]);
-						pmesg("\n");
+#ifndef NDEBUG
+						ui->init_log->append("\nprocess_midi_in: Received unrecognized e-mu sysex:\n");
+						char* __buffer = (char*) malloc(len * sizeof(char));
+						for (unsigned int i = 0; i < len; i++)
+							snprintf(__buffer + i, 1, "%x", sysex + i);
+						ui->init_log->append(__buffer);
+						ui->init_log->append("\n");
+						free(__buffer);
+#endif
+						break;
 				}
 			}
 			// universal sysex
 			else if (sysex[1] == 0x7e)
 			{
 				pmesg("process_midi_in: received MIDI standard universal message: ");
+				if (cfg->get_cfg_option(CFG_LOG_SYSEX_IN))
+					pxk->log_add(sysex, len, 1);
 				// device inquiry
 				if (sysex[3] == 0x06 && sysex[4] == 0x02 && sysex[5] == 0x18)
 				{
@@ -419,13 +396,18 @@ static void process_midi_in(void*)
 					pxk->incoming_inquiry_data(sysex, len);
 				}
 			}
+#ifndef NDEBUG
 			else
 			{
-				fprintf(stderr, "*** Received unknown sysex!\n");
-#ifdef WIN32
-				fflush(stderr);
-#endif
+				ui->init_log->append("\nprocess_midi_in: Received unknown sysex:\n");
+				char* __buffer = (char*) malloc(len * sizeof(char));
+				for (unsigned int i = 0; i < len; i++)
+					snprintf(__buffer + i, 1, "%x", sysex + i);
+				ui->init_log->append(__buffer);
+				ui->init_log->append("\n");
+				free(__buffer);
 			}
+#endif
 		} // if (poll == MIDI_SYSEX)
 
 		else
@@ -558,7 +540,8 @@ static void process_midi_in(void*)
 		}
 	}
 #ifdef WIN32
-	if (timer_running) Fl::repeat_timeout(.01, process_midi_in);
+	if (timer_running)
+		Fl::repeat_timeout(.01, process_midi_in);
 #endif
 }
 
@@ -571,11 +554,14 @@ MIDI::MIDI()
 	messages_to_send = 0;
 	// initialize (global) variables and buffers
 	selected_port_out = -1;
+	port_out = 0;
 	selected_port_in = -1;
+	port_in = 0;
 	selected_port_thru = -1;
+	port_thru = 0;
 #ifndef WIN32
 	if (pipe(p) == -1)
-		fprintf(stderr, "*** Could not open pipe\n%s", strerror(errno));
+	fprintf(stderr, "*** Could not open pipe\n%s", strerror(errno));
 #endif
 	read_buffer = jack_ringbuffer_create(RINGBUFFER_READ);
 	write_buffer = jack_ringbuffer_create(RINGBUFFER_WRITE);
@@ -589,21 +575,7 @@ MIDI::MIDI()
 MIDI::~MIDI()
 {
 	pmesg("MIDI::~MIDI()\n");
-	cancel();
-	eof();
 	stop_timer();
-	if (selected_port_in != -1)
-		Pm_Close(port_in);
-	if (selected_port_out != -1)
-		Pm_Close(port_out);
-	if (selected_port_thru != -1)
-		Pm_Close(port_thru);
-	Pm_Terminate();
-#ifndef WIN32
-	close(p[0]);
-	close(p[1]);
-#endif
-	// free buffers
 	jack_ringbuffer_free(read_buffer);
 	jack_ringbuffer_free(write_buffer);
 }
@@ -656,7 +628,7 @@ int MIDI::start_timer()
 #ifndef WIN32
 	Fl::add_fd(p[0], process_midi_in);
 #else
-	Fl::add_timeout(.1, process_midi_in);
+	Fl::add_timeout(0, process_midi_in);
 #endif
 	// start timer, clean up if we couldnt
 	if (Pt_Start(1, &process_midi, 0) < 0)
@@ -666,16 +638,18 @@ int MIDI::start_timer()
 		close(p[0]);
 		close(p[1]);
 #else
-		Fl::remove_timeout(process_midi_in, 0);
+		Fl::remove_timeout(process_midi_in);
 #endif
 		pxk->display_status("*** Could not start MIDI timer.", true);
 		fprintf(stderr, "*** Could not start MIDI timer.\n");
 #ifdef WIN32
 		fflush(stderr);
 #endif
+		Pt_Stop();
 		return 0;
 	}
 	timer_running = true;
+	Pm_Initialize(); // start portmidi
 	return 1;
 }
 
@@ -687,18 +661,34 @@ void MIDI::stop_timer()
 	pmesg("MIDI::stop_timer()\n");
 	process_midi_exit_flag = false;
 	thru_active = false;
+	timer_running = false;
 	midi_active = false;
 	while (!process_midi_exit_flag)
 		mysleep(10);
-	Pt_Stop();
-	timer_running = false;
 #ifndef WIN32
 	Fl::remove_fd(p[0]);
 	close(p[0]);
 	close(p[1]);
 #else
-	Fl::remove_timeout(process_midi_in, 0);
+	Fl::remove_timeout(process_midi_in);
 #endif
+	Pm_Terminate();
+	Pt_Stop();
+	if (selected_port_in != -1)
+	{
+		Pm_Close(port_in);
+		port_in = 0;
+	}
+	if (selected_port_out != -1)
+	{
+		Pm_Close(port_out);
+		port_out = 0;
+	}
+	if (selected_port_thru != -1)
+	{
+		Pm_Close(port_thru);
+		port_thru = 0;
+	}
 }
 
 int MIDI::connect_out(int port)
@@ -716,12 +706,12 @@ int MIDI::connect_out(int port)
 	}
 	if (!start_timer())
 		return 0;
-	pmerror = Pm_Initialize(); // start portmidi
-	if (pmerror < 0)
-	{
-		show_error();
-		return 0;
-	}
+//	pmerror = Pm_Initialize(); // start portmidi
+//	if (pmerror < 0)
+//	{
+//		show_error();
+//		return 0;
+//	}
 	if (selected_port_out != -1)
 	{
 		pmerror = Pm_Close(port_out);
@@ -781,12 +771,12 @@ int MIDI::connect_in(int port)
 	}
 	if (!start_timer())
 		return 0;
-	pmerror = Pm_Initialize(); // start portmidi
-	if (pmerror < 0)
-	{
-		show_error();
-		return 0;
-	}
+//	pmerror = Pm_Initialize(); // start portmidi
+//	if (pmerror < 0)
+//	{
+//		show_error();
+//		return 0;
+//	}
 	if (selected_port_in != -1)
 	{
 		pmerror = Pm_Close(port_in);
@@ -853,12 +843,12 @@ int MIDI::connect_thru(int port)
 	}
 	if (!start_timer())
 		return 0;
-	pmerror = Pm_Initialize(); // start portmidi
-	if (pmerror < 0)
-	{
-		show_error();
-		return 0;
-	}
+//	pmerror = Pm_Initialize(); // start portmidi
+//	if (pmerror < 0)
+//	{
+//		show_error();
+//		return 0;
+//	}
 	if (selected_port_thru != -1)
 	{
 		pmerror = Pm_Close(port_thru);
@@ -926,9 +916,12 @@ void MIDI::set_control_channel_filter(int channel) const
 void MIDI::set_channel_filter(int channel) const
 {
 	pmesg("MIDI::set_channel_filter(%d)\n", channel);
-	pmerror = Pm_SetChannelMask(port_in, Pm_Channel(channel));
-	if (pmerror < 0)
-		show_error();
+	if (port_in)
+	{
+		pmerror = Pm_SetChannelMask(port_in, Pm_Channel(channel));
+		if (pmerror < 0)
+			show_error();
+	}
 }
 
 void MIDI::filter_loose() const
@@ -936,24 +929,35 @@ void MIDI::filter_loose() const
 	pmesg("MIDI::filter_loose()\n");
 	int filter = ~0; // filter everything
 	filter ^= (PM_FILT_SYSEX + PM_FILT_NOTE + PM_FILT_CONTROL + PM_FILT_PITCHBEND);
-	pmerror = Pm_SetFilter(port_in, filter);
-	if (pmerror < 0)
-		show_error();
-	pmerror = Pm_SetFilter(port_thru, PM_FILT_REALTIME | PM_FILT_SYSTEMCOMMON);
-	if (pmerror < 0)
-		show_error();
-
+	if (port_in)
+	{
+		pmerror = Pm_SetFilter(port_in, filter);
+		if (pmerror < 0)
+			show_error();
+	}
+	if (port_thru)
+	{
+		pmerror = Pm_SetFilter(port_thru, PM_FILT_REALTIME | PM_FILT_SYSTEMCOMMON);
+		if (pmerror < 0)
+			show_error();
+	}
 }
 
 void MIDI::filter_strict() const
 {
 	pmesg("MIDI::filter_strict()\n");
-	pmerror = Pm_SetFilter(port_in, ~1); // only sysex on input
-	if (pmerror < 0)
-		show_error();
-	pmerror = Pm_SetFilter(port_thru, ~0); // everything on thru
-	if (pmerror < 0)
-		show_error();
+	if (port_in)
+	{
+		pmerror = Pm_SetFilter(port_in, ~1); // only sysex on input
+		if (pmerror < 0)
+			show_error();
+	}
+	if (port_thru)
+	{
+		pmerror = Pm_SetFilter(port_thru, ~0); // everything on thru
+		if (pmerror < 0)
+			show_error();
+	}
 }
 
 void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
@@ -968,6 +972,12 @@ void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 	header[2] = len % 128;
 	while (jack_ringbuffer_write_space(write_buffer) < len + 3)
 		mysleep(2);
+#ifndef NDEBUG
+	if (write_space > jack_ringbuffer_write_space(write_buffer) - len)
+		write_space = jack_ringbuffer_write_space(write_buffer) - len;
+	if (max_write < len)
+		max_write = len;
+#endif
 	jack_ringbuffer_write(write_buffer, header, 3);
 	jack_ringbuffer_write(write_buffer, sysex, len);
 	++messages_to_send;

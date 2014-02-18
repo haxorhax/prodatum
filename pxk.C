@@ -28,6 +28,14 @@
 extern PD_UI* ui;
 extern PXK* pxk;
 
+// buffer spaces
+#ifndef NDEBUG
+extern int write_space;
+extern volatile int read_space;
+extern int max_write;
+extern volatile int max_read;
+#endif
+
 extern bool got_answer;
 extern bool midi_active;
 extern FilterMap FM[51];
@@ -374,6 +382,8 @@ bool PXK::ConnectPorts(bool autoconnect)
 				ui->midi_ctrl->value(cfg->get_cfg_option(CFG_MIDI_THRU));
 			}
 			Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
+			// TODO: does not work as expected on WIN32
+			Fl::add_timeout(.5, check_connection, (void*) &device_code);
 		}
 		else
 		{
@@ -573,7 +583,9 @@ static void *sync_bro(void* p)
 	}
 	Fl::lock();
 #ifndef NDEBUG
-	snprintf(logbuffer, 128, "\nsync_bro: SUCCESS!\nBuffer size: %d\n", ui->init_log->length());
+	snprintf(logbuffer, 128,
+			"\nMIDI: min. read buffer space: %d (max. msg len %d)\nMIDI: min. write buffer space: %d (max. msg len %d)\n",
+			read_space, max_read, write_space, max_write);
 	ui->init_log->append(logbuffer);
 #endif
 	*(bool*) p = true;
@@ -585,6 +597,12 @@ static void *sync_bro(void* p)
 #endif
 	midi->cancel();
 	*(bool*) p = false;
+#ifndef NDEBUG
+	snprintf(logbuffer, 128,
+			"\nMIDI: min. read buffer space: %d (max. msg len %d)\nMIDI: min. write buffer space: %d (max. msg len %d)\n",
+			read_space, max_read, write_space, max_write);
+	ui->init_log->append(logbuffer);
+#endif
 	Fl::unlock();
 }
 
@@ -656,8 +674,6 @@ void PXK::Inquire(unsigned char id)
 		{ 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
 		midi->write_sysex(s, 6);
 		inquired = true;
-		// TODO: does not work as expected on WIN32
-		Fl::add_timeout(.5, check_connection, (void*) &device_code);
 	}
 }
 
@@ -930,14 +946,11 @@ void PXK::incoming_setup_dump(const unsigned char* data, int len)
 	selected_multisetup = data[0x4A]; // needed to select it in the multisetup choice
 	if (!synchronized)
 	{
-#ifndef NDEBUG
-		// init log
-		char logbuffer[128];
-		snprintf(logbuffer, 128, "PXK::incoming_setup_dump(len: %d)\n", len);
-		ui->init_log->append(logbuffer);
-		// end init log
-#endif
-		setup_init = new Setup_Dump(len, data);
+#ifndef NDEBUG // init log		char* __buffer = (char*) malloc(48 * sizeof(char));
+		snprintf(__buffer, 128, "PXK::incoming_setup_dump(len: %d)\n", len);
+		ui->init_log->append(__buffer);
+		free(__buffer);
+#endif // init log		setup_init = new Setup_Dump(len, data);
 		return;
 	}
 	display_status("Received setup dump.");
@@ -1006,20 +1019,18 @@ void PXK::load_setup()
 
 void PXK::incoming_generic_name(const unsigned char* data)
 {
-#ifndef NDEBUG
-	if (!synchronized && ((data[6] % 0xF) <= RIFF))
+#ifndef NDEBUG // init log	if (!synchronized && ((data[6] % 0xF) <= RIFF))
 	{
-		// init log
-		char __name[16];
-		snprintf(__name, 16, "%s", data + 11);
-		char logbuf[128];
-		snprintf(logbuf, 128, "\nPXK::incoming_generic_name(type:%d) %d-%d \"%s\"\n", data[6] % 0xF, data[7] + 128 * data[8],
-				data[9] + 128 * data[10], __name);
-		ui->init_log->append(logbuf);
+		char* __name = (char*) malloc(17 * sizeof(char));
+		snprintf(__name, 17, "%s", data + 11);
+		char* __buffer = (char*) malloc(128 * sizeof(char));
+		snprintf(__buffer, 128, "\nPXK::incoming_generic_name(type:%d) %d-%d \"%s\"\n", data[6] % 0xF,
+				data[7] + 128 * data[8], data[9] + 128 * data[10], __name);
+		ui->init_log->append(__buffer);
+		free(__buffer);
+		free(__name);
 	}
-	// end init log
-#endif
-	unsigned char type = data[6] % 0xF;
+#endif // init log	unsigned char type = data[6] % 0xF;
 	if (type < PRESET || type > RIFF)
 	{
 		pmesg("*** unknown name type %d\n", type);
@@ -1056,17 +1067,15 @@ void PXK::incoming_arp_dump(const unsigned char* data, int len)
 	pmesg("PXK::incoming_arp_dump(data, %d)\n", len);
 	if (!synchronized || ui->init->shown()) // init
 	{
-#ifndef NDEBUG
-		// init log
-		char __name[12];
-		snprintf(__name, 12, "%s", data + 14);
-		char logbuf[128];
-		snprintf(logbuf, 128, "\nPXK::incoming_arp_dump(len:%d) %d-%d \"%s\"\n ", len, data[6] + 128 * data[7],
+#ifndef NDEBUG // init log		char* __name = (char*) malloc(13 * sizeof(char));
+		snprintf(__name, 13, "%s", data + 14);
+		char* __buffer = (char*) malloc(128 * sizeof(char));
+		snprintf(__buffer, 128, "\nPXK::incoming_arp_dump(len:%d) %d-%d \"%s\"\n ", len, data[6] + 128 * data[7],
 				data[len - 3] + 128 * data[len - 2], __name);
-		ui->init_log->append(logbuf);
-		// end init log
-#endif
-		if (data[14] < 32) // not ascii, not a "real" arp dump
+		ui->init_log->append(__buffer);
+		free(__buffer);
+		free(__name);
+#endif	// init log		if (data[14] < 32) // not ascii, not a "real" arp dump
 		{
 			name_set_incomplete = false;
 			return;
