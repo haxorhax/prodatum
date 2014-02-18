@@ -411,49 +411,46 @@ static void *sync_bro(void* p)
 	int names;
 	// load setup names
 	unsigned char setups_to_load = 0;
-//	Fl::lock();
+	Fl::lock();
 	setups_to_load = pxk->load_setup_names(99);
-//	Fl::unlock();
+	Fl::unlock();
 	if (setups_to_load)
 	{
 		// save init setup
-//		Fl::lock();
+		Fl::lock();
 		midi->request_setup_dump();
-//		Fl::unlock();
+		Fl::unlock();
 		bool got_setup = false;
 		while (!got_setup)
 		{
 			mysleep(5);
-//			Fl::lock();
+			Fl::lock();
 			(pxk->setup_init == 0) ? got_setup = false : got_setup = true;
-//			Fl::unlock();
+			Fl::unlock();
 		}
-//		Fl::lock();
+		Fl::lock();
 		ui->init_progress->label("Loading multisetup names...");
 		ui->init_progress->maximum((float) 64);
 		init_progress = 0;
 		if (*(bool*) p) // Join()
 			goto Hell;
-//		Fl::unlock();
+		Fl::unlock();
 		for (name = 0; name < 63; name++)
 		{
-//			Fl::lock();
+			Fl::lock();
 			if (*(bool*) p) // Join()
 				goto Hell;
 			ui->init_progress->value((float) init_progress);
 			got_answer = false;
 			pxk->load_setup_names(name);
-//			Fl::remove_timeout(keep_running_bro);
-//			Fl::add_timeout(.3, keep_running_bro);
-//			Fl::unlock();
+			Fl::unlock();
 			while (!got_answer)
 				mysleep(5);
 		}
-//		Fl::remove_timeout(keep_running_bro);
 		mysleep(50);
-//		Fl::lock();
+		Fl::lock();
 		pxk->load_setup_names(63);
-//		Fl::unlock();
+		Fl::unlock();
 	}
 	// ID, PRESET, INSTRUMENT, ARP, SETUP, DEMO, RIFF
 	for (rom_nr = 0; rom_nr < 5; rom_nr++) // for every rom
@@ -493,7 +490,7 @@ static void *sync_bro(void* p)
 							_type = "riff (estimated progress)";
 							break;
 					}
-//					Fl::lock();
+					Fl::lock();
 					if (rom_nr == 0)
 						snprintf(_label, 64, "Loading flash %s names...", _type);
 					else
@@ -502,19 +499,17 @@ static void *sync_bro(void* p)
 					ui->init_progress->maximum((float) names);
 					init_progress = 0;
 					name_set_incomplete = true;
-//					Fl::unlock();
+					Fl::unlock();
 					name = 0;
 					while (name_set_incomplete && name < names)
 					{
-//						Fl::lock();
+						Fl::lock();
 						if (*(bool*) p) // Join()
 							goto Hell;
 						ui->init_progress->value((float) init_progress);
 						got_answer = false;
 						pxk->rom[rom_nr]->load_name(type, name);
-//						Fl::remove_timeout(keep_running_bro);
-//						Fl::add_timeout(.3, keep_running_bro);
-//						Fl::unlock();
+						Fl::unlock();
 						name++;
 						while (!got_answer)
 						{
@@ -523,20 +518,18 @@ static void *sync_bro(void* p)
 								mysleep(5);
 						}
 					}
-//					Fl::remove_timeout(keep_running_bro);
 				}
 			}
 		}
 	}
-//	Fl::lock();
+	Fl::lock();
 	*(bool*) p = true;
-//	Fl::unlock();
+	Fl::unlock();
 	return ((void*) 0);
 	Hell: // Join()
 	midi->cancel();
-//	Fl::remove_timeout(keep_running_bro);
 	*(bool*) p = false;
-//	Fl::unlock();
+	Fl::unlock();
 }
 
 void PXK::Join()
