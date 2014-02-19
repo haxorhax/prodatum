@@ -112,7 +112,7 @@ static void process_midi(PtTimestamp, void*)
 	// these are the buffers to store sysex chunks locally
 	static unsigned char local_read_buffer[SYSEX_MAX_SIZE];
 	static unsigned char local_write_buffer[SYSEX_MAX_SIZE];
-	static unsigned int position = 0;
+	static unsigned int position = 3;
 	static unsigned char header[3];
 	static bool receiving_sysex = false;
 	do
@@ -144,10 +144,10 @@ static void process_midi(PtTimestamp, void*)
 					// universal sysex
 					else if (((ev.message >> 8) & 0xFF) == 0x7E)
 						receiving_sysex = true;
-					position = 0;
+					position = 3;
 				}
 				// check for truncated sysex
-				if (receiving_sysex && (((data & 0x80) == 0 || data == 0xF7) || position == 0))
+				if (receiving_sysex && (((data & 0x80) == 0 || data == 0xF7) || position == 3))
 				{
 					// copy data
 					if (position < SYSEX_MAX_SIZE)
@@ -157,16 +157,15 @@ static void process_midi(PtTimestamp, void*)
 						if (data == MIDI_EOX)
 						{
 #ifndef NDEBUG
-							if (read_space > (jack_ringbuffer_write_space(read_buffer) - position - 3))
-								read_space = jack_ringbuffer_write_space(read_buffer) - position - 3;
-							if (max_read < position)
-								max_read = position;
+							if (read_space > (jack_ringbuffer_write_space(read_buffer) - position))
+								read_space = jack_ringbuffer_write_space(read_buffer) - position;
+							if (max_read < position + 3)
+								max_read = position + 3;
 #endif
-							header[0] = local_read_buffer[0];
-							header[1] = position / 128;
-							header[2] = position % 128;
 							// write a header with length info
-							jack_ringbuffer_write(read_buffer, header, 3);
+							local_read_buffer[0] = MIDI_SYSEX;
+							local_read_buffer[1] = (position - 3) / 128;
+							local_read_buffer[2] = (position - 3) % 128;
 							jack_ringbuffer_write(read_buffer, local_read_buffer, position);
 							got_answer = true;
 #ifndef WIN32
@@ -242,9 +241,6 @@ static void process_midi(PtTimestamp, void*)
 			{
 				jack_ringbuffer_read(write_buffer, local_write_buffer, 2); // read header
 				unsigned int len = local_write_buffer[0] * 128 + local_write_buffer[1];
-				pmesg("len: %d\n");
-				while (jack_ringbuffer_peek(write_buffer, local_write_buffer, 1) != 1) // wait for data
-					mysleep(1);
 				jack_ringbuffer_read(write_buffer, local_write_buffer, len);
 				pmerror = Pm_WriteSysEx(port_out, 0, local_write_buffer);
 				if (pmerror < 0)
@@ -278,26 +274,14 @@ static void process_midi_in(void*)
 	while (midi_active && jack_ringbuffer_peek(read_buffer, &poll, 1))
 	{
 #ifndef WIN32
-		char buf;
-		if (!read(fd, &buf, 1) == 1) // this is fatal but very unlikely
-		fprintf(stderr, "*** Could not read from pipe!\n");
+		read(fd, 0, 1);
 #endif
 		if (poll == MIDI_SYSEX)
 		{
 			unsigned char sysex[SYSEX_MAX_SIZE];
 			jack_ringbuffer_read(read_buffer, sysex, 3); // read header
 			unsigned int len = sysex[1] * 128 + sysex[2];
-#ifdef WIN32
-			while (jack_ringbuffer_peek(read_buffer, sysex, 1) != 1) // wait for the data
-				mysleep(10);
-#endif
-			if (jack_ringbuffer_read(read_buffer, sysex, len) != len)
-			{
-				fprintf(stderr, "*** Error reading read ringbuffer!\n");
-#ifdef WIN32
-				fflush(stderr);
-#endif
-			}
+			jack_ringbuffer_read(read_buffer, sysex, len);
 			// e-mu sysex
 			if (sysex[1] == 0x18)
 			{
@@ -468,11 +452,7 @@ static void process_midi_in(void*)
 						ui->pitchwheel->value((double) v);
 					}
 						break;
-					default:
-						fprintf(stderr, "*** Received unused device MIDI event!\n");
-#ifdef WIN32
-						fflush(stderr);
-#endif
+					default:;
 				}
 			}
 			else // controller event
@@ -526,15 +506,11 @@ static void process_midi_in(void*)
 						ui->pitchwheel->value((double) v);
 					}
 						break;
-					default:
-						fprintf(stderr, "*** Received unused controller MIDI event!\n");
-#ifdef WIN32
-						fflush(stderr);
-#endif
+					default:;
 				}
 			}
 			// log midi events
-			if (ui->log_events_in->value())
+			if (cfg->get_cfg_option(CFG_LOG_EVENTS_IN))
 			{
 				char buf[30];
 				snprintf(buf, 30, "\nIE.%lu::%02X%02X%02X", ++count_events, event[0], event[1], event[2]);
@@ -967,24 +943,22 @@ void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 {
 	pmesg("MIDI::write_sysex(data, len: %d)\n", len);
 	static unsigned int count = 0;
-	static unsigned char header[3];
+	static unsigned char data[SYSEX_MAX_SIZE];
 	if (!midi_active || len > SYSEX_MAX_SIZE)
 		return;
-	header[0] = sysex[0];
-	header[1] = len / 128;
-	header[2] = len % 128;
-	while (jack_ringbuffer_write_space(write_buffer) < len + 3)
-		mysleep(2);
+	data[0] = MIDI_SYSEX;
+	data[1] = len / 128;
+	data[2] = len % 128;
+	memcpy(data + 3, sysex, len);
 #ifndef NDEBUG
-	if (write_space > jack_ringbuffer_write_space(write_buffer) - len)
-		write_space = jack_ringbuffer_write_space(write_buffer) - len;
-	if (max_write < len)
-		max_write = len;
+	if (write_space > jack_ringbuffer_write_space(write_buffer) - len - 3)
+		write_space = jack_ringbuffer_write_space(write_buffer) - len - 3;
+	if (max_write < len + 3)
+		max_write = len + 3;
 #endif
-	jack_ringbuffer_write(write_buffer, header, 3);
-	jack_ringbuffer_write(write_buffer, sysex, len);
+	jack_ringbuffer_write(write_buffer, data, len + 3);
 	++messages_to_send;
-	if (ui->log_sysex_out->value())
+	if (cfg->get_cfg_option(CFG_LOG_SYSEX_OUT))
 		pxk->log_add(sysex, len, 0);
 }
 
@@ -1004,7 +978,7 @@ void MIDI::write_event(int status, int value1, int value2, int channel) const
 	jack_ringbuffer_write(write_buffer, msg, 3);
 	++messages_to_send;
 	// log midi events
-	if (ui->log_events_out->value())
+	if (cfg->get_cfg_option(CFG_LOG_EVENTS_OUT))
 	{
 		char buf[30];
 		snprintf(buf, 30, "\nOE.%lu::%02x%02x%02x", ++count, stat, value1, value2);
@@ -1069,8 +1043,8 @@ void MIDI::request_preset_dump(int preset, int rom_id) const
 	unsigned char request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x11, cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD) ? 0x02 : 0x04, preset
 			% 128, preset / 128, rom_id % 128, rom_id / 128, 0xf7 };
-	pxk->Loading();
 	write_sysex(request, 12);
+	pxk->Loading();
 	requested = true;
 }
 
@@ -1119,7 +1093,6 @@ void MIDI::edit_parameter_value(int id, int value) const
 	for (unsigned char i = 0; i < 12; i++)
 		sprintf(buf + 2 * i, "%02X", request[i]);
 	buf[24] = '\0';
-//	pxk->display_status(buf);
 }
 
 void MIDI::master_volume(int volume) const

@@ -665,8 +665,6 @@ void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned c
 	pmesg("PXK::log_add(sysex, %d, %d)\n", len, io);
 	static unsigned int count_i = 0;
 	static unsigned int count_o = 0;
-	if (ui->logbuf->length() + len >= LOG_BUFFER_SIZE)
-		ui->logbuf->remove(0, ui->logbuf->length());
 	char* buf = new char[2 * len + 18];
 	unsigned char n;
 	if (io == 1)
@@ -677,9 +675,6 @@ void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned c
 		sprintf(n + buf + 2 * i, "%02X", sysex[i]);
 	ui->logbuf->append(buf);
 	delete[] buf;
-	ui->log->insert_position(ui->logbuf->length());
-	if (!ui->scroll_lock->value())
-		ui->log->show_insert_position();
 }
 
 void PXK::Inquire(unsigned char id)
@@ -998,12 +993,12 @@ static void check_loading(void*)
 void PXK::Loading() const
 {
 	pmesg("PXK::Loading() \n");
+	got_answer = false;
 	Fl::remove_timeout(check_loading);
 	ui->loading_w->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->loading_w->w() / 2),
 			ui->main_window->y() + 80);
 	ui->loading_w->show();
-	got_answer = false;
-	Fl::add_timeout(.5, check_loading);
+	Fl::add_timeout(.8, check_loading);
 }
 
 void PXK::load_setup()
