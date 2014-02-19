@@ -242,6 +242,7 @@ static void process_midi(PtTimestamp, void*)
 			{
 				jack_ringbuffer_read(write_buffer, local_write_buffer, 2); // read header
 				unsigned int len = local_write_buffer[0] * 128 + local_write_buffer[1];
+				pmesg("len: %d\n");
 				while (jack_ringbuffer_peek(write_buffer, local_write_buffer, 1) != 1) // wait for data
 					mysleep(1);
 				jack_ringbuffer_read(write_buffer, local_write_buffer, len);
@@ -286,8 +287,10 @@ static void process_midi_in(void*)
 			unsigned char sysex[SYSEX_MAX_SIZE];
 			jack_ringbuffer_read(read_buffer, sysex, 3); // read header
 			unsigned int len = sysex[1] * 128 + sysex[2];
+#ifdef WIN32
 			while (jack_ringbuffer_peek(read_buffer, sysex, 1) != 1) // wait for the data
 				mysleep(10);
+#endif
 			if (jack_ringbuffer_read(read_buffer, sysex, len) != len)
 			{
 				fprintf(stderr, "*** Error reading read ringbuffer!\n");
@@ -362,7 +365,7 @@ static void process_midi_in(void*)
 								case 0x02: // dump data (closed)
 								case 0x04: // dump data (open)
 									pxk->incoming_preset_dump(sysex, len);
-									if (len < 253) // last packet
+									if (len < 255) // last packet
 										requested = false;
 									break;
 							}

@@ -352,6 +352,8 @@ static void check_connection(void* p)
 	{
 		pmesg("check_connection()\n");
 		pxk->ConnectPorts(false);
+		ui->open_device->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->open_device->w() / 2),
+				ui->main_window->y() + 80);
 		ui->open_device->show();
 	}
 }
@@ -382,17 +384,22 @@ bool PXK::ConnectPorts(bool autoconnect)
 				ui->midi_ctrl->value(cfg->get_cfg_option(CFG_MIDI_THRU));
 			}
 			Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
-			// TODO: does not work as expected on WIN32
-			Fl::add_timeout(.5, check_connection, (void*) &device_code);
+			Fl::add_timeout(.3, check_connection, (void*) &device_code);
 		}
 		else
 		{
 			ConnectPorts(false); // get clean MIDI object
+			ui->open_device->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->open_device->w() / 2),
+					ui->main_window->y() + 80);
 			ui->open_device->show();
 		}
 	}
 	else
+	{
+		ui->open_device->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->open_device->w() / 2),
+				ui->main_window->y() + 80);
 		ui->open_device->show();
+	}
 	return true;
 }
 
@@ -401,7 +408,11 @@ static void sync_progress(void* synced)
 	if (!(*(bool*) synced))
 	{
 		if (!ui->init->shown())
+		{
+			ui->init->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->init->w() / 2),
+					ui->main_window->y() + 80);
 			ui->init->show();
+		}
 		Fl::repeat_timeout(.1, sync_progress, synced);
 	}
 	else
@@ -562,9 +573,9 @@ static void *sync_bro(void* p)
 							if (*(bool*) p) // Join()
 								goto Hell;
 							Fl::unlock();
-							mysleep(5);
+							mysleep(2);
 							if (type == ARP && rom_nr != 0) // wait a bit longer to process ROM arp dumps
-								mysleep(10);
+								mysleep(13);
 						}
 #ifndef NDEBUG
 						Fl::lock();
@@ -587,6 +598,10 @@ static void *sync_bro(void* p)
 			"\nMIDI: min. read buffer space: %d (max. msg len %d)\nMIDI: min. write buffer space: %d (max. msg len %d)\n",
 			read_space, max_read, write_space, max_write);
 	ui->init_log->append(logbuffer);
+	read_space = RINGBUFFER_READ;
+	write_space = RINGBUFFER_WRITE;
+	max_read = 0;
+	max_write = 0;
 #endif
 	*(bool*) p = true;
 	Fl::unlock();
@@ -602,6 +617,10 @@ static void *sync_bro(void* p)
 			"\nMIDI: min. read buffer space: %d (max. msg len %d)\nMIDI: min. write buffer space: %d (max. msg len %d)\n",
 			read_space, max_read, write_space, max_write);
 	ui->init_log->append(logbuffer);
+	read_space = RINGBUFFER_READ;
+	write_space = RINGBUFFER_WRITE;
+	max_read = 0;
+	max_write = 0;
 #endif
 	Fl::unlock();
 }
@@ -671,6 +690,8 @@ void PXK::Inquire(unsigned char id)
 		device_id = id;
 		unsigned char s[] =
 		{ 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
+		// send this twice, fixes ticket #4
+		midi->write_sysex(s, 6);
 		midi->write_sysex(s, 6);
 		inquired = true;
 	}
@@ -945,11 +966,13 @@ void PXK::incoming_setup_dump(const unsigned char* data, int len)
 	selected_multisetup = data[0x4A]; // needed to select it in the multisetup choice
 	if (!synchronized)
 	{
-#ifndef NDEBUG // init log		char* __buffer = (char*) malloc(48 * sizeof(char));
+#ifndef NDEBUG
+		char* __buffer = (char*) malloc(48 * sizeof(char));
 		snprintf(__buffer, 128, "\nPXK::incoming_setup_dump(len: %d)\n", len);
 		ui->init_log->append(__buffer);
 		free(__buffer);
-#endif // init log		setup_init = new Setup_Dump(len, data);
+#endif
+		setup_init = new Setup_Dump(len, data);
 		return;
 	}
 	display_status("Received setup dump.");
@@ -976,6 +999,8 @@ void PXK::Loading() const
 {
 	pmesg("PXK::Loading() \n");
 	Fl::remove_timeout(check_loading);
+	ui->loading_w->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->loading_w->w() / 2),
+			ui->main_window->y() + 80);
 	ui->loading_w->show();
 	Fl::add_timeout(2., check_loading);
 }
@@ -1018,7 +1043,8 @@ void PXK::load_setup()
 
 void PXK::incoming_generic_name(const unsigned char* data)
 {
-#ifndef NDEBUG // init log	if (!synchronized && ((data[6] % 0xF) <= RIFF))
+#ifndef NDEBUG
+	if (!synchronized && ((data[6] % 0xF) <= RIFF))
 	{
 		char* __name = (char*) malloc(17 * sizeof(char));
 		snprintf(__name, 17, "%s", data + 11);
@@ -1029,7 +1055,8 @@ void PXK::incoming_generic_name(const unsigned char* data)
 		free(__buffer);
 		free(__name);
 	}
-#endif // init log	unsigned char type = data[6] % 0xF;
+#endif
+	unsigned char type = data[6] % 0xF;
 	if (type < PRESET || type > RIFF)
 	{
 		pmesg("*** unknown name type %d\n", type);
@@ -1066,7 +1093,8 @@ void PXK::incoming_arp_dump(const unsigned char* data, int len)
 	pmesg("PXK::incoming_arp_dump(data, %d)\n", len);
 	if (!synchronized || ui->init->shown()) // init
 	{
-#ifndef NDEBUG // init log		char* __name = (char*) malloc(13 * sizeof(char));
+#ifndef NDEBUG
+		char* __name = (char*) malloc(13 * sizeof(char));
 		snprintf(__name, 13, "%s", data + 14);
 		char* __buffer = (char*) malloc(128 * sizeof(char));
 		snprintf(__buffer, 128, "\nPXK::incoming_arp_dump(len:%d) %d-%d \"%s\"\n ", len, data[6] + 128 * data[7],
@@ -1074,7 +1102,8 @@ void PXK::incoming_arp_dump(const unsigned char* data, int len)
 		ui->init_log->append(__buffer);
 		free(__buffer);
 		free(__name);
-#endif	// init log		if (data[14] < 32) // not ascii, not a "real" arp dump
+#endif
+		if (data[14] < 32) // not ascii, not a "real" arp dump
 		{
 			name_set_incomplete = false;
 			return;

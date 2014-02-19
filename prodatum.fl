@@ -886,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX color 15 selection_color 7 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
+    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX color 15 selection_color 7 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2576,8 +2576,8 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open
-      xywh {784 240 840 615} type Double hide resizable
+delete this;} open selected
+      xywh {0 0 840 615} type Double hide resizable
       code0 {o->label("prodatum");}
       class Double_Window xclass prodatum size_range {674 492 843 615}
     } {
@@ -2667,7 +2667,9 @@ pxk->preset->save_file();}
             }
             MenuItem {} {
               label {Reload flash/ROM names...}
-              callback {reset_w->show();}
+              callback {reset_w->position(main_window->x() + (main_window->w() / 2) - (reset_w->w() / 2),
+		main_window->y() + 80);
+reset_w->show();}
               xywh {5 5 29 19} labelsize 12
             }
             MenuItem {} {
@@ -2755,7 +2757,11 @@ pxk->display_status("FX bypass: OFF");
               callback {if (preferences->shown() && preferences->visible())
 preferences->hide();
 else
-preferences->show();}
+{
+preferences->position(main_window->x() + (main_window->w() / 2) - (preferences->w() / 2),
+	main_window->y() + 80);
+preferences->show();
+}}
               xywh {10 10 36 21} shortcut 0x70 labelsize 12
             }
           }
@@ -2826,8 +2832,11 @@ Fl::focus(b_links);}
               callback {if (piano_w->shown() && piano_w->visible())
 piano_w->hide();
 else{
+piano_w->position(main_window->x() + (main_window->w() / 2) - (piano_w->w() / 2),
+		main_window->y() + 80);
 piano_w->show();
-pxk->display_status("Hint: [ESC] closes windows.");}}
+pxk->display_status("Hint: [ESC] closes windows.");
+}}
               xywh {5 5 36 21} shortcut 0x6b labelsize 12
             }
             MenuItem {} {
@@ -2835,12 +2844,18 @@ pxk->display_status("Hint: [ESC] closes windows.");}}
               callback {if (log_w->shown() && log_w->visible())
 log_w->hide();
 else
-log_w->show();}
+{
+log_w->position(main_window->x() + (main_window->w() / 2) - (log_w->w() / 2),
+		main_window->y() + 80);
+log_w->show();
+}}
               xywh {5 5 36 21} shortcut 0x6d labelsize 12
             }
             MenuItem init_log_m {
               label {Init Log}
-              callback {init_log_w->show();} selected
+              callback {init_log_w->position(main_window->x() + (main_window->w() / 2) - (init_log_w->w() / 2),
+		main_window->y() + 80);
+init_log_w->show();}
               xywh {5 5 36 21} labelsize 12
             }
           }
@@ -2957,7 +2972,11 @@ pxk->display_status("Tooltips disabled.");
               callback {if (about->shown() && about->visible())
 about->hide();
 else
-about->show();}
+{
+about->position(main_window->x() + (main_window->w() / 2) - (about->w() / 2),
+		main_window->y() + 80);
+about->show();
+}}
               xywh {5 5 36 21} shortcut 0xffc0 labelsize 12
             }
           }
@@ -3734,7 +3753,7 @@ arp_name_changed = false;}
     }
     Fl_Window init {
       label Initializing
-      callback {;}
+      callback {;} open
       xywh {486 411 290 130} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Box {} {
@@ -3756,7 +3775,9 @@ init_log_w->show();}
       }
       Fl_Button init_log_b {
         label Log
-        callback {init_log_w->show();}
+        callback {init_log_w->position(main_window->x() + (main_window->w() / 2) - (init_log_w->w() / 2),
+		main_window->y() + 80);
+init_log_w->show();}
         xywh {130 95 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20
       }
     }
@@ -4200,7 +4221,7 @@ if (((Fl_Button*) o->array()[i])->value())
     }
     Fl_Window init_log_w {
       label {Init log}
-      xywh {711 297 490 626} type Double box BORDER_BOX hide resizable
+      xywh {711 297 490 625} type Double box BORDER_BOX hide resizable
       class Double_Window xclass prodatum size_range {320 108 0 0}
     } {
       Fl_Text_Display i_log {

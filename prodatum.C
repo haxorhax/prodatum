@@ -453,6 +453,8 @@ void PD_UI::show_copy_layer(int type, int src_layer)
 	}
 	copy_type = type;
 	copy_src = src_layer;
+	copy_layer->position(main_window->x() + (main_window->w() / 2) - (copy_layer->w() / 2),
+			main_window->y() + 80);
 	copy_layer->show();
 	pxk->display_status("Hint: [ESC] closes windows.");
 }
@@ -509,6 +511,8 @@ void PD_UI::show_copy_preset(int type)
 			g_copy_preset->hide();
 			break;
 	}
+	copy_preset->position(main_window->x() + (main_window->w() / 2) - (copy_preset->w() / 2),
+			main_window->y() + 80);
 	copy_preset->show();
 	pxk->display_status("Hint: [ESC] closes windows.");
 }
