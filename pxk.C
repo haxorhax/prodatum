@@ -988,7 +988,7 @@ void PXK::incoming_setup_dump(const unsigned char* data, int len)
 
 static void check_loading(void*)
 {
-	if (ui->loading_w->shown())
+	if (!got_answer)
 	{
 		ui->loading_w->hide();
 		fl_alert("Device did not respond to our request.");
@@ -1002,7 +1002,8 @@ void PXK::Loading() const
 	ui->loading_w->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->loading_w->w() / 2),
 			ui->main_window->y() + 80);
 	ui->loading_w->show();
-	Fl::add_timeout(2., check_loading);
+	got_answer = false;
+	Fl::add_timeout(.5, check_loading);
 }
 
 void PXK::load_setup()

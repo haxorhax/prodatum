@@ -2576,7 +2576,7 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open selected
+delete this;}
       xywh {0 0 840 615} type Double hide resizable
       code0 {o->label("prodatum");}
       class Double_Window xclass prodatum size_range {674 492 843 615}
@@ -3753,7 +3753,7 @@ arp_name_changed = false;}
     }
     Fl_Window init {
       label Initializing
-      callback {;} open
+      callback {;}
       xywh {486 411 290 130} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Box {} {
@@ -3783,7 +3783,7 @@ init_log_w->show();}
     }
     Fl_Window open_device {
       label {Open Device}
-      xywh {786 236 300 390} type Double box BORDER_BOX labelcolor 15 hide xclass prodatum
+      xywh {410 93 300 390} type Double box BORDER_BOX labelcolor 15 hide xclass prodatum
     } {
       Fl_Box {} {
         label {Open Device}
@@ -3929,8 +3929,8 @@ open_device->hide();}
     }
     Fl_Window preferences {
       label Preferences
-      callback {b_close_prefs->do_callback();}
-      xywh {587 388 305 430} type Double box UP_BOX labelsize 11 hide modal xclass prodatum
+      callback {b_close_prefs->do_callback();} open selected
+      xywh {592 413 305 435} type Double box UP_BOX labelsize 11 hide modal xclass prodatum
     } {
       Fl_Box {} {
         label Preferences
@@ -4005,53 +4005,53 @@ o->deactivate();}
       }
       Fl_Box {} {
         label {MIDI Performance}
-        xywh {10 274 290 47} labelfont 1 labelcolor 8 align 5
+        xywh {10 275 290 47} labelfont 1 labelcolor 8 align 5
       }
       Fl_Check_Button closed_loop_download {
         label {Closed Loop Preset Download (Slower)}
         callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD, o->value());}
-        tooltip {Closed loop downloads require prodatum to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: disabled, use open loop downloads)} xywh {20 281 269 15} down_box DOWN_BOX color 7 selection_color 15
+        tooltip {Closed loop downloads require prodatum to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: disabled, use open loop downloads)} xywh {20 282 269 15} down_box DOWN_BOX color 7 selection_color 15
       }
       Fl_Check_Button closed_loop_upload {
         label {Closed Loop Preset Upload (Slower)}
         callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_UPLOAD, o->value());}
-        tooltip {Closed loop uploads require the device to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: disabled, use open loop uploads)} xywh {20 300 251 15} down_box DOWN_BOX color 7 selection_color 15
+        tooltip {Closed loop uploads require the device to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: disabled, use open loop uploads)} xywh {20 301 251 15} down_box DOWN_BOX color 7 selection_color 15
       }
       Fl_Box {} {
         label Colors
-        xywh {10 345 290 39} labelfont 1 labelcolor 8 align 5
+        xywh {10 353 290 39} labelfont 1 labelcolor 8 align 5
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_BACKGROUND_COLOR);}
-        xywh {20 352 25 20}
+        xywh {20 360 25 20}
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_BACKGROUND2_COLOR);}
-        xywh {60 352 25 20} color 7 selection_color 7
+        xywh {60 360 25 20} color 7 selection_color 7
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_FOREGROUND_COLOR);}
-        xywh {100 352 25 20} color 0 selection_color 0
+        xywh {100 360 25 20} color 0 selection_color 0
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_SELECTION_COLOR);}
-        xywh {140 352 25 20} color 15 selection_color 15
+        xywh {140 360 25 20} color 15 selection_color 15
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_INACTIVE_COLOR);}
-        xywh {180 352 25 20} color 8 selection_color 8
+        xywh {180 360 25 20} color 8 selection_color 8
       }
       Fl_Button {} {
         label DEFAULT
         callback {set_default_colors();}
-        tooltip {Use prodatum's default colors} xywh {225 352 70 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 16
+        tooltip {Use prodatum's default colors} xywh {225 360 70 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 16
       }
       Fl_Button b_close_prefs {
         label Close
         callback {preferences->hide();
 export_dir->value(cfg->get_export_dir());
 b_set->deactivate();}
-        xywh {225 395 70 25} box THIN_UP_BOX shortcut 0x70 selection_color 15 labelsize 12 align 20
+        xywh {225 400 70 25} box THIN_UP_BOX shortcut 0x70 selection_color 15 labelsize 12 align 20
       }
     }
     Fl_Window piano_w {
@@ -4187,22 +4187,22 @@ if (((Fl_Button*) o->array()[i])->value())
         Fl_Check_Button log_sysex_in {
           label IS
           callback {cfg->set_cfg_option(CFG_LOG_SYSEX_IN, o->value());}
-          tooltip {Log Incoming SysEx} xywh {195 225 20 20} down_box DOWN_BOX value 1 selection_color 49 labelfont 4 align 4
+          tooltip {Log Incoming SysEx} xywh {195 225 20 20} down_box DOWN_BOX value 1 color 7 selection_color 15 labelfont 4 align 4
         }
         Fl_Check_Button log_sysex_out {
           label OS
           callback {cfg->set_cfg_option(CFG_LOG_SYSEX_OUT, o->value());}
-          tooltip {Log Outgoing SysEx} xywh {235 225 20 20} down_box DOWN_BOX value 1 selection_color 49 labelfont 4 align 4
+          tooltip {Log Outgoing SysEx} xywh {235 225 20 20} down_box DOWN_BOX value 1 color 7 selection_color 15 labelfont 4 align 4
         }
         Fl_Check_Button log_events_in {
           label IE
           callback {cfg->set_cfg_option(CFG_LOG_EVENTS_IN, o->value());}
-          tooltip {Log Incoming Events} xywh {195 240 20 20} down_box DOWN_BOX selection_color 49 labelfont 4 align 4
+          tooltip {Log Incoming Events} xywh {195 240 20 20} down_box DOWN_BOX color 7 selection_color 15 labelfont 4 align 4
         }
         Fl_Check_Button log_events_out {
           label OE
           callback {cfg->set_cfg_option(CFG_LOG_EVENTS_OUT, o->value());}
-          tooltip {Log Outgoing Events} xywh {235 240 20 20} down_box DOWN_BOX selection_color 49 labelfont 4 align 4
+          tooltip {Log Outgoing Events} xywh {235 240 20 20} down_box DOWN_BOX color 7 selection_color 15 labelfont 4 align 4
         }
         Fl_Button scroll_lock {
           label {SCRL LCK}
