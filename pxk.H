@@ -168,7 +168,7 @@ public:
 
 public:
 	/// CTOR
-	PXK(bool);
+	PXK(bool, int __id = -1);
 	/// DTOR
 	~PXK();
 };

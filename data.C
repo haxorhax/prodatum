@@ -1082,7 +1082,7 @@ Setup_Dump::~Setup_Dump()
 
 int Setup_Dump::get_value(int id, int channel) const
 {
-	pmesg("Setup_Dump::get_value(id: %d, ch: %d)\n", id, channel);
+	//pmesg("Setup_Dump::get_value(id: %d, ch: %d)\n", id, channel);
 	int offset = 0;
 	idmap(id, channel, offset);
 	if (offset == 0)

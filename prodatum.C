@@ -40,7 +40,8 @@ extern FilterMap FM[51];
 extern const char* rates[25];
 extern PD_Arp_Step* arp_step[32];
 
-static bool auto_connect = true;
+static bool __auto_connect = true;
+static int __device = -1;
 static const char* VERSION = "2.0rc2";
 
 /**
@@ -48,9 +49,19 @@ static const char* VERSION = "2.0rc2";
  */
 int options(int argc, char **argv, int &i)
 {
+	if (argv[i][1] == 'd')
+	{
+		if (i + 1 >= argc)
+			return 0;
+		__device = atoi(argv[i + 1]);
+		if (__device < 0 || __device > 126)
+			__device = -1;
+		i += 2;
+		return 2;
+	}
 	if (argv[i][1] == 'a')
 	{
-		auto_connect = false;
+		__auto_connect = false;
 		i++;
 		return 1;
 	}
@@ -65,21 +76,23 @@ int main(int argc, char *argv[])
 	if (!Fl::args(argc, argv, i, options))
 	{
 		printf("prodatum %s options:\n"
-				" -a     \tdo not open device at startup\n", VERSION);
+				" -d id\tConfig (Device ID) to load (default: last used ID)\n"
+				" -a   \tdo not open device at startup\n", VERSION);
 		return 1;
 	}
 	// load some data
 	load_data();
 	// create user interface
-	Fl::lock();
 	ui = new PD_UI();
 	if (!ui)
 		return 1;
+	Fl::lock();
 #ifdef NDEBUG
 	ui->init_log_b->hide();
 	ui->init_log_m->hide();
 #endif
-	pxk = new PXK(auto_connect);
+	ui->main_window->show();
+	pxk = new PXK(__auto_connect, __device);
 	if (!pxk)
 		return 2;
 	return Fl::run();
@@ -246,7 +259,6 @@ int PD_UI::get_selected()
 
 void PD_Arp_Step::init(int s)
 {
-	pmesg("PD_Arp_Step::init(%d)\n", s);
 	step = s;
 	op->set_step(s);
 	offset->set_step(s);
@@ -261,7 +273,7 @@ void PD_Arp_Step::init(int s)
 
 void PD_Arp_Step::edit_value(int id, int value)
 {
-	pmesg("PD_Arp_Step::edit_value(%d, %d)\n", id, value);
+	//pmesg("PD_Arp_Step::edit_value(%d, %d)\n", id, value);
 	if (ui->selected_step != step)
 	{
 		midi->edit_parameter_value(770, step);
@@ -274,7 +286,7 @@ void PD_Arp_Step::edit_value(int id, int value)
 
 void PD_Arp_Step::set_values(int off, int vel, int dur, int rep)
 {
-	pmesg("PD_Arp_Step::set_values(%d, %d, %d, %d)\n", off, vel, dur, rep);
+	//pmesg("PD_Arp_Step::set_values(%d, %d, %d, %d)\n", off, vel, dur, rep);
 	if (off > -49)
 	{
 		if (off < 49)
@@ -453,8 +465,7 @@ void PD_UI::show_copy_layer(int type, int src_layer)
 	}
 	copy_type = type;
 	copy_src = src_layer;
-	copy_layer->position(main_window->x() + (main_window->w() / 2) - (copy_layer->w() / 2),
-			main_window->y() + 80);
+	copy_layer->position(main_window->x() + (main_window->w() / 2) - (copy_layer->w() / 2), main_window->y() + 80);
 	copy_layer->show();
 	pxk->display_status("Hint: [ESC] closes windows.");
 }
@@ -511,8 +522,7 @@ void PD_UI::show_copy_preset(int type)
 			g_copy_preset->hide();
 			break;
 	}
-	copy_preset->position(main_window->x() + (main_window->w() / 2) - (copy_preset->w() / 2),
-			main_window->y() + 80);
+	copy_preset->position(main_window->x() + (main_window->w() / 2) - (copy_preset->w() / 2), main_window->y() + 80);
 	copy_preset->show();
 	pxk->display_status("Hint: [ESC] closes windows.");
 }
@@ -524,7 +534,7 @@ void PD_UI::show_copy_preset(int type)
  */
 void PD_UI::create_about()
 {
-	pmesg("PD_UI::create_about()\n");
+	//pmesg("PD_UI::create_about()\n");
 	const char* OS;
 #if defined(OSX)
 	OS = "Mac OS X";
@@ -540,7 +550,7 @@ void PD_UI::create_about()
 
 void PD_Layer_Strip::init(int l)
 {
-	pmesg("PD_Layer_Strip::init(%d)\n", l);
+	//pmesg("PD_Layer_Strip::init(%d)\n", l);
 	// initialize layer strips
 	layer = l;
 	layer_solo->set_id(1437, layer);
@@ -573,7 +583,7 @@ void PD_Layer_Strip::init(int l)
  */
 void PD_Layer_Editor::init(int l)
 {
-	pmesg("PD_Layer_Editor::init(%d)\n", l);
+	//pmesg("PD_Layer_Editor::init(%d)\n", l);
 	layer = l;
 	instrument_rom->set_id(1439, l);
 	instrument->set_id(1409, l);
@@ -601,7 +611,7 @@ void PD_Layer_Editor::init(int l)
  */
 static void load_data()
 {
-	pmesg("load_data()\n");
+	//pmesg("load_data()\n");
 	// information
 	rates[0] = "8/1   octal whole";
 	rates[1] = "4/1d  dotted quad whole";

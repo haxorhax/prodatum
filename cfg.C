@@ -233,7 +233,7 @@ const char* Cfg::get_export_dir() const
 
 bool Cfg::set_export_dir(const char* dir)
 {
-	pmesg("Cfg::set_export_dir(%s)  \n", dir);
+	//pmesg("Cfg::set_export_dir(%s)\n", dir);
 	struct stat sbuf;
 	if (stat(dir, &sbuf) == -1)
 	{

@@ -254,7 +254,7 @@ void PXK::cc_callback(int controller, int value)
 
 // to open another device:
 // delete PXK, new PXK :)
-PXK::PXK(bool autoconnect)
+PXK::PXK(bool autoconnect, int __id)
 {
 	pmesg("PXK::PXK()\n");
 	// initialize
@@ -287,8 +287,7 @@ PXK::PXK(bool autoconnect)
 		rom_index[i] = -1;
 	}
 	ui->device_info->label("");
-	LoadConfig();
-	ui->main_window->show();
+	LoadConfig(__id);
 	display_status("New PXK editor loaded.");
 	ConnectPorts(autoconnect);
 }
@@ -400,6 +399,7 @@ bool PXK::ConnectPorts(bool autoconnect)
 				ui->main_window->y() + 80);
 		ui->open_device->show();
 	}
+	Fl::flush();
 	return true;
 }
 
