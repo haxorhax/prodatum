@@ -67,8 +67,8 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_CONFIRM_DISMISS] = 1;
 	defaults[CFG_SYNCVIEW] = 0;
 	defaults[CFG_DRLS] = 1;
-	defaults[CFG_LOG_SYSEX_OUT] = 0;
-	defaults[CFG_LOG_SYSEX_IN] = 0;
+	defaults[CFG_LOG_SYSEX_OUT] = 1;
+	defaults[CFG_LOG_SYSEX_IN] = 1;
 	defaults[CFG_LOG_EVENTS_OUT] = 0;
 	defaults[CFG_LOG_EVENTS_IN] = 0;
 	defaults[CFG_WINDOW_WIDTH] = 843;
