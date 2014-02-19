@@ -395,9 +395,12 @@ bool PXK::ConnectPorts(bool autoconnect)
 	}
 	else
 	{
-		ui->open_device->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->open_device->w() / 2),
-				ui->main_window->y() + 80);
-		ui->open_device->show();
+		if (!ui->open_device->shown())
+		{
+			ui->open_device->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->open_device->w() / 2),
+					ui->main_window->y() + 80);
+			ui->open_device->show();
+		}
 	}
 	Fl::flush();
 	return true;
