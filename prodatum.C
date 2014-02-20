@@ -42,7 +42,7 @@ extern PD_Arp_Step* arp_step[32];
 
 static bool __auto_connect = true;
 static int __device = -1;
-static const char* VERSION = "2.0rc2";
+static const char* VERSION = "2.0rc3";
 
 /**
  * command line option parser
