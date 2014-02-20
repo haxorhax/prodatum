@@ -483,6 +483,9 @@ static void sync_bro(void* p)
 #endif
 			if (--countdown == 0) // timeout
 			{
+#ifndef NDEBUG
+				ui->init_log->append("\nsync_bro: request for initial setup timed out. Giving up.\n");
+#endif
 				timed_out = true;
 				goto Club;
 			}
@@ -502,7 +505,7 @@ static void sync_bro(void* p)
 				pxk->load_setup_names(name++);
 				requested = true;
 				got_answer = false;
-				countdown = 36;
+				countdown = 128;
 				goto Exit;
 			}
 			if (!got_answer)
@@ -512,6 +515,9 @@ static void sync_bro(void* p)
 #endif
 				if (--countdown == 0) // timeout
 				{
+#ifndef NDEBUG
+				ui->init_log->append("\nsync_bro: timeout syncing setup name. Giving up.\n");
+#endif
 					timed_out = true;
 					goto Club;
 				}
@@ -618,9 +624,15 @@ static void sync_bro(void* p)
 					{
 						if (type != ARP && type != RIFF) // ok for ARPs and RIFFs
 						{
+#ifndef NDEBUG
+							ui->init_log->append("\nsync_bro: timed out syncing ROM name. Giving up.\n");
+#endif
 							timed_out = true;
 							goto Club;
 						}
+#ifndef NDEBUG
+							ui->init_log->append("\nsync_bro: timed out syncing RIFF/ARP name. Skipping.\n");
+#endif
 						name_set_incomplete = false; // stop requesting arp/riff names
 					}
 					goto Exit;
