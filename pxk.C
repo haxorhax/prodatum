@@ -759,11 +759,12 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 		{
 			device_id = data[2];
 			ui->device_id->value((double) device_id);
+			// if we scanned using id 127 we load the config
+			// for the user if it exists
+			LoadConfig((int) device_id);
 		}
-		LoadConfig((int) device_id);
 		device_code = 516;
 		midi->set_device_id(device_id); // so further sysex comes through
-		midi->edit_parameter_value(405, request_delay);
 		midi->request_hardware_config();
 		snprintf(os_rev, 5, "%c%c%c%c", data[10], data[11], data[12], data[13]);
 		member_code = data[9] * 128 + data[8];

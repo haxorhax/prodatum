@@ -35,9 +35,6 @@
 extern PD_UI* ui;
 extern PXK* pxk;
 
-// ms to wait between name requests on init and when a WAIT is received
-unsigned char request_delay;
-
 Cfg::Cfg(int device_id)
 {
 	pmesg("Cfg::Cfg(%d)  \n", device_id);
@@ -144,7 +141,6 @@ Cfg::Cfg(int device_id)
 		for (i = 0; i < NOOPTION; i++)
 			option[i] = defaults[i];
 	}
-	request_delay = option[CFG_SPEED] * 25 + 25;
 }
 
 Cfg::~Cfg()
@@ -196,14 +192,14 @@ void Cfg::set_cfg_option(int opt, int value)
 	pmesg("Cfg::set_cfg_option(%d, %d)  \n", opt, value);
 	if (opt < NOOPTION && opt >= 0)
 		option[opt] = value;
-	if (opt == CFG_SPEED)
-		request_delay = value * 20 + 20;
 }
 
 int Cfg::get_cfg_option(int opt) const
 {
 	pmesg("Cfg::get_cfg_option(%d)  \n", opt);
 	if (opt < NOOPTION && opt >= 0)
+		if (opt == CFG_SPEED)
+			return option[CFG_SPEED] * 20 + 20;
 		return option[opt];
 	return 0;
 }
@@ -322,4 +318,5 @@ void Cfg::apply(bool colors_only)
 	ui->log_events_out->value(option[CFG_LOG_EVENTS_OUT]);
 	ui->log_events_in->value(option[CFG_LOG_EVENTS_IN]);
 	ui->main_window->size(option[CFG_WINDOW_WIDTH], option[CFG_WINDOW_HEIGHT]);
+	Fl::wait();
 }

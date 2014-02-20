@@ -22,12 +22,12 @@ if(WIN32)
 endif(WIN32)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  ADD_DEFINITIONS(-DOSX -DUSE_MLOCK -DHAVE_PTHREAD_H)
+  ADD_DEFINITIONS(-DOSX -DUSE_MLOCK)
   set(ADDITIONAL_LIBRARIES "-framework Carbon -framework ApplicationServices -framework CoreMIDI -framework CoreAudio")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	ADD_DEFINITIONS(-DUSE_MLOCK -DHAVE_PTHREAD_H -D__linux)
+	ADD_DEFINITIONS(-DUSE_MLOCK -D__linux)
   set(ADDITIONAL_LIBRARIES X11 Xft fontconfig Xinerama asound pthread)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 

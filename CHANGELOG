@@ -4,6 +4,7 @@ v2.0rc3
 * threadless initialization (new init code again, similar to the previous
 	version but threadless)
 * commandline config file loading is back (by popular demand)
+* fixed sysex packet delay being all weird n stuff :-)
 
 
 v2.0rc2

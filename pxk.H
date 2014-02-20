@@ -53,7 +53,6 @@ public:
 	std::vector<std::string> status_message;
 private:
 	char device_id;
-	unsigned char request_delay;
 	volatile bool synchronized;
 public:
 	bool LoadConfig(int id = -1) const;

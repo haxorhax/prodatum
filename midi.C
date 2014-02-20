@@ -36,7 +36,6 @@ static bool midi_active = false;
 static bool thru_active = false;
 static bool process_midi_exit_flag = false;
 static bool automap = true;
-extern unsigned char request_delay;
 
 // check buffer spaces
 #ifndef NDEBUG
@@ -308,7 +307,7 @@ static void process_midi_in(void*)
 
 					case 0x7c: // WAIT
 						pxk->incoming_WAIT();
-						Pt_Sleep(request_delay);
+						Pt_Sleep(cfg->get_cfg_option(CFG_SPEED));
 						break;
 
 					case 0x7b: // EOF
@@ -599,6 +598,8 @@ void MIDI::set_device_id(int id)
 {
 	pmesg("MIDI::set_device_id(%d)\n", id);
 	midi_device_id = id;
+	// sysex packet delay
+	edit_parameter_value(405, cfg->get_cfg_option(CFG_SPEED));
 }
 
 // start realtime receiver
@@ -1090,11 +1091,6 @@ void MIDI::edit_parameter_value(int id, int value) const
 	unsigned char request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x01, 0x02, id % 128, id / 128, value % 128, value / 128, 0xf7 };
 	write_sysex(request, 12);
-	// display request message in menu
-	static char buf[25];
-	for (unsigned char i = 0; i < 12; i++)
-		sprintf(buf + 2 * i, "%02X", request[i]);
-	buf[24] = '\0';
 }
 
 void MIDI::master_volume(int volume) const
@@ -1132,7 +1128,7 @@ void MIDI::copy(int cmd, int src, int dst, int src_l, int dst_l, int rom_id) con
 			// so it will respond to our requests
 			edit_parameter_value(388, midi_device_id);
 			// set sysex delay to our chosen setting
-			edit_parameter_value(405, request_delay);
+			edit_parameter_value(405, cfg->get_cfg_option(CFG_SPEED));
 		}
 		else
 		{
