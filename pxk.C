@@ -482,7 +482,10 @@ static void sync_bro(void* p)
 			ui->init_log->append("*");
 #endif
 			if (--countdown == 0) // timeout
+			{
+				timed_out = true;
 				goto Club;
+			}
 			goto Exit;
 		} // got init setup
 		if (name == 0)
@@ -612,11 +615,14 @@ static void sync_bro(void* p)
 					ui->init_log->append("*");
 #endif
 					if (--countdown == 0) // timeout
+					{
 						if (type != ARP && type != RIFF) // ok for ARPs and RIFFs
 						{
 							timed_out = true;
 							goto Club;
 						}
+						name_set_incomplete = false; // stop requesting arp/riff names
+					}
 					goto Exit;
 				}
 				else

@@ -54,7 +54,7 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_CONTROL_CHANNEL] = 0;
 	defaults[CFG_AUTOMAP] = 1;
 	defaults[CFG_DEVICE_ID] = device_id;
-	defaults[CFG_SPEED] = 0;
+	defaults[CFG_SPEED] = 1;
 	defaults[CFG_CLOSED_LOOP_UPLOAD] = 0;
 	defaults[CFG_CLOSED_LOOP_DOWNLOAD] = 0;
 	defaults[CFG_TOOLTIPS] = 1;
@@ -199,7 +199,7 @@ int Cfg::get_cfg_option(int opt) const
 	pmesg("Cfg::get_cfg_option(%d)  \n", opt);
 	if (opt < NOOPTION && opt >= 0)
 		if (opt == CFG_SPEED)
-			return option[CFG_SPEED] * 20 + 20;
+			return option[CFG_SPEED] * option[CFG_SPEED] * 10;
 		return option[opt];
 	return 0;
 }

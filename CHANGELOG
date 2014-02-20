@@ -1,3 +1,11 @@
+v2.0v4
+
+* slightly changed knob design
+* changed default colors
+* small sync code tweaks/
+* more sensible sysex delay options (including 0ms)
+
+
 v2.0rc3
 
 * Linux/OSX: fixed excessive use of CPU (ticket #6)

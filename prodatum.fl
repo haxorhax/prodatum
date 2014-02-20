@@ -886,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX color 15 selection_color 7 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
+    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX color 15 selection_color 7 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -3894,10 +3894,10 @@ pxk->Inquire(device_id->value());}
         tooltip {Shows device information for the selected device (updates automatically on every port or ID change).} xywh {75 225 215 85} box THIN_DOWN_BOX color 7 selection_color 15 labelsize 11 align 213
       }
       Fl_Choice speed {
-        label {Op. Level}
-        callback {cfg->set_cfg_option(CFG_SPEED, o->value());} open
-        tooltip {Operation Level: Lower settings will work better if your computer or your MIDI device is very slow.} xywh {75 320 105 20} down_box BORDER_BOX color 7 labelsize 12 textsize 13
-        code0 {o->add("Fast");o->add("Slower");o->add("Turtle");}
+        label Delay
+        callback {cfg->set_cfg_option(CFG_SPEED, o->value());} open selected
+        tooltip {Delay: Change the request-response delay of your device. The lower the delay, the higher the average bitrate that we receive data with.} xywh {75 320 105 20} down_box BORDER_BOX color 7 labelsize 12 textsize 13
+        code0 {o->add("No delay");o->add("10 [ms]");o->add("40 [ms]");o->add("90 [ms]");o->add("160 [ms]");}
       } {}
       Fl_Button b_rescan {
         label {Populate Ports}
@@ -3915,7 +3915,7 @@ if (pxk->Synchronize())
 cfg->set_cfg_option(CFG_MIDI_OUT, midi_outs->value());
 cfg->set_cfg_option(CFG_MIDI_IN, midi_ins->value());
 }
-open_device->hide();} selected
+open_device->hide();}
         xywh {140 355 70 25} box THIN_UP_BOX shortcut 0xff0d selection_color 15 labelsize 12 align 20 deactivate
       }
       Fl_Button {} {
