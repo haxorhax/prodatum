@@ -70,21 +70,21 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_LOG_EVENTS_IN] = 0;
 	defaults[CFG_WINDOW_WIDTH] = 843;
 	defaults[CFG_WINDOW_HEIGHT] = 615;
-	defaults[CFG_BGR] = 200;
-	defaults[CFG_BGG] = 195;
-	defaults[CFG_BGB] = 190;
-	defaults[CFG_BG2R] = 250;
-	defaults[CFG_BG2G] = 245;
-	defaults[CFG_BG2B] = 240;
-	defaults[CFG_FGR] = 30;
-	defaults[CFG_FGG] = 30;
-	defaults[CFG_FGB] = 50;
-	defaults[CFG_SLR] = 20;
-	defaults[CFG_SLG] = 20;
-	defaults[CFG_SLB] = 110;
-	defaults[CFG_INR] = 150;
-	defaults[CFG_ING] = 10;
-	defaults[CFG_INB] = 10;
+	defaults[CFG_BGR] = 129;
+	defaults[CFG_BGG] = 132;
+	defaults[CFG_BGB] = 149;
+	defaults[CFG_BG2R] = 35;
+	defaults[CFG_BG2G] = 42;
+	defaults[CFG_BG2B] = 59;
+	defaults[CFG_FGR] = 220;
+	defaults[CFG_FGG] = 238;
+	defaults[CFG_FGB] = 235;
+	defaults[CFG_SLR] = 164;
+	defaults[CFG_SLG] = 182;
+	defaults[CFG_SLB] = 147;
+	defaults[CFG_INR] = 96;
+	defaults[CFG_ING] = 101;
+	defaults[CFG_INB] = 91;
 	// check/create cfg dir
 	struct stat sbuf;
 	if (stat(config_dir, &sbuf) == -1)
