@@ -4,6 +4,7 @@ v2.0v4
 * changed default colors
 * small sync code tweaks/
 * more sensible sysex delay options (including 0ms)
+* handle WAIT commands correctly
 
 
 v2.0rc3

@@ -2244,6 +2244,7 @@ void Fl_Knob::draw_cursor(const int ox, const int oy, const int side)
 	double angle;
 	// top
 	(active_r()) ? fl_color(FL_FOREGROUND_COLOR) : fl_color(fl_darker(FL_FOREGROUND_COLOR));
+	(selected) ? fl_color(fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR)) : fl_color(fl_color());
 	rds = (side - 18) / 2.0;
 	cur = _percent * rds / 2;
 	cx = ox + side / 2;
@@ -3294,13 +3295,13 @@ void Envelope_Editor::draw_envelope(int type, int x0, int y0)
 	switch (type)
 	{
 		case VOLUME:
-			fl_color(255, 0, 0);
+			fl_color(231, 42, 42);
 			break;
 		case FILTER:
-			fl_color(0, 0, 200);
+			fl_color(61, 61, 209);
 			break;
 		case AUXILIARY:
-			fl_color(0, 150, 0);
+			fl_color(56, 189, 56);
 	}
 
 	col = fl_color_average(FL_FOREGROUND_COLOR, fl_color(), .3);

@@ -73,7 +73,6 @@ public:
 	void incoming_ACK(int);
 	void incoming_NAK(int);
 	void incoming_CANCEL();
-	void incoming_WAIT();
 	void incoming_EOF();
 	void widget_callback(int, int, int layer = -2);
 	void cc_callback(int, int);

@@ -1232,12 +1232,6 @@ void PXK::incoming_CANCEL()
 	display_status("Received CANCEL.");
 }
 
-void PXK::incoming_WAIT()
-{
-	pmesg("PXK::incoming_WAIT() \n");
-	display_status("Received WAIT.");
-}
-
 void PXK::incoming_EOF()
 {
 	pmesg("PXK::incoming_EOF() \n");

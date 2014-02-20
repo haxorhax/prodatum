@@ -114,6 +114,8 @@ static void process_midi(PtTimestamp, void*)
 	static unsigned char header[3];
 	static bool receiving_sysex = false;
 	static bool result_out = false;
+	static bool __midi_wait = false;
+	static unsigned char poll = 0;
 	do
 	{
 		// check if theres something from the device and write it to the read_buffer
@@ -155,6 +157,16 @@ static void process_midi(PtTimestamp, void*)
 						// hand over a complete sysex message to the main thread
 						if (data == MIDI_EOX)
 						{
+							// check if its a WAIT command
+							if (local_read_buffer[4] == 0x55 && local_read_buffer[5] == 0x7c)
+							{
+								__midi_wait = true;
+								receiving_sysex = false;
+								break;
+							}
+							// check if it's an ack command
+							else if (__midi_wait == true && local_read_buffer[4] == 0x55 && local_read_buffer[5] == 0x7f)
+								__midi_wait = false;
 #ifndef NDEBUG
 							if (read_space > (jack_ringbuffer_write_space(read_buffer) - position))
 								read_space = jack_ringbuffer_write_space(read_buffer) - position;
@@ -235,21 +247,24 @@ static void process_midi(PtTimestamp, void*)
 
 		// check if theres some MIDI to write on the bus
 		result_out = false;
-		if (jack_ringbuffer_read(write_buffer, &local_write_buffer[0], 1) == 1)
+		if (jack_ringbuffer_peek(write_buffer, &poll, 1) == 1)
 		{
 			result_out = true;
-			if (local_write_buffer[0] == MIDI_SYSEX)
+			if (poll == MIDI_SYSEX)
 			{
-				jack_ringbuffer_read(write_buffer, local_write_buffer, 2); // read header
-				unsigned int len = local_write_buffer[0] * 128 + local_write_buffer[1];
-				jack_ringbuffer_read(write_buffer, local_write_buffer, len);
-				pmerror = Pm_WriteSysEx(port_out, 0, local_write_buffer);
-				if (pmerror < 0)
-					show_error();
+				if (!__midi_wait)
+				{
+					jack_ringbuffer_read(write_buffer, local_write_buffer, 3); // read header
+					unsigned int len = local_write_buffer[1] * 128 + local_write_buffer[2];
+					jack_ringbuffer_read(write_buffer, local_write_buffer, len);
+					pmerror = Pm_WriteSysEx(port_out, 0, local_write_buffer);
+					if (pmerror < 0)
+						show_error();
+				}
 			}
 			else
 			{
-				if (jack_ringbuffer_read(write_buffer, event + 1, 2) == 2)
+				if (jack_ringbuffer_read(write_buffer, event, 3) == 3)
 				{
 					ev.message = Pm_Message(local_write_buffer[0], event[1], event[2]);
 					pmerror = Pm_Write(port_out, &ev, 1);
@@ -275,14 +290,13 @@ static void process_midi_in(void*)
 #ifndef WIN32
 	static char buf;
 #endif
-	while (midi_active && jack_ringbuffer_peek(read_buffer, &poll, 1))
+	while (midi_active && jack_ringbuffer_peek(read_buffer, &poll, 1) == 1)
 	{
 #ifndef WIN32
 		read(fd, &buf, 1);
 #endif
 		if (poll == MIDI_SYSEX)
 		{
-//			unsigned char sysex[SYSEX_MAX_SIZE];
 			jack_ringbuffer_read(read_buffer, sysex, 3); // read header
 			len = sysex[1] * 128 + sysex[2];
 			jack_ringbuffer_read(read_buffer, sysex, len);
@@ -303,11 +317,6 @@ static void process_midi_in(void*)
 
 					case 0x7e: // NAK
 						pxk->incoming_NAK(sysex[7] * 128 + sysex[6]);
-						break;
-
-					case 0x7c: // WAIT
-						pxk->incoming_WAIT();
-						Pt_Sleep(cfg->get_cfg_option(CFG_SPEED));
 						break;
 
 					case 0x7b: // EOF
@@ -456,7 +465,8 @@ static void process_midi_in(void*)
 						ui->pitchwheel->value((double) v);
 					}
 						break;
-					default:;
+					default:
+						;
 				}
 			}
 			else // controller event
@@ -510,7 +520,8 @@ static void process_midi_in(void*)
 						ui->pitchwheel->value((double) v);
 					}
 						break;
-					default:;
+					default:
+						;
 				}
 			}
 			// log midi events
@@ -524,7 +535,7 @@ static void process_midi_in(void*)
 	}
 #ifdef WIN32
 	if (timer_running)
-		Fl::repeat_timeout(.01, process_midi_in);
+	Fl::repeat_timeout(.01, process_midi_in);
 #endif
 }
 
@@ -543,7 +554,7 @@ MIDI::MIDI()
 	port_thru = 0;
 #ifndef WIN32
 	if (pipe(p) == -1)
-	fprintf(stderr, "*** Could not open pipe\n%s", strerror(errno));
+		fprintf(stderr, "*** Could not open pipe\n%s", strerror(errno));
 #endif
 	read_buffer = jack_ringbuffer_create(RINGBUFFER_READ);
 	write_buffer = jack_ringbuffer_create(RINGBUFFER_WRITE);

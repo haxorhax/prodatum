@@ -886,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX color 15 selection_color 7 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
+    tooltip {Voice volume} xywh {15 365 25 129} box THIN_DOWN_BOX color 15 selection_color 7 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -1555,7 +1555,7 @@ widget_class PD_Main {
     xywh {0 0 834 574} labeltype NO_LABEL align 0
   } {
     Fl_Group {} {
-      label {PROGRAM/CHANNEL}
+      label {PROGRAM/CHANNEL} open
       xywh {4 23 200 225} box THIN_DOWN_BOX labelfont 1 labelcolor 8
     } {
       Fl_Button preset_name {
@@ -1667,12 +1667,12 @@ ui->m_audit->set();
 else
 ui->m_audit->clear();
 
-midi->audit();}
-        tooltip {Toggle audition} xywh {56 103 65 20} type Toggle down_box UP_BOX color 7 selection_color 8 labelsize 12 align 80 when 1
+midi->audit();} selected
+        tooltip {Toggle audition} xywh {56 103 65 20} type Toggle down_box UP_BOX color 7 selection_color 179 labelsize 12 align 80 when 1
       }
       Fl_Button channel_enable {
         label {C&HANNEL ENABLE}
-        tooltip {Multimode channel enable} xywh {56 129 65 30} type Toggle down_box UP_BOX shortcut 0x68 color 7 selection_color 67 labelsize 10 align 208
+        tooltip {Multimode channel enable} xywh {56 129 65 30} type Toggle down_box UP_BOX shortcut 0x68 color 7 selection_color 78 labelsize 10 align 208
         code0 {o->set_id(135);}
         class Button
       }
@@ -2577,7 +2577,7 @@ delete this;} open
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
 delete this;}
-      xywh {0 0 840 615} type Double hide resizable
+      xywh {2 94 840 615} type Double hide resizable
       code0 {o->label("prodatum");}
       class Double_Window xclass prodatum size_range {674 492 843 615}
     } {
@@ -3895,7 +3895,7 @@ pxk->Inquire(device_id->value());}
       }
       Fl_Choice speed {
         label Delay
-        callback {cfg->set_cfg_option(CFG_SPEED, o->value());} open selected
+        callback {cfg->set_cfg_option(CFG_SPEED, o->value());} open
         tooltip {Delay: Change the request-response delay of your device. The lower the delay, the higher the average bitrate that we receive data with.} xywh {75 320 105 20} down_box BORDER_BOX color 7 labelsize 12 textsize 13
         code0 {o->add("No delay");o->add("10 [ms]");o->add("40 [ms]");o->add("90 [ms]");o->add("160 [ms]");}
       } {}
