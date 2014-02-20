@@ -244,7 +244,7 @@ void PXK::cc_callback(int controller, int value)
 {
 	pmesg("PXK::cc_callback(%d, %d) \n", controller, value);
 	midi->write_event(0xb0, ctrl_to_cc[controller], value, selected_channel);
-	if (!cc_changed)
+	if (!cc_changed && controller < 13)
 	{
 		ui->main->b_store->activate();
 		cc_changed = true;
