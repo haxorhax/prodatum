@@ -29,21 +29,21 @@ extern PD_UI* ui;
 extern Cfg* cfg;
 extern PXK* pxk;
 
-volatile bool got_answer;
-volatile bool midi_active = false;
+bool got_answer;
 
-volatile static bool timer_running = false;
-volatile static bool thru_active = false;
-volatile static bool process_midi_exit_flag = false;
-volatile static bool automap = true;
+static bool timer_running = false;
+static bool midi_active = false;
+static bool thru_active = false;
+static bool process_midi_exit_flag = false;
+static bool automap = true;
 extern unsigned char request_delay;
 
 // check buffer spaces
 #ifndef NDEBUG
 int write_space = RINGBUFFER_WRITE;
-volatile int read_space = RINGBUFFER_READ;
+int read_space = RINGBUFFER_READ;
 int max_write = 0;
-volatile int max_read = 0;
+int max_read = 0;
 #endif
 
 /**
@@ -76,8 +76,7 @@ static PortMidiStream *port_thru; // controller port (eg keyboard)
 
 static jack_ringbuffer_t *read_buffer;
 static jack_ringbuffer_t *write_buffer;
-volatile static int midi_device_id;
-volatile static unsigned int messages_to_send;
+static int midi_device_id;
 static bool requested = false;
 
 static void show_error(void)
@@ -115,6 +114,7 @@ static void process_midi(PtTimestamp, void*)
 	static unsigned int position = 3;
 	static unsigned char header[3];
 	static bool receiving_sysex = false;
+	static bool result_out = false;
 	do
 	{
 		// check if theres something from the device and write it to the read_buffer
@@ -235,8 +235,10 @@ static void process_midi(PtTimestamp, void*)
 		}
 
 		// check if theres some MIDI to write on the bus
+		result_out = false;
 		if (jack_ringbuffer_read(write_buffer, &local_write_buffer[0], 1) == 1)
 		{
+			result_out = true;
 			if (local_write_buffer[0] == MIDI_SYSEX)
 			{
 				jack_ringbuffer_read(write_buffer, local_write_buffer, 2); // read header
@@ -245,7 +247,6 @@ static void process_midi(PtTimestamp, void*)
 				pmerror = Pm_WriteSysEx(port_out, 0, local_write_buffer);
 				if (pmerror < 0)
 					show_error();
-				--messages_to_send;
 			}
 			else
 			{
@@ -255,11 +256,10 @@ static void process_midi(PtTimestamp, void*)
 					pmerror = Pm_Write(port_out, &ev, 1);
 					if (pmerror < 0)
 						show_error();
-					--messages_to_send;
 				}
 			}
 		}
-	} while (messages_to_send);
+	} while (result_out);
 }
 
 #ifndef WIN32
@@ -270,17 +270,22 @@ static void process_midi_in(void*)
 {
 	static unsigned long count = 0;
 	static unsigned long count_events = 0;
+	static unsigned char sysex[SYSEX_MAX_SIZE];
+	static unsigned int len;
 	unsigned char poll = 0;
+#ifndef WIN32
+	static char buf;
+#endif
 	while (midi_active && jack_ringbuffer_peek(read_buffer, &poll, 1))
 	{
 #ifndef WIN32
-		read(fd, 0, 1);
+		read(fd, &buf, 1);
 #endif
 		if (poll == MIDI_SYSEX)
 		{
-			unsigned char sysex[SYSEX_MAX_SIZE];
+//			unsigned char sysex[SYSEX_MAX_SIZE];
 			jack_ringbuffer_read(read_buffer, sysex, 3); // read header
-			unsigned int len = sysex[1] * 128 + sysex[2];
+			len = sysex[1] * 128 + sysex[2];
 			jack_ringbuffer_read(read_buffer, sysex, len);
 			// e-mu sysex
 			if (sysex[1] == 0x18)
@@ -530,7 +535,6 @@ static void process_midi_in(void*)
 MIDI::MIDI()
 {
 	pmesg("MIDI::MIDI()\n");
-	messages_to_send = 0;
 	// initialize (global) variables and buffers
 	selected_port_out = -1;
 	port_out = 0;
@@ -957,7 +961,6 @@ void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 		max_write = len + 3;
 #endif
 	jack_ringbuffer_write(write_buffer, data, len + 3);
-	++messages_to_send;
 	if (cfg->get_cfg_option(CFG_LOG_SYSEX_OUT))
 		pxk->log_add(sysex, len, 0);
 }
@@ -976,7 +979,6 @@ void MIDI::write_event(int status, int value1, int value2, int channel) const
 	while (jack_ringbuffer_write_space(write_buffer) < 3)
 		mysleep(2);
 	jack_ringbuffer_write(write_buffer, msg, 3);
-	++messages_to_send;
 	// log midi events
 	if (cfg->get_cfg_option(CFG_LOG_EVENTS_OUT))
 	{

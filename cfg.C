@@ -36,7 +36,7 @@ extern PD_UI* ui;
 extern PXK* pxk;
 
 // ms to wait between name requests on init and when a WAIT is received
-volatile unsigned char request_delay;
+unsigned char request_delay;
 
 Cfg::Cfg(int device_id)
 {

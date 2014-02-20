@@ -1,0 +1,24 @@
+v2.0rc3
+
+* Linux/OSX: fixed excessive use of CPU (ticket #6)
+* threadless initialization (new init code again, similar to the previous
+	version but threadless)
+* commandline config file loading is back (by popular demand)
+
+
+v2.0rc2
+
+* new: init log. should help with fixing initialization issues
+* better window placement
+* fixed ticket #4
+* some nonfunctional improvements
+
+
+v2.0rc1
+
+* import browser: too ugly for life. got shot in the face. Import via drag'n'drop!
+* support loading different configurations from UI
+* new, clean look and more/better color options
+* lot's of non-functional, internal  improvements (eg, new initialization code)
+* lot's of bugs fixed
+* possibly lot's of new bugs added

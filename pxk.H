@@ -54,7 +54,7 @@ public:
 private:
 	char device_id;
 	unsigned char request_delay;
-	volatile bool synchronized;
+	bool synchronized;
 public:
 	bool LoadConfig(int id = -1) const;
 	bool ConnectPorts(bool);
@@ -129,11 +129,11 @@ public:
 	 * rom specific
 	 */
 private:
-	unsigned char roms; // number of roms
 	char rom_index[5];
 	const char* get_name(int) const;
 public:
 	ROM* rom[5];
+	unsigned char roms; // number of roms
 	char get_rom_index(char) const;
 
 	/*

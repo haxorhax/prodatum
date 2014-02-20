@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
 	ui = new PD_UI();
 	if (!ui)
 		return 1;
-	Fl::lock();
+//	Fl::lock();
 #ifdef NDEBUG
 	ui->init_log_b->hide();
 	ui->init_log_m->hide();
@@ -889,7 +889,7 @@ void PD_UI::Reset(char user_data, char rom_data)
 	// reload
 	reset_w->hide();
 	b_reset->activate();
-	fl_message("Deleted %d files from\n%s", deleted, config_dir);
+	fl_message("OK. Deleted %d files from\n%s.\nWill reload missing data now.", deleted, config_dir);
 	pxk = new PXK(true);
 }
 
@@ -897,7 +897,6 @@ void PD_UI::Cancel()
 {
 	pmesg("PD_UI::Cancel() \n");
 	pxk->Join();
-	char config = cfg->get_cfg_option(CFG_DEVICE_ID);
 	delete pxk;
 	pxk = 0;
 	init->hide();

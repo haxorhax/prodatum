@@ -23,27 +23,24 @@
 #include <FL/Fl_Tooltip.H>
 #include "pxk.H"
 
-#include "threads.H"
-
 extern PD_UI* ui;
 extern PXK* pxk;
 
 // buffer spaces
 #ifndef NDEBUG
 extern int write_space;
-extern volatile int read_space;
+extern int read_space;
 extern int max_write;
-extern volatile int max_read;
+extern int max_read;
 #endif
 
 extern bool got_answer;
-extern bool midi_active;
 extern FilterMap FM[51];
 MIDI* midi = 0;
 Cfg* cfg = 0;
 
-volatile static bool name_set_incomplete;
-volatile static int init_progress;
+static bool name_set_incomplete;
+static int init_progress;
 
 void PXK::widget_callback(int id, int value, int layer)
 {
@@ -429,96 +426,114 @@ static void sync_progress(void* synced)
 	}
 }
 
-static void *sync_bro(void* p)
+static void sync_bro(void* p)
 {
-	unsigned char rom_nr, type;
-	unsigned int name;
-	char _label[64];
-	int names;
+	// general
+	static unsigned int name = 0;
+	static char _label[64];
+	static unsigned char countdown = 33;
 #ifndef NDEBUG
 	char logbuffer[128];
 #endif
-	// load setup names
-	unsigned char setups_to_load = 0;
-	Fl::lock();
-	setups_to_load = pxk->load_setup_names(99);
-	Fl::unlock();
+
+	// preset name variables
+	static unsigned char rom_nr = 0;
+	static unsigned char type = PRESET;
+	static int names = 0;
+
+	// setup name variables
+	static char setups_to_load = -1;
+	static bool requested = false;
+	if (setups_to_load == -1)
+		setups_to_load = pxk->load_setup_names(99);
 	if (setups_to_load)
 	{
-		// save init setup
-		Fl::lock();
-#ifndef NDEBUG
-		ui->init_log->append("sync_bro: Requesting initial setup dump\n");
-#endif
-		midi->request_setup_dump();
-		Fl::unlock();
-		bool got_setup = false;
-		while (!got_setup)
+		if (pxk->setup_init == 0)
 		{
-			mysleep(10);
-			Fl::lock();
+			if (!requested)
+			{
+#ifndef NDEBUG
+				ui->init_log->append("sync_bro: Requesting initial setup dump\n");
+#endif
+				midi->request_setup_dump();
+				requested = true;
+				ui->init_progress->label("Loading multisetup names...");
+				ui->init_progress->maximum((float) 64);
+				init_progress = 0;
+				ui->init_progress->value(.0);
+			}
 #ifndef NDEBUG
 			ui->init_log->append("*");
 #endif
-			if (*(bool*) p) // Join()
-				goto Hell;
-			(pxk->setup_init == 0) ? got_setup = false : got_setup = true;
-			Fl::unlock();
-		}
-		Fl::lock();
-#ifndef NDEBUG
-		ui->init_log->append("# OK\n\nsync_bro: Loading setup names\n");
-#endif
-		ui->init_progress->label("Loading multisetup names...");
-		ui->init_progress->maximum((float) 64);
-		init_progress = 0;
-		Fl::unlock();
-		for (name = 0; name < 63; name++)
+			goto Exit;
+		} // got init setup
+		if (name == 0)
 		{
-			Fl::lock();
-			ui->init_progress->value((float) init_progress);
-			got_answer = false;
-			pxk->load_setup_names(name);
-			Fl::unlock();
-			while (!got_answer)
+#ifndef NDEBUG
+			ui->init_log->append("# OK\n\nsync_bro: Loading setup names\n");
+#endif
+			requested = false;
+		}
+		if (name <= 63)
+		{
+			if (!requested && name < 63)
 			{
-				mysleep(10);
-				Fl::lock();
+				pxk->load_setup_names(name++);
+				requested = true;
+				got_answer = false;
+				goto Exit;
+			}
+			if (!got_answer)
+			{
 #ifndef NDEBUG
 				ui->init_log->append("*");
 #endif
-				if (*(bool*) p) // Join()
-					goto Hell;
-				Fl::unlock();
+				goto Exit;
 			}
-#ifndef NDEBUG
-			Fl::lock();
-			ui->init_log->append("#");
-			Fl::unlock();
-#endif
-		}
-		mysleep(50);
-		Fl::lock();
-		pxk->load_setup_names(63);
-#ifndef NDEBUG
-		ui->init_log->append(" OK\n");
-#endif
-		Fl::unlock();
-	}
-	// ID, PRESET, INSTRUMENT, ARP, SETUP, DEMO, RIFF
-	for (rom_nr = 0; rom_nr < 5; rom_nr++) // for every rom
-	{
-		if (pxk->rom[rom_nr])
-		{
-			for (type = 1; type <= RIFF; type++) // for every type
+			else
 			{
-				if (type == SETUP || type == DEMO)
-					continue;
-				if (rom_nr == 0 && (type == INSTRUMENT || type == RIFF))
-					continue;
-				names = pxk->rom[rom_nr]->disk_load_names(type);
-				if (names != -1) // not available on disk
+#ifndef NDEBUG
+				ui->init_log->append("#");
+#endif
+				if (name == 63)
 				{
+#ifndef NDEBUG
+					ui->init_log->append(" OK\n");
+#endif
+					pxk->load_setup_names(63);
+					setups_to_load = 0;
+				}
+				ui->init_progress->value((float) init_progress);
+				requested = false;
+				goto Exit;
+			}
+		}
+	}
+	// setup initialization complete
+
+	if (rom_nr <= pxk->roms)
+	{
+		if (type <= RIFF) // for every type
+		{
+			if (type == SETUP || type == DEMO)
+			{
+				names = 0;
+				type++;
+				goto Exit;
+			}
+			if (rom_nr == 0 && (type == INSTRUMENT || type == RIFF))
+			{
+				names = 0;
+				type++;
+				goto Exit;
+			}
+			if (names == 0)
+			{
+				name = 0;
+				names = pxk->rom[rom_nr]->disk_load_names(type);
+				if (names != -1)  // not available on disk
+				{
+					name_set_incomplete = true;
 					if (names == 0) // unknown number of names available
 					{
 						if (type == ARP)
@@ -526,7 +541,6 @@ static void *sync_bro(void* p)
 						else if (type == RIFF)
 							names = MAX_RIFFS;
 					}
-					// set progress bar label
 					const char* _type = 0;
 					switch (type)
 					{
@@ -543,89 +557,99 @@ static void *sync_bro(void* p)
 							_type = "riff (estimated progress)";
 							break;
 					}
-					Fl::lock();
 					if (rom_nr == 0)
 						snprintf(_label, 64, "Loading flash %s names...", _type);
 					else
 						snprintf(_label, 64, "Loading %s %s names...", pxk->rom[rom_nr]->name(), _type);
+					ui->init_progress->label(_label);
+					ui->init_progress->maximum((float) names);
+					init_progress = 0;
+					ui->init_progress->value(.0);
 #ifndef NDEBUG
 					// init log
 					snprintf(logbuffer, 128, "\nsync_bro: Loading %s\n", _label);
 					ui->init_log->append(logbuffer);
 #endif
-					ui->init_progress->label(_label);
-					ui->init_progress->maximum((float) names);
-					init_progress = 0;
-					name_set_incomplete = true;
-					Fl::unlock();
-					name = 0;
-					while (name_set_incomplete && name < names)
-					{
-						Fl::lock();
-						ui->init_progress->value((float) init_progress);
-						got_answer = false;
-						pxk->rom[rom_nr]->load_name(type, name);
-						Fl::unlock();
-						name++;
-						while (!got_answer)
-						{
-							Fl::lock();
-#ifndef NDEBUG
-							ui->init_log->append("*");
-#endif
-							if (*(bool*) p) // Join()
-								goto Hell;
-							Fl::unlock();
-							mysleep(2);
-							if (type == ARP && rom_nr != 0) // wait a bit longer to process ROM arp dumps
-								mysleep(13);
-						}
-#ifndef NDEBUG
-						Fl::lock();
-						ui->init_log->append("#");
-						Fl::unlock();
-#endif
-					}
-#ifndef NDEBUG
-					Fl::lock();
-					ui->init_log->append(" OK\n");
-					Fl::unlock();
-#endif
 				}
+			} // if (names == 0)
+			if (name_set_incomplete && name <= names)
+			{
+				if (!requested && name < names)
+				{
+					pxk->rom[rom_nr]->load_name(type, name++);
+					requested = true;
+					got_answer = false;
+					countdown = 33;
+					goto Exit;
+				}
+				if (!got_answer)
+				{
+#ifndef NDEBUG
+					ui->init_log->append("*");
+#endif
+					if ((type == ARP || type == RIFF) && --countdown == 0) // timeout
+						name_set_incomplete = false;
+					goto Exit;
+				}
+				else
+				{
+#ifndef NDEBUG
+					ui->init_log->append("#");
+#endif
+					if (name == names)
+					{
+#ifndef NDEBUG
+						ui->init_log->append(" OK\n");
+#endif
+						name_set_incomplete = false;
+					}
+					ui->init_progress->value((float) init_progress);
+					requested = false;
+					goto Exit;
+				}
+			} // if (name_set_incomplete)
+			else
+			{
+				names = 0; // next type
+				type++;
+				goto Exit;
 			}
+		} // if (type <= RIFF) // for every type
+		else
+		{
+			names = 0;
+			type = 1; // next rom
+			rom_nr++;
+			goto Exit;
 		}
+	} // if (rom_nr < pxk->roms)
+	else
+		*(bool*) p = true;
+
+	Exit:
+
+	if (!*(bool*) p)
+		Fl::repeat_timeout(.01, sync_bro, p);
+	else
+	{
+#ifndef NDEBUG
+		snprintf(logbuffer, 128,
+				"\nMIDI: min. read buffer space: %d (max. msg len %d)\nMIDI: min. write buffer space: %d (max. msg len %d)\n",
+				read_space, max_read, write_space, max_write);
+		ui->init_log->append(logbuffer);
+		read_space = RINGBUFFER_READ;
+		write_space = RINGBUFFER_WRITE;
+		max_read = 0;
+		max_write = 0;
+#endif
+		// reset static variables
+		rom_nr = 0;
+		type = 1;
+		names = 0;
+		setups_to_load = -1;
+		requested = false;
+		name = 0;
 	}
-	Fl::lock();
-#ifndef NDEBUG
-	snprintf(logbuffer, 128,
-			"\nMIDI: min. read buffer space: %d (max. msg len %d)\nMIDI: min. write buffer space: %d (max. msg len %d)\n",
-			read_space, max_read, write_space, max_write);
-	ui->init_log->append(logbuffer);
-	read_space = RINGBUFFER_READ;
-	write_space = RINGBUFFER_WRITE;
-	max_read = 0;
-	max_write = 0;
-#endif
-	*(bool*) p = true;
-	Fl::unlock();
-	return ((void*) 0);
-	Hell: // Join()
-#ifndef NDEBUG
-	ui->init_log->append("\nsync_bro: CANCELLED!\n");
-#endif
-	midi->cancel();
-	*(bool*) p = false;
-#ifndef NDEBUG
-	snprintf(logbuffer, 128,
-			"\nMIDI: min. read buffer space: %d (max. msg len %d)\nMIDI: min. write buffer space: %d (max. msg len %d)\n",
-			read_space, max_read, write_space, max_write);
-	ui->init_log->append(logbuffer);
-	read_space = RINGBUFFER_READ;
-	write_space = RINGBUFFER_WRITE;
-	max_read = 0;
-	max_write = 0;
-#endif
-	Fl::unlock();
 }
 
 void PXK::Join()
@@ -634,8 +658,7 @@ void PXK::Join()
 	{
 		Fl::remove_timeout(sync_progress);
 		synchronized = true;
-		while (synchronized)
-			Fl::wait(.1);
+		Fl::wait(.3);
 	}
 }
 
@@ -652,9 +675,8 @@ bool PXK::Synchronize()
 #ifndef NDEBUG
 	ui->init_log->append("PXK::Synchronize()\n\n");
 #endif
-	Fl_Thread sync_hardware;
-	fl_create_thread(sync_hardware, sync_bro, (void*) &synchronized);
-	Fl::add_timeout(.1, sync_progress, (void*) &synchronized);
+	Fl::add_timeout(0, sync_bro, (void*) &synchronized);
+	Fl::add_timeout(.3, sync_progress, (void*) &synchronized);
 	return true;
 }
 
@@ -683,7 +705,7 @@ void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned c
 void PXK::Inquire(unsigned char id)
 {
 	pmesg("PXK::Inquire(%d)\n", id);
-	if (!synchronized && midi_active)
+	if (!synchronized)
 	{
 		device_id = id;
 		unsigned char s[] =
@@ -1001,7 +1023,7 @@ void PXK::Loading() const
 	ui->loading_w->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->loading_w->w() / 2),
 			ui->main_window->y() + 80);
 	ui->loading_w->show();
-	Fl::add_timeout(.8, check_loading);
+	Fl::add_timeout(1.5, check_loading);
 }
 
 void PXK::load_setup()

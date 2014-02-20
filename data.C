@@ -1165,7 +1165,7 @@ void Setup_Dump::upload() const
 	pmesg("Setup_Dump::upload()\n");
 	midi->write_sysex(data, size);
 	// let it eat
-	mysleep(500);
+	mysleep(800);
 }
 
 // maps Parameter IDs from the device to data position in preset dump
@@ -1386,7 +1386,7 @@ int ROM::disk_load_names(unsigned char type)
 			data = &riff_names;
 			break;
 		default:
-			return false;
+			return -1;
 	}
 	std::fstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
 	if (file.is_open())
@@ -1395,7 +1395,7 @@ int ROM::disk_load_names(unsigned char type)
 		if (size % 16)
 		{
 			file.close();
-			return false;
+			return *number;
 		}
 		*number = size / 16;
 		*data = new unsigned char[size];
