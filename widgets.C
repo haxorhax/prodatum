@@ -2039,7 +2039,7 @@ void Fl_Knob::draw()
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_rectf(ox, oy, side, side);
 	// scale
-	fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .9));
+	fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .8));
 	fl_pie(ox + 1, oy + 3, side - 2, side - 12, 0, 360);
 	draw_scale(ox, oy, side);
 	fl_color(FL_BACKGROUND_COLOR);
@@ -2047,26 +2047,13 @@ void Fl_Knob::draw()
 	// shadow
 	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .8));
 	fl_pie(ox + 8, oy + 12, side - 16, side - 16, 0, 360);
-	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .2));
+	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .1));
 	fl_pie(ox + 9, oy + 12, side - 18, side - 18, 0, 360);
 	// knob edge
-//	if (!ui->shiny_knobs)
-//		fl_color(active_r() ? fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .4) : FL_INACTIVE_COLOR);
-//	else
-//		fl_color(active_r() ? fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .7) : FL_INACTIVE_COLOR);
-	fl_color(active_r() ? FL_FOREGROUND_COLOR : FL_INACTIVE_COLOR);
-	fl_pie(ox + 8, oy + 8, side - 16, side - 16, 0, 360);
+	fl_color(active_r() ? FL_FOREGROUND_COLOR : fl_darker(FL_FOREGROUND_COLOR));
+	fl_pie(ox + 9, oy + 9, side - 18, side - 18, 0, 360);
 	// top
 	(selected) ? fl_color(FL_SELECTION_COLOR) : fl_color(FL_BACKGROUND2_COLOR);
-//	if (selected)
-//		fl_color(FL_SELECTION_COLOR);
-//	else
-//	{
-//		if (!ui->shiny_knobs)
-//			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .9));
-//		else
-//			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .6));
-//	}
 	fl_pie(ox + 10, oy + 10, side - 20, side - 20, 0, 360);
 	draw_cursor(ox, oy, side);
 	fl_pop_clip();
@@ -2256,16 +2243,7 @@ void Fl_Knob::draw_cursor(const int ox, const int oy, const int side)
 	float rds, cur, cx, cy;
 	double angle;
 	// top
-	(selected) ? fl_color(FL_BACKGROUND2_COLOR) : fl_color(FL_FOREGROUND_COLOR);
-//	if (selected)
-//		fl_color(fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR));
-//	else
-//	{
-//		if (!ui->shiny_knobs)
-//			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_WHITE, .7f));
-//		else
-//			fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .7f));
-//	}
+	(active_r()) ? fl_color(FL_FOREGROUND_COLOR) : fl_color(fl_darker(FL_FOREGROUND_COLOR));
 	rds = (side - 18) / 2.0;
 	cur = _percent * rds / 2;
 	cx = ox + side / 2;
