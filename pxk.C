@@ -39,8 +39,10 @@ extern FilterMap FM[51];
 MIDI* midi = 0;
 Cfg* cfg = 0;
 
-static bool name_set_incomplete;
-static int init_progress;
+volatile static bool join_bro = false;
+volatile static bool timed_out = false;
+volatile static bool name_set_incomplete;
+volatile static int init_progress;
 
 void PXK::widget_callback(int id, int value, int layer)
 {
@@ -403,8 +405,20 @@ bool PXK::ConnectPorts(bool autoconnect)
 	return true;
 }
 
-static void sync_progress(void* synced)
+static void sync_police(void* synced)
 {
+	if (timed_out) // init timeout
+	{
+		ui->init->hide();
+		fl_alert("Sync failed. Please send the init log to rdxesy@@yahoo.de and check your cables + MIDI drivers etc.");
+		if (!ui->init_log_w->shown())
+		{
+			ui->init_log_w->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->init_log_w->w() / 2),
+					ui->main_window->y() + 80);
+			ui->init_log_w->show();
+		}
+		return;
+	}
 	if (!(*(bool*) synced))
 	{
 		if (!ui->init->shown())
@@ -413,7 +427,7 @@ static void sync_progress(void* synced)
 					ui->main_window->y() + 80);
 			ui->init->show();
 		}
-		Fl::repeat_timeout(.1, sync_progress, synced);
+		Fl::repeat_timeout(.2, sync_police, synced);
 	}
 	else
 	{
@@ -428,19 +442,19 @@ static void sync_progress(void* synced)
 
 static void sync_bro(void* p)
 {
-	// general
+	if (join_bro)
+		goto Club;
+	// general variables
 	static unsigned int name = 0;
 	static char _label[64];
 	static unsigned char countdown = 33;
 #ifndef NDEBUG
 	char logbuffer[128];
 #endif
-
 	// preset name variables
 	static unsigned char rom_nr = 0;
 	static unsigned char type = PRESET;
 	static int names = 0;
-
 	// setup name variables
 	static char setups_to_load = -1;
 	static bool requested = false;
@@ -457,14 +471,18 @@ static void sync_bro(void* p)
 #endif
 				midi->request_setup_dump();
 				requested = true;
-				ui->init_progress->label("Loading multisetup names...");
+				ui->init_progress->label("Syncing multisetup names...");
 				ui->init_progress->maximum((float) 64);
 				init_progress = 0;
 				ui->init_progress->value(.0);
+				countdown = 48;
+				goto Exit;
 			}
 #ifndef NDEBUG
 			ui->init_log->append("*");
 #endif
+			if (--countdown == 0) // timeout
+				goto Club;
 			goto Exit;
 		} // got init setup
 		if (name == 0)
@@ -481,6 +499,7 @@ static void sync_bro(void* p)
 				pxk->load_setup_names(name++);
 				requested = true;
 				got_answer = false;
+				countdown = 36;
 				goto Exit;
 			}
 			if (!got_answer)
@@ -488,6 +507,11 @@ static void sync_bro(void* p)
 #ifndef NDEBUG
 				ui->init_log->append("*");
 #endif
+				if (--countdown == 0) // timeout
+				{
+					timed_out = true;
+					goto Club;
+				}
 				goto Exit;
 			}
 			else
@@ -558,9 +582,9 @@ static void sync_bro(void* p)
 							break;
 					}
 					if (rom_nr == 0)
-						snprintf(_label, 64, "Loading flash %s names...", _type);
+						snprintf(_label, 64, "Syncing flash %s names...", _type);
 					else
-						snprintf(_label, 64, "Loading %s %s names...", pxk->rom[rom_nr]->name(), _type);
+						snprintf(_label, 64, "Syncing %s %s names...", pxk->rom[rom_nr]->name(), _type);
 					ui->init_progress->label(_label);
 					ui->init_progress->maximum((float) names);
 					init_progress = 0;
@@ -579,7 +603,7 @@ static void sync_bro(void* p)
 					pxk->rom[rom_nr]->load_name(type, name++);
 					requested = true;
 					got_answer = false;
-					countdown = 33;
+					countdown = 36;
 					goto Exit;
 				}
 				if (!got_answer)
@@ -587,8 +611,12 @@ static void sync_bro(void* p)
 #ifndef NDEBUG
 					ui->init_log->append("*");
 #endif
-					if ((type == ARP || type == RIFF) && --countdown == 0) // timeout
-						name_set_incomplete = false;
+					if (--countdown == 0) // timeout
+						if (type != ARP && type != RIFF) // ok for ARPs and RIFFs
+						{
+							timed_out = true;
+							goto Club;
+						}
 					goto Exit;
 				}
 				else
@@ -632,6 +660,7 @@ static void sync_bro(void* p)
 		Fl::repeat_timeout(.01, sync_bro, p);
 	else
 	{
+		Club:
 #ifndef NDEBUG
 		snprintf(logbuffer, 128,
 				"\nMIDI: min. read buffer space: %d (max. msg len %d)\nMIDI: min. write buffer space: %d (max. msg len %d)\n",
@@ -643,12 +672,13 @@ static void sync_bro(void* p)
 		max_write = 0;
 #endif
 		// reset static variables
+		name = 0;
+		countdown = 33;
 		rom_nr = 0;
-		type = 1;
+		type = PRESET;
 		names = 0;
 		setups_to_load = -1;
 		requested = false;
-		name = 0;
 	}
 }
 
@@ -656,27 +686,26 @@ void PXK::Join()
 {
 	if (!synchronized)
 	{
-		Fl::remove_timeout(sync_progress);
-		synchronized = true;
-		Fl::wait(.3);
+		Fl::remove_timeout(sync_police);
+		join_bro = true;
 	}
 }
 
 bool PXK::Synchronize()
 {
-	pmesg("PXK::Synchronize()\n");
 	if (synchronized)
 		return false;
-	midi->filter_strict(); // filter everything but sysex for init
-	synchronized = false;
-	init_progress = 0;
-	ui->init_progress->label("Synchronizing...");
-	// request rom infos
+	pmesg("PXK::Synchronize()\n");
 #ifndef NDEBUG
 	ui->init_log->append("PXK::Synchronize()\n\n");
 #endif
+	midi->filter_strict(); // filter everything but sysex for sync
+	init_progress = 0;
+	ui->init_progress->label("Synchronizing...");
+	join_bro = false;
+	timed_out = false;
 	Fl::add_timeout(0, sync_bro, (void*) &synchronized);
-	Fl::add_timeout(.3, sync_progress, (void*) &synchronized);
+	Fl::add_timeout(.3, sync_police, (void*) &synchronized);
 	return true;
 }
 
@@ -975,7 +1004,7 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 			ui->g_preset->activate();
 		else
 			ui->g_preset->deactivate();
-		display_status("Edit buffer loaded.");
+		display_status("Edit buffer synchronized.");
 		Fl::wait(.1);
 	}
 }
