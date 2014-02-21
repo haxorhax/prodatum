@@ -1442,12 +1442,9 @@ void Slider::draw(int X, int Y, int W, int H)
 	wsl = W - 1;
 	fl_push_clip(X, Y, W, H);
 	draw_box();
-	//draw_box(FL_BORDER_BOX, X + 2, Y + 2, W - 5, xx + 5, FL_INACTIVE_COLOR);
-	draw_box(FL_THIN_UP_BOX, X, Y + xx, W - 1, H - xx, FL_INACTIVE_COLOR);
 	fl_pop_clip();
 	if (wsl > 0 && hsl > 0)
-		draw_box(FL_THIN_UP_BOX, xsl, ysl, wsl, hsl, selection_color());
-
+		draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, selection_color());
 	draw_label(xsl, ysl, wsl, hsl);
 	if (Fl::focus() == this)
 		draw_focus(FL_BORDER_BOX, xsl, ysl, wsl, hsl);
@@ -2039,7 +2036,9 @@ void Fl_Knob::draw()
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_rectf(ox, oy, side, side);
 	// scale
-	fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .8));
+	(active_r()) ?
+			fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_BACKGROUND_COLOR, .8)) :
+			fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_BACKGROUND_COLOR, .4));
 	fl_pie(ox + 1, oy + 3, side - 2, side - 12, 0, 360);
 	draw_scale(ox, oy, side);
 	fl_color(FL_BACKGROUND_COLOR);
@@ -2053,7 +2052,10 @@ void Fl_Knob::draw()
 	fl_color(active_r() ? FL_FOREGROUND_COLOR : fl_darker(FL_FOREGROUND_COLOR));
 	fl_pie(ox + 9, oy + 9, side - 18, side - 18, 0, 360);
 	// top
-	(selected) ? fl_color(FL_SELECTION_COLOR) : fl_color(FL_BACKGROUND2_COLOR);
+	if (active_r())
+		(selected) ? fl_color(FL_SELECTION_COLOR) : fl_color(FL_BACKGROUND2_COLOR);
+	else
+		fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .6));
 	fl_pie(ox + 10, oy + 10, side - 20, side - 20, 0, 360);
 	draw_cursor(ox, oy, side);
 	fl_pop_clip();
@@ -2315,7 +2317,7 @@ void Button::set_value(int v)
 		if (v)
 		{
 			((Fl_Button*) ui->main->g_main_arp->child(2))->color(this->selection_color(),
-					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .3));
+					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .2));
 		}
 		else
 		{
@@ -2328,7 +2330,7 @@ void Button::set_value(int v)
 		if (v)
 		{
 			((Fl_Button*) ui->main->g_main_arp->child(3))->color(this->selection_color(),
-					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .4));
+					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .2));
 		}
 		else
 		{
@@ -2363,11 +2365,11 @@ int Button::get_value() const
 		if (v)
 		{
 			((Fl_Button*) ui->main->g_main_arp->child(2))->color(this->selection_color(),
-					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .3));
+					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .2));
 		}
 		else
 		{
-			((Fl_Button*) ui->main->g_main_arp->child(2))->color(FL_BACKGROUND_COLOR, FL_SELECTION_COLOR);
+			((Fl_Button*) ui->main->g_main_arp->child(2))->color(FL_BACKGROUND2_COLOR, FL_SELECTION_COLOR);
 		}
 		ui->main->g_main_arp->redraw();
 	}
@@ -2376,11 +2378,11 @@ int Button::get_value() const
 		if (v)
 		{
 			((Fl_Button*) ui->main->g_main_arp->child(3))->color(this->selection_color(),
-					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .4));
+					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .2));
 		}
 		else
 		{
-			((Fl_Button*) ui->main->g_main_arp->child(3))->color(FL_BACKGROUND_COLOR, FL_SELECTION_COLOR);
+			((Fl_Button*) ui->main->g_main_arp->child(3))->color(FL_BACKGROUND2_COLOR, FL_SELECTION_COLOR);
 		}
 		ui->main->g_main_arp->redraw();
 	}
@@ -3306,7 +3308,7 @@ void Envelope_Editor::draw_envelope(int type, int x0, int y0)
 
 	col = fl_color_average(FL_FOREGROUND_COLOR, fl_color(), .3);
 	if (type != mode)
-			fl_color(fl_color_average(col, FL_BACKGROUND2_COLOR, .5f));
+		fl_color(fl_color_average(col, FL_BACKGROUND2_COLOR, .5f));
 	col = fl_color();
 	fl_line_style(FL_SOLID, 2);
 	if (dragbox[DCY_2][0] <= ee_x0 + ee_w - 5)
@@ -5534,12 +5536,9 @@ void Step_Offset::draw(int X, int Y, int W, int H)
 	wsl = W - 1;
 	fl_push_clip(X, Y, W, H);
 	draw_box();
-	draw_box(FL_FLAT_BOX, X + 2, Y + 2, W - 5, xx + 5, FL_INACTIVE_COLOR);
-	//draw_box(FL_FLAT_BOX, X, Y + xx, W - 1, H - xx, FL_INACTIVE_COLOR);
 	fl_pop_clip();
 	if (wsl > 0 && hsl > 0)
-		draw_box(FL_THIN_UP_BOX, xsl, ysl, wsl, hsl, selection_color());
-
+		draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, selection_color());
 	draw_label(xsl, ysl, wsl, hsl);
 	if (Fl::focus() == this)
 		draw_focus(FL_BORDER_BOX, xsl, ysl, wsl, hsl);
