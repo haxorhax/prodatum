@@ -103,8 +103,7 @@ void PXK::widget_callback(int id, int value, int layer)
 		selected_preset = setup->get_value(130, selected_channel);
 		ui->preset_rom->set_value(selected_preset_rom);
 		ui->preset->set_value(selected_preset);
-		Fl::wait(.1);
-		mysleep(50);
+		mysleep(80);
 		midi->request_preset_dump(-1, 0);
 		// FX channel
 		if (midi_mode != MULTI)
@@ -352,7 +351,7 @@ static void check_connection(void* p)
 		pxk->ConnectPorts(false);
 		ui->open_device->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->open_device->w() / 2),
 				ui->main_window->y() + 80);
-		ui->open_device->show();
+		ui->open_device->showup();
 	}
 }
 
@@ -387,21 +386,14 @@ bool PXK::ConnectPorts(bool autoconnect)
 		else
 		{
 			ConnectPorts(false); // get clean MIDI object
-			ui->open_device->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->open_device->w() / 2),
-					ui->main_window->y() + 80);
-			ui->open_device->show();
+			ui->open_device->showup();
 		}
 	}
 	else
 	{
 		if (!ui->open_device->shown())
-		{
-			ui->open_device->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->open_device->w() / 2),
-					ui->main_window->y() + 80);
-			ui->open_device->show();
-		}
+			ui->open_device->showup();
 	}
-	Fl::flush();
 	return true;
 }
 
@@ -789,7 +781,7 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 		switch (member_code)
 		{
 			case 2: // AUDITY
-				ui->main->b_audit->hide();
+				ui->main->b_audit->deactivate();
 				ui->m_audit->hide();
 				ui->main->g_riff->deactivate();
 				ui->preset_editor->g_riff->deactivate();
@@ -799,7 +791,7 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 				ui->preset_editor->pre_d->label("Delay");
 				break;
 			default:
-				ui->main->b_audit->show();
+				ui->main->b_audit->activate();
 				ui->m_audit->show();
 				ui->main->g_riff->activate();
 				ui->preset_editor->g_riff->activate();
@@ -1024,7 +1016,6 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 		else
 			ui->g_preset->deactivate();
 		display_status("Edit buffer synchronized.");
-		Fl::wait(.1);
 	}
 }
 

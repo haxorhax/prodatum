@@ -133,11 +133,13 @@ extern PWid* pwid_editing;
 class Double_Window: public Fl_Double_Window
 {
 	int handle(int event);
+	bool w__shown;
 public:
+	void showup();
 	Double_Window(int w, int h, char* const label = 0) :
 			Fl_Double_Window(w, h, label)
 	{
-		;
+		w__shown = false;
 	}
 };
 

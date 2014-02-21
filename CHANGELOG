@@ -2,9 +2,10 @@ v2.0v4
 
 * slightly changed knob design
 * changed default colors
-* small sync code tweaks/
+* sync code tweaks/
 * more sensible sysex delay options (including 0ms)
 * handle WAIT commands correctly
+* even better window handling
 
 
 v2.0rc3

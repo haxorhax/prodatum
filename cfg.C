@@ -70,18 +70,18 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_LOG_EVENTS_IN] = 0;
 	defaults[CFG_WINDOW_WIDTH] = 843;
 	defaults[CFG_WINDOW_HEIGHT] = 615;
-	defaults[CFG_BGR] = 134;
-	defaults[CFG_BGG] = 136;
-	defaults[CFG_BGB] = 149;
+	defaults[CFG_BGR] = 118;
+	defaults[CFG_BGG] = 119;
+	defaults[CFG_BGB] = 126;
 	defaults[CFG_BG2R] = 50;
 	defaults[CFG_BG2G] = 53;
 	defaults[CFG_BG2B] = 59;
-	defaults[CFG_FGR] = 220;
-	defaults[CFG_FGG] = 226;
-	defaults[CFG_FGB] = 238;
-	defaults[CFG_SLR] = 189;
-	defaults[CFG_SLG] = 198;
-	defaults[CFG_SLB] = 173;
+	defaults[CFG_FGR] = 229;
+	defaults[CFG_FGG] = 229;
+	defaults[CFG_FGB] = 229;
+	defaults[CFG_SLR] = 228;
+	defaults[CFG_SLG] = 240;
+	defaults[CFG_SLB] = 209;
 	defaults[CFG_INR] = 73;
 	defaults[CFG_ING] = 73;
 	defaults[CFG_INB] = 71;
@@ -318,5 +318,4 @@ void Cfg::apply(bool colors_only)
 	ui->log_events_out->value(option[CFG_LOG_EVENTS_OUT]);
 	ui->log_events_in->value(option[CFG_LOG_EVENTS_IN]);
 	ui->main_window->size(option[CFG_WINDOW_WIDTH], option[CFG_WINDOW_HEIGHT]);
-	Fl::wait();
 }

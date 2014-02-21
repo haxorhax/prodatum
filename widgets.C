@@ -194,6 +194,16 @@ int Double_Window::handle(int ev)
 	return Fl_Double_Window::handle(ev);
 }
 
+void Double_Window::showup()
+{
+	if (!w__shown && this != ui->main_window)
+	{
+		position(ui->main_window->x() + (ui->main_window->w() / 2) - (w() / 2), ui->main_window->y() + 80);
+		w__shown = true;
+	}
+	Fl_Double_Window::show();
+}
+
 int DND_Box::handle(int ev)
 {
 	switch (ev)
@@ -291,7 +301,7 @@ void Browser::set_value(int v)
 		}
 		else if (v >= 0)
 		{
-			Fl::wait(.1);
+			//Fl::wait(.1);
 			value(v + 1);
 		}
 		else
@@ -2038,7 +2048,7 @@ void Fl_Knob::draw()
 	// scale
 	(active_r()) ?
 			fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_BACKGROUND_COLOR, .8)) :
-			fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_BACKGROUND_COLOR, .4));
+			fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_BACKGROUND_COLOR, .6));
 	fl_pie(ox + 1, oy + 3, side - 2, side - 12, 0, 360);
 	draw_scale(ox, oy, side);
 	fl_color(FL_BACKGROUND_COLOR);
@@ -2055,7 +2065,7 @@ void Fl_Knob::draw()
 	if (active_r())
 		(selected) ? fl_color(FL_SELECTION_COLOR) : fl_color(FL_BACKGROUND2_COLOR);
 	else
-		fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .6));
+		fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .8));
 	fl_pie(ox + 10, oy + 10, side - 20, side - 20, 0, 360);
 	draw_cursor(ox, oy, side);
 	fl_pop_clip();
