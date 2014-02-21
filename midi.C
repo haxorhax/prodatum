@@ -266,7 +266,7 @@ static void process_midi(PtTimestamp, void*)
 			{
 				if (jack_ringbuffer_read(write_buffer, event, 3) == 3)
 				{
-					ev.message = Pm_Message(local_write_buffer[0], event[1], event[2]);
+					ev.message = Pm_Message(event[0], event[1], event[2]);
 					pmerror = Pm_Write(port_out, &ev, 1);
 					if (pmerror < 0)
 						show_error();
