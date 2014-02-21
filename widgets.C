@@ -300,10 +300,7 @@ void Browser::set_value(int v)
 			value(v + 2);
 		}
 		else if (v >= 0)
-		{
-			//Fl::wait(.1);
 			value(v + 1);
-		}
 		else
 			return;
 		apply_filter();

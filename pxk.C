@@ -880,8 +880,6 @@ unsigned char PXK::load_setup_names(unsigned char start)
 	if (start < 63)
 	{
 		midi->copy(C_SETUP, start, -1);
-		// let it think
-		mysleep(50);
 		midi->request_name(SETUP, start, 0);
 	}
 	else // last setup name

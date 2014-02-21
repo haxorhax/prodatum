@@ -697,16 +697,10 @@ int MIDI::connect_out(int port)
 		thru_active = false;
 		midi_active = false;
 		while (!process_midi_exit_flag)
-			mysleep(5);
+			mysleep(10);
 	}
 	if (!start_timer())
 		return 0;
-//	pmerror = Pm_Initialize(); // start portmidi
-//	if (pmerror < 0)
-//	{
-//		show_error();
-//		return 0;
-//	}
 	if (selected_port_out != -1)
 	{
 		pmerror = Pm_Close(port_out);
@@ -762,16 +756,10 @@ int MIDI::connect_in(int port)
 		process_midi_exit_flag = false;
 		midi_active = false;
 		while (!process_midi_exit_flag)
-			mysleep(5);
+			mysleep(10);
 	}
 	if (!start_timer())
 		return 0;
-//	pmerror = Pm_Initialize(); // start portmidi
-//	if (pmerror < 0)
-//	{
-//		show_error();
-//		return 0;
-//	}
 	if (selected_port_in != -1)
 	{
 		pmerror = Pm_Close(port_in);
@@ -832,18 +820,9 @@ int MIDI::connect_thru(int port)
 		return 0;
 	}
 	if (thru_active)
-	{
 		thru_active = false;
-		mysleep(20);
-	}
 	if (!start_timer())
 		return 0;
-//	pmerror = Pm_Initialize(); // start portmidi
-//	if (pmerror < 0)
-//	{
-//		show_error();
-//		return 0;
-//	}
 	if (selected_port_thru != -1)
 	{
 		pmerror = Pm_Close(port_thru);
@@ -988,8 +967,8 @@ void MIDI::write_event(int status, int value1, int value2, int channel) const
 	unsigned char stat = ((status & ~0xf) | channel) & 0xff;
 	const unsigned char msg[] =
 	{ stat, value1 & 0xff, value2 & 0xff };
-	while (jack_ringbuffer_write_space(write_buffer) < 3)
-		mysleep(2);
+	if (jack_ringbuffer_write_space(write_buffer) < 3)
+		return;
 	jack_ringbuffer_write(write_buffer, msg, 3);
 	// log midi events
 	if (cfg->get_cfg_option(CFG_LOG_EVENTS_OUT))
