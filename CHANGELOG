@@ -6,6 +6,8 @@ v2.0v4
 * more sensible sysex delay options (including 0ms)
 * handle WAIT commands correctly
 * even better window handling
+* fixed sync deadlock in OSX
+* increased max logsize (1mb)
 
 
 v2.0rc3

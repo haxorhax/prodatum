@@ -46,13 +46,14 @@ decl {extern PD_UI* ui;} {}
 
 decl {extern int automap;} {} 
 
-Function {logbuffer_cb(void*)} {private C return_type void
+Function {logbuffer_cb(void*)} {open private C return_type void
 } {
   code {if (ui->logbuf->length() >= LOG_BUFFER_SIZE)
-	ui->logbuf->remove(0, LOG_BUFFER_SIZE / 2);
+	ui->logbuf->remove(0, 10240);
 ui->log->insert_position(ui->logbuf->length());
 if (!ui->scroll_lock->value())
-	ui->log->show_insert_position();} {}
+	ui->log->show_insert_position();} {selected
+  }
 } 
 
 Function {initlog_cb(void*)} {private C return_type void
@@ -1541,7 +1542,7 @@ l2_filter->do_callback();}
   }
 } 
 
-widget_class PD_Main {open
+widget_class PD_Main {
   xywh {932 371 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
@@ -1665,7 +1666,7 @@ ui->m_audit->set();
 else
 ui->m_audit->clear();
 
-midi->audit();} selected
+midi->audit();}
         tooltip {Toggle audition} xywh {56 103 65 20} type Toggle down_box UP_BOX color 35 selection_color 72 labelsize 10 labelcolor 55 align 80 when 1
       }
       Fl_Button channel_enable {

@@ -1,12 +1,11 @@
 project(prodatum)
 cmake_minimum_required(VERSION 2.6)
 
-SET( VER 1.1.0 )
 SET( SYSEX_MAX_SIZE 1024 )
 SET( RINGBUFFER_WRITE 2048 )
 SET( RINGBUFFER_READ 2048 )
-SET( PATH_MAX 512 )
-SET( LOG_BUFFER_SIZE 48000 )
+SET( PATH_MAX 1024 )
+SET( LOG_BUFFER_SIZE 1048576 )
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/config.h.in ${CMAKE_SOURCE_DIR}/config.h )
 
 include_directories (${prodatum_SOURCE_DIR}/include)

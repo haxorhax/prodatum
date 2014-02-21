@@ -1,7 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
  
-#cmakedefine VER @VER@
 #cmakedefine SYSEX_MAX_SIZE @SYSEX_MAX_SIZE@
 #cmakedefine RINGBUFFER_WRITE @RINGBUFFER_WRITE@
 #cmakedefine RINGBUFFER_READ @RINGBUFFER_READ@
