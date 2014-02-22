@@ -2575,13 +2575,13 @@ delete this;} open
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
 delete this;} open
-      xywh {755 357 840 615} type Double hide resizable
+      xywh {700 331 845 615} type Double hide resizable
       code0 {o->label("prodatum");}
-      class Double_Window xclass prodatum size_range {674 492 843 615}
+      class Double_Window xclass prodatum size_range {674 492 845 615}
     } {
       Fl_Group {} {
-        label name
-        xywh {1 1 841 23} labeltype NO_LABEL
+        label name open
+        xywh {1 1 844 23} labeltype NO_LABEL
       } {
         Fl_Box {} {
           label resizable
@@ -2607,21 +2607,21 @@ pxk->preset->set_name(o->value(), 0, o->position());}
           label {:}
           callback {if (pxk->preset)
 pxk->preset->set_name(o->value(), 1, o->position());}
-          tooltip {Program name (12 characters max.) [CTRL+N to focus]} xywh {752 1 90 19} box FLAT_BOX labelfont 4 labelsize 12 when 1 textfont 4 textsize 12
+          tooltip {Program name (12 characters max.) [CTRL+N to focus]} xywh {752 1 92 19} box FLAT_BOX labelfont 4 labelsize 12 when 1 textfont 4 textsize 12
           code0 {o->maximum_size(12);}
           code2 {o->value("Program Name");}
           class Input
         }
       }
       Fl_Group {} {
-        label menu
+        label menu open
         xywh {1 1 420 23} labeltype NO_LABEL
       } {
         Fl_Box {} {
           label resizeable
           xywh {418 21 1 1} labeltype NO_LABEL resizable
         }
-        Fl_Menu_Bar {} {open
+        Fl_Menu_Bar {} {
           xywh {1 1 231 19} box FLAT_BOX color 7 labelsize 10 textsize 10
           code0 {o->global();}
         } {
@@ -3198,7 +3198,7 @@ else
           label VALUE
           xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8
         } {
-          Fl_Value_Output forma_out {
+          Fl_Value_Output forma_out {selected
             tooltip {Formatted value display} xywh {642 69 190 20} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 textfont 4 textsize 12
             class Formatted_Output
           }
@@ -3253,12 +3253,12 @@ if (!eall && pxk->preset)
             class MiniPiano
           }
         }
-        Fl_Group g_pfx {open
+        Fl_Group g_pfx {
           xywh {639 129 196 324} labeltype NO_LABEL labelcolor 8 align 0
         } {
           Fl_Group g_effects {
             label EFFECTS
-            tooltip {Effects section (it is disabled when the selected channel and the selected FX channel differ)} xywh {639 146 196 304} box THIN_DOWN_BOX labelfont 1 labelcolor 8 hide
+            tooltip {Effects section (it is disabled when the selected channel and the selected FX channel differ)} xywh {639 146 196 307} box THIN_DOWN_BOX labelfont 1 labelcolor 8 hide
           } {
             Fl_Choice fx_channel {open
               tooltip {FX Control Channel. When in multi mode, you can set this to "0" which applies the Master menu effects settings to all 16 MIDI channels. If you want more control, you can choose a channel  which applies the effects settings of the preset on the specified channel to all the other channels. Changing the preset on the specified channel changes the effect. If you are in Omni or Poly modes this parameter is disabled} xywh {649 151 82 21} down_box BORDER_BOX color 7 labeltype NO_LABEL align 0 textsize 13
@@ -3458,7 +3458,7 @@ Fl::focus(preset);
                 code0 {o->set_id(138);}
                 class ROM_Choice
               } {}
-              Fl_Browser preset {selected
+              Fl_Browser preset {
                 tooltip {Select a program to load for editing or, if either "COPY" or "SAVE" is active, double-click/Enter/Space target to copy/save (hold SHIFT to copy/save and return to preset selection mode).} xywh {649 178 176 241} type Hold when 4 textfont 4 textsize 12
                 code0 {o->set_id(897);}
                 class Browser
@@ -3740,7 +3740,7 @@ arp_name_changed = false;}
         }
       }
       Fl_Box {} {
-        xywh {1 1 841 66} labeltype NO_LABEL when 0
+        xywh {1 1 844 66} labeltype NO_LABEL when 0
         class DND_Box
       }
     }
