@@ -171,9 +171,6 @@ public:
 	void upload(int packet, int closed = -1, bool show = false);
 	/// save dump to disk
 	void save_file();
-	// get methods needed to clone preset dumps
-	int get_dump_size() const;
-	const unsigned char* get_data() const;
 };
 
 /**

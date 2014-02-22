@@ -40,7 +40,7 @@ extern PD_Arp_Step* arp_step[32];
  * @param msb most significant byte of value
  * @returns integer value
  */
-static int unibble(const unsigned char* lsb, const unsigned char* msb)
+static int inline unibble(const unsigned char* lsb, const unsigned char* msb)
 {
 	int raw_value;
 	raw_value = (*msb * 128) + *lsb;
@@ -63,7 +63,6 @@ Preset_Dump::Preset_Dump(int dump_size, const unsigned char* dump_data, int p_si
 	(size > 1607) ? extra_controller = 4 : extra_controller = 0;
 	(size == 1605) ? a2k = 1 : a2k = 0;
 	number = pxk->selected_preset;
-	pmesg("preset value: %d\n", number);
 	rom_id = pxk->selected_preset_rom;
 	if (dump_data)
 	{
@@ -71,7 +70,6 @@ Preset_Dump::Preset_Dump(int dump_size, const unsigned char* dump_data, int p_si
 		memcpy(data, dump_data, size);
 		snprintf((char*) name, 17, "%s", data + DUMP_HEADER_SIZE + 9);
 	}
-	pmesg("preset name: %s\n", name);
 	// silently update outside name changes
 	if (update)
 	{
@@ -146,16 +144,6 @@ int Preset_Dump::get_value(int id, int layer) const
 	if (offset == 0)
 		return -999;
 	return unibble(data + offset, data + offset + 1);
-}
-
-int Preset_Dump::get_dump_size() const
-{
-	return size;
-}
-
-const unsigned char* Preset_Dump::get_data() const
-{
-	return data;
 }
 
 int Preset_Dump::set_value(int id, int value, int layer)
@@ -381,7 +369,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		show_preset = show;
 		update_checksum();
 		if (closed_loop)
-			pxk->Loading(); // TODO
+			pxk->Loading();
 	}
 	ui->progress->value((float) status);
 	if (closed_loop)
@@ -683,7 +671,7 @@ void Preset_Dump::add_undo(int id, int value, int layer)
 {
 	if (disable_add_undo)
 		return;
-	pmesg("Preset_Dump::add_undo(%d, %d, %d)\n", id, value, layer);
+	//pmesg("Preset_Dump::add_undo(%d, %d, %d)\n", id, value, layer);
 	parameter changed, prev_changed;
 	// envelopes are special because we change 2 values at once
 	// and on undo we want to change both back at once
@@ -738,7 +726,7 @@ void Preset_Dump::undo()
 {
 	if (!undo_s.empty())
 	{
-		pmesg("Preset_Dump::undo()\n");
+		//pmesg("Preset_Dump::undo()\n");
 		// 10000 undos max! ")
 		if (undo_s.size() > 10000)
 			undo_s.pop_back();
@@ -776,7 +764,7 @@ void Preset_Dump::redo()
 {
 	if (!redo_s.empty())
 	{
-		pmesg("Preset_Dump::redo()\n");
+		//pmesg("Preset_Dump::redo()\n");
 		bool repeat = true;
 		Redo:
 		// save current value for undo
@@ -939,7 +927,7 @@ int Arp_Dump::get_number() const
 
 void Arp_Dump::show() const
 {
-	pmesg("Arp_Dump::show()\n");
+	//pmesg("Arp_Dump::show()\n");
 	// fill name field
 	update_name(name);
 	int offset;
@@ -969,7 +957,7 @@ void Arp_Dump::show() const
 
 void Arp_Dump::update_sequence_length_information() const
 {
-	pmesg("Arp_Dump::update_sequence_length_information()\n");
+	//pmesg("Arp_Dump::update_sequence_length_information()\n");
 	int tick[19] =
 	{ 6, 8, 9, 12, 16, 18, 24, 32, 36, 48, 64, 72, 96, 128, 144, 192, 256, 288, 384 };
 	unsigned char i = 0;
@@ -1029,7 +1017,7 @@ void Arp_Dump::rename(const char* newname) const
 
 void Arp_Dump::update_name(const unsigned char* np) const
 {
-	pmesg("Arp_Dump::update_name(%s)\n", np);
+	//pmesg("Arp_Dump::update_name(%s)\n", np);
 	pxk->rom[0]->set_name(ARP, number, np);
 	ui->copy_arp_pattern_browser->load_n(ARP, 0, number);
 	if (ui->preset_editor->arp_rom->value() == 0)
@@ -1342,7 +1330,7 @@ ROM::~ROM()
 
 void ROM::load_name(unsigned char type, int number)
 {
-	pmesg("ROM(%d)::load_name(type %d, number %d) \n", id, type, number);
+	//pmesg("ROM(%d)::load_name(type %d, number %d) \n", id, type, number);
 	// for rom arps we need to use arp dumps
 	if (type == ARP && id != 0)
 		midi->request_arp_dump(number, id);
@@ -1352,7 +1340,7 @@ void ROM::load_name(unsigned char type, int number)
 
 int ROM::disk_load_names(unsigned char type)
 {
-	pmesg("ROM::disk_load_names(type: %d)  \n", type);
+	//pmesg("ROM::disk_load_names(type: %d)  \n", type);
 	const char* path = cfg->get_config_dir();
 	char filename[PATH_MAX];
 	int* number;
@@ -1426,7 +1414,7 @@ int ROM::disk_load_names(unsigned char type)
 
 int ROM::set_name(int type, int number, const unsigned char* name)
 {
-	pmesg("ROM::set_name(type: %d, #: %d, name) (id: %d) \n", type, number, id);
+	//pmesg("ROM::set_name(type: %d, #: %d, name) (id: %d) \n", type, number, id);
 	switch (type)
 	{
 		case INSTRUMENT:
@@ -1499,7 +1487,7 @@ int ROM::set_name(int type, int number, const unsigned char* name)
 
 const unsigned char* ROM::get_name(int type, int number) const
 {
-	pmesg("ROM::get_name(type: %d, #: %d)  \n", type, number);
+	//pmesg("ROM::get_name(type: %d, #: %d)  \n", type, number);
 	switch (type)
 	{
 		case INSTRUMENT:
@@ -1539,7 +1527,7 @@ const unsigned char* ROM::get_name(int type, int number) const
 
 int ROM::get_attribute(int type) const
 {
-	pmesg("ROM::get_attribute(type: %d)  \n", type);
+	//pmesg("ROM::get_attribute(type: %d)  \n", type);
 	switch (type)
 	{
 		case ID:

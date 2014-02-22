@@ -178,7 +178,6 @@ static void process_midi(PtTimestamp, void*)
 							local_read_buffer[1] = (position - 3) / 128;
 							local_read_buffer[2] = (position - 3) % 128;
 							jack_ringbuffer_write(read_buffer, local_read_buffer, position);
-							got_answer = true;
 #ifndef WIN32
 							write(p[1], " ", 1);
 #endif
@@ -303,8 +302,6 @@ static void process_midi_in(void*)
 			// e-mu sysex
 			if (sysex[1] == 0x18)
 			{
-				if (cfg->get_cfg_option(CFG_LOG_SYSEX_IN))
-					pxk->log_add(sysex, len, 1);
 				switch (sysex[5])
 				{
 					case 0x70: // error
@@ -320,7 +317,10 @@ static void process_midi_in(void*)
 						break;
 
 					case 0x7b: // EOF
-						pxk->incoming_EOF();
+						got_answer = true;
+						requested = false;
+						pxk->display_status("Edit buffer synchronized.");
+						ui->loading_w->hide();
 						break;
 
 					case 0x7d: // CANCEL
@@ -328,7 +328,7 @@ static void process_midi_in(void*)
 						break;
 
 					case 0x09: // hardware configuration
-						if (requested)
+						if (!pxk->Synchronized() && requested)
 						{
 							requested = false;
 							pxk->incoming_hardware_config(sysex, len);
@@ -336,19 +336,29 @@ static void process_midi_in(void*)
 						break;
 
 					case 0x0b: // generic name
-						pxk->incoming_generic_name(sysex);
+						if (!pxk->Synchronized())
+						{
+							got_answer = true;
+							pxk->incoming_generic_name(sysex);
+						}
 						break;
 
 					case 0x1c: // setup dumps
 						if (requested)
 						{
+							got_answer = true;
 							requested = false;
 							pxk->incoming_setup_dump(sysex, len);
 						}
 						break;
 
 					case 0x18: // arp pattern dump
-						pxk->incoming_arp_dump(sysex, len);
+						if (requested)
+						{
+							got_answer = true;
+							requested = false;
+							pxk->incoming_arp_dump(sysex, len);
+						}
 						break;
 
 					case 0x10: // preset dumps
@@ -360,10 +370,15 @@ static void process_midi_in(void*)
 									pxk->incoming_preset_dump(sysex, len);
 									break;
 								case 0x02: // dump data (closed)
+									pxk->incoming_preset_dump(sysex, len);
+									break;
 								case 0x04: // dump data (open)
 									pxk->incoming_preset_dump(sysex, len);
 									if (len < 255) // last packet
+									{
+										got_answer = true;
 										requested = false;
+									}
 									break;
 							}
 						break;
@@ -382,19 +397,22 @@ static void process_midi_in(void*)
 #endif
 						break;
 				}
+				if (cfg->get_cfg_option(CFG_LOG_SYSEX_IN))
+					pxk->log_add(sysex, len, 1);
 			}
 			// universal sysex
 			else if (sysex[1] == 0x7e)
 			{
 				pmesg("process_midi_in: received MIDI standard universal message: ");
-				if (cfg->get_cfg_option(CFG_LOG_SYSEX_IN))
-					pxk->log_add(sysex, len, 1);
 				// device inquiry
 				if (sysex[3] == 0x06 && sysex[4] == 0x02 && sysex[5] == 0x18)
 				{
 					pmesg("device inquiry response\n");
-					pxk->incoming_inquiry_data(sysex, len);
+					if (!pxk->Synchronized())
+						pxk->incoming_inquiry_data(sysex, len);
 				}
+				if (cfg->get_cfg_option(CFG_LOG_SYSEX_IN))
+					pxk->log_add(sysex, len, 1);
 			}
 #ifndef NDEBUG
 			else
@@ -936,7 +954,7 @@ void MIDI::filter_strict() const
 
 void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 {
-	pmesg("MIDI::write_sysex(data, len: %d)\n", len);
+	//pmesg("MIDI::write_sysex(data, len: %d)\n", len);
 	static unsigned int count = 0;
 	static unsigned char data[SYSEX_MAX_SIZE];
 	if (!midi_active || len > SYSEX_MAX_SIZE)
@@ -958,7 +976,7 @@ void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 
 void MIDI::write_event(int status, int value1, int value2, int channel) const
 {
-	pmesg("MIDI::write_event(%X, %X, %X, %d)\n", status, value1, value2, channel);
+	//pmesg("MIDI::write_event(%X, %X, %X, %d)\n", status, value1, value2, channel);
 	static unsigned long count = 0;
 	if (!midi_active)
 		return;
@@ -1010,6 +1028,7 @@ void MIDI::wait() const
 void MIDI::eof() const
 {
 	pmesg("MIDI::eof() \n");
+	got_answer = true;
 	unsigned char endof[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7b, 0xf7 };
 	write_sysex(endof, 7);
@@ -1060,11 +1079,12 @@ void MIDI::request_arp_dump(int number, int rom_id) const
 	unsigned char request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x19, number % 128, number / 128, rom_id % 128, rom_id / 128, 0xf7 };
 	write_sysex(request, 11);
+	requested = true;
 }
 
 void MIDI::request_name(int type, int number, int rom_id) const
 {
-	pmesg("MIDI::request_name(type: %d, #: %d, rom_id: %d)\n", type, number, rom_id);
+	//pmesg("MIDI::request_name(type: %d, #: %d, rom_id: %d)\n", type, number, rom_id);
 	unsigned char request[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x0c, type, number % 128, number / 128, rom_id % 128, rom_id / 128, 0xf7 };
 	write_sysex(request, 12);
@@ -1072,7 +1092,7 @@ void MIDI::request_name(int type, int number, int rom_id) const
 
 void MIDI::edit_parameter_value(int id, int value) const
 {
-	pmesg("MIDI::edit_parameter_value(id: %d, value: %d) \n", id, value);
+	//pmesg("MIDI::edit_parameter_value(id: %d, value: %d) \n", id, value);
 	static unsigned char plsb, pmsb, vlsb, vmsb;
 	if (id < 0)
 		id += 16384;

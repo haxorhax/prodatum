@@ -196,7 +196,7 @@ void Cfg::set_cfg_option(int opt, int value)
 
 int Cfg::get_cfg_option(int opt) const
 {
-	pmesg("Cfg::get_cfg_option(%d)  \n", opt);
+	//pmesg("Cfg::get_cfg_option(%d)  \n", opt);
 	if (opt < NOOPTION && opt >= 0)
 		if (opt == CFG_SPEED)
 			return option[CFG_SPEED] * option[CFG_SPEED] * 10;
@@ -217,7 +217,7 @@ int Cfg::getset_default(int opt)
 
 const char* Cfg::get_config_dir() const
 {
-	pmesg("Cfg::get_config_dir()  \n");
+	//pmesg("Cfg::get_config_dir()  \n");
 	return config_dir;
 }
 

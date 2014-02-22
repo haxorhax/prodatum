@@ -61,7 +61,7 @@ int dismiss(char exit)
 // ###################
 void PWid::cb(PWid*, void* p)
 {
-	pmesg("cb: id: %d, layer: %d\n", ((int*) p)[0], ((int*) p)[1]);
+	//pmesg("cb: id: %d, layer: %d\n", ((int*) p)[0], ((int*) p)[1]);
 	if (((int*) p)[0] == 897 && (ui->b_save_p->value() || ui->b_copy_p->value())) // saving in the preset browser
 		goto SKIP_DISMISS;
 	if ((((int*) p)[0] == 129 || ((int*) p)[0] == 138 || ((int*) p)[0] == 897) && dismiss(0) != 1)
@@ -278,7 +278,7 @@ int Browser::get_value() const
 
 void Browser::set_value(int v)
 {
-	pmesg("Browser::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
+	//pmesg("Browser::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
 	if (size() > v)
 	{
 		if ((id_layer[0] == 1281 || id_layer[0] == 1290) && v >= -1) // preset links
@@ -402,7 +402,7 @@ void Browser::set_filter(const char* fs)
 
 void Browser::apply_filter()
 {
-	pmesg("Browser::apply_filter() (id:%d layer:%d)\n", id_layer[0], id_layer[1]);
+	//pmesg("Browser::apply_filter() (id:%d layer:%d)\n", id_layer[0], id_layer[1]);
 	if (!size() || !filter)
 		return;
 	int val = value();
@@ -668,8 +668,6 @@ void ROM_Choice::set_id(int v, int l)
 
 void ROM_Choice::set_value(int v)
 {
-	if (id_layer[0] == 1439)
-		pmesg("ROM_Choice::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
 	if (v == 0 || pxk->get_rom_index(v) != -1)
 	{
 		value(pxk->get_rom_index(v) - no_user);

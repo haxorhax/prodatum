@@ -2574,8 +2574,8 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
-      xywh {633 289 840 615} type Double hide resizable
+delete this;} open
+      xywh {755 357 840 615} type Double hide resizable
       code0 {o->label("prodatum");}
       class Double_Window xclass prodatum size_range {674 492 843 615}
     } {
@@ -3373,7 +3373,7 @@ if (!eall && pxk->preset)
               }
             }
           }
-          Fl_Group g_preset {selected
+          Fl_Group g_preset {open
             xywh {639 129 196 321} labeltype NO_LABEL align 0 deactivate
           } {
             Fl_Button b_copy_p {
@@ -3458,7 +3458,7 @@ Fl::focus(preset);
                 code0 {o->set_id(138);}
                 class ROM_Choice
               } {}
-              Fl_Browser preset {
+              Fl_Browser preset {selected
                 tooltip {Select a program to load for editing or, if either "COPY" or "SAVE" is active, double-click/Enter/Space target to copy/save (hold SHIFT to copy/save and return to preset selection mode).} xywh {649 178 176 241} type Hold when 4 textfont 4 textsize 12
                 code0 {o->set_id(897);}
                 class Browser
@@ -4262,7 +4262,8 @@ if (((Fl_Button*) o->array()[i])->value())
     }
     Fl_Window copy_layer {
       label Copy
-      xywh {699 509 310 100} type Double box BORDER_BOX hide modal xclass prodatum
+      xywh {699 509 310 100} type Double box BORDER_BOX hide
+      class Double_Window modal xclass prodatum
     } {
       Fl_Group layer_dst {
         label TARGET open
@@ -4328,8 +4329,9 @@ o->deactivate();
       }
     }
     Fl_Window copy_preset {
-      label Copy
-      xywh {901 209 215 370} type Double box BORDER_BOX hide modal xclass prodatum
+      label Copy open
+      xywh {512 211 215 370} type Double box BORDER_BOX hide
+      class Double_Window modal xclass prodatum
     } {
       Fl_Group g_copy_preset {
         label DESTINATION open
@@ -4348,6 +4350,7 @@ o->deactivate();
           label {F }
           callback {copy_browser->set_filter(o->value());}
           xywh {36 300 129 20} box UP_BOX labelsize 12 when 1 textfont 4 textsize 12
+          code0 {o->maximum_size(16);}
           code1 {o->tooltip(filter_tooltip);}
           class Input
         }
@@ -4363,14 +4366,15 @@ copy_browser_filter->do_callback();}
         xywh {10 22 196 304} box THIN_DOWN_BOX labelfont 1 labelcolor 15 hide
       } {
         Fl_Browser copy_arp_pattern_browser {
-          tooltip {Execute Copy/Save command by either double clicking or pressing Enter or Space on the target. ESC/Backspace cancels.} xywh {20 29 176 266} type Hold when 1 textfont 4 textsize 12 textcolor 49
+          tooltip {Execute Copy/Save command by either double clicking or pressing Enter or Space on the target. ESC/Backspace cancels.} xywh {20 29 176 266} type Hold when 1 textfont 4 textsize 12
           class Browser
         }
         Fl_Input copy_arp_pattern_browser_filter {
           label {F }
           callback {copy_arp_pattern_browser->set_filter(o->value());}
-          xywh {36 300 129 20} box UP_BOX labelsize 10 labelcolor 7 when 1 textfont 5 textsize 12 textcolor 49
+          xywh {36 300 129 20} box UP_BOX labelsize 12 when 1 textfont 4 textsize 12
           code0 {o->tooltip(filter_tooltip);}
+          code1 {o->maximum_size(16);}
           class Input
         }
         Fl_Button {} {

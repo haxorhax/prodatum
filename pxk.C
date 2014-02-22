@@ -46,7 +46,7 @@ volatile static int init_progress;
 
 void PXK::widget_callback(int id, int value, int layer)
 {
-	pmesg("PXK::widget_callback(%d, %d, %d) \n", id, value, layer);
+	//pmesg("PXK::widget_callback(%d, %d, %d) \n", id, value, layer);
 	if (!setup)
 		return;
 	// browser returns -1 when user clicked on empty space
@@ -241,7 +241,7 @@ void PXK::widget_callback(int id, int value, int layer)
 
 void PXK::cc_callback(int controller, int value)
 {
-	pmesg("PXK::cc_callback(%d, %d) \n", controller, value);
+	//pmesg("PXK::cc_callback(%d, %d) \n", controller, value);
 	midi->write_event(0xb0, ctrl_to_cc[controller], value, selected_channel);
 	if (!cc_changed && controller < 13)
 	{
@@ -294,11 +294,12 @@ PXK::~PXK()
 {
 	pmesg("PXK::~PXK()\n");
 	save_setup_names();
-	unsigned char i;
-	for (i = 0; i < 4; i++)
-		// unmute eventually muted voices
-		mute(0, i);
-	for (i = 0; i <= roms; i++)
+	// unmute eventually muted voices
+	mute(0, 0);
+	mute(0, 1);
+	mute(0, 2);
+	mute(0, 3);
+	for (unsigned char i = 0; i <= roms; i++)
 		if (rom[i])
 			delete rom[i];
 	if (preset)
@@ -508,7 +509,7 @@ static void sync_bro(void* p)
 				if (--countdown == 0) // timeout
 				{
 #ifndef NDEBUG
-				ui->init_log->append("\nsync_bro: timeout syncing setup name. Giving up.\n");
+					ui->init_log->append("\nsync_bro: timeout syncing setup name. Giving up.\n");
 #endif
 					timed_out = true;
 					goto Club;
@@ -623,7 +624,7 @@ static void sync_bro(void* p)
 							goto Club;
 						}
 #ifndef NDEBUG
-							ui->init_log->append("\nsync_bro: timed out syncing RIFF/ARP name. Skipping.\n");
+						ui->init_log->append("\nsync_bro: timed out syncing RIFF/ARP name. Skipping.\n");
 #endif
 						name_set_incomplete = false; // stop requesting arp/riff names
 					}
@@ -726,7 +727,7 @@ bool PXK::Synchronized() const
 
 void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned char io) const
 {
-	pmesg("PXK::log_add(sysex, %d, %d)\n", len, io);
+	//pmesg("PXK::log_add(sysex, %d, %d)\n", len, io);
 	static unsigned int count_i = 0;
 	static unsigned int count_o = 0;
 	char* buf = new char[2 * len + 18];
@@ -807,11 +808,14 @@ char PXK::get_rom_index(char id) const
 {
 	if (id == 0)
 		return 0;
-	for (unsigned char i = 1; i < 5; i++)
-	{
-		if (rom_index[i] == id)
-			return i;
-	}
+	if (rom_index[1] == id)
+		return 1;
+	if (rom_index[2] == id)
+		return 2;
+	if (rom_index[3] == id)
+		return 3;
+	if (rom_index[4] == id)
+		return 4;
 	return -1;
 }
 
@@ -1005,7 +1009,6 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 	}
 	if (dump_pos == 0)
 	{
-		ui->loading_w->hide();
 		show_preset();
 		// only activate preset selection if program
 		// change is enabled for the channel
@@ -1013,7 +1016,11 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 			ui->g_preset->activate();
 		else
 			ui->g_preset->deactivate();
-		display_status("Edit buffer synchronized.");
+		if (!closed_loop) // close when EOF is received
+		{
+			ui->loading_w->hide();
+			display_status("Edit buffer synchronized.");
+		}
 	}
 }
 
@@ -1131,7 +1138,7 @@ void PXK::incoming_generic_name(const unsigned char* data)
 		return;
 	}
 	int number = data[7] + 128 * data[8];
-	pmesg("PXK::incoming_generic_name(data) (#:%d-%d, type:%d)\n", number, data[9] + 128 * data[10], type);
+	//pmesg("PXK::incoming_generic_name(data) (#:%d-%d, type:%d)\n", number, data[9] + 128 * data[10], type);
 	// number of riffs unknown
 	if (type == RIFF)
 		if (number > MAX_RIFFS || (data[11] == 'f' && data[12] == 'f') || data[11] < 32)
@@ -1148,7 +1155,7 @@ void PXK::incoming_generic_name(const unsigned char* data)
 
 void PXK::incoming_arp_dump(const unsigned char* data, int len)
 {
-	pmesg("PXK::incoming_arp_dump(data, %d)\n", len);
+	//pmesg("PXK::incoming_arp_dump(data, %d)\n", len);
 	if (!synchronized || ui->init->shown()) // init
 	{
 #ifndef NDEBUG
@@ -1185,7 +1192,6 @@ void PXK::incoming_arp_dump(const unsigned char* data, int len)
 		int rom_id = data[len - 3] + 128 * data[len - 2];
 		if (get_rom_index(rom_id) != -1)
 		{
-			pmesg("PXK::incoming_arp_dump(len:%d) (#:%d-%d)\n ", len, number, data[len - 3] + 128 * data[len - 2]);
 			rom[get_rom_index(rom_id)]->set_name(ARP, number, data + 14);
 			++init_progress;
 		}
@@ -1231,11 +1237,6 @@ void PXK::incoming_CANCEL()
 {
 	pmesg("PXK::incoming_CANCEL() \n");
 	display_status("Received CANCEL.");
-}
-
-void PXK::incoming_EOF()
-{
-	pmesg("PXK::incoming_EOF() \n");
 }
 
 void PXK::set_setup_name(unsigned char number, const unsigned char* name)
@@ -1396,7 +1397,7 @@ int PXK::test_checksum(const unsigned char* data, int size, int packet_size)
 	sum = 0;
 	if (errors)
 		sum = fl_choice("Checksum test failed! Import anyway?\n"
-				"Note: This may crash prodatum.", "Import", "No", 0);
+				"Note: This may work and cause exceptional results.", "Import", "No", 0);
 	return sum;
 }
 
@@ -1478,7 +1479,6 @@ void PXK::load_export(const char* filename)
 	preset->upload(0, cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD));
 	show_preset();
 	delete[] sysex;
-	return;
 }
 
 void PXK::create_device_info()
@@ -1941,7 +1941,7 @@ void PXK::update_fx_values(int id, int value) const
 
 void PXK::mute(int state, int layer)
 {
-	pmesg("PXK::mute(%d, %d)\n", state, layer);
+	//pmesg("PXK::mute(%d, %d)\n", state, layer);
 	if (!preset)
 		return;
 	if (state)
@@ -1985,7 +1985,7 @@ void PXK::mute(int state, int layer)
 
 void PXK::solo(int state, int layer)
 {
-	pmesg("PXK::solo(%d, %d)\n", state, layer);
+	//pmesg("PXK::solo(%d, %d)\n", state, layer);
 	if (state)
 	{
 		is_solo[layer] = 1;
