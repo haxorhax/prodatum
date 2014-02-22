@@ -2574,7 +2574,7 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open
+delete this;}
       xywh {700 331 845 615} type Double hide resizable
       code0 {o->label("prodatum");}
       class Double_Window xclass prodatum size_range {674 492 845 615}
@@ -3198,7 +3198,7 @@ else
           label VALUE
           xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8
         } {
-          Fl_Value_Output forma_out {selected
+          Fl_Value_Output forma_out {
             tooltip {Formatted value display} xywh {642 69 190 20} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 textfont 4 textsize 12
             class Formatted_Output
           }
@@ -3746,7 +3746,7 @@ arp_name_changed = false;}
     }
     Fl_Window init {
       label Synchronizing
-      callback {;}
+      callback {;} open
       xywh {665 387 290 130} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Box {} {
@@ -3762,8 +3762,7 @@ arp_name_changed = false;}
       }
       Fl_Button {} {
         label Cancel
-        callback {Cancel();
-init_log_w->show();}
+        callback {Cancel();} selected
         xywh {210 95 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20
       }
       Fl_Button init_log_b {

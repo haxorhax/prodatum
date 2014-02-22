@@ -403,13 +403,11 @@ static void sync_police(void* synced)
 	if (timed_out) // init timeout
 	{
 		ui->init->hide();
+#ifndef NDEBUG
 		fl_alert("Sync failed. Please send the init log to rdxesy@@yahoo.de and check your cables + MIDI drivers etc.");
 		if (!ui->init_log_w->shown())
-		{
-			ui->init_log_w->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->init_log_w->w() / 2),
-					ui->main_window->y() + 80);
-			ui->init_log_w->show();
-		}
+			ui->init_log_w->showup();
+#endif
 		return;
 	}
 	if (!(*(bool*) synced))

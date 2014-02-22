@@ -61,7 +61,7 @@ static void process_midi(PtTimestamp, void*);
  * is available. on windows and mac this is a timeout function, repeated
  * until we close our MIDI ports
  */
-#ifndef WIN32
+#ifdef __linux
 static void process_midi_in(int fd, void*);
 static int p[2];
 #else
@@ -178,7 +178,7 @@ static void process_midi(PtTimestamp, void*)
 							local_read_buffer[1] = (position - 3) / 128;
 							local_read_buffer[2] = (position - 3) % 128;
 							jack_ringbuffer_write(read_buffer, local_read_buffer, position);
-#ifndef WIN32
+#ifdef __linux
 							write(p[1], " ", 1);
 #endif
 							receiving_sysex = false;
@@ -199,7 +199,7 @@ static void process_midi(PtTimestamp, void*)
 					event[2] = Pm_MessageData2(ev.message);
 					event[3] = 0;
 					jack_ringbuffer_write(read_buffer, event, 4);
-#ifndef WIN32
+#ifdef __linux
 					write(p[1], " ", 1);
 #endif
 					break;
@@ -228,7 +228,7 @@ static void process_midi(PtTimestamp, void*)
 						event[3] = 1;
 						// write to ringbuffer for internal processing
 						jack_ringbuffer_write(read_buffer, event, 4);
-#ifndef WIN32
+#ifdef __linux
 						write(p[1], " ", 1);
 #endif
 						ev.message = Pm_Message(event[0], event[1], event[2]);
@@ -275,7 +275,7 @@ static void process_midi(PtTimestamp, void*)
 	} while (result_out);
 }
 
-#ifndef WIN32
+#ifdef __linux
 static void process_midi_in(int fd, void*)
 #else
 static void process_midi_in(void*)
@@ -286,12 +286,12 @@ static void process_midi_in(void*)
 	static unsigned char sysex[SYSEX_MAX_SIZE];
 	static unsigned int len;
 	unsigned char poll = 0;
-#ifndef WIN32
+#ifdef __linux
 	static char buf;
 #endif
 	while (midi_active && jack_ringbuffer_peek(read_buffer, &poll, 1) == 1)
 	{
-#ifndef WIN32
+#ifdef __linux
 		read(fd, &buf, 1);
 #endif
 		if (poll == MIDI_SYSEX)
@@ -482,9 +482,6 @@ static void process_midi_in(void*)
 						v |= event[1];
 						ui->pitchwheel->value((double) v);
 					}
-						break;
-					default:
-						;
 				}
 			}
 			else // controller event
@@ -551,7 +548,7 @@ static void process_midi_in(void*)
 			}
 		}
 	}
-#ifdef WIN32
+#ifndef __linux
 	if (timer_running)
 	Fl::repeat_timeout(.01, process_midi_in);
 #endif
@@ -570,7 +567,7 @@ MIDI::MIDI()
 	port_in = 0;
 	selected_port_thru = -1;
 	port_thru = 0;
-#ifndef WIN32
+#ifdef __linux
 	if (pipe(p) == -1)
 		fprintf(stderr, "*** Could not open pipe\n%s", strerror(errno));
 #endif
@@ -638,7 +635,7 @@ int MIDI::start_timer()
 		return 1;
 	pmesg("MIDI::start_timer()\n");
 	// initialize timout or filedescriptors for IPC
-#ifndef WIN32
+#ifdef __linux
 	Fl::add_fd(p[0], process_midi_in);
 #else
 	Fl::add_timeout(0, process_midi_in);
@@ -646,7 +643,7 @@ int MIDI::start_timer()
 	// start timer, clean up if we couldnt
 	if (Pt_Start(1, &process_midi, 0) < 0)
 	{
-#ifndef WIN32
+#ifdef __linux
 		Fl::remove_fd(p[0]);
 		close(p[0]);
 		close(p[1]);
@@ -678,7 +675,7 @@ void MIDI::stop_timer()
 	midi_active = false;
 	while (!process_midi_exit_flag)
 		mysleep(10);
-#ifndef WIN32
+#ifdef __linux
 	Fl::remove_fd(p[0]);
 	close(p[0]);
 	close(p[1]);
