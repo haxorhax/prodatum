@@ -22,7 +22,6 @@ endif(WIN32)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   ADD_DEFINITIONS(-DOSX -DUSE_MLOCK)
-  set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
   set(ADDITIONAL_LIBRARIES "-framework Carbon -framework ApplicationServices -framework CoreMIDI -framework CoreAudio")
 endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
