@@ -2067,8 +2067,8 @@ void PXK::save_setup(int dst, const char* newname)
 	char name[17];
 	snprintf(name, 17, "%s                ", newname);
 	bool updated = false;
-	for (int i = 0; i < 16; i++)
-		if (!isascii(name[i]))
+	for (unsigned char i = 0; i < 16; i++)
+		if (name[i] < (0x20 & 0x7f) || name[i] > (0x7e & 0x7f))
 		{
 			name[i] = ' ';
 			updated = true;

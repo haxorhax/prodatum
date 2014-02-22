@@ -184,8 +184,9 @@ int Preset_Dump::set_value(int id, int value, int layer)
 // type 0 = category, type 1 = name
 void Preset_Dump::set_name(const char* val, int type, int position)
 {
-	int len;
-	int offset;
+	unsigned char len;
+	unsigned char offset;
+	unsigned char i;
 	if (type == 0) //category
 	{
 		len = 3;
@@ -202,18 +203,18 @@ void Preset_Dump::set_name(const char* val, int type, int position)
 	char buf[30];
 	bool updated = false;
 	snprintf(buf, len + 1, "%s              ", val);
-	for (int i = 0; i < len; i++)
-		if (!isascii(buf[i]))
+	for (i = 0; i < len; i++)
+		if (buf[i] < (0x20 & 0x7f) || buf[i] > (0x7e & 0x7f))
 		{
-			buf[i] = '_';
+			buf[i] = 0x5f;
 			updated = true;
 			break;
 		}
 	// update internal data
-	for (int j = 0; j < len; j++)
+	for (i = 0; i < len; i++)
 	{
-		name[j + offset] = buf[j];
-		set_value(899 + j + offset, name[j + offset]);
+		name[i + offset] = buf[i];
+		set_value(899 + i + offset, name[i + offset]);
 	}
 	// update ui
 	if (updated)
@@ -234,7 +235,7 @@ void Preset_Dump::set_name(const char* val, int type, int position)
 	snprintf(buf, 30, "%02d.%03d.%d %s", rom_id, number % 128, number / 128, name);
 	ui->main->preset_name->copy_label((char*) buf);
 	// update the name on the device, just for fun
-	for (int i = offset; i < len + offset; i++)
+	for (i = offset; i < len + offset; i++)
 		midi->edit_parameter_value(899 + i, *(name + i));
 }
 
@@ -1008,8 +1009,8 @@ void Arp_Dump::rename(const char* newname) const
 	snprintf((char*) buf, 17, "%s                 ", newname);
 	for (unsigned char i = 0; i < 12; i++)
 	{
-		if (!isascii(buf[i]))
-			buf[i] = ' ';
+		if (buf[i] < (0x20 & 0x7f) || buf[i] > (0x7e & 0x7f))
+			buf[i] = 0x32;
 		midi->edit_parameter_value(771 + i, buf[i]);
 	}
 	update_name(buf);

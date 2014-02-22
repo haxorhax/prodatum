@@ -407,13 +407,14 @@ void Browser::apply_filter()
 		return;
 	int val = value();
 	static char f[19];
-	if (strlen(filter))
+	unsigned int i;
+	int l = snprintf(f, 19, "*%s*", filter);
+	if (l > 2)
 	{
-		snprintf(f, 19, "*%s*", filter);
-		for (int i = 0; i < (int) strlen(f); i++)
-			if (!isascii(f[i]))
-				f[i] = '?';
-		for (int i = 1; i <= size(); i++)
+		for (i = 1; i < l - 1; i++)
+			if (f[i] < (0x20 & 0x7f) || f[i] > (0x7e & 0x7f))
+				f[i] = 0x3f;
+		for (i = 1; i <= size(); i++)
 		{
 			if (fl_filename_match(text(i), f))
 				show(i);
@@ -422,7 +423,7 @@ void Browser::apply_filter()
 		}
 	}
 	else
-		for (int i = 1; i <= size(); i++)
+		for (i = 1; i <= size(); i++)
 			show(i);
 	// scroll the list
 	if (val > 0)
