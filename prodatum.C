@@ -91,6 +91,7 @@ int main(int argc, char *argv[])
 	ui->init_log_b->hide();
 	ui->init_log_m->hide();
 #endif
+	ui->main_window->free_position();
 	ui->main_window->show();
 	pxk = new PXK(__auto_connect, __device);
 	if (!pxk)
