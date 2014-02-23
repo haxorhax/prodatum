@@ -2574,10 +2574,10 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
-      xywh {700 331 845 620} type Double hide resizable
+delete this;} selected
+      xywh {405 60 845 620} type Double resizable
       code0 {o->label("prodatum");}
-      class Double_Window xclass prodatum size_range {674 492 845 615}
+      class Double_Window xclass prodatum size_range {674 492 845 620} visible
     } {
       Fl_Group {} {
         label name
@@ -4331,7 +4331,7 @@ o->deactivate();
       }
     }
     Fl_Window copy_preset {
-      label Copy selected
+      label Copy
       xywh {512 211 215 370} type Double box BORDER_BOX hide
       class Double_Window xclass prodatum
     } {
