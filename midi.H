@@ -108,9 +108,9 @@ public:
 	 */
 	void nak(int packet) const;
 	/// sends a cancel command
-	void cancel() const;
+//	void cancel() const;
 	/// send WAIT command
-	void wait() const;
+//	void wait() const;
 	/// sends a EOF command
 	void eof() const;
 	/// sends a device inquiry

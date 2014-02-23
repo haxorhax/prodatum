@@ -780,12 +780,7 @@ widget_class PD_Layer_Strip {
   Fl_Button instrument {
     label {   :None}
     callback {ui->select(layer + 1);}
-    xywh {3 3 94 20} box FLAT_BOX down_box FLAT_BOX color 7 selection_color 15 labelfont 4 labelsize 12 align 84
-  }
-  Fl_Dial coarse {
-    label Coarse
-    private tooltip {Coarse tune (+/-36 semitones)} xywh {7 37 40 40} color 7 labelsize 10 align 1 minimum -36 maximum 36 step 1
-    class Fl_Knob
+    xywh {3 3 94 20} box FLAT_BOX down_box FLAT_BOX color 7 selection_color 15 labelfont 4 labelsize 9 align 80
   }
   Fl_Button {} {
     label {-}
@@ -800,6 +795,11 @@ coarse->do_callback();
 }}
     tooltip {Tune octave down} xywh {1 23 26 15} box NO_BOX labelfont 4 labelsize 9 align 20 when 1
     class Fixed_Button
+  }
+  Fl_Dial coarse {
+    label Coarse
+    private tooltip {Coarse tune (+/-36 semitones)} xywh {7 37 40 40} color 7 labelsize 10 align 1 minimum -36 maximum 36 step 1
+    class Fl_Knob
   }
   Fl_Button {} {
     label {+}
@@ -904,12 +904,7 @@ coarse->do_callback();
     callback {ui->show_copy_layer(C_LAYER, layer);}
     tooltip {Copy voice} xywh {53 385 40 17} down_box UP_BOX color 175 selection_color 72 labelsize 10 labelcolor 32
   }
-  Fl_Button non_t {
-    label NTP
-    tooltip {Turns keyboard transposition On or Off. With Nontranspose the keyboard will not control the pitch of the instrument. This is a useful function for drones, attack "chiffs" or other sound effects which you may not want to track the keyboard} xywh {53 477 40 17} type Toggle down_box UP_BOX color 35 selection_color 193 labelsize 10 labelcolor 55
-    class Button
-  }
-  Fl_Group mix_out {open
+  Fl_Group mix_out {
     tooltip {Layer Submix, FX Send} xywh {55 404 33 71} color 52 labeltype NO_LABEL labelsize 10
     class Group
   } {
@@ -933,6 +928,11 @@ coarse->do_callback();
       callback {((Group*)o->parent())->do_callback();}
       xywh {58 458 30 17} type Radio down_box UP_BOX color 7 selection_color 15 labelsize 10
     }
+  }
+  Fl_Button non_t {
+    label NTP
+    tooltip {Turns keyboard transposition On or Off. With Nontranspose the keyboard will not control the pitch of the instrument. This is a useful function for drones, attack "chiffs" or other sound effects which you may not want to track the keyboard} xywh {53 477 40 17} type Toggle down_box UP_BOX color 35 selection_color 193 labelsize 10 labelcolor 55
+    class Button
   }
   Fl_Choice layer_solo {open
     tooltip {Solo Mode: provides the playing action of a monophonic instrument such as a lead synthesizer by preventing more than one note from sounding at once} xywh {3 498 94 20} down_box BORDER_BOX color 7 labeltype NO_LABEL align 64 textsize 13
@@ -2575,12 +2575,12 @@ delete this;} open
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
 delete this;}
-      xywh {700 331 845 615} type Double hide resizable
+      xywh {700 331 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       class Double_Window xclass prodatum size_range {674 492 845 615}
     } {
       Fl_Group {} {
-        label name open
+        label name
         xywh {1 1 844 23} labeltype NO_LABEL
       } {
         Fl_Box {} {
@@ -2693,7 +2693,7 @@ else pxk->display_status("*** Nothing to Redo.");}
               xywh {15 15 36 21} shortcut 0x5007a labelsize 12
             }
             MenuItem {} {
-              label {Start Over}
+              label {Start over}
               callback {pxk->start_over();}
               tooltip {Clear the edit buffer, start from the beginning} xywh {15 15 36 21} shortcut 0x40075 labelsize 12
             }
@@ -2831,7 +2831,7 @@ piano_w->showup();
               xywh {5 5 36 21} shortcut 0x6b labelsize 12
             }
             MenuItem {} {
-              label {&Message Log}
+              label {&Message log}
               callback {if (log_w->shown() && log_w->visible())
 log_w->hide();
 else
@@ -2839,7 +2839,7 @@ log_w->showup();}
               xywh {5 5 36 21} shortcut 0x6d labelsize 12
             }
             MenuItem init_log_m {
-              label {Sync Log}
+              label {Sync log}
               callback {init_log_w->showup();}
               xywh {5 5 36 21} labelsize 12
             }
@@ -2849,7 +2849,7 @@ log_w->showup();}
             xywh {5 5 70 21} labelsize 12
           } {
             MenuItem {} {
-              label {All Notes Off}
+              label {All notes off}
               callback {midi->write_event(0xb0, 0x7b, 0);
 
 global_minipiano->reset_active_keys();
@@ -2858,7 +2858,7 @@ piano->reset_active_keys();}
               xywh {0 0 29 19} labelsize 12
             }
             MenuItem {} {
-              label {All Notes Off (All Channels)}
+              label {All notes off (all channels)}
               callback {for (int i = 0; i < 16; i++)
 midi->write_event(0xb0, 0x7b, 0, i);
 
@@ -2868,7 +2868,7 @@ piano->reset_active_keys();}
               xywh {0 0 29 19} labelsize 12
             }
             MenuItem {} {
-              label {All Sound Off}
+              label {All sound off}
               callback {midi->write_event(0xb0, 0x78, 0);
 
 global_minipiano->reset_active_keys();
@@ -2877,7 +2877,7 @@ piano->reset_active_keys();}
               xywh {0 0 29 19} labelsize 12
             }
             MenuItem {} {
-              label {All Sound Off (All Channels)}
+              label {All sound off (all channels)}
               callback {for (int i = 0; i < 16; i++)
 midi->write_event(0xb0, 0x78, 0, i);
 
@@ -2887,7 +2887,7 @@ piano->reset_active_keys();}
               xywh {0 0 29 19} labelsize 12
             }
             MenuItem {} {
-              label {Kill Stale Sound (last resort)}
+              label {Kill stale sound (last resort)}
               callback {for (int i = 0; i < 128; i++)
 midi->write_event(NOTE_ON, i, 1);
 for (int i = 0; i < 128; i++)
@@ -2899,7 +2899,7 @@ piano->reset_active_keys();}
               xywh {0 0 29 19} labelsize 12
             }
             MenuItem {} {
-              label {Reset All Controllers}
+              label {Reset all controllers}
               callback {midi->write_event(0xb0, 0x79, 0);
 
 pitchwheel->value(8192);
@@ -2910,7 +2910,7 @@ b_fs3->clear();}
               xywh {0 0 29 19} labelsize 12
             }
             MenuItem {} {
-              label {Reset All Controllers (All Channels)}
+              label {Reset all controllers (all channels)}
               callback {for (int i = 0; i < 16; i++)
 midi->write_event(0xb0, 0x79, 0, i);
 
@@ -3746,12 +3746,13 @@ arp_name_changed = false;}
     }
     Fl_Window init {
       label Synchronizing
-      callback {;} open
+      callback {;}
       xywh {665 387 290 130} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Box {} {
-        label {Please wait. This may take a few minutes.}
-        xywh {60 1 229 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 148
+        label {Please wait.
+This may take a few minutes.}
+        xywh {60 1 229 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 144
       }
       Fl_Box {} {
         xywh {1 1 60 50} deactivate
@@ -3762,7 +3763,7 @@ arp_name_changed = false;}
       }
       Fl_Button {} {
         label Cancel
-        callback {Cancel();} selected
+        callback {Cancel();}
         xywh {210 95 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20
       }
       Fl_Button init_log_b {
@@ -3775,25 +3776,58 @@ init_log_w->show();}
     }
     Fl_Window open_device {
       label {Open Device}
-      callback {;}
-      xywh {410 94 300 390} type Double box BORDER_BOX labelcolor 15 hide
+      xywh {567 307 280 385} type Double box BORDER_BOX labelcolor 15 hide
       class Double_Window modal xclass prodatum
     } {
-      Fl_Box {} {
-        label {Open Device}
-        xywh {60 1 239 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 20
-      }
       Fl_Box {} {
         xywh {1 1 60 50} deactivate
         code0 {o->image(image_pd);}
       }
       Fl_Box {} {
-        label {Out Port}
-        xywh {20 60 56 20} labelsize 12 align 24
+        label {Open device}
+        xywh {60 1 219 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 24 deactivate
       }
-      Fl_Menu_Button midi_outs {
-        label {Select...}
-        callback {connect->deactivate();
+      Fl_Group {} {
+        label Device
+        xywh {10 75 262 160} labelfont 1 labelcolor 8 align 5
+      } {
+        Fl_Box device_info {
+          tooltip {Shows device information for the selected device (updates automatically on every port or ID change).} xywh {20 82 215 85} box THIN_DOWN_BOX color 7 selection_color 15 labelsize 11 align 213
+        }
+        Fl_Box {} {
+          label Info
+          xywh {237 82 33 20} color 7 labelsize 12 align 148
+        }
+        Fl_Spinner device_id {
+          label ID
+          callback {connect->deactivate();
+device_info->label(0);
+pxk->LoadConfig(o->value());
+pxk->ConnectPorts(true);
+r_user_id->value(o->value());}
+          tooltip {ID: Must be unique for every device you intend to use prodatum with (you can set the ID in the Master Menu of your device)!} xywh {20 174 90 25} color 7 selection_color 15 labelsize 12 align 8 when 1 minimum 0 maximum 126 value 0 textfont 4 textsize 13
+        }
+        Fl_Button {} {
+          label Update
+          callback {connect->deactivate();
+device_info->label(0);
+pxk->Inquire(device_id->value());}
+          tooltip {Request device information.} xywh {175 176 60 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 align 16
+        }
+        Fl_Choice speed {
+          label {Sysex packet delay}
+          callback {cfg->set_cfg_option(CFG_SPEED, o->value());} open
+          tooltip {Delay: Change the request-response delay of your device. The lower the delay, the higher the average bitrate that we receive data with.} xywh {20 210 90 20} down_box BORDER_BOX color 7 labelsize 12 align 72 textsize 13
+          code0 {o->add("0 [ms]");o->add("10 [ms]");o->add("40 [ms]");o->add("90 [ms]");o->add("160 [ms]");}
+        } {}
+      }
+      Fl_Group {} {
+        label {MIDI ports} open
+        xywh {10 270 262 54} labelfont 1 labelcolor 8 align 5
+      } {
+        Fl_Menu_Button midi_outs {
+          label {Select...}
+          callback {connect->deactivate();
 device_info->label(0);
 if (midi->connect_out(o->value()))
 {
@@ -3804,15 +3838,15 @@ else
 {
 o->label("Select...");
 }} open
-        tooltip {OUT: Select the MIDI port that is connected to MIDI IN of your device.} xywh {75 60 215 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 align 84 textsize 13
-      } {}
-      Fl_Box {} {
-        label {In Port}
-        xywh {20 85 56 20} labelsize 12 align 24
-      }
-      Fl_Menu_Button midi_ins {
-        label {Select...}
-        callback {connect->deactivate();
+          tooltip {OUT: Select the MIDI port that is connected to MIDI IN of your device.} xywh {20 277 215 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 align 84 textsize 13
+        } {}
+        Fl_Box {} {
+          label Out
+          xywh {236 277 35 20} labelsize 12 align 20
+        }
+        Fl_Menu_Button midi_ins {
+          label {Select...}
+          callback {connect->deactivate();
 device_info->label(0);
 if (midi->connect_in(o->value()))
 {
@@ -3823,11 +3857,131 @@ else
 {
 o->label("Select...");
 }} open
-        tooltip {IN: Select the MIDI port that is connected to MIDI OUT of your device.} xywh {75 85 215 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 align 84 textsize 13
-      } {}
+          tooltip {IN: Select the MIDI port that is connected to MIDI OUT of your device.} xywh {20 304 215 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 align 84 textsize 13
+        } {}
+        Fl_Box {} {
+          label In
+          xywh {236 304 35 20} labelsize 12 align 20
+        }
+      }
+      Fl_Button {} {
+        label {?}
+        callback {device_info->label("A device is identified by it's \\"Device ID\\". prodatum keeps a configuration for every ID. To load a different configuration, use the \\"Device ID\\" selector. prodatum will load the configuration from the previous session on startup.");}
+        xywh {20 351 25 25} box THIN_UP_BOX color 7 selection_color 15 labelsize 12 align 16
+      }
+      Fl_Button connect {
+        label {Open @returnarrow}
+        callback {o->deactivate();
+cfg->set_cfg_option(CFG_SPEED, speed->value());
+midi->edit_parameter_value(405, cfg->get_cfg_option(CFG_SPEED));
+if (pxk->Synchronize())
+{
+cfg->set_cfg_option(CFG_MIDI_OUT, midi_outs->value());
+cfg->set_cfg_option(CFG_MIDI_IN, midi_ins->value());
+}
+open_device->hide();}
+        xywh {119 351 70 25} box THIN_UP_BOX shortcut 0xff0d selection_color 15 labelsize 12 align 20 deactivate
+      }
+      Fl_Button {} {
+        label Exit
+        callback {delete ui;}
+        xywh {199 351 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20
+      }
+    }
+    Fl_Window preferences {
+      label Preferences
+      callback {b_close_prefs->do_callback();}
+      xywh {1366 249 305 499} type Double box UP_BOX labelsize 11 hide
+      class Double_Window xclass prodatum
+    } {
       Fl_Box {} {
-        label {Ctrl Port}
-        xywh {23 110 53 20} labelsize 12 align 24
+        xywh {1 1 60 50} deactivate
+        code0 {o->image(image_pd);}
+      }
+      Fl_Box {} {
+        label Preferences
+        xywh {60 1 244 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 24 deactivate
+      }
+      Fl_Box {} {
+        label Confirm
+        xywh {10 75 124 65} labelfont 1 labelcolor 8 align 5
+      }
+      Fl_Check_Button confirm {
+        label Exit
+        callback {cfg->set_cfg_option(CFG_CONFIRM_EXIT, o->value());}
+        tooltip {Wether to show a confirmation dialog on exit} xywh {20 82 46 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+      }
+      Fl_Check_Button confirm_dismiss {
+        label Dismiss
+        callback {cfg->set_cfg_option(CFG_CONFIRM_DISMISS, o->value());}
+        tooltip {Wether to show a confirmation dialog for dismiss} xywh {20 101 72 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+      }
+      Fl_Check_Button confirm_rand {
+        label Randomize
+        callback {cfg->set_cfg_option(CFG_CONFIRM_RAND, o->value());}
+        tooltip {Wether to show a confirmation dialog for randomize} xywh {20 120 94 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+      }
+      Fl_Group g_knobmode {
+        label {Knob job}
+        callback {int i;
+for (i = 0; i < o->children(); i++)
+if (((Fl_Button*) o->array()[i])->value())
+break;
+((Fl_Button*) o->child(i))->setonly();
+cfg->set_cfg_option(CFG_KNOBMODE, i);}
+        tooltip {Choose how knobs should behave when you drag them} xywh {140 75 124 66} labelfont 1 labelcolor 8 align 5
+      } {
+        Fl_Check_Button {} {
+          label Radially
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {155 82 77 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15
+        }
+        Fl_Check_Button {} {
+          label Horizontally
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {155 101 103 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15
+        }
+        Fl_Check_Button {} {
+          label Vertically
+          callback {((Group*)o->parent())->do_callback();}
+          xywh {155 120 87 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15
+        }
+      }
+      Fl_Box {} {
+        label {Export directory}
+        xywh {10 167 290 70} labelfont 1 labelcolor 8 align 133
+      }
+      Fl_Input export_dir {
+        callback {b_set->activate();}
+        tooltip {Export files will be written here} xywh {20 174 275 20} box UP_BOX labeltype NO_LABEL labelsize 10 align 0 when 1 textfont 4 textsize 12
+        code0 {o->maximum_size(PATH_MAX);}
+      }
+      Fl_Button b_set {
+        label SET
+        callback {if(!cfg->set_export_dir(export_dir->value()))
+{
+export_dir->value(cfg->get_export_dir());
+}
+o->deactivate();}
+        tooltip {Confirm new export directory} xywh {20 200 60 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 16 deactivate
+      }
+      Fl_Box {} {
+        label {MIDI performance}
+        xywh {10 255 290 47} labelfont 1 labelcolor 8 align 5
+      }
+      Fl_Check_Button closed_loop_download {
+        label {Closed loop preset download}
+        callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD, o->value());}
+        tooltip {Closed loop downloads require prodatum to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: disabled, use open loop downloads)} xywh {20 262 269 15} down_box DOWN_BOX color 7 selection_color 15
+      }
+      Fl_Check_Button closed_loop_upload {
+        label {Closed loop preset upload}
+        callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_UPLOAD, o->value());}
+        tooltip {Closed loop uploads require the device to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: disabled, use open loop uploads)} xywh {20 281 251 15} down_box DOWN_BOX color 7 selection_color 15
+      }
+      Fl_Box {} {
+        label Controller
+        xywh {10 330 290 60} labelfont 1 labelcolor 8 align 5
       }
       Fl_Menu_Button midi_ctrl {
         label {Select... (optional)}
@@ -3841,214 +3995,54 @@ else
 cfg->set_cfg_option(CFG_MIDI_THRU, -1);
 o->label("Select... (optional)");
 }} open
-        tooltip {Control: Select the MIDI port that your controller is connected to (select again to disconnect).} xywh {75 110 215 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 align 84 textsize 13
+        tooltip {Control: Select the MIDI port that your controller is connected to (select again to disconnect).} xywh {20 337 215 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 align 84 textsize 13
       } {}
       Fl_Choice midi_ctrl_ch {
-        label {Ctrl Chnl}
+        label Channel
         callback {midi->set_control_channel_filter(o->value());} open
-        tooltip {Control Channel: Data to the control port will only be accepted for the selected channel(s).} xywh {75 165 50 20} down_box BORDER_BOX color 7 labelsize 12 textsize 13
+        tooltip {Control Channel: Data to the control port will only be accepted for the selected channel(s).} xywh {20 363 50 20} down_box BORDER_BOX color 7 align 8 textsize 13
         code0 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("All");}
       } {}
       Fl_Check_Button midi_automap {
         label {Map to Basic Channel}
         callback {cfg->set_cfg_option(CFG_AUTOMAP, o->value());}
-        tooltip {When enabled voice messages from the controller will always leave prodatum on the channel that is selected in prodatum. This is helpful when your controller does not allow you to change the MIDI channel or if you do not want to switch channels on the controller all the time.} xywh {130 165 162 20} down_box DOWN_BOX value 1 color 7 selection_color 15 labelsize 12
-      }
-      Fl_Box {} {
-        label {Device ID}
-        xywh {20 200 56 20} labelsize 12 align 24
-      }
-      Fl_Spinner device_id {
-        callback {connect->deactivate();
-device_info->label(0);
-pxk->LoadConfig(o->value());
-pxk->ConnectPorts(true);
-r_user_id->value(o->value());}
-        tooltip {ID: Must be unique for every device you intend to use prodatum with (you can set the ID in the Master Menu of your device)!} xywh {75 200 50 20} color 7 selection_color 15 labeltype NO_LABEL labelfont 2 labelsize 12 align 0 when 1 minimum 0 maximum 126 value 0 textfont 4 textsize 13
-      }
-      Fl_Button {} {
-        label {Auto-Detect}
-        callback {connect->deactivate();
-device_info->label(0);
-pxk->Inquire(127);}
-        xywh {135 200 80 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 align 20
-      }
-      Fl_Button {} {
-        label Update
-        callback {connect->deactivate();
-device_info->label(0);
-pxk->Inquire(device_id->value());}
-        tooltip {Request device information.} xywh {15 245 55 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 align 16
-      }
-      Fl_Box {} {
-        label {Device Info}
-        xywh {75 225 11 20} color 7 labelsize 12 align 132
-      }
-      Fl_Box device_info {
-        tooltip {Shows device information for the selected device (updates automatically on every port or ID change).} xywh {75 225 215 85} box THIN_DOWN_BOX color 7 selection_color 15 labelsize 11 align 213
-      }
-      Fl_Choice speed {
-        label Delay
-        callback {cfg->set_cfg_option(CFG_SPEED, o->value());} open
-        tooltip {Delay: Change the request-response delay of your device. The lower the delay, the higher the average bitrate that we receive data with.} xywh {75 320 105 20} down_box BORDER_BOX color 7 labelsize 12 textsize 13
-        code0 {o->add("No delay");o->add("10 [ms]");o->add("40 [ms]");o->add("90 [ms]");o->add("160 [ms]");}
-      } {}
-      Fl_Button b_rescan {
-        label {Populate Ports}
-        callback {connect->deactivate();
-pxk->ConnectPorts(false);}
-        tooltip {Populate (newly) available MIDI ports.} xywh {75 135 90 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 11 align 16
-      }
-      Fl_Button connect {
-        label {Open @returnarrow}
-        callback {o->deactivate();
-cfg->set_cfg_option(CFG_SPEED, speed->value());
-midi->edit_parameter_value(405, cfg->get_cfg_option(CFG_SPEED));
-if (pxk->Synchronize())
-{
-cfg->set_cfg_option(CFG_MIDI_OUT, midi_outs->value());
-cfg->set_cfg_option(CFG_MIDI_IN, midi_ins->value());
-}
-open_device->hide();}
-        xywh {140 355 70 25} box THIN_UP_BOX shortcut 0xff0d selection_color 15 labelsize 12 align 20 deactivate
-      }
-      Fl_Button {} {
-        label Exit
-        callback {delete ui;}
-        xywh {220 355 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20
-      }
-      Fl_Button {} {
-        label {?}
-        callback {device_info->label("A device is identified by it's \\"Device ID\\". prodatum keeps a configuration for every ID. To load a different configuration, use the \\"Device ID\\" selector. prodatum will load the configuration from the previous session on startup.");}
-        xywh {75 355 25 25} box THIN_UP_BOX color 7 selection_color 15 labelsize 12 align 16
-      }
-    }
-    Fl_Window preferences {
-      label Preferences
-      callback {b_close_prefs->do_callback();}
-      xywh {592 413 305 435} type Double box UP_BOX labelsize 11 hide
-      class Double_Window xclass prodatum
-    } {
-      Fl_Box {} {
-        label Preferences
-        xywh {60 1 244 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 20
-      }
-      Fl_Box {} {
-        xywh {1 1 60 50} deactivate
-        code0 {o->image(image_pd);}
-      }
-      Fl_Box {} {
-        label Confirm
-        xywh {10 90 124 70} labelfont 1 labelcolor 8 align 5
-      }
-      Fl_Check_Button confirm {
-        label Exit
-        callback {cfg->set_cfg_option(CFG_CONFIRM_EXIT, o->value());}
-        tooltip {Wether to show a confirmation dialog on exit} xywh {20 97 46 15} down_box DOWN_BOX value 1 color 7 selection_color 15
-      }
-      Fl_Check_Button confirm_dismiss {
-        label Dismiss
-        callback {cfg->set_cfg_option(CFG_CONFIRM_DISMISS, o->value());}
-        tooltip {Wether to show a confirmation dialog for dismiss} xywh {20 116 72 15} down_box DOWN_BOX value 1 color 7 selection_color 15
-      }
-      Fl_Check_Button confirm_rand {
-        label Randomize
-        callback {cfg->set_cfg_option(CFG_CONFIRM_RAND, o->value());}
-        tooltip {Wether to show a confirmation dialog for randomize} xywh {20 135 94 15} down_box DOWN_BOX value 1 color 7 selection_color 15
-      }
-      Fl_Group g_knobmode {
-        label {Knob job..}
-        callback {int i;
-for (i = 0; i < o->children(); i++)
-if (((Fl_Button*) o->array()[i])->value())
-break;
-((Fl_Button*) o->child(i))->setonly();
-cfg->set_cfg_option(CFG_KNOBMODE, i);}
-        tooltip {Choose how knobs should behave when you drag them} xywh {140 90 124 70} labelfont 1 labelcolor 8 align 5
-      } {
-        Fl_Check_Button {} {
-          label {..radially}
-          callback {((Group*)o->parent())->do_callback();}
-          xywh {155 97 77 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15
-        }
-        Fl_Check_Button {} {
-          label {..horizontally}
-          callback {((Group*)o->parent())->do_callback();}
-          xywh {155 116 103 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15
-        }
-        Fl_Check_Button {} {
-          label {..vertically}
-          callback {((Group*)o->parent())->do_callback();}
-          xywh {155 135 87 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15
-        }
-      }
-      Fl_Box {} {
-        label {Export directory}
-        xywh {10 185 290 61} labelfont 1 labelcolor 8 align 133
-      }
-      Fl_Input export_dir {
-        callback {b_set->activate();}
-        tooltip {Export files will be written here} xywh {20 192 275 20} box UP_BOX labeltype NO_LABEL labelsize 10 align 0 when 1 textfont 4 textsize 12
-        code0 {o->maximum_size(PATH_MAX);}
-      }
-      Fl_Button b_set {
-        label SET
-        callback {if(!cfg->set_export_dir(export_dir->value()))
-{
-export_dir->value(cfg->get_export_dir());
-}
-o->deactivate();}
-        tooltip {Confirm new export directory} xywh {20 218 60 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 16 deactivate
-      }
-      Fl_Box {} {
-        label {MIDI Performance}
-        xywh {10 275 290 47} labelfont 1 labelcolor 8 align 5
-      }
-      Fl_Check_Button closed_loop_download {
-        label {Closed Loop Preset Download (Slower)}
-        callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD, o->value());}
-        tooltip {Closed loop downloads require prodatum to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: disabled, use open loop downloads)} xywh {20 282 269 15} down_box DOWN_BOX color 7 selection_color 15
-      }
-      Fl_Check_Button closed_loop_upload {
-        label {Closed Loop Preset Upload (Slower)}
-        callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_UPLOAD, o->value());}
-        tooltip {Closed loop uploads require the device to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: disabled, use open loop uploads)} xywh {20 301 251 15} down_box DOWN_BOX color 7 selection_color 15
+        tooltip {When enabled voice messages from the controller will always leave prodatum on the channel that is selected in prodatum. This is helpful when your controller does not allow you to change the MIDI channel or if you do not want to switch channels on the controller all the time.} xywh {139 363 160 20} down_box DOWN_BOX value 1 color 7 selection_color 15
       }
       Fl_Box {} {
         label Colors
-        xywh {10 353 290 39} labelfont 1 labelcolor 8 align 5
-      }
-      Fl_Button {} {
-        callback {PD_UI::set_color(FL_BACKGROUND_COLOR);}
-        xywh {20 360 25 20}
-      }
-      Fl_Button {} {
-        callback {PD_UI::set_color(FL_BACKGROUND2_COLOR);}
-        xywh {60 360 25 20} color 7 selection_color 7
-      }
-      Fl_Button {} {
-        callback {PD_UI::set_color(FL_FOREGROUND_COLOR);}
-        xywh {100 360 25 20} color 0 selection_color 0
-      }
-      Fl_Button {} {
-        callback {PD_UI::set_color(FL_SELECTION_COLOR);}
-        xywh {140 360 25 20} color 15 selection_color 15
-      }
-      Fl_Button {} {
-        callback {PD_UI::set_color(FL_INACTIVE_COLOR);}
-        xywh {180 360 25 20} color 8 selection_color 8
+        xywh {10 419 290 32} labelfont 1 labelcolor 8 align 5
       }
       Fl_Button {} {
         label DEFAULT
         callback {set_default_colors();}
-        tooltip {Use prodatum's default colors} xywh {225 360 70 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 16
+        tooltip {Use prodatum's default colors} xywh {20 426 70 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 16
+      }
+      Fl_Button {} {
+        callback {PD_UI::set_color(FL_BACKGROUND_COLOR);}
+        xywh {110 426 25 20}
+      }
+      Fl_Button {} {
+        callback {PD_UI::set_color(FL_BACKGROUND2_COLOR);}
+        xywh {150 426 25 20} color 7 selection_color 7
+      }
+      Fl_Button {} {
+        callback {PD_UI::set_color(FL_FOREGROUND_COLOR);}
+        xywh {190 426 25 20} color 0 selection_color 0
+      }
+      Fl_Button {} {
+        callback {PD_UI::set_color(FL_SELECTION_COLOR);}
+        xywh {230 426 25 20} color 15 selection_color 15
+      }
+      Fl_Button {} {
+        callback {PD_UI::set_color(FL_INACTIVE_COLOR);}
+        xywh {270 426 25 20} color 8 selection_color 8
       }
       Fl_Button b_close_prefs {
         label Close
         callback {preferences->hide();
 export_dir->value(cfg->get_export_dir());
 b_set->deactivate();}
-        xywh {225 400 70 25} box THIN_UP_BOX shortcut 0x70 selection_color 15 labelsize 12 align 20
+        xywh {225 465 70 25} box THIN_UP_BOX shortcut 0x70 selection_color 15 labelsize 12 align 20
       }
     }
     Fl_Window piano_w {
@@ -4239,29 +4233,38 @@ if (((Fl_Button*) o->array()[i])->value())
       }
     }
     Fl_Window about {
-      label {About prodatum}
-      xywh {848 342 275 115} type Double box BORDER_BOX hide modal xclass prodatum
+      label {About prodatum} open selected
+      xywh {893 383 272 361} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Box {} {
         xywh {1 1 60 50} deactivate
         code0 {o->image(image_pd);}
       }
       Fl_Box about_text {
-        xywh {60 1 214 50} box FLAT_BOX color 32 labelfont 1 labelsize 18 labelcolor 49 align 148
+        xywh {60 1 211 50} box FLAT_BOX color 32 labelfont 1 labelsize 18 labelcolor 49 align 144 deactivate
       }
       Fl_Box {} {
-        label {Copyright 2008-2014 Jan Eidtmann}
-        xywh {1 50 273 25} labelsize 12 align 148
+        xywh {1 51 270 165} deactivate
+        code0 {o->image(image_about);}
+      }
+      Fl_Box {} {
+        label {Copyright 2008-2014 Jan Eidtmann
+http://prodatum.sf.net}
+        xywh {15 226 242 50} labelsize 12 align 144
       }
       Fl_Button {} {
         label Close
         callback {about->hide();}
-        xywh {195 80 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20
+        xywh {187 321 70 25} box THIN_UP_BOX selection_color 15 labelsize 12 align 20
+      }
+      Fl_Box {} {
+        label {Support & paypal: rdxesy@@gmail.com}
+        xywh {15 278 242 23} box DOWN_BOX color 7 selection_color 15 labelsize 12 align 144
       }
     }
     Fl_Window copy_layer {
       label Copy
-      xywh {699 509 310 100} type Double box BORDER_BOX hide
+      xywh {699 509 314 105} type Double box BORDER_BOX hide
       class Double_Window modal xclass prodatum
     } {
       Fl_Group layer_dst {
@@ -4324,11 +4327,11 @@ o->deactivate();
       Fl_Button {} {
         label Close
         callback {copy_layer->hide();}
-        xywh {235 65 70 25} selection_color 15 labelsize 12 align 20
+        xywh {235 70 70 25} selection_color 15 labelsize 12 align 20
       }
     }
     Fl_Window copy_preset {
-      label Copy open
+      label Copy
       xywh {512 211 215 370} type Double box BORDER_BOX hide
       class Double_Window modal xclass prodatum
     } {
@@ -4396,7 +4399,7 @@ copy_arp_pattern_browser_filter->do_callback();}
     } {
       Fl_Box {} {
         label {Syncing edit buffer...}
-        xywh {60 1 229 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 148 hotspot
+        xywh {60 1 229 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 144 hotspot
       }
       Fl_Progress progress {
         label label
@@ -4410,11 +4413,11 @@ copy_arp_pattern_browser_filter->do_callback();}
     Fl_Window reset_w {
       label Synchronize
       callback {;}
-      xywh {773 418 285 160} type Double box BORDER_BOX hide modal xclass prodatum
+      xywh {911 283 285 160} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Box {} {
-        label {Select data to synchronize}
-        xywh {60 1 224 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 148
+        label Synchronize
+        xywh {60 1 224 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 152
       }
       Fl_Box {} {
         xywh {1 1 60 50} deactivate

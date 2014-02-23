@@ -1,6 +1,9 @@
 v2.0rc5
 
 * move knob labels on top of knobs (like in every other widget)
+* copy/save window is no longer modal (just leave it open if u want)
+* new open device, about and pref dialogs
+* grabbing windows in OSX will no longer block internal data flow
 
 
 v2.0v4

@@ -146,6 +146,7 @@ static void process_midi(PtTimestamp, void*)
 					else if (((ev.message >> 8) & 0xFF) == 0x7E)
 						receiving_sysex = true;
 					position = 3;
+					goto Copy;
 				}
 				// check for truncated sysex
 				if (receiving_sysex && (((data & 0x80) == 0 || data == 0xF7) || position == 3))
@@ -153,7 +154,7 @@ static void process_midi(PtTimestamp, void*)
 					// copy data
 					if (position < SYSEX_MAX_SIZE)
 					{
-						local_read_buffer[position++] = data;
+						Copy: local_read_buffer[position++] = data;
 						// hand over a complete sysex message to the main thread
 						if (data == MIDI_EOX)
 						{
@@ -192,7 +193,7 @@ static void process_midi(PtTimestamp, void*)
 					}
 				}
 				// voice message
-				else if (shift == 0 && data >= 0x80 && data <= 0xEF)
+				else if (shift == 0 && data > 0x7F && data < 0xF0)
 				{
 					event[0] = Pm_MessageStatus(ev.message);
 					event[1] = Pm_MessageData1(ev.message);
@@ -209,39 +210,36 @@ static void process_midi(PtTimestamp, void*)
 			}
 		}
 		// check if theres something from the controller
-		if (thru_active)
+		if (thru_active && Pm_Poll(port_thru))
 		{
-			if (Pm_Poll(port_thru))
+			pmerror = (PmError) Pm_Read(port_thru, &ev, 1);
+			if (!(pmerror < 0)) // no error
 			{
-				pmerror = (PmError) Pm_Read(port_thru, &ev, 1);
-				if (!(pmerror < 0)) // no error
+				event[0] = Pm_MessageStatus(ev.message);
+				// voice messages
+				if (event[0] >= 0x80 && event[0] <= 0xEF)
 				{
-					event[0] = Pm_MessageStatus(ev.message);
-					// voice messages
-					if (event[0] >= 0x80 && event[0] <= 0xEF)
-					{
-						// automap
-						if (automap && pxk->midi_mode != OMNI)
-							event[0] = (event[0] & ~0xf) | (pxk->selected_channel & 0xff);
-						event[1] = Pm_MessageData1(ev.message);
-						event[2] = Pm_MessageData2(ev.message);
-						event[3] = 1;
-						// write to ringbuffer for internal processing
-						jack_ringbuffer_write(read_buffer, event, 4);
+					// automap
+					if (automap && pxk->midi_mode != OMNI)
+						event[0] = (event[0] & ~0xf) | (pxk->selected_channel & 0xff);
+					event[1] = Pm_MessageData1(ev.message);
+					event[2] = Pm_MessageData2(ev.message);
+					event[3] = 1;
+					// write to ringbuffer for internal processing
+					jack_ringbuffer_write(read_buffer, event, 4);
 #ifdef __linux
-						write(p[1], " ", 1);
+					write(p[1], " ", 1);
 #endif
-						ev.message = Pm_Message(event[0], event[1], event[2]);
-					}
-					// forward message
-					pmerror = (PmError) Pm_Write(port_out, &ev, 1);
-					if (pmerror < 0)
-						show_error();
+					ev.message = Pm_Message(event[0], event[1], event[2]);
 				}
-				else
-					// pmerror = (PmError) Pm_Read(port_thru, &ev, 1);
+				// forward message
+				pmerror = (PmError) Pm_Write(port_out, &ev, 1);
+				if (pmerror < 0)
 					show_error();
 			}
+			else
+				// pmerror = (PmError) Pm_Read(port_thru, &ev, 1);
+				show_error();
 		}
 
 		// check if theres some MIDI to write on the bus
@@ -261,15 +259,12 @@ static void process_midi(PtTimestamp, void*)
 						show_error();
 				}
 			}
-			else
+			else if (jack_ringbuffer_read(write_buffer, event, 3) == 3)
 			{
-				if (jack_ringbuffer_read(write_buffer, event, 3) == 3)
-				{
-					ev.message = Pm_Message(event[0], event[1], event[2]);
-					pmerror = Pm_Write(port_out, &ev, 1);
-					if (pmerror < 0)
-						show_error();
-				}
+				ev.message = Pm_Message(event[0], event[1], event[2]);
+				pmerror = Pm_Write(port_out, &ev, 1);
+				if (pmerror < 0)
+					show_error();
 			}
 		}
 	} while (result_out);
@@ -304,37 +299,6 @@ static void process_midi_in(void*)
 			{
 				switch (sysex[5])
 				{
-					case 0x70: // error
-						pxk->incoming_ERROR(sysex[7] * 128 + sysex[6], sysex[9] * 128 + sysex[8]);
-						break;
-
-					case 0x7f: // ACK
-						pxk->incoming_ACK(sysex[7] * 128 + sysex[6]);
-						break;
-
-					case 0x7e: // NAK
-						pxk->incoming_NAK(sysex[7] * 128 + sysex[6]);
-						break;
-
-					case 0x7b: // EOF
-						got_answer = true;
-						requested = false;
-						pxk->display_status("Edit buffer synchronized.");
-						ui->loading_w->hide();
-						break;
-
-					case 0x7d: // CANCEL
-						pxk->incoming_CANCEL();
-						break;
-
-					case 0x09: // hardware configuration
-						if (!pxk->Synchronized() && requested)
-						{
-							requested = false;
-							pxk->incoming_hardware_config(sysex, len);
-						}
-						break;
-
 					case 0x0b: // generic name
 						if (!pxk->Synchronized())
 						{
@@ -342,25 +306,6 @@ static void process_midi_in(void*)
 							pxk->incoming_generic_name(sysex);
 						}
 						break;
-
-					case 0x1c: // setup dumps
-						if (requested)
-						{
-							got_answer = true;
-							requested = false;
-							pxk->incoming_setup_dump(sysex, len);
-						}
-						break;
-
-					case 0x18: // arp pattern dump
-						if (requested)
-						{
-							got_answer = true;
-							requested = false;
-							pxk->incoming_arp_dump(sysex, len);
-						}
-						break;
-
 					case 0x10: // preset dumps
 						if (requested)
 							switch (sysex[6])
@@ -382,6 +327,54 @@ static void process_midi_in(void*)
 									break;
 							}
 						break;
+
+					case 0x7f: // ACK
+						pxk->incoming_ACK(sysex[7] * 128 + sysex[6]);
+						break;
+
+					case 0x7e: // NAK
+						pxk->incoming_NAK(sysex[7] * 128 + sysex[6]);
+						break;
+
+					case 0x7b: // EOF
+						got_answer = true;
+						requested = false;
+						pxk->display_status("Edit buffer synchronized.");
+						ui->loading_w->hide();
+						break;
+
+					case 0x1c: // setup dumps
+						if (requested)
+						{
+							got_answer = true;
+							requested = false;
+							pxk->incoming_setup_dump(sysex, len);
+						}
+						break;
+
+					case 0x18: // arp pattern dump
+						if (requested)
+						{
+							got_answer = true;
+							requested = false;
+							pxk->incoming_arp_dump(sysex, len);
+						}
+						break;
+
+					case 0x09: // hardware configuration
+						if (!pxk->Synchronized() && requested)
+						{
+							requested = false;
+							pxk->incoming_hardware_config(sysex, len);
+						}
+						break;
+
+					case 0x7d: // CANCEL
+//						pxk->incoming_CANCEL();
+//						break;
+					case 0x70: // error
+//						pxk->incoming_ERROR(sysex[7] * 128 + sysex[6], sysex[9] * 128 + sysex[8]);
+//						break;
 					case 0x40: // remote front panel control command
 						break;
 
@@ -597,7 +590,7 @@ void MIDI::populate_ports()
 	ui->midi_ins->clear();
 	ui->midi_ins->copy_label("Select...");
 	ui->midi_ctrl->clear();
-	ui->midi_ctrl->copy_label("Select...(Optional)");
+	ui->midi_ctrl->copy_label("Select... (optional)");
 	ports_out.clear();
 	ports_in.clear();
 	for (unsigned char i = 0; i < Pm_CountDevices(); i++)
@@ -1008,20 +1001,20 @@ void MIDI::nak(int packet) const
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7e, packet % 128, packet / 128, 0xf7 };
 	write_sysex(nak, 9);
 }
-void MIDI::cancel() const
-{
-	pmesg("MIDI::cancel() \n");
-	unsigned char cancel[] =
-	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7d, 0xf7 };
-	write_sysex(cancel, 7);
-}
-void MIDI::wait() const
-{
-	pmesg("MIDI::wait() \n");
-	unsigned char wait[] =
-	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7c, 0xf7 };
-	write_sysex(wait, 7);
-}
+//void MIDI::cancel() const
+//{
+//	pmesg("MIDI::cancel() \n");
+//	unsigned char cancel[] =
+//	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7d, 0xf7 };
+//	write_sysex(cancel, 7);
+//}
+//void MIDI::wait() const
+//{
+//	pmesg("MIDI::wait() \n");
+//	unsigned char wait[] =
+//	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7c, 0xf7 };
+//	write_sysex(wait, 7);
+//}
 void MIDI::eof() const
 {
 	pmesg("MIDI::eof() \n");

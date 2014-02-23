@@ -58,7 +58,7 @@ public:
 	bool LoadConfig(int id = -1) const;
 	bool ConnectPorts(bool);
 	bool Synchronize();
-	void Loading() const;
+	void Loading(bool upload = false) const;
 	void log_add(const unsigned char*, const unsigned int, unsigned char) const;
 	bool Synchronized() const;
 	/// maps controller values to CC widget numbers (device -> UI)
@@ -69,10 +69,10 @@ private:
 	unsigned char nak_count;
 public:
 	void incoming_generic_name(const unsigned char*);
-	void incoming_ERROR(int, int);
 	void incoming_ACK(int);
 	void incoming_NAK(int);
-	void incoming_CANCEL();
+//	void incoming_CANCEL();
+//	void incoming_ERROR(int, int);
 	void widget_callback(int, int, int layer = -2);
 	void cc_callback(int, int);
 	void display_status(const char*, bool top = false);

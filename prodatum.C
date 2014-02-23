@@ -31,6 +31,7 @@
 
 static void load_data();
 
+const char* VERSION = "2.0rc5";
 PD_UI* ui;
 extern MIDI* midi;
 extern Cfg* cfg;
@@ -42,7 +43,6 @@ extern PD_Arp_Step* arp_step[32];
 
 static bool __auto_connect = true;
 static int __device = -1;
-static const char* VERSION = "2.0rc5";
 
 /**
  * command line option parser
@@ -80,13 +80,12 @@ int main(int argc, char *argv[])
 				" -a   \tdo not open device at startup\n", VERSION);
 		return 1;
 	}
-	// load some data
+	// loading... please wait.
 	load_data();
 	// create user interface
 	ui = new PD_UI();
 	if (!ui)
 		return 1;
-//	Fl::lock();
 #ifdef NDEBUG
 	ui->init_log_b->hide();
 	ui->init_log_m->hide();

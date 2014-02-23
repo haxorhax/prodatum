@@ -4654,8 +4654,8 @@ void Piano::draw_case()
 	snprintf(buf, 9, "pd");
 	fl_draw(buf, keyboard_x0 + keyboard_w - 15, keyboard_y0 - 3);
 	// velocity
-	snprintf(buf, 9, "%3d", key_velocity);
-	fl_draw(buf, keyboard_x0 + 40, keyboard_y0 - 3);
+	snprintf(buf, 9, "Velo %3d", key_velocity);
+	fl_draw(buf, keyboard_x0 + 30, keyboard_y0 - 3);
 	fl_pop_clip();
 }
 
@@ -4950,8 +4950,8 @@ void MiniPiano::draw_case()
 	fl_color(FL_FOREGROUND_COLOR);
 	fl_font(FL_HELVETICA, 10);
 	// velocity
-	char buf[8];
-	snprintf(buf, 8, "Vel %3d", key_velocity);
+	char buf[9];
+	snprintf(buf, 9, "Velo %3d", key_velocity);
 	fl_draw(buf, key_x + 3, key_y - 3);
 	// position
 	snprintf(buf, 4, "C%d", octave - 1);

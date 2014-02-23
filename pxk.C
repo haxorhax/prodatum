@@ -23,6 +23,7 @@
 #include <FL/Fl_Tooltip.H>
 #include "pxk.H"
 
+extern const char* VERSION;
 extern PD_UI* ui;
 extern PXK* pxk;
 
@@ -438,7 +439,7 @@ static void sync_bro(void* p)
 	// general variables
 	static unsigned int name = 0;
 	static char _label[64];
-	static unsigned char countdown = 33;
+	static unsigned char countdown;
 #ifndef NDEBUG
 	char logbuffer[128];
 #endif
@@ -466,7 +467,7 @@ static void sync_bro(void* p)
 				ui->init_progress->maximum((float) 64);
 				init_progress = 0;
 				ui->init_progress->value(.0);
-				countdown = 48;
+				countdown = 50; // ~ 1/2 s.
 				goto Exit;
 			}
 #ifndef NDEBUG
@@ -496,7 +497,7 @@ static void sync_bro(void* p)
 				pxk->load_setup_names(name++);
 				requested = true;
 				got_answer = false;
-				countdown = 128;
+				countdown = 50;
 				goto Exit;
 			}
 			if (!got_answer)
@@ -603,7 +604,7 @@ static void sync_bro(void* p)
 					pxk->rom[rom_nr]->load_name(type, name++);
 					requested = true;
 					got_answer = false;
-					countdown = 36;
+					countdown = 50;
 					goto Exit;
 				}
 				if (!got_answer)
@@ -672,8 +673,8 @@ static void sync_bro(void* p)
 		Club:
 #ifndef NDEBUG
 		snprintf(logbuffer, 128,
-				"\nMIDI: min. read buffer space: %d (max. msg len %d)\nMIDI: min. write buffer space: %d (max. msg len %d)\n",
-				read_space, max_read, write_space, max_write);
+				"\nmin. read buffer space: %d (max. pkt len %d)\nmin. write buffer space: %d (max. pkt len %d)\n", read_space,
+				max_read, write_space, max_write);
 		ui->init_log->append(logbuffer);
 		read_space = RINGBUFFER_READ;
 		write_space = RINGBUFFER_WRITE;
@@ -706,7 +707,9 @@ bool PXK::Synchronize()
 		return false;
 	pmesg("PXK::Synchronize()\n");
 #ifndef NDEBUG
-	ui->init_log->append("PXK::Synchronize()\n\n");
+	char buf[64];
+	snprintf(buf, 64, "PXK::Synchronize() %d[ms]\n\n", cfg->get_cfg_option(CFG_SPEED));
+	ui->init_log->append(buf);
 #endif
 	midi->filter_strict(); // filter everything but sysex for sync
 	init_progress = 0;
@@ -1057,7 +1060,7 @@ static void check_loading(void*)
 	}
 }
 
-void PXK::Loading() const
+void PXK::Loading(bool upload) const
 {
 	pmesg("PXK::Loading() \n");
 	got_answer = false;
@@ -1065,7 +1068,15 @@ void PXK::Loading() const
 	ui->loading_w->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->loading_w->w() / 2),
 			ui->main_window->y() + 80);
 	ui->loading_w->show();
-	Fl::add_timeout(1.5, check_loading);
+	if (upload)
+		Fl::add_timeout((2000. + cfg->get_cfg_option(CFG_SPEED)) / 1000., check_loading);
+	else
+	{
+		if (cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD))
+			Fl::add_timeout((1900. + cfg->get_cfg_option(CFG_SPEED)) / 1000., check_loading);
+		else
+			Fl::add_timeout((1500. + 8 * cfg->get_cfg_option(CFG_SPEED)) / 1000., check_loading);
+	}
 }
 
 void PXK::load_setup()
@@ -1202,13 +1213,6 @@ void PXK::incoming_arp_dump(const unsigned char* data, int len)
 	}
 }
 
-void PXK::incoming_ERROR(int cmd, int sub)
-{
-	pmesg("PXK::incoming_ERROR(cmd: %X, subcmd: %X) \n", cmd, sub);
-	display_status("Received ERROR.");
-
-}
-
 void PXK::incoming_ACK(int packet)
 {
 	pmesg("PXK::incoming_ACK(packet: %d) \n", packet);
@@ -1231,11 +1235,18 @@ void PXK::incoming_NAK(int packet)
 		fl_message("Closed Loop Upload failed!\nData is currupt.");
 }
 
-void PXK::incoming_CANCEL()
-{
-	pmesg("PXK::incoming_CANCEL() \n");
-	display_status("Received CANCEL.");
-}
+//void PXK::incoming_CANCEL()
+//{
+//	pmesg("PXK::incoming_CANCEL() \n");
+//	display_status("Received CANCEL.");
+//}
+//
+//void PXK::incoming_ERROR(int cmd, int sub)
+//{
+//	pmesg("PXK::incoming_ERROR(cmd: %X, subcmd: %X) \n", cmd, sub);
+//	display_status("Received ERROR.");
+//
+//}
 
 void PXK::set_setup_name(unsigned char number, const unsigned char* name)
 {
@@ -1416,12 +1427,11 @@ void PXK::load_export(const char* filename)
 #ifdef __linux
 	int offset = 0;
 	while (strncmp(filename + offset, "/", 1) != 0)
-	++offset;
+		++offset;
 	char n[PATH_MAX];
 	snprintf(n, PATH_MAX, "%s", filename + offset);
-	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n)
-			- 1] == ' ')
-	n[strlen(n) - 1] = '\0';
+	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
+		n[strlen(n) - 1] = '\0';
 	std::ifstream file(n, std::ifstream::binary);
 #else
 	std::ifstream file(filename, std::ifstream::binary);
@@ -1507,6 +1517,17 @@ void PXK::create_device_info()
 	ui->device_info->copy_label(info.data());
 #ifndef NDEBUG
 	ui->init_log->remove(0, ui->init_log->length());
+	const char* OS;
+#if defined(OSX)
+	OS = "Mac OS X";
+#elif defined(WIN32)
+	OS = "Microsoft Windows";
+#else
+	OS = "GNU/Linux";
+#endif
+	snprintf(buf, 512, "prodatum %s on %s\nClosed loop up/down %d/%d\n\n", VERSION, OS,
+			cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD), cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD));
+	ui->init_log->append(buf);
 	ui->init_log->append(info.data());
 	ui->init_log->append("\n\n");
 #endif

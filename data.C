@@ -370,7 +370,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		show_preset = show;
 		update_checksum();
 		if (closed_loop)
-			pxk->Loading();
+			pxk->Loading(true);
 	}
 	ui->progress->value((float) status);
 	if (closed_loop)
