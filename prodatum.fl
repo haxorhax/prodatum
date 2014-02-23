@@ -4233,7 +4233,7 @@ if (((Fl_Button*) o->array()[i])->value())
       }
     }
     Fl_Window about {
-      label {About prodatum} open selected
+      label {About prodatum}
       xywh {893 383 272 361} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Box {} {
@@ -4331,9 +4331,9 @@ o->deactivate();
       }
     }
     Fl_Window copy_preset {
-      label Copy
+      label Copy selected
       xywh {512 211 215 370} type Double box BORDER_BOX hide
-      class Double_Window modal xclass prodatum
+      class Double_Window xclass prodatum
     } {
       Fl_Group g_copy_preset {
         label DESTINATION open
