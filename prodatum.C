@@ -346,7 +346,7 @@ void PD_UI::edit_arp_x(int x)
  */
 void PD_UI::set_eall(int v)
 {
-	pmesg("PD_UI::set_eall(%d)\n", v);
+	//pmesg("PD_UI::set_eall(%d)\n", v);
 	if (v && !eall)
 	{
 		pxk->widget_callback(269, 1); // enable edit all layers

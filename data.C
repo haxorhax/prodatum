@@ -241,7 +241,7 @@ void Preset_Dump::set_name(const char* val, int type, int position)
 
 void Preset_Dump::show() const
 {
-	pmesg("Preset_Dump::show()\n");
+	//pmesg("Preset_Dump::show()\n");
 	char buf[30];
 	snprintf(buf, 30, "%02d.%03d.%d %s", rom_id, number % 128, number / 128, name);
 	ui->main->preset_name->copy_label((char*) buf);
@@ -293,7 +293,7 @@ void Preset_Dump::show() const
 
 void Preset_Dump::show_fx() const
 {
-	pmesg("Preset_Dump::show_fx()\n");
+	//pmesg("Preset_Dump::show_fx()\n");
 	for (int i = 1153; i < 1169; i++)
 		if (pwid[i][0])
 			pwid[i][0]->set_value(get_value(i));
@@ -320,7 +320,7 @@ void Preset_Dump::update_piano() const
 
 void Preset_Dump::update_envelopes() const
 {
-	pmesg("Preset_Dump::update_envelopes()\n");
+	//pmesg("Preset_Dump::update_envelopes()\n");
 	static int stages[12];
 	int mode = 0;
 	int repeat = -1;
@@ -1081,13 +1081,13 @@ int Setup_Dump::get_value(int id, int channel) const
 
 int Setup_Dump::get_dump_size() const
 {
-	pmesg("Setup_Dump::get_dump_size()\n");
+	//pmesg("Setup_Dump::get_dump_size()\n");
 	return size;
 }
 
 const unsigned char* Setup_Dump::get_data() const
 {
-	pmesg("Setup_Dump::get_data()\n");
+	//pmesg("Setup_Dump::get_data()\n");
 	return data;
 }
 
@@ -1548,7 +1548,6 @@ int ROM::get_attribute(int type) const
 
 const char* ROM::name() const
 {
-	pmesg("name(code: %d)\n", id);
 	switch (id)
 	{
 		case 0:

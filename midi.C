@@ -370,8 +370,11 @@ static void process_midi_in(void*)
 						break;
 
 					case 0x7d: // CANCEL
-//						pxk->incoming_CANCEL();
-//						break;
+						got_answer = true;
+						requested = false;
+						pxk->display_status("Device cancelled.");
+						ui->loading_w->hide();
+						break;
 					case 0x70: // error
 //						pxk->incoming_ERROR(sysex[7] * 128 + sysex[6], sysex[9] * 128 + sysex[8]);
 //						break;
@@ -396,11 +399,11 @@ static void process_midi_in(void*)
 			// universal sysex
 			else if (sysex[1] == 0x7e)
 			{
-				pmesg("process_midi_in: received MIDI standard universal message: ");
+				//pmesg("process_midi_in: received MIDI standard universal message: ");
 				// device inquiry
 				if (sysex[3] == 0x06 && sysex[4] == 0x02 && sysex[5] == 0x18)
 				{
-					pmesg("device inquiry response\n");
+					//pmesg("device inquiry response\n");
 					if (!pxk->Synchronized())
 						pxk->incoming_inquiry_data(sysex, len);
 				}
@@ -584,7 +587,7 @@ MIDI::~MIDI()
 // get available system midi ports
 void MIDI::populate_ports()
 {
-	pmesg("MIDI::populate_ports()\n");
+	//pmesg("MIDI::populate_ports()\n");
 	ui->midi_outs->clear();
 	ui->midi_outs->copy_label("Select...");
 	ui->midi_ins->clear();
@@ -1063,7 +1066,7 @@ void MIDI::request_setup_dump() const
 
 void MIDI::request_arp_dump(int number, int rom_id) const
 {
-	pmesg("MIDI::request_arp_dump(#: %d, rom: %d)\n", number, rom_id);
+	//pmesg("MIDI::request_arp_dump(#: %d, rom: %d)\n", number, rom_id);
 	if (number < 0)
 		number += 16384;
 	unsigned char request[] =
@@ -1103,7 +1106,7 @@ void MIDI::master_volume(int volume) const
 
 void MIDI::copy(int cmd, int src, int dst, int src_l, int dst_l, int rom_id) const
 {
-	pmesg("MIDI::copy(cmd: %X, src: %d, src_l: %d, dst: %d, dst_l: %d, rom: %d)\n", cmd, src, src_l, dst, dst_l, rom_id);
+	//pmesg("MIDI::copy(cmd: %X, src: %d, src_l: %d, dst: %d, dst_l: %d, rom: %d)\n", cmd, src, src_l, dst, dst_l, rom_id);
 	if (dst < 0)
 		dst += 16384;
 	if (src < 0)

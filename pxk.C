@@ -846,7 +846,7 @@ void PXK::incoming_hardware_config(const unsigned char* data, int len)
 
 unsigned char PXK::load_setup_names(unsigned char start)
 {
-	pmesg("PXK::load_setup_names(%d)\n", start);
+	//pmesg("PXK::load_setup_names(%d)\n", start);
 	// try to load from disk
 	if (start == 99)
 	{
@@ -1250,7 +1250,7 @@ void PXK::incoming_NAK(int packet)
 
 void PXK::set_setup_name(unsigned char number, const unsigned char* name)
 {
-	pmesg("PXK::set_setup_name(%d, %s) \n", number, name);
+	//pmesg("PXK::set_setup_name(%d, %s) \n", number, name);
 	if (!setup_names)
 		setup_names = new unsigned char[1024];
 	memcpy(setup_names + 16 * number, name, 16);
@@ -1271,7 +1271,7 @@ void PXK::save_setup_names() const
 
 void PXK::update_cc_sliders()
 {
-	pmesg("PXK::update_cc_sliders() \n");
+	//pmesg("PXK::update_cc_sliders() \n");
 	if (!preset)
 		return;
 	ui->main->b_store->deactivate();
@@ -1316,7 +1316,7 @@ void PXK::update_cc_sliders()
 
 void PXK::update_control_map()
 {
-	pmesg("PXK::update_control_map() \n");
+	//pmesg("PXK::update_control_map() \n");
 	// cc to controller
 	cc_to_ctrl.clear();
 	cc_to_ctrl[setup->get_value(391)] = 1;
@@ -1491,7 +1491,7 @@ void PXK::load_export(const char* filename)
 
 void PXK::create_device_info()
 {
-	pmesg("PXK::create_device_info()\n");
+	//pmesg("PXK::create_device_info()\n");
 // if we cancelled initialisation of roms, return here
 	if (!rom[1])
 		return;
@@ -1534,7 +1534,7 @@ void PXK::create_device_info()
 }
 const char* PXK::get_name(int code) const
 {
-	pmesg("PXK::get_name(code: %d)\n", code);
+	//pmesg("PXK::get_name(code: %d)\n", code);
 	switch (code)
 	{
 		case 0x02:
@@ -1624,7 +1624,7 @@ static void status(void* p)
 // currently spasce for ~30 characters max!
 void PXK::display_status(const char* message, bool top)
 {
-	pmesg("PXK::display_status(%s, %s) \n", message, top ? "true" : "false");
+	//pmesg("PXK::display_status(%s, %s) \n", message, top ? "true" : "false");
 	if (top) // important stuff
 	{
 		if (!launch)
@@ -1650,7 +1650,7 @@ void PXK::display_status(const char* message, bool top)
 
 void PXK::update_fx_values(int id, int value) const
 {
-	pmesg("PXK::update_fx_values(%d, %d) \n", id, value);
+	//pmesg("PXK::update_fx_values(%d, %d) \n", id, value);
 	if (id == 513 || id == 1153) // fxa
 	{
 		int decay = 0;
