@@ -3277,7 +3277,7 @@ void Envelope_Editor::draw()
 	fl_pop_clip();
 }
 
-void Envelope_Editor::draw_envelope(int type, int x0, int y0)
+void Envelope_Editor::draw_envelope(char type, int x0, int y0)
 {
 	// x-scaling
 	float x_scale = (((float) ee_w - 10.) / 768.) * (float) zoomlevel;
@@ -3306,10 +3306,10 @@ void Envelope_Editor::draw_envelope(int type, int x0, int y0)
 			fl_color(231, 42, 42);
 			break;
 		case FILTER:
-			fl_color(61, 61, 209);
+			fl_color(81, 81, 239);
 			break;
 		case AUXILIARY:
-			fl_color(56, 189, 56);
+			fl_color(36, 189, 36);
 	}
 
 	col = fl_color_average(FL_FOREGROUND_COLOR, fl_color(), .3);
@@ -3461,7 +3461,7 @@ int Envelope_Editor::handle(int ev)
 					// switch selected dragbox
 					if (Fl::event_dy() > 0)
 					{
-						for (int i = hover + 1; i < 6; i++)
+						for (char i = hover + 1; i < 6; i++)
 						{
 							if (hover_list & (1 << i))
 							{
@@ -3473,7 +3473,7 @@ int Envelope_Editor::handle(int ev)
 					}
 					else
 					{
-						for (int i = hover - 1; i >= 0; i--)
+						for (char i = hover - 1; i >= 0; i--)
 						{
 							if (hover_list & (1 << i))
 							{
@@ -3507,7 +3507,7 @@ int Envelope_Editor::handle(int ev)
 			// coordinate system
 			if (Fl::event_inside(ee_x0 + 2, ee_y0 + 22, ee_w - 4, ee_h - 43))
 			{
-				for (int i = 0; i < 6; i++)
+				for (char i = 0; i < 6; i++)
 				{
 					if (Fl::event_inside(dragbox[i][0] - 4, dragbox[i][1] - 4, 9, 9))
 					{
@@ -3535,7 +3535,7 @@ int Envelope_Editor::handle(int ev)
 			else if (Fl::event_inside(ee_x0, ee_y0, ee_w, 19))
 			{
 				fl_cursor(FL_CURSOR_DEFAULT);
-				for (int i = 0; i < 5; i++)
+				for (char i = 0; i < 5; i++)
 					if (Fl::event_inside(mode_button[i], ee_y0 + 5, 50, 14))
 						button_hover = i;
 			}
@@ -3544,7 +3544,7 @@ int Envelope_Editor::handle(int ev)
 			{
 				fl_cursor(FL_CURSOR_DEFAULT);
 
-				for (int i = 0; i < 6; i++)
+				for (char i = 0; i < 6; i++)
 				{
 					if (Fl::event_inside(copy_button[i], ee_y0 + ee_h - 18, 16, 14))
 					{
@@ -3552,7 +3552,7 @@ int Envelope_Editor::handle(int ev)
 						return 1;
 					}
 				}
-				for (int i = 0; i < 5; i++)
+				for (char i = 0; i < 4; i++)
 				{
 					if (Fl::event_inside(shape_button[i], ee_y0 + ee_h - 18, 16, 14))
 					{
@@ -3825,12 +3825,12 @@ int Envelope_Editor::handle(int ev)
 	return Fl_Box::handle(ev);
 }
 
-void Envelope_Editor::set_data(int type, int* stages, int mode, int repeat)
+void Envelope_Editor::set_data(char type, int* stages, char mode, char repeat)
 {
 	//pmesg("Envelope_Editor::set_data(%d, int*, %d, %d)\n", type, mode, repeat);
 	env[type].mode = mode;
 	env[type].repeat = repeat;
-	for (int i = 0; i < 6; i++)
+	for (char i = 0; i < 6; i++)
 	{
 		env[type].stage[i][0] = *(stages + i * 2);
 		env[type].stage[i][1] = *(stages + i * 2 + 1);
@@ -3838,7 +3838,7 @@ void Envelope_Editor::set_data(int type, int* stages, int mode, int repeat)
 	redraw();
 }
 
-void Envelope_Editor::copy_envelope(int src, int dst)
+void Envelope_Editor::copy_envelope(char src, char dst)
 {
 	if (dst == src)
 		return;
@@ -3854,7 +3854,7 @@ void Envelope_Editor::copy_envelope(int src, int dst)
 	redraw();
 }
 
-void Envelope_Editor::set_shape(int dst, int shape)
+void Envelope_Editor::set_shape(char dst, char shape)
 {
 	switch (shape)
 	{
@@ -3925,12 +3925,12 @@ void Envelope_Editor::set_shape(int dst, int shape)
 	}
 }
 
-void Envelope_Editor::set_layer(int l)
+void Envelope_Editor::set_layer(char l)
 {
 	layer = l;
 }
 
-void Envelope_Editor::sync_view(int l, int m, float z, bool o)
+void Envelope_Editor::sync_view(char l, char m, float z, bool o)
 {
 	if (l == layer) // set other
 	{
@@ -4007,7 +4007,7 @@ int Piano::handle(int ev)
 
 		case FL_MOUSEWHEEL:
 			// switch mode
-			int tmp;
+			char tmp;
 			if (Fl::event_dy() > 0)
 				tmp = mode + 1;
 			else
@@ -4769,7 +4769,7 @@ void Piano::calc_hovered(int x, int y)
 	previous_hovered_key = hovered_key;
 }
 
-void Piano::select_transpose_layer(int l)
+void Piano::select_transpose_layer(char l)
 {
 	active_keys[72 - transpose[selected_transpose_layer]] = -1;
 	selected_transpose_layer = l;
@@ -4777,7 +4777,7 @@ void Piano::select_transpose_layer(int l)
 	damage(D_HIGHLIGHT);
 }
 
-void Piano::set_mode(int m)
+void Piano::set_mode(char m)
 {
 	mode = m;
 	if (mode == KEYRANGE)
@@ -4792,7 +4792,7 @@ void Piano::set_mode(int m)
 
 // called by midi->process_not_sysex to highlight incoming midi events
 // on the keyboard
-void Piano::activate_key(int value, int key)
+void Piano::activate_key(char value, char key)
 {
 	if (active_keys[key] == value || (active_keys[key] == 2 && value == -1) || (pushed != NONE && key == hovered_key))
 		return;
@@ -4816,7 +4816,7 @@ void Piano::reset_active_keys()
 }
 
 // map keys to 2-d space
-void Piano::set_range_values(int md, int layer, int low_k, int low_f, int high_k, int high_f)
+void Piano::set_range_values(char md, char layer, char low_k, char low_f, char high_k, char high_f)
 {
 	//pmesg("Piano::set_range_values(%d, %d, %d, %d, %d, %d)\n", md, layer, low_k, low_f, high_k, high_f);
 	if (low_k < 0 || low_k > 127)
@@ -4849,7 +4849,7 @@ void Piano::set_range_values(int md, int layer, int low_k, int low_f, int high_k
 		damage(D_RANGES);
 }
 
-void Piano::set_transpose(int l1, int l2, int l3, int l4)
+void Piano::set_transpose(char l1, char l2, char l3, char l4)
 {
 	//pmesg("Piano::set_transpose(%d, %d, %d, %d)\n", l1, l2, l3, l4);
 	transpose[0] = l1;

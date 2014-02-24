@@ -903,7 +903,7 @@ class Envelope_Editor: public Fl_Box
 	struct envelope
 	{
 		int stage[6][2]; // x/y coordinates of the 6 envelope stages
-		int mode, repeat;
+		char mode, repeat;
 	};
 	envelope env[3];
 	enum
@@ -934,10 +934,10 @@ class Envelope_Editor: public Fl_Box
 	};
 	virtual int handle(int event);
 	void draw();
-	void draw_envelope(int type, int x0, int y0);
-	void copy_envelope(int src, int dst);
-	void set_shape(int dst, int shape);
-	int layer;
+	void draw_envelope(char type, int x0, int y0);
+	void copy_envelope(char src, char dst);
+	void set_shape(char dst, char shape);
+	char layer;
 	int ee_x0;
 	int ee_y0;
 	int ee_w;
@@ -945,18 +945,17 @@ class Envelope_Editor: public Fl_Box
 	int mode_button[5]; // x0 of the mode buttons (width = 75, h = 20)
 	int copy_button[6];
 	int shape_button[4];
-	int button_hover;
-	int zoomlevel;
+	char button_hover;
+	unsigned char zoomlevel;
 	int dragbox[6][2];
-	int hover;
+	char hover;
 	int hover_list; // 1, 2, 4, 8, 16, 32
 	int push_x;
 	int push_y;
-	int mode;
-	int modes;
+	unsigned char mode;
+	unsigned char modes;
 	bool overlay;
 	bool button_push;
-	int bg;
 
 public:
 	Envelope_Editor(int x, int y, int w, int h, char* const label = 0) :
@@ -972,9 +971,9 @@ public:
 		set_shape(FILTER, SHAPE_A);
 		set_shape(AUXILIARY, SHAPE_C);
 	}
-	void set_data(int type, int* stages, int mode, int repeat);
-	void set_layer(int l);
-	void sync_view(int l, int m = 0, float z = .0, bool o = false);
+	void set_data(char type, int* stages, char mode, char repeat);
+	void set_layer(char l);
+	void sync_view(char l, char m = 0, float z = .0, bool o = false);
 };
 
 /**
@@ -1010,24 +1009,24 @@ class Piano: public Fl_Box
 	{
 		D_RANGES = 1, D_KEYS, D_HIGHLIGHT = 4, D_CASE = 8
 	};
-	int mode; // 0 = keyrange, 1 = velocity, 2 = realtime
-	int modes;
+	char mode; // 0 = keyrange, 1 = velocity, 2 = realtime
+	char modes;
 	int keyboard_x0, keyboard_y0, keyboard_w, keyboard_h;
-	int h_white, w_white, h_black, w_black;
+	char h_white, w_white, h_black, w_black;
 	int taste_x0[128][2];
 	int dragbox[3][8][4][2]; // mode, layer, type, x/y
-	int highlight_dragbox[8][4];
-	int prev_key_value[3][8][4];
-	int new_key_value[3][8][4];
-	int pushed; // currently dragged part
-	int pushed_range; // currently dragged range (low_key, low_fade...)
-	int hovered_key, play_hovered_key;
+	char highlight_dragbox[8][4];
+	char prev_key_value[3][8][4];
+	char new_key_value[3][8][4];
+	char pushed; // currently dragged part
+	char pushed_range; // currently dragged range (low_key, low_fade...)
+	char hovered_key, play_hovered_key;
 	int active_keys[128];
-	int previous_hovered_key;
-	int selected_transpose_layer;
-	int transpose[4];
+	char previous_hovered_key;
+	char selected_transpose_layer;
+	char transpose[4];
 	int push_x; // used for setting the key velocity
-	int key_velocity;
+	char key_velocity;
 
 public:
 	Piano(int x, int y, int w, int h, char* const label = 0) :
@@ -1090,9 +1089,9 @@ public:
 			offset += 7 * (w_white - 1);
 		}
 		// y-koordinaten der dragboxes
-		for (int m = 0; m < 3; m++)
-			for (int i = 0; i < 4; i++)
-				for (int j = 0; j < 4; j++)
+		for (char m = 0; m < 3; m++)
+			for (char i = 0; i < 4; i++)
+				for (char j = 0; j < 4; j++)
 				{
 					if (j == LOW_KEY || j == HIGH_KEY)
 						dragbox[m][i][j][1] = keyboard_y0 + 5 + keyboard_h + i * 18;
@@ -1110,16 +1109,16 @@ public:
 		dragbox[0][7][LOW_KEY][1] = dragbox[0][6][LOW_KEY][1] + 10;
 		dragbox[0][7][HIGH_KEY][1] = dragbox[0][7][LOW_KEY][1];
 		// x koordinaten
-		for (int m = 0; m < 3; m++)
-			for (int i = 0; i < 8; i++)
+		for (char m = 0; m < 3; m++)
+			for (char i = 0; i < 8; i++)
 				set_range_values(m, i, 0, 0, 127, 0);
 	}
 
-	void set_range_values(int md, int layer, int low_k, int low_f, int high_k, int high_f);
-	void set_transpose(int l1, int l2, int l3, int l4);
-	void select_transpose_layer(int l);
-	void set_mode(int m);
-	void activate_key(int value, int key);
+	void set_range_values(char md, char layer, char low_k, char low_f, char high_k, char high_f);
+	void set_transpose(char l1, char l2, char l3, char l4);
+	void select_transpose_layer(char l);
+	void set_mode(char m);
+	void activate_key(char value, char key);
 	void reset_active_keys();
 };
 
