@@ -28,6 +28,9 @@ decl {\#include "widgets.H"} {public global
 
 decl {\#include "images.H"} {} 
 
+decl {\#include "Fl_Scope.H"} {public global
+} 
+
 decl {\#include <FL/filename.H>>} {} 
 
 decl {\#include <FL/Fl_Tooltip.H>} {} 
@@ -1542,7 +1545,7 @@ l2_filter->do_callback();}
 } 
 
 widget_class PD_Main {
-  xywh {725 282 830 565} type Double box BORDER_BOX hide position_relative
+  xywh {514 463 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
   }
@@ -1554,7 +1557,7 @@ widget_class PD_Main {
   } {
     Fl_Group {} {
       label CHANNEL
-      xywh {4 23 200 225} box THIN_DOWN_BOX labelfont 1 labelcolor 8
+      xywh {4 23 196 225} box THIN_DOWN_BOX labelfont 1 labelcolor 8
     } {
       Fl_Button preset_name {
         callback {ui->select(5);}
@@ -1746,7 +1749,7 @@ midi->audit();}
         }
       }
       Fl_Box minipiano {
-        xywh {5 203 198 44} box FLAT_BOX labeltype NO_LABEL
+        xywh {5 203 194 44} box FLAT_BOX labeltype NO_LABEL
         class MiniPiano
       }
     }
@@ -2574,10 +2577,10 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} selected
-      xywh {405 60 845 620} type Double resizable
+delete this;} open
+      xywh {869 239 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
-      class Double_Window xclass prodatum size_range {674 492 845 620} visible
+      class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
       Fl_Group {} {
         label name
@@ -2614,7 +2617,7 @@ pxk->preset->set_name(o->value(), 1, o->position());}
         }
       }
       Fl_Group {} {
-        label menu open
+        label menu
         xywh {1 1 420 23} labeltype NO_LABEL
       } {
         Fl_Box {} {
@@ -2989,7 +2992,7 @@ about->show();
 piano_w->hide();
 else
 piano_w->showup();}
-          tooltip Master xywh {8 25 46 19} box THIN_UP_BOX down_box THIN_UP_BOX color 7 selection_color 15 labelsize 10
+          tooltip Master xywh {9 25 46 19} box THIN_UP_BOX down_box THIN_UP_BOX color 7 selection_color 15 labelsize 10
         }
         Fl_Group selector {
           callback {for (int i = 0; i < o->children(); i++)
@@ -2998,13 +3001,13 @@ if (((Fl_Button*) o->array()[i])->value())
 	select(i);
 	Fl::focus(o->array()[i]);
 	break;
-}}
+}} open
           xywh {56 25 754 19} when 0
         } {
           Fl_Button {} {
             label {M&ain}
             callback {((Group*)o->parent())->do_callback();}
-            xywh {56 25 101 19} type Radio box THIN_UP_BOX down_box THIN_UP_BOX color 7 selection_color 15 labelsize 10 when 6
+            xywh {57 25 101 19} type Radio box THIN_UP_BOX down_box THIN_UP_BOX color 7 selection_color 15 labelsize 10 when 6
           }
           Fl_Button {} {
             label {Voice &1}
@@ -3116,7 +3119,7 @@ g_multisetups->hide();
 main->controller->show();
 main->controller_assign->hide();
 }}
-          tooltip Master xywh {158 25 46 19} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX color 7 selection_color 15 labelsize 10
+          tooltip Master xywh {159 25 46 19} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX color 7 selection_color 15 labelsize 10
         }
         Fl_Button b_pfx {
           label {P/&FX}
@@ -3153,6 +3156,22 @@ preset_editor->program->show();
 preset_editor->links->hide();
 }}
           tooltip Links xywh {789 25 46 19} type Toggle box THIN_UP_BOX down_box THIN_UP_BOX color 7 selection_color 15 labelsize 10
+        }
+        Fl_Box scope_i {
+          xywh {10 48 44 16} box FLAT_BOX when 0 deactivate
+          code0 {o->redrawmode(FL_SCOPE_REDRAW_ALWAYS);o->tracetype(FL_SCOPE_TRACE_LOOP);}
+          code1 {o->linetype(FL_SCOPE_DOT);}
+          code2 {o->TraceColour(FL_FOREGROUND_COLOR);o->BackColour(FL_BACKGROUND_COLOR);}
+          code3 {o->datatype(FL_SCOPE_UNSIGNED);}
+          class Fl_Scope
+        }
+        Fl_Box scope_o {selected
+          xywh {160 48 44 16} box FLAT_BOX when 0 deactivate
+          code0 {o->redrawmode(FL_SCOPE_REDRAW_ALWAYS);o->tracetype(FL_SCOPE_TRACE_LOOP);}
+          code1 {o->linetype(FL_SCOPE_DOT);}
+          code2 {o->TraceColour(FL_FOREGROUND_COLOR);o->BackColour(FL_BACKGROUND_COLOR);}
+          code3 {o->datatype(FL_SCOPE_UNSIGNED);}
+          class Fl_Scope
         }
         Fl_Box main {
           xywh {5 43 833 567} labeltype NO_LABEL

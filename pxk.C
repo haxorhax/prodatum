@@ -738,7 +738,13 @@ void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned c
 	else
 		n = snprintf(buf, 16, "\nO.%u::", ++count_o);
 	for (unsigned int i = 0; i < len; i++)
+	{
 		sprintf(n + buf + 2 * i, "%02X", sysex[i]);
+		if(io == 1)
+			ui->scope_i->Add(sysex[i] * 256);
+		else
+			ui->scope_o->Add(sysex[i] * 256);
+	}
 	ui->logbuf->append(buf);
 	delete[] buf;
 }

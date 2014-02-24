@@ -1,6 +1,7 @@
 v2.0rc6
 
 * envelope editor could segfault, fixed
+* added MIDI I/O scopes (for scientific looks and to appeal to the masses)
 
 
 v2.0rc5
