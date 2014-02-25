@@ -2314,8 +2314,8 @@ void Button::set_value(int v)
 	if (id_layer[0] == 258) // fx bypass
 	{
 		v ? ui->m_bypass->set() : ui->m_bypass->clear();
-		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_BACKGROUND2_COLOR, .6)) : ui->b_pfx->color(
-						FL_BACKGROUND2_COLOR);
+		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_INACTIVE_COLOR, .6)) : ui->b_pfx->color(
+				FL_INACTIVE_COLOR);
 		ui->b_pfx->redraw();
 	}
 	else if (id_layer[0] == 1025) // arp preset
@@ -2353,8 +2353,8 @@ int Button::get_value() const
 	if (id_layer[0] == 258) // fx bypass
 	{
 		v ? ui->m_bypass->set() : ui->m_bypass->clear();
-		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_BACKGROUND2_COLOR, .6)) : ui->b_pfx->color(
-						FL_BACKGROUND2_COLOR);
+		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_INACTIVE_COLOR, .6)) : ui->b_pfx->color(
+				FL_INACTIVE_COLOR);
 		ui->b_pfx->redraw();
 	}
 	if (id_layer[0] == 258 || id_layer[0] == 1669 || id_layer[0] == 1674 || id_layer[0] == 1033 || id_layer[0] == 649) // fx bypass / lfo syncs / arp syncs
@@ -3056,7 +3056,7 @@ void Envelope_Editor::draw()
 			fl_color(FL_BACKGROUND2_COLOR);
 			fg = fl_contrast(FL_FOREGROUND_COLOR, FL_BACKGROUND2_COLOR);
 		}
-		draw_box(FL_THIN_UP_BOX, mode_button[i] - 2, ee_y0 + 3, 52, 17, fl_color());
+		draw_box(FL_BORDER_BOX, mode_button[i] - 2, ee_y0 + 3, 52, 17, fl_color());
 		// text
 		fl_color(fg);
 		if (i == 0)
@@ -3082,27 +3082,27 @@ void Envelope_Editor::draw()
 		if (i != mode && i != mode + 3)
 			if (button_push && button_hover == VOLUME_SELECTED + i)
 			{
-				draw_box(FL_THIN_UP_BOX, copy_button[i], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
+				draw_box(FL_BORDER_BOX, copy_button[i], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
 				draw_b_label(VOLUME_SELECTED + i, fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR));
 			}
 			else
 			{
-				draw_box(FL_THIN_UP_BOX, copy_button[i], ee_y0 + ee_h - 21, 17, 17, FL_BACKGROUND2_COLOR);
+				draw_box(FL_BORDER_BOX, copy_button[i], ee_y0 + ee_h - 21, 17, 17, FL_BACKGROUND2_COLOR);
 				draw_b_label(VOLUME_SELECTED + i, fl_contrast(FL_FOREGROUND_COLOR, FL_BACKGROUND2_COLOR));
 			}
-	draw_box(FL_THIN_UP_BOX, copy_button[mode], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
+	draw_box(FL_BORDER_BOX, copy_button[mode], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
 	draw_b_label(VOLUME_SELECTED + mode, fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR));
 	// shapes
 	for (i = 0; i < 4; i++)
 	{
 		if (button_push && button_hover == SHAPE_A + i)
 		{
-			draw_box(FL_THIN_UP_BOX, shape_button[i], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
+			draw_box(FL_BORDER_BOX, shape_button[i], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
 			draw_b_label(SHAPE_A + i, fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR));
 		}
 		else
 		{
-			draw_box(FL_THIN_UP_BOX, shape_button[i], ee_y0 + ee_h - 21, 17, 17, FL_BACKGROUND2_COLOR);
+			draw_box(FL_BORDER_BOX, shape_button[i], ee_y0 + ee_h - 21, 17, 17, FL_BACKGROUND2_COLOR);
 			draw_b_label(SHAPE_A + i, fl_contrast(FL_FOREGROUND_COLOR, FL_BACKGROUND2_COLOR));
 		}
 	}
@@ -3129,7 +3129,7 @@ void Envelope_Editor::draw()
 	int x0 = ee_x0 + 5;
 	float y0 = (float) ee_y0 + 25. + ((float) ee_h - 50.) / 2.;
 	fl_color(FL_BACKGROUND2_COLOR);
-	draw_box(FL_THIN_UP_BOX, x0 - 1,  ee_y0 + 25., ee_w - 8,  ee_h - 50, FL_BACKGROUND2_COLOR);
+	draw_box(FL_THIN_UP_BOX, x0 - 1,  ee_y0 + 25., ee_w - 8,  ee_h - 50, FL_INACTIVE_COLOR);
 	fl_push_clip(x0 + 1, (float) ee_y0 + 26., ee_w - 12, ee_h - 52);
 	fl_color(FL_BACKGROUND_COLOR);
 	// vertikale
