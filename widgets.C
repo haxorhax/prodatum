@@ -2960,6 +2960,44 @@ int PPCD_Choice::get_value() const
 // ###################
 //
 // ###################
+void Envelope_Editor::draw_b_label(char butt, Fl_Color col)
+{
+	int ypos = ee_y0 + ee_h - 9;
+	fl_color(col);
+	switch (butt)
+	{
+		case VOLUME_SELECTED:
+			fl_draw("V", copy_button[0] + 5, ypos);
+			break;
+		case FILTER_SELECTED:
+			fl_draw("F", copy_button[1] + 5, ypos);
+			break;
+		case AUXILIARY_SELECTED:
+			fl_draw("A", copy_button[2] + 5, ypos);
+			break;
+		case CPY_VOLUME:
+			fl_draw("V", copy_button[3] + 5, ypos);
+			break;
+		case CPY_FILTER:
+			fl_draw("F", copy_button[4] + 5, ypos);
+			break;
+		case CPY_AUXILIARY:
+			fl_draw("A", copy_button[5] + 5, ypos);
+			break;
+		case SHAPE_A:
+			fl_draw("Pr", shape_button[0] + 3, ypos);
+			break;
+		case SHAPE_B:
+			fl_draw("Or", shape_button[1] + 3, ypos);
+			break;
+		case SHAPE_C:
+			fl_draw("St", shape_button[2] + 3, ypos);
+			break;
+		case SHAPE_D:
+			fl_draw("Pl", shape_button[3] + 3, ypos);
+	}
+}
+
 void Envelope_Editor::draw()
 {
 	// box
@@ -2968,8 +3006,6 @@ void Envelope_Editor::draw()
 	ee_h = this->h() - 2;
 	ee_x0 = this->x() + 1;
 	ee_y0 = this->y() + 1;
-	fl_push_clip(ee_x0, ee_y0, ee_w, ee_h);
-
 	mode_button[0] = ee_x0 + ee_w - 164;
 	mode_button[1] = mode_button[0] + 55;
 	mode_button[2] = mode_button[1] + 55;
@@ -2981,15 +3017,13 @@ void Envelope_Editor::draw()
 	copy_button[3] = copy_button[2] + 70;
 	copy_button[4] = copy_button[3] + 20;
 	copy_button[5] = copy_button[4] + 20;
-	shape_button[0] = ee_x0 + ee_w - 21;
+	shape_button[0] = ee_x0 + ee_w - 22;
 	shape_button[1] = shape_button[0] - 20;
 	shape_button[2] = shape_button[1] - 20;
 	shape_button[3] = shape_button[2] - 20;
-
 	if (!active_r())
 		return;
-	// top bar
-	// envelope type
+	// title
 	fl_font(FL_HELVETICA_BOLD, 14);
 	fl_color(FL_INACTIVE_COLOR);
 	switch (mode)
@@ -3004,28 +3038,27 @@ void Envelope_Editor::draw()
 			fl_draw("AUX", ee_x0 + 5, ee_y0 + 17);
 			break;
 	}
+	// top bar
 	fl_font(FL_COURIER, 10);
-	//fl_line_style(FL_SOLID, 1);
+	Fl_Color fg;
 	unsigned char i;
 	for (i = 0; i < 5; i++)
 	{
-		fl_color(FL_BACKGROUND2_COLOR);
-		fl_rectf(mode_button[i], ee_y0 + 5, 50, 14);
-		// highlight pushed
-		fl_color(FL_SELECTION_COLOR);
-		if (button_push && button_hover == i)
+		// activated buttons
+		if ((button_push && button_hover == i) || env[mode].mode == i || (i == 0 && mode != VOLUME && env[mode].repeat)
+				|| (i == 3 && overlay) || (i == 4 && ui->syncview))
 		{
-			fl_rect(mode_button[i] + 1, ee_y0 + 6, 48, 12);
+			fl_color(FL_SELECTION_COLOR);
+			fg = fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR);
 		}
-		if (env[mode].mode == i || (i == 0 && mode != VOLUME && env[mode].repeat) || (i == 3 && overlay)
-				|| (i == 4 && ui->syncview))
+		else
 		{
-			if (button_push && button_hover == i)
-				fl_color(FL_BACKGROUND_COLOR);
-			fl_rect(mode_button[i] - 1, ee_y0 + 4, 52, 16);
+			fl_color(FL_BACKGROUND2_COLOR);
+			fg = fl_contrast(FL_FOREGROUND_COLOR, FL_BACKGROUND2_COLOR);
 		}
+		draw_box(FL_THIN_UP_BOX, mode_button[i] - 2, ee_y0 + 3, 52, 17, fl_color());
 		// text
-		fl_color(FL_FOREGROUND_COLOR);
+		fl_color(fg);
 		if (i == 0)
 		{
 			if (mode == VOLUME)
@@ -3043,35 +3076,41 @@ void Envelope_Editor::draw()
 			fl_draw("(( Y ))", mode_button[i] + 4, ee_y0 + 15);
 	}
 	// lower bar
+	fl_font(FL_HELVETICA, 10);
 	fl_color(FL_BACKGROUND2_COLOR);
 	for (i = 0; i < 6; i++)
-		fl_rectf(copy_button[i], ee_y0 + ee_h - 18, 16, 14);
+		if (i != mode && i != mode + 3)
+			if (button_push && button_hover == VOLUME_SELECTED + i)
+			{
+				draw_box(FL_THIN_UP_BOX, copy_button[i], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
+				draw_b_label(VOLUME_SELECTED + i, fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR));
+			}
+			else
+			{
+				draw_box(FL_THIN_UP_BOX, copy_button[i], ee_y0 + ee_h - 21, 17, 17, FL_BACKGROUND2_COLOR);
+				draw_b_label(VOLUME_SELECTED + i, fl_contrast(FL_FOREGROUND_COLOR, FL_BACKGROUND2_COLOR));
+			}
+	draw_box(FL_THIN_UP_BOX, copy_button[mode], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
+	draw_b_label(VOLUME_SELECTED + mode, fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR));
+	// shapes
 	for (i = 0; i < 4; i++)
-		fl_rectf(shape_button[i], ee_y0 + ee_h - 18, 16, 14);
-	// selected
-	fl_color(FL_SELECTION_COLOR);
-	int ypos = ee_y0 + ee_h - 8;
-	fl_rect(copy_button[mode] - 1, ypos - 11, 18, 16);
-	// highlight pushed
-	if (button_push && button_hover >= VOLUME_SELECTED)
 	{
-		// shape
-		if (button_hover >= SHAPE_A)
-			fl_rect(shape_button[button_hover - SHAPE_A] + 1, ypos - 9, 14, 12);
-		// copy
-		else if (button_hover - VOLUME_SELECTED != mode)
-			fl_rect(copy_button[button_hover - VOLUME_SELECTED] + 1, ypos - 9, 14, 12);
+		if (button_push && button_hover == SHAPE_A + i)
+		{
+			draw_box(FL_THIN_UP_BOX, shape_button[i], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
+			draw_b_label(SHAPE_A + i, fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR));
+		}
+		else
+		{
+			draw_box(FL_THIN_UP_BOX, shape_button[i], ee_y0 + ee_h - 21, 17, 17, FL_BACKGROUND2_COLOR);
+			draw_b_label(SHAPE_A + i, fl_contrast(FL_FOREGROUND_COLOR, FL_BACKGROUND2_COLOR));
+		}
 	}
-	// text
 	fl_color(FL_FOREGROUND_COLOR);
-	fl_draw("COPY TO", copy_button[2] + 22, ypos);
-	fl_draw("SHAPE", ee_x0 + ee_w - 115, ypos);
-	fl_draw("V", copy_button[0] + 5, ypos);
-	fl_draw("F", copy_button[1] + 5, ypos);
-	fl_draw("A", copy_button[2] + 5, ypos);
-	fl_draw("V", copy_button[3] + 5, ypos);
-	fl_draw("F", copy_button[4] + 5, ypos);
-	fl_draw("A", copy_button[5] + 5, ypos);
+	int ypos = ee_y0 + ee_h - 9;
+	fl_font(FL_COURIER, 10);
+	fl_draw("Copy to", copy_button[2] + 22, ypos);
+	fl_draw("Shape", ee_x0 + ee_w - 115, ypos);
 	switch (zoomlevel)
 	{
 		case 1:
@@ -3084,23 +3123,14 @@ void Envelope_Editor::draw()
 			fl_draw("4x", copy_button[5] + 25, ypos);
 			break;
 	}
-	fl_draw("Pr", shape_button[0] + 2, ypos);
-	fl_draw("Or", shape_button[1] + 2, ypos);
-	fl_draw("St", shape_button[2] + 2, ypos);
-	fl_draw("Pl", shape_button[3] + 2, ypos);
-	fl_color(FL_SELECTION_COLOR);
-	fl_rectf(copy_button[mode + 3] + 1, ypos - 9, 14, 12);
-
-	fl_line_style(0);
-	if (!active_r())
-		return;
-
 	// center (coordinate system)
 	// 0.0 position of coordinate system
+	fl_line_style(FL_SOLID, 1);
 	int x0 = ee_x0 + 5;
 	float y0 = (float) ee_y0 + 25. + ((float) ee_h - 50.) / 2.;
 	fl_color(FL_BACKGROUND2_COLOR);
-	fl_rectf(x0, (float) ee_y0 + 25., ee_w - 10, ee_h - 50);
+	draw_box(FL_THIN_UP_BOX, x0 - 1,  ee_y0 + 25., ee_w - 8,  ee_h - 50, FL_BACKGROUND2_COLOR);
+	fl_push_clip(x0 + 1, (float) ee_y0 + 26., ee_w - 12, ee_h - 52);
 	fl_color(FL_BACKGROUND_COLOR);
 	// vertikale
 	float x_step = ((float) (ee_w - 10) / 384.) * (float) zoomlevel; // 3*128 = 384
@@ -3124,11 +3154,11 @@ void Envelope_Editor::draw()
 				continue;
 		fl_line(x0 + 1, y0 + y_step * j, x0 + ee_w - 11, y0 + y_step * j);
 	}
-	// rahmen
-	fl_rect(x0, ee_y0 + 25, ee_w - 9, ee_h - 49);
 	// nulllinie
 	fl_color(FL_FOREGROUND_COLOR);
 	fl_line(x0 + 1, y0, x0 + ee_w - 11, y0);
+	fl_line_style(0);
+	fl_pop_clip();
 	// envelopes
 	if (overlay)
 	{
@@ -3274,11 +3304,11 @@ void Envelope_Editor::draw()
 			y_offset += 12;
 		}
 	}
-	fl_pop_clip();
 }
 
 void Envelope_Editor::draw_envelope(char type, int x0, int y0)
 {
+	fl_push_clip(ee_x0 + 1, ee_y0 + 21, ee_w - 2, ee_h - 42);
 	// x-scaling
 	float x_scale = (((float) ee_w - 10.) / 768.) * (float) zoomlevel;
 	// y-scaling
@@ -3296,9 +3326,7 @@ void Envelope_Editor::draw_envelope(char type, int x0, int y0)
 	dragbox[RLS_1][1] = y0 - env[type].stage[RLS_1][1] * y_scale;
 	dragbox[RLS_2][0] = dragbox[RLS_1][0] + env[type].stage[RLS_2][0] * x_scale;
 	dragbox[RLS_2][1] = y0 - env[type].stage[RLS_2][1] * y_scale;
-
-	// draw lines between dragboxes (rrbggg)
-	int out = -1;
+	// lines between dragboxes
 	Fl_Color col;
 	switch (type)
 	{
@@ -3311,129 +3339,41 @@ void Envelope_Editor::draw_envelope(char type, int x0, int y0)
 		case AUXILIARY:
 			fl_color(36, 189, 36);
 	}
-
 	col = fl_color_average(FL_FOREGROUND_COLOR, fl_color(), .3);
 	if (type != mode)
 		fl_color(fl_color_average(col, FL_BACKGROUND2_COLOR, .5f));
 	col = fl_color();
+	// draw connections
 	fl_line_style(FL_SOLID, 2);
-	if (dragbox[DCY_2][0] <= ee_x0 + ee_w - 5)
+	fl_line(x0 + 1, y0, dragbox[ATK_1][0], dragbox[ATK_1][1]);
+	fl_line(dragbox[ATK_1][0], dragbox[ATK_1][1], dragbox[ATK_2][0], dragbox[ATK_2][1]);
+	fl_line(dragbox[ATK_2][0], dragbox[ATK_2][1], dragbox[DCY_1][0], dragbox[DCY_1][1]);
+	fl_line(dragbox[DCY_1][0], dragbox[DCY_1][1], dragbox[DCY_2][0], dragbox[DCY_2][1]);
+	// vertical line at release
+	fl_line_style(FL_DASH, 1);
+	fl_line(dragbox[DCY_2][0], y0 - 100 * y_scale, dragbox[DCY_2][0], y0 + 100 * y_scale);
+	fl_line_style(FL_SOLID, 2);
+	fl_line(dragbox[DCY_2][0], dragbox[DCY_2][1], dragbox[RLS_1][0], dragbox[RLS_1][1]);
+	fl_line(dragbox[RLS_1][0], dragbox[RLS_1][1], dragbox[RLS_2][0], dragbox[RLS_2][1]);
+	// dragboxes
+	if (type == mode)
 	{
-		fl_line(dragbox[DCY_1][0], dragbox[DCY_1][1], dragbox[DCY_2][0], dragbox[DCY_2][1]);
-		// vertical line at release
-		fl_color(fl_lighter(col));
-		fl_line_style(FL_DASH, 2);
-		fl_line(dragbox[DCY_2][0], y0 - 100 * y_scale, dragbox[DCY_2][0], y0 + 100 * y_scale);
-		fl_color(col);
-		fl_line_style(FL_SOLID, 2);
-		if (type == mode)
-			fl_rectf(dragbox[DCY_2][0] - 4, dragbox[DCY_2][1] - 4, 9, 9);
-	}
-	if (dragbox[ATK_1][0] <= ee_x0 + ee_w - 5)
-	{
-		fl_line(x0, y0, dragbox[ATK_1][0], dragbox[ATK_1][1]);
-		if (type == mode)
-			fl_rectf(dragbox[ATK_1][0] - 4, dragbox[ATK_1][1] - 4, 9, 9);
-	}
-	else
-	{
-		out = ATK_1;
-		goto Out;
-	}
-	if (dragbox[ATK_2][0] <= ee_x0 + ee_w - 5)
-	{
-		fl_line(dragbox[ATK_1][0], dragbox[ATK_1][1], dragbox[ATK_2][0], dragbox[ATK_2][1]);
-		if (type == mode)
-			fl_rectf(dragbox[ATK_2][0] - 4, dragbox[ATK_2][1] - 4, 9, 9);
-	}
-	else if (out == -1)
-	{
-		out = ATK_2;
-		goto Out;
-	}
-	if (dragbox[DCY_1][0] <= ee_x0 + ee_w - 5)
-	{
-		fl_line(dragbox[ATK_2][0], dragbox[ATK_2][1], dragbox[DCY_1][0], dragbox[DCY_1][1]);
-		if (type == mode)
-			fl_rectf(dragbox[DCY_1][0] - 4, dragbox[DCY_1][1] - 4, 9, 9);
-	}
-	else if (out == -1)
-	{
-		out = DCY_1;
-		goto Out;
-	}
-	if (dragbox[DCY_2][0] > ee_x0 + ee_w - 5)
-	{
-		out = DCY_2;
-		goto Out;
-	}
-	if (dragbox[RLS_1][0] <= ee_x0 + ee_w - 5)
-	{
-		fl_line(dragbox[DCY_2][0], dragbox[DCY_2][1], dragbox[RLS_1][0], dragbox[RLS_1][1]);
-		if (type == mode)
-			fl_rectf(dragbox[RLS_1][0] - 4, dragbox[RLS_1][1] - 4, 9, 9);
-	}
-	else if (out == -1)
-	{
-		out = RLS_1;
-		goto Out;
-	}
-	if (dragbox[RLS_2][0] <= ee_x0 + ee_w - 5)
-	{
-		fl_line(dragbox[RLS_1][0], dragbox[RLS_1][1], dragbox[RLS_2][0], dragbox[RLS_2][1]);
-		if (type == mode)
-			fl_rectf(dragbox[RLS_2][0] - 4, dragbox[RLS_2][1] - 4, 9, 9);
-	}
-	else if (out == -1)
-		out = RLS_2;
-	// draw partial line
-	Out: if (out != -1)
-	{
-		int x, y, x1, x2, y1, y2;
-		if (out == 0)
+		fl_rectf(dragbox[ATK_1][0] - 4, dragbox[ATK_1][1] - 4, 9, 9);
+		fl_rectf(dragbox[ATK_2][0] - 4, dragbox[ATK_2][1] - 4, 9, 9);
+		fl_rectf(dragbox[DCY_1][0] - 4, dragbox[DCY_1][1] - 4, 9, 9);
+		fl_rectf(dragbox[DCY_2][0] - 4, dragbox[DCY_2][1] - 4, 9, 9);
+		fl_rectf(dragbox[RLS_1][0] - 4, dragbox[RLS_1][1] - 4, 9, 9);
+		fl_rectf(dragbox[RLS_2][0] - 4, dragbox[RLS_2][1] - 4, 9, 9);
+		// highlight selected
+		if (hover >= 0)
 		{
-			x1 = x0;
-			y1 = y0;
+			fl_color(FL_SELECTION_COLOR);
+			fl_rectf(dragbox[hover][0] - 4, dragbox[hover][1] - 4, 9, 9);
 		}
-		else
-		{
-			int tmp = 0;
-			switch (out)
-			{
-				case ATK_2:
-					tmp = ATK_1;
-					break;
-				case DCY_1:
-					tmp = ATK_2;
-					break;
-				case DCY_2:
-					tmp = DCY_1;
-					break;
-				case RLS_1:
-					tmp = DCY_2;
-					break;
-				case RLS_2:
-					tmp = RLS_1;
-					break;
-			}
-			x1 = dragbox[tmp][0];
-			y1 = dragbox[tmp][1];
-		}
-		x2 = dragbox[out][0];
-		y2 = dragbox[out][1];
-		x = ee_x0 + ee_w - 6;
-		y = (int) (y1 + ((float) (y2 - y1) / (float) (x2 - x1)) * (x - x1));
-		fl_line(x1, y1, x, y);
 	}
 	fl_line_style(0);
-	if (type != mode)
-		return;
-	// highlight selected
-	if (hover >= 0 && dragbox[hover][0] <= ee_x0 + ee_w - 5)
-	{
-		fl_color(FL_SELECTION_COLOR);
-		fl_rectf(dragbox[hover][0] - 4, dragbox[hover][1] - 4, 9, 9);
-	}
+	fl_pop_clip();
+	return;
 }
 
 int Envelope_Editor::handle(int ev)
@@ -3536,7 +3476,7 @@ int Envelope_Editor::handle(int ev)
 			{
 				fl_cursor(FL_CURSOR_DEFAULT);
 				for (char i = 0; i < 5; i++)
-					if (Fl::event_inside(mode_button[i], ee_y0 + 5, 50, 14))
+					if (Fl::event_inside(mode_button[i] - 2, ee_y0 + 3, 52, 17))
 						button_hover = i;
 			}
 			// extra buttons
@@ -3546,7 +3486,7 @@ int Envelope_Editor::handle(int ev)
 
 				for (char i = 0; i < 6; i++)
 				{
-					if (Fl::event_inside(copy_button[i], ee_y0 + ee_h - 18, 16, 14))
+					if (Fl::event_inside(copy_button[i], ee_y0 + ee_h - 21, 17, 17))
 					{
 						button_hover = i + VOLUME_SELECTED;
 						return 1;
@@ -3554,7 +3494,7 @@ int Envelope_Editor::handle(int ev)
 				}
 				for (char i = 0; i < 4; i++)
 				{
-					if (Fl::event_inside(shape_button[i], ee_y0 + ee_h - 18, 16, 14))
+					if (Fl::event_inside(shape_button[i], ee_y0 + ee_h - 21, 17, 17))
 					{
 						button_hover = i + SHAPE_A;
 						return 1;

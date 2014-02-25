@@ -934,6 +934,7 @@ class Envelope_Editor: public Fl_Box
 	};
 	virtual int handle(int event);
 	void draw();
+	void draw_b_label(char, Fl_Color);
 	void draw_envelope(char type, int x0, int y0);
 	void copy_envelope(char src, char dst);
 	void set_shape(char dst, char shape);
