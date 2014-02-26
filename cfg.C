@@ -82,9 +82,9 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_SLR] = 228;
 	defaults[CFG_SLG] = 240;
 	defaults[CFG_SLB] = 209;
-	defaults[CFG_INR] = 59;
-	defaults[CFG_ING] = 59;
-	defaults[CFG_INB] = 57;
+	defaults[CFG_INR] = 175;
+	defaults[CFG_ING] = 175;
+	defaults[CFG_INB] = 170;
 	// check/create cfg dir
 	struct stat sbuf;
 	if (stat(config_dir, &sbuf) == -1)

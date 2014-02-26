@@ -2341,7 +2341,7 @@ void Button::set_value(int v)
 		if (v)
 		{
 			((Fl_Button*) ui->main->g_main_arp->child(2))->color(this->selection_color(),
-					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .2));
+					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .5));
 		}
 		else
 		{
@@ -2354,7 +2354,7 @@ void Button::set_value(int v)
 		if (v)
 		{
 			((Fl_Button*) ui->main->g_main_arp->child(3))->color(this->selection_color(),
-					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .2));
+					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .5));
 		}
 		else
 		{
@@ -2389,7 +2389,7 @@ int Button::get_value() const
 		if (v)
 		{
 			((Fl_Button*) ui->main->g_main_arp->child(2))->color(this->selection_color(),
-					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .2));
+					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .5));
 		}
 		else
 		{
@@ -2402,7 +2402,7 @@ int Button::get_value() const
 		if (v)
 		{
 			((Fl_Button*) ui->main->g_main_arp->child(3))->color(this->selection_color(),
-					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .2));
+					fl_color_average(this->selection_color(), FL_SELECTION_COLOR, .5));
 		}
 		else
 		{
@@ -3066,13 +3066,14 @@ void Envelope_Editor::draw()
 		{
 			fl_color(FL_SELECTION_COLOR);
 			fg = fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR);
+			draw_box(FL_DOWN_BOX, mode_button[i] - 2, ee_y0 + 3, 52, 17, fl_color());
 		}
 		else
 		{
 			fl_color(FL_BACKGROUND2_COLOR);
 			fg = fl_contrast(FL_FOREGROUND_COLOR, FL_BACKGROUND2_COLOR);
+			draw_box(FL_UP_BOX, mode_button[i] - 2, ee_y0 + 3, 52, 17, fl_color());
 		}
-		draw_box(FL_BORDER_BOX, mode_button[i] - 2, ee_y0 + 3, 52, 17, fl_color());
 		// text
 		fl_color(fg);
 		if (i == 0)
@@ -3146,8 +3147,14 @@ void Envelope_Editor::draw()
 	float y0 = (float) ee_y0 + 25. + ((float) ee_h - 50.) / 2.;
 	fl_color(FL_BACKGROUND2_COLOR);
 	draw_box(FL_THIN_UP_BOX, x0 - 1,  ee_y0 + 25., ee_w - 8,  ee_h - 50, FL_INACTIVE_COLOR);
-	fl_push_clip(x0 + 1, (float) ee_y0 + 26., ee_w - 12, ee_h - 52);
-	fl_color(fl_darker(FL_INACTIVE_COLOR));
+	fl_push_clip(x0 + 1, (float) ee_y0 + 27., ee_w - 12, ee_h - 54);
+	unsigned char r, g, b;
+	Fl::get_color(FL_INACTIVE_COLOR, r, g, b);
+	int luma = (r + r + b + g + g + g) / 6;
+	if (luma > 128)
+		fl_color(fl_lighter(FL_INACTIVE_COLOR));
+	else
+		fl_color(fl_darker(FL_INACTIVE_COLOR));
 	// vertikale
 	float x_step = ((float) (ee_w - 10) / 384.) * (float) zoomlevel; // 3*128 = 384
 	float x_val = (float) x0 + 8. * x_step;
@@ -3171,7 +3178,10 @@ void Envelope_Editor::draw()
 		fl_line(x0 + 1, y0 + y_step * j, x0 + ee_w - 11, y0 + y_step * j);
 	}
 	// nulllinie
-	fl_color(fl_lighter(FL_INACTIVE_COLOR));
+	if (luma > 128)
+		fl_color(fl_darker(FL_INACTIVE_COLOR));
+	else
+		fl_color(fl_lighter(FL_INACTIVE_COLOR));
 	fl_line(x0 + 1, y0, x0 + ee_w - 11, y0);
 	fl_line_style(0);
 	fl_pop_clip();
@@ -3182,11 +3192,11 @@ void Envelope_Editor::draw()
 		{
 			if (i == mode)
 				continue;
-			draw_envelope(i, x0, y0);
+			draw_envelope(i, x0, y0, luma);
 		}
 	}
 	if (active_r())
-		draw_envelope(mode, x0, y0);
+		draw_envelope(mode, x0, y0, luma);
 	if (!active_r())
 		return;
 	fl_color(FL_FOREGROUND_COLOR);
@@ -3325,7 +3335,7 @@ void Envelope_Editor::draw()
 	}
 }
 
-void Envelope_Editor::draw_envelope(char type, int x0, int y0)
+void Envelope_Editor::draw_envelope(char type, int x0, int y0, int luma)
 {
 	fl_push_clip(ee_x0 + 1, ee_y0 + 21, ee_w - 2, ee_h - 42);
 	// x-scaling
@@ -3346,16 +3356,21 @@ void Envelope_Editor::draw_envelope(char type, int x0, int y0)
 	dragbox[RLS_2][0] = dragbox[RLS_1][0] + env[type].stage[RLS_2][0] * x_scale;
 	dragbox[RLS_2][1] = y0 - env[type].stage[RLS_2][1] * y_scale;
 	// lines between dragboxes
+	float blend = .0;
+	if (luma > 128)
+		blend = .9;
+	else
+		blend = .6;
 	switch (type)
 	{
 		case VOLUME:
-			fl_color(fl_color_average(fl_rgb_color(231, 122, 122), FL_INACTIVE_COLOR, .6));
+			fl_color(fl_color_average(fl_rgb_color(231, 122, 122), FL_INACTIVE_COLOR, blend));
 			break;
 		case FILTER:
-			fl_color(fl_color_average(fl_rgb_color(111, 111, 239), FL_INACTIVE_COLOR, .6));
+			fl_color(fl_color_average(fl_rgb_color(111, 111, 239), FL_INACTIVE_COLOR, blend));
 			break;
 		case AUXILIARY:
-			fl_color(fl_color_average(fl_rgb_color(96, 189, 96), FL_INACTIVE_COLOR, .6));
+			fl_color(fl_color_average(fl_rgb_color(76, 189, 76), FL_INACTIVE_COLOR, blend));
 	}
 	if (type != mode)
 		fl_color(fl_darker(fl_color()));

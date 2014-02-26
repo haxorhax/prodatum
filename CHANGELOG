@@ -3,6 +3,7 @@ v2.0rc7
 * nicer envelope editor buttons
 * fixed some open dialog oddities
 * some UI restyling
+* slightly changed default color palette
 * enabled closed loop downloads by default
 * scopes don't resize, hide 'em when window != max
 
