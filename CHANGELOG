@@ -4,6 +4,7 @@ v2.0rc7
 * fixed some open dialog oddities
 * some UI restyling
 * enabled closed loop downloads by default
+* scopes don't resize, hide 'em when window != max
 
 
 v2.0rc6

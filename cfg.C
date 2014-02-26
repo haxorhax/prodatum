@@ -204,6 +204,13 @@ int Cfg::get_cfg_option(int opt) const
 	return 0;
 }
 
+int Cfg::get_default(int opt) const
+{
+	if (opt < NOOPTION && opt >= 0)
+		return defaults[opt];
+	return 0;
+}
+
 int Cfg::getset_default(int opt)
 {
 	//pmesg("Cfg::getset_default(%d)  \n", opt);
@@ -321,5 +328,5 @@ void Cfg::apply(bool colors_only)
 	ui->log_sysex_in->value(option[CFG_LOG_SYSEX_IN]);
 	ui->log_events_out->value(option[CFG_LOG_EVENTS_OUT]);
 	ui->log_events_in->value(option[CFG_LOG_EVENTS_IN]);
-	ui->main_window->size(option[CFG_WINDOW_WIDTH], option[CFG_WINDOW_HEIGHT]);
+	ui->main_window->resize(ui->main_window->x(), ui->main_window->y(), option[CFG_WINDOW_WIDTH], option[CFG_WINDOW_HEIGHT]);
 }

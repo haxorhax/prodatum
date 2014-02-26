@@ -99,8 +99,9 @@ public:
 	 * @param option parameter to get
 	 * @return parameter value
 	 */
-	int get_cfg_option(int option) const;
-	int getset_default(int option);
+	int get_cfg_option(int) const;
+	int get_default(int) const;
+	int getset_default(int);
 	void apply(bool colors_only = false);
 };
 

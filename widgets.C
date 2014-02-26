@@ -204,6 +204,24 @@ void Double_Window::showup()
 	Fl_Double_Window::show();
 }
 
+void Double_Window::resize(int x, int y, int w, int h)
+{
+	if (this == ui->main_window)
+	{
+		if (w != cfg->get_default(CFG_WINDOW_WIDTH) || h != cfg->get_default(CFG_WINDOW_HEIGHT))
+		{
+			ui->scope_i->hide();
+			ui->scope_o->hide();
+		}
+		else
+		{
+			ui->scope_i->show();
+			ui->scope_o->show();
+		}
+	}
+	Fl_Double_Window::resize(x,y,w,h);
+}
+
 int DND_Box::handle(int ev)
 {
 	switch (ev)
