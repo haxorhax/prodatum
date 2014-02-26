@@ -351,8 +351,6 @@ static void check_connection(void* p)
 	{
 		pmesg("check_connection()\n");
 		pxk->ConnectPorts(false);
-		ui->open_device->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->open_device->w() / 2),
-				ui->main_window->y() + 80);
 		ui->open_device->showup();
 	}
 }
