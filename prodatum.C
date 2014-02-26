@@ -31,7 +31,7 @@
 
 static void load_data();
 
-const char* VERSION = "2.0rc8";
+const char* VERSION = "2.0rc7hot1";
 PD_UI* ui;
 extern MIDI* midi;
 extern Cfg* cfg;
