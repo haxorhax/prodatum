@@ -196,30 +196,17 @@ int Double_Window::handle(int ev)
 
 void Double_Window::showup()
 {
+	if (shown())
+	{
+		Fl_Window::show();
+		return;
+	}
 	if (!w__shown && this != ui->main_window)
 	{
 		position(ui->main_window->x() + (ui->main_window->w() / 2) - (w() / 2), ui->main_window->y() + 80);
 		w__shown = true;
 	}
-	Fl_Double_Window::show();
-}
-
-void Double_Window::resize(int x, int y, int w, int h)
-{
-	if (this == ui->main_window)
-	{
-		if (w != cfg->get_default(CFG_WINDOW_WIDTH) || h != cfg->get_default(CFG_WINDOW_HEIGHT))
-		{
-			ui->scope_i->hide();
-			ui->scope_o->hide();
-		}
-		else
-		{
-			ui->scope_i->show();
-			ui->scope_o->show();
-		}
-	}
-	Fl_Double_Window::resize(x, y, w, h);
+	Fl_Window::show();
 }
 
 static void dndcback(void *v)

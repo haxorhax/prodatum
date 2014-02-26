@@ -136,7 +136,6 @@ class Double_Window: public Fl_Double_Window
 	bool w__shown;
 public:
 	void showup();
-	void resize(int,int,int,int);
 	Double_Window(int w, int h, char* const label = 0) :
 			Fl_Double_Window(w, h, label)
 	{

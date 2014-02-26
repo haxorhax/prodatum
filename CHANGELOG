@@ -1,8 +1,7 @@
 v2.0rc7hot1
 
 * make sure value numbers in envelope editor play nicely with background color
-* fixed regression from v2.0rc7: DND not working
-* fixed regression from v2.0rc7: Menu not working
+* fixed regressions from v2.0rc7 (like menu not behaving)
 
 
 v2.0rc7
