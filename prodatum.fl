@@ -774,16 +774,16 @@ widget_class PD_Layer_Patchcords {
   }
 } 
 
-widget_class PD_Layer_Strip {
-  xywh {600 444 100 540} type Double hide position_relative
+widget_class PD_Layer_Strip {open
+  xywh {600 444 100 540} type Double visible position_relative
 } {
   decl {void init(int layer);} {public
   }
   decl {int layer;} {}
   Fl_Button instrument {
     label {   :None}
-    callback {ui->select(layer + 1);}
-    xywh {3 3 94 20} box BORDER_BOX down_box BORDER_BOX color 53 selection_color 15 labelfont 4 labelsize 9 labelcolor 34 align 80
+    callback {ui->select(layer + 1);} selected
+    xywh {3 3 94 20} box BORDER_BOX down_box BORDER_BOX color 7 selection_color 15 labelfont 4 labelsize 9 align 80
   }
   Fl_Button {} {
     label {-}
@@ -1544,7 +1544,7 @@ l2_filter->do_callback();}
   }
 } 
 
-widget_class PD_Main {
+widget_class PD_Main {open
   xywh {834 480 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
@@ -1552,7 +1552,7 @@ widget_class PD_Main {
   decl {Fl_Widget* ctrl_x[16];} {public
   }
   Fl_Group {} {
-    label main
+    label main open
     xywh {0 0 834 574} labeltype NO_LABEL align 0
   } {
     Fl_Group {} {
@@ -1561,7 +1561,7 @@ widget_class PD_Main {
     } {
       Fl_Button preset_name {
         callback {ui->select(5);}
-        tooltip {Program name} xywh {7 26 190 20} box BORDER_BOX down_box BORDER_BOX color 53 selection_color 15 labelfont 4 labelsize 12 labelcolor 34 align 84
+        tooltip {Program name} xywh {7 26 190 20} box BORDER_BOX down_box BORDER_BOX color 7 selection_color 15 labelfont 4 labelsize 12 align 84
       }
       Fl_Group channel_select {open
         tooltip {Select preset by channel or activate channel in omni and poly-mode.} xywh {4 23 196 73} labeltype NO_LABEL labelfont 1 labelcolor 15 when 0
@@ -2577,10 +2577,10 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open
-      xywh {869 239 845 620} type Double resizable
+delete this;}
+      xywh {869 239 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
-      class Double_Window xclass prodatum size_range {674 492 845 620} visible
+      class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
       Fl_Group {} {
         label name
@@ -3165,7 +3165,7 @@ preset_editor->links->hide();
           code3 {o->datatype(FL_SCOPE_UNSIGNED);}
           class Fl_Scope
         }
-        Fl_Box scope_o {selected
+        Fl_Box scope_o {
           xywh {160 48 44 16} box FLAT_BOX when 0 deactivate
           code0 {o->redrawmode(FL_SCOPE_REDRAW_ALWAYS);o->tracetype(FL_SCOPE_TRACE_LOOP);}
           code1 {o->linetype(FL_SCOPE_DOT);}
@@ -3218,7 +3218,7 @@ else
           xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8
         } {
           Fl_Value_Output forma_out {
-            tooltip {Formatted value display} xywh {642 69 190 20} box BORDER_BOX color 53 selection_color 15 labeltype NO_LABEL labelsize 12 labelcolor 34 align 0 textfont 4 textsize 12 textcolor 34
+            tooltip {Formatted value display} xywh {642 69 190 20} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 textfont 4 textsize 12
             class Formatted_Output
           }
           Fl_Button undo_b {
