@@ -340,8 +340,7 @@ static void process_midi_in(void*)
 						got_answer = true;
 						requested = false;
 						pxk->display_status("Edit buffer synchronized.");
-//						ui->loading_w->hide();
-						ui->main_window->Unlock();
+						ui->supergroup->clear_output();
 						break;
 
 					case 0x1c: // setup dumps
@@ -374,7 +373,7 @@ static void process_midi_in(void*)
 						got_answer = true;
 						requested = false;
 						pxk->display_status("Device cancelled.");
-						ui->main_window->Unlock();
+						ui->supergroup->clear_output();
 						break;
 					case 0x70: // ERROR
 					case 0x40: // remote front panel control command

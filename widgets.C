@@ -137,24 +137,6 @@ void PWid::cb(PWid*, void* p)
 // ###################
 //
 // ###################
-void Double_Window::Lock()
-{        // Stops Widgets to accept input
-	if (is_locked)
-		return;
-	for (int i = 0; i < children(); ++i)
-		child(i)->set_output();
-	is_locked = true;
-}
-
-void Double_Window::Unlock()
-{        // Sets Widgets to accept input
-	if (!is_locked)
-		return;
-	for (int i = 0; i < children(); ++i)
-		child(i)->clear_output();
-	is_locked = false;
-}
-
 int Double_Window::handle(int ev)
 {
 	static bool playing = false;

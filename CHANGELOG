@@ -1,3 +1,9 @@
+v2.0rc8
+
+* supergroup for clear_output() and set_output() (lot faster locking)
+
+
+
 v2.0rc7
 
 * removed loading window. felt it was too - disturbing haha! no.

@@ -399,7 +399,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		// ack of tail...send eof
 		if (packet == chunks + 2)
 		{
-			ui->main_window->Unlock();
+			ui->supergroup->clear_output();
 			midi->eof();
 			if (show_preset)
 				pxk->show_preset();

@@ -1019,7 +1019,7 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 			ui->g_preset->deactivate();
 		if (!closed_loop)
 		{
-			ui->main_window->Unlock();
+			ui->supergroup->clear_output();
 			display_status("Edit buffer synchronized.");
 		}
 	}
@@ -1055,7 +1055,7 @@ static void check_loading(void*)
 {
 	if (!got_answer)
 	{
-		ui->main_window->Unlock();
+		ui->supergroup->clear_output();
 		fl_alert("Device did not respond to our request.");
 	}
 }
@@ -1066,7 +1066,7 @@ void PXK::Loading(bool upload) const
 	got_answer = false;
 	Fl::remove_timeout(check_loading);
 	pxk->display_status("Loading...");
-	ui->main_window->Lock();
+	ui->supergroup->set_output();
 	if (upload)
 		Fl::add_timeout((2000. + cfg->get_cfg_option(CFG_SPEED)) / 1000., check_loading);
 	else
