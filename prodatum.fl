@@ -2581,7 +2581,7 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open
+delete this;}
       xywh {966 90 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       class Double_Window xclass prodatum size_range {674 492 845 620}
@@ -3035,7 +3035,7 @@ if (((Fl_Button*) o->array()[i])->value())
           }
           Fl_Button b_program {
             label {Pro&gram}
-            callback {((Group*)o->parent())->do_callback();} selected
+            callback {((Group*)o->parent())->do_callback();}
             xywh {686 25 102 19} type Radio down_box DOWN_BOX color 8 selection_color 15 labelsize 10 labelcolor 7 when 6
           }
           Fl_Button {} {
@@ -3219,7 +3219,7 @@ else
           code0 {o->clear_visible_focus();}
         }
         Fl_Group g_value {
-          label VALUE
+          label VALUE open
           xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8
         } {
           Fl_Value_Output forma_out {
@@ -3918,7 +3918,7 @@ open_device->hide();}
     Fl_Window preferences {
       label Preferences
       callback {b_close_prefs->do_callback();}
-      xywh {656 264 305 499} type Double box UP_BOX labelsize 11 hide
+      xywh {1095 471 305 499} type Double box UP_BOX labelsize 11 hide
       class Double_Window xclass prodatum
     } {
       Fl_Box {} {
@@ -4261,7 +4261,7 @@ if (((Fl_Button*) o->array()[i])->value())
     }
     Fl_Window about {
       label {About prodatum}
-      xywh {893 383 272 361} type Double box BORDER_BOX hide modal xclass prodatum
+      xywh {893 383 272 355} type Double box BORDER_BOX hide xclass prodatum
     } {
       Fl_Box {} {
         xywh {1 1 60 50} deactivate
@@ -4419,28 +4419,10 @@ copy_arp_pattern_browser_filter->do_callback();}
         xywh {135 335 70 25} down_box DOWN_BOX selection_color 15 labelsize 12 align 20
       }
     }
-    Fl_Window loading_w {
-      label {Please wait}
-      callback {;}
-      xywh {474 372 290 55} type Double box BORDER_BOX hide modal xclass prodatum
-    } {
-      Fl_Box {} {
-        label {Syncing edit buffer...}
-        xywh {60 1 229 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 144 hotspot
-      }
-      Fl_Progress progress {
-        label label
-        xywh {1 51 288 3} box FLAT_BOX color 32 selection_color 49 labeltype NO_LABEL
-      }
-      Fl_Box {} {
-        xywh {1 1 60 50} deactivate
-        code0 {o->image(image_pd);}
-      }
-    }
     Fl_Window reset_w {
       label Synchronize
-      callback {;}
-      xywh {911 283 285 160} type Double box BORDER_BOX hide modal xclass prodatum
+      callback {;} open
+      xywh {911 283 285 172} type Double box BORDER_BOX hide modal xclass prodatum
     } {
       Fl_Box {} {
         label Synchronize
@@ -4456,10 +4438,11 @@ copy_arp_pattern_browser_filter->do_callback();}
 g_r_user->activate();
 else
 g_r_user->deactivate();}
-        tooltip {Delete Program- and Arp-Name data!} xywh {5 64 62 20} down_box DOWN_BOX color 7 selection_color 15
+        tooltip {Delete Program- and Arp-Name data!} xywh {20 67 70 15} down_box DOWN_BOX color 7 selection_color 15
+        code0 {o->clear_visible_focus();}
       }
       Fl_Group g_r_user {open
-        xywh {82 60 190 25} labeltype NO_LABEL labelcolor 15 align 0 deactivate
+        xywh {82 60 190 28} labeltype NO_LABEL labelcolor 15 align 0 deactivate
       } {
         Fl_Check_Button r_user_all {
           label All
@@ -4467,11 +4450,13 @@ g_r_user->deactivate();}
 r_user_id->deactivate();
 else
 r_user_id->activate();}
-          tooltip {Delete all User data!} xywh {92 64 39 20} down_box DOWN_BOX value 1 color 7 selection_color 15
+          tooltip {Delete all User data!} xywh {95 67 42 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+          code0 {o->clear_visible_focus();}
         }
         Fl_Spinner r_user_id {
           label ID
-          tooltip {Delete User data for the device configured using this ID only!} xywh {202 64 70 20} color 7 selection_color 15 when 1 minimum 0 maximum 126 value 0 textfont 4 textsize 13 deactivate
+          tooltip {Delete User data for the device configured using this ID only!} xywh {156 62 70 25} color 7 selection_color 15 align 8 when 1 minimum 0 maximum 126 value 0 textfont 4 textsize 13 deactivate
+          code0 {o->clear_visible_focus();}
         }
       }
       Fl_Check_Button r_rom {
@@ -4480,10 +4465,11 @@ r_user_id->activate();}
 g_r_rom->activate();
 else
 g_r_rom->deactivate();}
-        tooltip {Delete ROM data (once downloaded they never change so this is only useful if initialization went wrong)!} xywh {5 90 62 20} down_box DOWN_BOX color 7 selection_color 15
+        tooltip {Delete ROM data (once downloaded they never change so this is only useful if initialization went wrong)!} xywh {20 97 70 15} down_box DOWN_BOX color 7 selection_color 15
+        code0 {o->clear_visible_focus();}
       }
       Fl_Group g_r_rom {open
-        xywh {82 85 200 25} labeltype NO_LABEL align 0 deactivate
+        xywh {82 85 200 29} labeltype NO_LABEL align 0 deactivate
       } {
         Fl_Check_Button r_rom_all {
           label All
@@ -4491,11 +4477,13 @@ g_r_rom->deactivate();}
 r_rom_rom->deactivate();
 else
 r_rom_rom->activate();}
-          tooltip {Delete all ROM data!} xywh {92 90 39 20} down_box DOWN_BOX value 1 color 7 selection_color 15
+          tooltip {Delete all ROM data!} xywh {95 97 42 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+          code0 {o->clear_visible_focus();}
         }
         Fl_Choice r_rom_rom {
-          label {ROM } open
-          tooltip {Delete  ROM data of this ROM only!} xywh {202 89 70 21} down_box BORDER_BOX color 7 textsize 13 deactivate
+          label {ROM } open selected
+          tooltip {Delete  ROM data of this ROM only!} xywh {156 93 70 21} down_box BORDER_BOX color 7 align 8 textsize 13 deactivate
+          code0 {o->clear_visible_focus();}
           class ROM_Choice
         } {}
       }
@@ -4519,12 +4507,12 @@ else
 	romdata = pxk->rom[r_rom_rom->value() + 1]->get_attribute(ID);
 }
 Reset(userdata, romdata);}
-        tooltip {Delete chosen data and synchronize again} xywh {122 125 70 25} down_box DOWN_BOX selection_color 15 labelsize 12 align 20
+        tooltip {Delete chosen data and synchronize again} xywh {124 139 70 25} down_box DOWN_BOX selection_color 15 labelsize 12 align 20
       }
       Fl_Button {} {
         label Cancel
         callback {reset_w->hide();}
-        tooltip {Don't delete anything!} xywh {202 125 70 25} down_box DOWN_BOX selection_color 15 labelsize 12 align 20
+        tooltip {Don't delete anything!} xywh {204 139 70 25} down_box DOWN_BOX selection_color 15 labelsize 12 align 20
       }
     }
     code {// midi log
@@ -4539,9 +4527,6 @@ i_log->buffer(init_log);
 \#endif
 create_about();
 main_window->free_position();
-progress->minimum(.0);
-progress->maximum(1600.);
-progress->value(1600.);
 init_progress->minimum(.0);
 init_progress->maximum(1.);
 selected_step = -1;

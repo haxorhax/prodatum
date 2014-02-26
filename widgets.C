@@ -137,6 +137,24 @@ void PWid::cb(PWid*, void* p)
 // ###################
 //
 // ###################
+void Double_Window::Lock()
+{        // Stops Widgets to accept input
+	if (is_locked)
+		return;
+	for (int i = 0; i < children(); ++i)
+		child(i)->set_output();
+	is_locked = true;
+}
+
+void Double_Window::Unlock()
+{        // Sets Widgets to accept input
+	if (!is_locked)
+		return;
+	for (int i = 0; i < children(); ++i)
+		child(i)->clear_output();
+	is_locked = false;
+}
+
 int Double_Window::handle(int ev)
 {
 	static bool playing = false;
@@ -219,7 +237,13 @@ void Double_Window::resize(int x, int y, int w, int h)
 			ui->scope_o->show();
 		}
 	}
-	Fl_Double_Window::resize(x,y,w,h);
+	Fl_Double_Window::resize(x, y, w, h);
+}
+
+static void dndcback(void *v)
+{
+	DND_Box *dbox = (DND_Box*) v;
+	dbox->dnd();
 }
 
 int DND_Box::handle(int ev)
@@ -233,11 +257,12 @@ int DND_Box::handle(int ev)
 			return 1;
 		case FL_PASTE:
 			snprintf(evt_txt, Fl::event_length() + 1, "%s", Fl::event_text());
-			Fl::add_timeout(0.0, DND_Box::dndcback, (void*) this);
+			Fl::add_timeout(0.0, dndcback, (void*) this);
 			return 1;
 	}
 	return 0;
 }
+
 void DND_Box::dnd()
 {
 	pxk->load_export(evt_txt);
@@ -2333,7 +2358,7 @@ void Button::set_value(int v)
 	{
 		v ? ui->m_bypass->set() : ui->m_bypass->clear();
 		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_INACTIVE_COLOR, .6)) : ui->b_pfx->color(
-				FL_INACTIVE_COLOR);
+						FL_INACTIVE_COLOR);
 		ui->b_pfx->redraw();
 	}
 	else if (id_layer[0] == 1025) // arp preset
@@ -2372,7 +2397,7 @@ int Button::get_value() const
 	{
 		v ? ui->m_bypass->set() : ui->m_bypass->clear();
 		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_INACTIVE_COLOR, .6)) : ui->b_pfx->color(
-				FL_INACTIVE_COLOR);
+						FL_INACTIVE_COLOR);
 		ui->b_pfx->redraw();
 	}
 	if (id_layer[0] == 258 || id_layer[0] == 1669 || id_layer[0] == 1674 || id_layer[0] == 1033 || id_layer[0] == 649) // fx bypass / lfo syncs / arp syncs
@@ -3146,7 +3171,7 @@ void Envelope_Editor::draw()
 	int x0 = ee_x0 + 5;
 	float y0 = (float) ee_y0 + 25. + ((float) ee_h - 50.) / 2.;
 	fl_color(FL_BACKGROUND2_COLOR);
-	draw_box(FL_THIN_UP_BOX, x0 - 1,  ee_y0 + 25., ee_w - 8,  ee_h - 50, FL_INACTIVE_COLOR);
+	draw_box(FL_THIN_UP_BOX, x0 - 1, ee_y0 + 25., ee_w - 8, ee_h - 50, FL_INACTIVE_COLOR);
 	fl_push_clip(x0 + 1, (float) ee_y0 + 27., ee_w - 12, ee_h - 54);
 	unsigned char r, g, b;
 	Fl::get_color(FL_INACTIVE_COLOR, r, g, b);
@@ -3373,7 +3398,12 @@ void Envelope_Editor::draw_envelope(char type, int x0, int y0, int luma)
 			fl_color(fl_color_average(fl_rgb_color(76, 189, 76), FL_INACTIVE_COLOR, blend));
 	}
 	if (type != mode)
-		fl_color(fl_darker(fl_color()));
+	{
+		if (luma > 128)
+			fl_color(fl_lighter(fl_color()));
+		else
+			fl_color(fl_darker(fl_color()));
+	}
 	// draw connections
 	fl_line_style(FL_SOLID, 2);
 	fl_line(x0 + 1, y0, dragbox[ATK_1][0], dragbox[ATK_1][1]);

@@ -134,13 +134,17 @@ class Double_Window: public Fl_Double_Window
 {
 	int handle(int event);
 	bool w__shown;
+	bool is_locked;
 public:
 	void showup();
 	void resize(int,int,int,int);
+	void Lock();
+	void Unlock();
 	Double_Window(int w, int h, char* const label = 0) :
 			Fl_Double_Window(w, h, label)
 	{
 		w__shown = false;
+		is_locked = false;
 	}
 };
 
@@ -152,11 +156,6 @@ public:
 			Fl_Box(x, y, w, h, label)
 	{
 		clear_visible_focus();
-	}
-	static void dndcback(void *v)
-	{
-		DND_Box *dbox = (DND_Box*) v;
-		dbox->dnd();
 	}
 	void dnd();
 protected:

@@ -71,7 +71,6 @@ public:
 	void incoming_generic_name(const unsigned char*);
 	void incoming_ACK(int);
 	void incoming_NAK(int);
-//	void incoming_CANCEL();
 //	void incoming_ERROR(int, int);
 	void widget_callback(int, int, int layer = -2);
 	void cc_callback(int, int);

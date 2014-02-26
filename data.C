@@ -358,7 +358,6 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		return;
 	const static int chunks = (size - DUMP_HEADER_SIZE) / packet_size;
 	const static int tail = (size - DUMP_HEADER_SIZE) % packet_size;
-	static int status = 0;
 	static int offset;
 	static int chunk_size = 0;
 	static int closed_loop = 0;
@@ -372,7 +371,6 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		if (closed_loop)
 			pxk->Loading(true);
 	}
-	ui->progress->value((float) status);
 	if (closed_loop)
 	{
 		// first we send the dump header
@@ -382,7 +380,6 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 			data[6] = 0x01;
 			offset = 0;
 			chunk_size = DUMP_HEADER_SIZE;
-			status = chunk_size;
 		}
 		else
 		{
@@ -398,12 +395,11 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 			chunk_size = packet_size;
 			if (packet == chunks + 1)
 				chunk_size = tail;
-			status += chunk_size;
 		}
 		// ack of tail...send eof
 		if (packet == chunks + 2)
 		{
-			ui->loading_w->hide();
+			ui->main_window->Unlock();
 			midi->eof();
 			if (show_preset)
 				pxk->show_preset();
@@ -411,7 +407,6 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 				pxk->display_status("Upload successful.");
 			else
 				pxk->display_status("Program saved.");
-			status = 0;
 		}
 		else
 			midi->write_sysex(data + offset, chunk_size);
@@ -427,7 +422,6 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 				data[6] = 0x03;
 				offset = 0;
 				chunk_size = DUMP_HEADER_SIZE;
-				status = chunk_size;
 			}
 			else
 			{
@@ -440,10 +434,8 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 				chunk_size = packet_size;
 				if (i == chunks + 1)
 					chunk_size = tail;
-				status += chunk_size;
 			}
 			midi->write_sysex(data + offset, chunk_size);
-			ui->progress->value((float) status);
 			if (i == chunks + 1)
 			{
 				if (show_preset)
@@ -452,7 +444,6 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 					pxk->display_status("Upload successful.");
 				else
 					pxk->display_status("Program saved.");
-				status = 0;
 			}
 		}
 	}

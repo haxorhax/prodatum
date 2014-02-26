@@ -1,5 +1,7 @@
 v2.0rc7
 
+* removed loading window. felt it was too - disturbing haha! no.
+* drag.n.drop could crash prodatum. fixed.
 * nicer envelope editor buttons
 * fixed some open dialog oddities
 * some UI restyling

@@ -926,7 +926,6 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 		midi->ack(0);
 		closed_loop = true;
 		dump_pos = len;
-		ui->progress->value((float) dump_pos);
 		number = data[7] + 128 * data[8];
 		if (number >= 8192)
 			number -= 16384;
@@ -937,7 +936,6 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 		//pmesg("PXK::incoming_preset_dump(len: %d) header (open)\n", len);
 		closed_loop = false;
 		dump_pos = len;
-		ui->progress->value((float) dump_pos);
 		number = data[7] + 128 * data[8];
 		if (number >= 8192)
 			number -= 16384;
@@ -965,7 +963,6 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 				midi->ack(data[8] * 128 + data[7]);
 				memcpy(dump + dump_pos, data, len);
 				dump_pos += len;
-				ui->progress->value((float) dump_pos);
 				if (len < 253) // last packet
 				{
 					delete preset;
@@ -991,7 +988,6 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 			//pmesg("PXK::incoming_preset_dump(len: %d) data (open)\n", len);
 			memcpy(dump + dump_pos, data, len);
 			dump_pos += len;
-			ui->progress->value((float) dump_pos);
 			if (len < 253) // last packet
 			{
 				delete preset;
@@ -1021,9 +1017,9 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 			ui->g_preset->activate();
 		else
 			ui->g_preset->deactivate();
-		if (!closed_loop) // close when EOF is received
+		if (!closed_loop)
 		{
-			ui->loading_w->hide();
+			ui->main_window->Unlock();
 			display_status("Edit buffer synchronized.");
 		}
 	}
@@ -1059,7 +1055,7 @@ static void check_loading(void*)
 {
 	if (!got_answer)
 	{
-		ui->loading_w->hide();
+		ui->main_window->Unlock();
 		fl_alert("Device did not respond to our request.");
 	}
 }
@@ -1069,9 +1065,8 @@ void PXK::Loading(bool upload) const
 	pmesg("PXK::Loading() \n");
 	got_answer = false;
 	Fl::remove_timeout(check_loading);
-	ui->loading_w->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->loading_w->w() / 2),
-			ui->main_window->y() + 80);
-	ui->loading_w->show();
+	pxk->display_status("Loading...");
+	ui->main_window->Lock();
 	if (upload)
 		Fl::add_timeout((2000. + cfg->get_cfg_option(CFG_SPEED)) / 1000., check_loading);
 	else
@@ -1220,7 +1215,7 @@ void PXK::incoming_arp_dump(const unsigned char* data, int len)
 void PXK::incoming_ACK(int packet)
 {
 	pmesg("PXK::incoming_ACK(packet: %d) \n", packet);
-	display_status("Received ACK.");
+//	display_status("Received ACK.");
 	if (preset)
 		preset->upload(++packet);
 	nak_count = 0;
@@ -1239,12 +1234,6 @@ void PXK::incoming_NAK(int packet)
 		fl_message("Closed Loop Upload failed!\nData is currupt.");
 }
 
-//void PXK::incoming_CANCEL()
-//{
-//	pmesg("PXK::incoming_CANCEL() \n");
-//	display_status("Received CANCEL.");
-//}
-//
 //void PXK::incoming_ERROR(int cmd, int sub)
 //{
 //	pmesg("PXK::incoming_ERROR(cmd: %X, subcmd: %X) \n", cmd, sub);
