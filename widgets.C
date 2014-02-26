@@ -3206,8 +3206,11 @@ void Envelope_Editor::draw()
 		draw_envelope(mode, x0, y0, luma);
 	if (!active_r())
 		return;
-	fl_color(FL_FOREGROUND_COLOR);
 	// value fields
+	if (luma > 128)
+		fl_color(fl_darker(FL_INACTIVE_COLOR));
+	else
+		fl_color(fl_lighter(FL_INACTIVE_COLOR));
 	// calc number of hovers
 	int hovers = 0;
 	for (i = 0; i < 6; i++)
@@ -3327,9 +3330,9 @@ void Envelope_Editor::draw()
 			else
 				snprintf(info, 15, "%s %5d%4d", tmp, env[mode].stage[i][0], env[mode].stage[i][1]);
 			if (i == hover)
-				fl_font(FL_COURIER_ITALIC, 10);
+				fl_font(FL_COURIER_ITALIC, 12);
 			else
-				fl_font(FL_COURIER, 10);
+				fl_font(FL_COURIER, 12);
 			// when we drag out of the visible area, keep the info text inside
 			int x_offset = 15;
 			if (dragbox[hover][0] + 120 > ee_x0 + ee_w)

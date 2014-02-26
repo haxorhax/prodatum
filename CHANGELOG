@@ -1,7 +1,8 @@
 v2.0rc8
 
-* supergroup for clear_output() and set_output() (lot faster locking)
-
+* make sure value numbers in envelope editor play nicely with background color
+* fixed regression from v2.0rc7: DND not working
+* fixed regression from v2.0rc7: Menu not working
 
 
 v2.0rc7
