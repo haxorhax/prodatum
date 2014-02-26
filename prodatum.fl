@@ -774,7 +774,7 @@ widget_class PD_Layer_Patchcords {
   }
 } 
 
-widget_class PD_Layer_Strip {open
+widget_class PD_Layer_Strip {
   xywh {600 444 100 540} type Double hide position_relative
 } {
   decl {void init(int layer);} {public
@@ -1544,7 +1544,7 @@ l2_filter->do_callback();}
   }
 } 
 
-widget_class PD_Main {open
+widget_class PD_Main {
   xywh {834 480 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
@@ -1552,7 +1552,7 @@ widget_class PD_Main {open
   decl {Fl_Widget* ctrl_x[16];} {public
   }
   Fl_Group {} {
-    label main open
+    label main
     xywh {0 0 834 574} labeltype NO_LABEL align 0
   } {
     Fl_Group {} {
@@ -2578,9 +2578,9 @@ delete this;} open
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
 delete this;} open
-      xywh {869 239 845 620} type Double hide resizable
+      xywh {869 239 845 620} type Double resizable
       code0 {o->label("prodatum");}
-      class Double_Window xclass prodatum size_range {674 492 845 620}
+      class Double_Window xclass prodatum size_range {674 492 845 620} visible
     } {
       Fl_Group {} {
         label name
@@ -3165,7 +3165,7 @@ preset_editor->links->hide();
           code3 {o->datatype(FL_SCOPE_UNSIGNED);}
           class Fl_Scope
         }
-        Fl_Box scope_o {
+        Fl_Box scope_o {selected
           xywh {160 48 44 16} box FLAT_BOX when 0 deactivate
           code0 {o->redrawmode(FL_SCOPE_REDRAW_ALWAYS);o->tracetype(FL_SCOPE_TRACE_LOOP);}
           code1 {o->linetype(FL_SCOPE_DOT);}
@@ -3231,7 +3231,7 @@ else
             callback {if (pxk->preset) pxk->preset->redo();}
             tooltip {Redo program parameter change} xywh {672 91 28 28} box THIN_UP_BOX color 7 selection_color 15 labelfont 4 labelsize 18 deactivate
           }
-          Fl_Value_Input value_input {selected
+          Fl_Value_Input value_input {
             tooltip {Shows value of the last change (can be edited with the keyboard, mousewheel or by dragging) [CTRL+E to focus]} xywh {703 91 68 28} box BORDER_BOX labeltype NO_LABEL labelsize 12 align 0 when 8 maximum 0 step 1 textfont 4 textsize 20
             code0 {o->set_id(1, 0);}
             class Value_Input
@@ -3807,7 +3807,7 @@ init_log_w->show();}
         xywh {60 1 219 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 24 deactivate
       }
       Fl_Group {} {
-        label Device
+        label Device open
         xywh {10 75 262 160} labelfont 1 labelcolor 8 align 5
       } {
         Fl_Box device_info {
@@ -3824,7 +3824,7 @@ device_info->label(0);
 pxk->LoadConfig(o->value());
 pxk->ConnectPorts(true);
 r_user_id->value(o->value());}
-          tooltip {ID: Must be unique for every device you intend to use prodatum with (you can set the ID in the Master Menu of your device)!} xywh {20 174 90 25} color 7 selection_color 15 labelsize 12 align 8 when 1 minimum 0 maximum 126 value 0 textfont 4 textsize 13
+          tooltip {ID: Must be unique for every device you intend to use prodatum with (you can set the ID in the Master Menu of your device)!} xywh {20 174 90 25} color 7 selection_color 15 labelsize 12 align 8 when 1 minimum 0 maximum 126 value 127 textfont 4 textsize 13
         }
         Fl_Button {} {
           label Update
@@ -3838,6 +3838,7 @@ pxk->Inquire(device_id->value());}
           callback {cfg->set_cfg_option(CFG_SPEED, o->value());} open
           tooltip {Delay: Change the request-response delay of your device. The lower the delay, the higher the average bitrate that we receive data with.} xywh {20 210 90 20} down_box BORDER_BOX color 7 labelsize 12 align 72 textsize 13
           code0 {o->add("0 [ms]");o->add("10 [ms]");o->add("40 [ms]");o->add("90 [ms]");o->add("160 [ms]");}
+          code1 {o->value(1);}
         } {}
       }
       Fl_Group {} {
@@ -3991,12 +3992,12 @@ o->deactivate();}
       Fl_Check_Button closed_loop_download {
         label {Closed loop preset download}
         callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD, o->value());}
-        tooltip {Closed loop downloads require prodatum to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: disabled, use open loop downloads)} xywh {20 262 269 15} down_box DOWN_BOX color 7 selection_color 15
+        tooltip {Closed loop downloads require prodatum to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: enabled)} xywh {20 262 269 15} down_box DOWN_BOX value 1 color 7 selection_color 15
       }
       Fl_Check_Button closed_loop_upload {
         label {Closed loop preset upload}
         callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_UPLOAD, o->value());}
-        tooltip {Closed loop uploads require the device to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: disabled, use open loop uploads)} xywh {20 281 251 15} down_box DOWN_BOX color 7 selection_color 15
+        tooltip {Closed loop uploads require the device to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: enabled)} xywh {20 281 251 15} down_box DOWN_BOX value 1 color 7 selection_color 15
       }
       Fl_Box {} {
         label Controller

@@ -3021,8 +3021,6 @@ void Envelope_Editor::draw()
 	shape_button[1] = shape_button[0] - 20;
 	shape_button[2] = shape_button[1] - 20;
 	shape_button[3] = shape_button[2] - 20;
-	if (!active_r())
-		return;
 	// title
 	fl_font(FL_HELVETICA_BOLD, 14);
 	fl_color(FL_INACTIVE_COLOR);
@@ -3131,7 +3129,7 @@ void Envelope_Editor::draw()
 	fl_color(FL_BACKGROUND2_COLOR);
 	draw_box(FL_THIN_UP_BOX, x0 - 1,  ee_y0 + 25., ee_w - 8,  ee_h - 50, FL_INACTIVE_COLOR);
 	fl_push_clip(x0 + 1, (float) ee_y0 + 26., ee_w - 12, ee_h - 52);
-	fl_color(FL_BACKGROUND_COLOR);
+	fl_color(fl_darker(FL_INACTIVE_COLOR));
 	// vertikale
 	float x_step = ((float) (ee_w - 10) / 384.) * (float) zoomlevel; // 3*128 = 384
 	float x_val = (float) x0 + 8. * x_step;
@@ -3155,12 +3153,12 @@ void Envelope_Editor::draw()
 		fl_line(x0 + 1, y0 + y_step * j, x0 + ee_w - 11, y0 + y_step * j);
 	}
 	// nulllinie
-	fl_color(FL_FOREGROUND_COLOR);
+	fl_color(fl_lighter(FL_INACTIVE_COLOR));
 	fl_line(x0 + 1, y0, x0 + ee_w - 11, y0);
 	fl_line_style(0);
 	fl_pop_clip();
 	// envelopes
-	if (overlay)
+	if (overlay && active_r())
 	{
 		for (i = 0; i < modes; i++)
 		{
@@ -3169,7 +3167,10 @@ void Envelope_Editor::draw()
 			draw_envelope(i, x0, y0);
 		}
 	}
-	draw_envelope(mode, x0, y0);
+	if (active_r())
+		draw_envelope(mode, x0, y0);
+	if (!active_r())
+		return;
 	fl_color(FL_FOREGROUND_COLOR);
 	// value fields
 	// calc number of hovers
@@ -3327,22 +3328,19 @@ void Envelope_Editor::draw_envelope(char type, int x0, int y0)
 	dragbox[RLS_2][0] = dragbox[RLS_1][0] + env[type].stage[RLS_2][0] * x_scale;
 	dragbox[RLS_2][1] = y0 - env[type].stage[RLS_2][1] * y_scale;
 	// lines between dragboxes
-	Fl_Color col;
 	switch (type)
 	{
 		case VOLUME:
-			fl_color(231, 42, 42);
+			fl_color(fl_color_average(fl_rgb_color(231, 122, 122), FL_INACTIVE_COLOR, .6));
 			break;
 		case FILTER:
-			fl_color(81, 81, 239);
+			fl_color(fl_color_average(fl_rgb_color(111, 111, 239), FL_INACTIVE_COLOR, .6));
 			break;
 		case AUXILIARY:
-			fl_color(36, 189, 36);
+			fl_color(fl_color_average(fl_rgb_color(96, 189, 96), FL_INACTIVE_COLOR, .6));
 	}
-	col = fl_color_average(FL_FOREGROUND_COLOR, fl_color(), .3);
 	if (type != mode)
-		fl_color(fl_color_average(col, FL_BACKGROUND2_COLOR, .5f));
-	col = fl_color();
+		fl_color(fl_darker(fl_color()));
 	// draw connections
 	fl_line_style(FL_SOLID, 2);
 	fl_line(x0 + 1, y0, dragbox[ATK_1][0], dragbox[ATK_1][1]);
@@ -3351,7 +3349,7 @@ void Envelope_Editor::draw_envelope(char type, int x0, int y0)
 	fl_line(dragbox[DCY_1][0], dragbox[DCY_1][1], dragbox[DCY_2][0], dragbox[DCY_2][1]);
 	// vertical line at release
 	fl_line_style(FL_DASH, 1);
-	fl_line(dragbox[DCY_2][0], y0 - 100 * y_scale, dragbox[DCY_2][0], y0 + 100 * y_scale);
+	fl_line(dragbox[DCY_2][0], y0 - 97 * y_scale, dragbox[DCY_2][0], y0 + 97 * y_scale);
 	fl_line_style(FL_SOLID, 2);
 	fl_line(dragbox[DCY_2][0], dragbox[DCY_2][1], dragbox[RLS_1][0], dragbox[RLS_1][1]);
 	fl_line(dragbox[RLS_1][0], dragbox[RLS_1][1], dragbox[RLS_2][0], dragbox[RLS_2][1]);

@@ -1,6 +1,9 @@
 v2.0rc7
 
 * nicer envelope editor buttons
+* fixed some open dialog oddities
+* some UI restyling
+* enabled closed loop downloads by default
 
 
 v2.0rc6

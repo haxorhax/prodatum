@@ -54,9 +54,9 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_CONTROL_CHANNEL] = 0;
 	defaults[CFG_AUTOMAP] = 1;
 	defaults[CFG_DEVICE_ID] = device_id;
-	defaults[CFG_SPEED] = 1;
-	defaults[CFG_CLOSED_LOOP_UPLOAD] = 0;
-	defaults[CFG_CLOSED_LOOP_DOWNLOAD] = 0;
+	defaults[CFG_SPEED] = -1;
+	defaults[CFG_CLOSED_LOOP_UPLOAD] = 1;
+	defaults[CFG_CLOSED_LOOP_DOWNLOAD] = 1;
 	defaults[CFG_TOOLTIPS] = 1;
 	defaults[CFG_KNOBMODE] = 1;
 	defaults[CFG_CONFIRM_EXIT] = 0;
@@ -82,9 +82,9 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_SLR] = 228;
 	defaults[CFG_SLG] = 240;
 	defaults[CFG_SLB] = 209;
-	defaults[CFG_INR] = 73;
-	defaults[CFG_ING] = 73;
-	defaults[CFG_INB] = 71;
+	defaults[CFG_INR] = 59;
+	defaults[CFG_ING] = 59;
+	defaults[CFG_INB] = 57;
 	// check/create cfg dir
 	struct stat sbuf;
 	if (stat(config_dir, &sbuf) == -1)
@@ -206,7 +206,7 @@ int Cfg::get_cfg_option(int opt) const
 
 int Cfg::getset_default(int opt)
 {
-	pmesg("Cfg::getset_default(%d)  \n", opt);
+	//pmesg("Cfg::getset_default(%d)  \n", opt);
 	if (opt < NOOPTION && opt >= 0)
 	{
 		option[opt] = defaults[opt];
@@ -223,7 +223,7 @@ const char* Cfg::get_config_dir() const
 
 const char* Cfg::get_export_dir() const
 {
-	pmesg("Cfg::get_export_dir()  \n");
+	//pmesg("Cfg::get_export_dir()  \n");
 	return export_dir;
 }
 
@@ -263,7 +263,7 @@ bool Cfg::set_export_dir(const char* dir)
 
 void Cfg::apply(bool colors_only)
 {
-	pmesg("Cfg::apply()\n");
+	//pmesg("Cfg::apply()\n");
 	ui->set_color(FL_BACKGROUND_COLOR, (unsigned char) option[CFG_BGR], (unsigned char) option[CFG_BGG],
 			(unsigned char) option[CFG_BGB]);
 	ui->set_color(FL_BACKGROUND2_COLOR, (unsigned char) option[CFG_BG2R], (unsigned char) option[CFG_BG2G],
@@ -279,11 +279,15 @@ void Cfg::apply(bool colors_only)
 	ui->syncview = option[CFG_SYNCVIEW];
 	// UI INIT
 	// midi options
-	ui->device_id->value(option[CFG_DEVICE_ID]);
-	ui->r_user_id->value(option[CFG_DEVICE_ID]);
+	if (option[CFG_DEVICE_ID] != -1)
+	{
+		ui->device_id->value(option[CFG_DEVICE_ID]);
+		ui->r_user_id->value(option[CFG_DEVICE_ID]);
+	}
 	ui->midi_ctrl_ch->value(option[CFG_CONTROL_CHANNEL]);
 	ui->midi_automap->value(option[CFG_AUTOMAP]);
-	ui->speed->value(option[CFG_SPEED]);
+	if (option[CFG_SPEED] != -1)
+		ui->speed->value(option[CFG_SPEED]);
 	ui->confirm->value(option[CFG_CONFIRM_EXIT]);
 	ui->confirm_rand->value(option[CFG_CONFIRM_RAND]);
 	ui->confirm_dismiss->value(option[CFG_CONFIRM_DISMISS]);
