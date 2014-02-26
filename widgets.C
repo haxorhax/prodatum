@@ -3060,18 +3060,18 @@ void Envelope_Editor::draw()
 		if (i == 0)
 		{
 			if (mode == VOLUME)
-				fl_draw("Factory", mode_button[0] + 4, ee_y0 + 15);
+				fl_draw("Factory", mode_button[0] + 3, ee_y0 + 14);
 			else
-				fl_draw("Repeat", mode_button[0] + 7, ee_y0 + 15);
+				fl_draw("Repeat", mode_button[0] + 7, ee_y0 + 14);
 		}
 		else if (i == 1)
-			fl_draw("Time", mode_button[i] + 13, ee_y0 + 15);
+			fl_draw("Time", mode_button[i] + 12, ee_y0 + 14);
 		else if (i == 2)
-			fl_draw("Tempo", mode_button[i] + 10, ee_y0 + 15);
+			fl_draw("Tempo", mode_button[i] + 9, ee_y0 + 14);
 		else if (i == 3)
-			fl_draw("/\\\\//\\\\", mode_button[i] + 4, ee_y0 + 15);
+			fl_draw("/\\\\//\\\\", mode_button[i] + 3, ee_y0 + 14);
 		else if (i == 4)
-			fl_draw("(( Y ))", mode_button[i] + 4, ee_y0 + 15);
+			fl_draw("(( Y ))", mode_button[i] + 3, ee_y0 + 14);
 	}
 	// lower bar
 	fl_font(FL_HELVETICA, 10);
