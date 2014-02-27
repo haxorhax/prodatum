@@ -16,8 +16,7 @@
  along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//#include <string.h>
-//#include <string>
+#include <string.h>
 #include <fstream>
 #include <FL/fl_ask.H>
 #include <FL/Fl_Tooltip.H>
