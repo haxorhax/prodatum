@@ -137,6 +137,24 @@ void PWid::cb(PWid*, void* p)
 // ###################
 //
 // ###################
+void Double_Window::resize(int x, int y, int w, int h)
+{
+	if (__main && (w != this->w() || h != this->h()) && cfg != 0)
+	{
+		if (cfg->get_default(CFG_WINDOW_WIDTH) != w || cfg->get_default(CFG_WINDOW_HEIGHT) != h)
+		{
+			ui->scope_i->hide();
+			ui->scope_o->hide();
+		}
+		else
+		{
+			ui->scope_i->show();
+			ui->scope_o->show();
+		}
+	}
+	Fl_Window::resize(x, y, w, h);
+}
+
 int Double_Window::handle(int ev)
 {
 	static bool playing = false;
@@ -147,10 +165,10 @@ int Double_Window::handle(int ev)
 			{
 				playing = true;
 				if (midi)
-					midi->write_event(NOTE_ON, 60, 110);
-				ui->piano->activate_key(1, 60);
-				ui->main->minipiano->activate_key(1, 60);
-				ui->global_minipiano->activate_key(1, 60);
+					midi->write_event(NOTE_ON, 57, 110);
+				ui->piano->activate_key(1, 57);
+				ui->main->minipiano->activate_key(1, 57);
+				ui->global_minipiano->activate_key(1, 57);
 				return 1;
 			}
 			else if (Fl::event_key() == 'f')
@@ -167,26 +185,16 @@ int Double_Window::handle(int ev)
 				}
 				return 1;
 			}
-			else if (Fl::event_key() == 'n' && Fl::event_state() == FL_CTRL) // focus name field
-			{
-				ui->n_name_m->take_focus();
-				return 1;
-			}
-			else if (Fl::event_key() == 'e' && Fl::event_state() == FL_CTRL) // focus value input
-			{
-				ui->value_input->take_focus();
-				return 1;
-			}
 			break;
 		case FL_KEYUP:
 			if (playing && Fl::event_key() == 'b')
 			{
 				playing = false;
 				if (midi)
-					midi->write_event(NOTE_OFF, 60, 0);
-				ui->piano->activate_key(-1, 60);
-				ui->main->minipiano->activate_key(-1, 60);
-				ui->global_minipiano->activate_key(-1, 60);
+					midi->write_event(NOTE_OFF, 57, 0);
+				ui->piano->activate_key(-1, 57);
+				ui->main->minipiano->activate_key(-1, 57);
+				ui->global_minipiano->activate_key(-1, 57);
 				return 1;
 			}
 			break;
@@ -5322,7 +5330,7 @@ void MiniPiano::activate_key(int value, int key)
 		active_keys[key] = 3;
 	else if (active_keys[key] < 1)
 		active_keys[key] = -1;
-	if (!visible_r() || key > 12 * octave + 24 || key < 12 * octave)
+	if (key > 12 * octave + 24 || key < 12 * octave)
 		return;
 	damage(D_HIGHLIGHT);
 }

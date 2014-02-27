@@ -1085,7 +1085,7 @@ widget_class PD_Preset_Editor {
   xywh {560 450 830 565} type Double box BORDER_BOX hide position_relative
 } {
   Fl_Group g_riff {
-    label RIFF
+    label RIFF open
     xywh {4 23 196 384} box THIN_DOWN_BOX labelfont 1 labelcolor 8
   } {
     Fl_Choice riff_rom {open
@@ -1341,7 +1341,7 @@ midi->request_arp_dump(arp->value()-1, 0);}
           code0 {o->set_id(1042);}
           class ROM_Choice
         } {}
-        Fl_Browser arp {
+        Fl_Browser arp {selected
           xywh {429 107 176 262} type Hold when 1 textfont 4 textsize 12
           code0 {o->set_id(1027);}
           class Browser
@@ -1563,7 +1563,7 @@ widget_class PD_Main {
         callback {ui->select(5);}
         tooltip {Program name} xywh {5 24 194 20} box FLAT_BOX down_box FLAT_BOX color 7 selection_color 15 labelfont 4 labelsize 12 align 84
       }
-      Fl_Group channel_select {
+      Fl_Group channel_select {open
         tooltip {Select preset by channel or activate channel in omni and poly-mode.} xywh {4 23 196 73} labeltype NO_LABEL labelfont 1 labelcolor 15 when 0
         code0 {o->set_id(129);}
         class Group
@@ -1571,82 +1571,82 @@ widget_class PD_Main {
         Fl_Button {} {
           label 1
           callback {((Group*)o->parent())->do_callback();}
-          xywh {7 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {7 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 2
           callback {((Group*)o->parent())->do_callback();}
-          xywh {31 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {31 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 3
           callback {((Group*)o->parent())->do_callback();}
-          xywh {55 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {55 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 4
           callback {((Group*)o->parent())->do_callback();}
-          xywh {79 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {79 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 5
           callback {((Group*)o->parent())->do_callback();}
-          xywh {103 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {103 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 6
           callback {((Group*)o->parent())->do_callback();}
-          xywh {127 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {127 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 7
           callback {((Group*)o->parent())->do_callback();}
-          xywh {151 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {151 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 8
           callback {((Group*)o->parent())->do_callback();}
-          xywh {175 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {175 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 9
           callback {((Group*)o->parent())->do_callback();}
-          xywh {7 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {7 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 10
           callback {((Group*)o->parent())->do_callback();}
-          xywh {31 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {31 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 11
           callback {((Group*)o->parent())->do_callback();}
-          xywh {55 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {55 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 12
           callback {((Group*)o->parent())->do_callback();}
-          xywh {79 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {79 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 13
           callback {((Group*)o->parent())->do_callback();}
-          xywh {103 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {103 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 14
           callback {((Group*)o->parent())->do_callback();}
-          xywh {127 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {127 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 15
           callback {((Group*)o->parent())->do_callback();}
-          xywh {151 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {151 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 16
           callback {((Group*)o->parent())->do_callback();}
-          xywh {175 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64
+          xywh {175 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
       }
       Fl_Dial {} {
@@ -2581,12 +2581,13 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open
+delete this;}
       xywh {909 274 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
+      code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
-      Fl_Group supergroup {open selected
+      Fl_Group supergroup {open
         xywh {0 0 846 615} resizable
       } {
         Fl_Group {} {
@@ -2636,11 +2637,11 @@ pxk->preset->set_name(o->value(), 1, o->position());}
             xywh {421 21 1 1} labeltype NO_LABEL resizable
           }
         }
-        Fl_Group g_main {
+        Fl_Group g_main {open
           xywh {0 19 843 596}
         } {
           Fl_Button {} {
-            label {Keyb.}
+            label {&Keyb.}
             callback {if (piano_w->shown() && piano_w->visible())
 piano_w->hide();
 else
@@ -2859,12 +2860,12 @@ preset_editor->links->hide();
             class PD_Preset_Editor
           }
           Fl_Button {} {
-            label {V/MP}
+            label {&V/MP}
             callback {if (g_value->visible())
 {g_value->hide();g_minipiano->show();}
 else
 {g_minipiano->hide();g_value->show();}}
-            tooltip {Toggle MiniPiano} xywh {639 49 40 17} type Toggle down_box DOWN_BOX shortcut 0x6e color 8 selection_color 67 labelsize 10 labelcolor 7
+            tooltip {Toggle MiniPiano} xywh {639 49 40 17} type Toggle down_box DOWN_BOX shortcut 0x76 color 8 selection_color 67 labelsize 10 labelcolor 7
             code0 {o->clear_visible_focus();}
           }
           Fl_Group g_value {
@@ -2902,7 +2903,7 @@ else
 value_input->when(FL_WHEN_CHANGED);
 cfg->set_cfg_option(CFG_DRLS, 0);
 }}
-              tooltip {When to transmit the value of the Value display on the left, when using it as a valuator. Enabled: transmit on button release or Enter only. Disabled: transmit every change} xywh {774 91 28 28} type Toggle down_box DOWN_BOX shortcut 0x64 value 1 color 8 selection_color 67 labelsize 10 labelcolor 7 align 208
+              tooltip {When to transmit the value of the Value display on the left, when using it as a valuator. Enabled: transmit on button release or Enter only. Disabled: transmit every change} xywh {774 91 28 28} type Toggle down_box DOWN_BOX shortcut 0x64 value 1 color 8 selection_color 67 labelsize 9 labelcolor 7 align 208
               code0 {o->clear_visible_focus();}
             }
             Fl_Button b_eall {
@@ -2915,7 +2916,7 @@ if (!eall && pxk->preset)
 	if (piano_w->shown())
 			piano->redraw();
 }}
-              tooltip {Edit all layers} xywh {804 91 28 28} type Toggle down_box DOWN_BOX color 8 selection_color 72 labelsize 10 labelcolor 7 align 144
+              tooltip {Edit all layers} xywh {804 91 28 28} type Toggle down_box DOWN_BOX color 8 selection_color 72 labelsize 9 labelcolor 7 align 144
               code0 {o->clear_visible_focus();}
             }
           }
@@ -2928,7 +2929,7 @@ if (!eall && pxk->preset)
               class MiniPiano
             }
           }
-          Fl_Group g_pfx {
+          Fl_Group g_pfx {open
             xywh {639 129 196 324} labeltype NO_LABEL labelcolor 8 align 0
           } {
             Fl_Group g_effects {
@@ -3048,7 +3049,7 @@ if (!eall && pxk->preset)
                 }
               }
             }
-            Fl_Group g_preset {
+            Fl_Group g_preset {open
               xywh {639 129 196 321} labeltype NO_LABEL align 0 deactivate
             } {
               Fl_Button b_copy_p {
@@ -3134,7 +3135,7 @@ Fl::focus(preset);
                   class ROM_Choice
                 } {}
                 Fl_Browser preset {
-                  tooltip {Select a program to load for editing or, if either "COPY" or "SAVE" is active, double-click/Enter/Space target to copy/save (hold SHIFT to copy/save and return to preset selection mode).} xywh {649 178 176 241} type Hold when 4 textfont 4 textsize 12
+                  tooltip {Select a program to load for editing or, if either "COPY" or "SAVE" is active, double-click/Enter/Space target to copy/save (hold SHIFT to copy/save and return to preset selection mode).} xywh {649 178 176 241} type Hold when 1 textfont 4 textsize 12
                   code0 {o->set_id(897);}
                   class Browser
                 }
@@ -3415,14 +3416,14 @@ arp_name_changed = false;}
           }
         }
         Fl_Group {} {
-          label menu
+          label menu open
           xywh {0 0 424 21} labeltype NO_LABEL
         } {
           Fl_Box {} {
             label resizeable
             xywh {423 20 1 1} labeltype NO_LABEL resizable
           }
-          Fl_Menu_Bar {} {
+          Fl_Menu_Bar {} {open
             xywh {0 0 231 20} box FLAT_BOX color 7 labelsize 10 textsize 10
             code0 {o->global();}
           } {
@@ -3474,7 +3475,7 @@ reset_w->show();}
               MenuItem {} {
                 label Exit
                 callback {main_window->do_callback();}
-                xywh {10 10 36 21} shortcut 0xff1b labelsize 12
+                xywh {10 10 36 21} labelsize 12
               }
             }
             Submenu {} {

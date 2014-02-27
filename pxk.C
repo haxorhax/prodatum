@@ -1111,6 +1111,7 @@ void PXK::load_setup()
 	update_control_map();
 	// select basic channel on startup
 	pwid[129][0]->set_value(setup->get_value(139));
+	((Fl_Button*) ui->main->channel_select->child(setup->get_value(139)))->take_focus();
 	ui->main->channel_select->do_callback();
 }
 

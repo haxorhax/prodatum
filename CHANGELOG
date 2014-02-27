@@ -1,7 +1,13 @@
-v2.0rc7hot1
+v2.0rc8
 
 * make sure value numbers in envelope editor play nicely with background color
-* fixed regressions from v2.0rc7 (like menu not behaving)
+* fixed menu not behaving (since rc7)
+* focus channel selection on startup (no point to focus the name)
+* removed global "ESC to quit" shortcut so ESC can be used to close
+  subwindows again. Oops
+* pressing B will play an A now
+* changed channel and preset selection callbacks from "when released" to
+  "when changed"
 
 
 v2.0rc7

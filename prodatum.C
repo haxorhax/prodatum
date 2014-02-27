@@ -31,7 +31,7 @@
 
 static void load_data();
 
-const char* VERSION = "2.0rc7hot1";
+const char* VERSION = "2.0rc8";
 PD_UI* ui;
 extern MIDI* midi;
 extern Cfg* cfg;
@@ -466,7 +466,6 @@ void PD_UI::show_copy_layer(int type, int src_layer)
 	copy_type = type;
 	copy_src = src_layer;
 	copy_layer->showup();
-	pxk->display_status("Hint: [ESC] closes windows.");
 }
 
 /**
@@ -522,7 +521,6 @@ void PD_UI::show_copy_preset(int type)
 			break;
 	}
 	copy_preset->showup();
-	pxk->display_status("Hint: [ESC] closes windows.");
 }
 
 /**
