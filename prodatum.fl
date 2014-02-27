@@ -2560,7 +2560,8 @@ return;
 if (!(confirm->value() && !fl_choice("Exit prodatum?", "Cancel", "Exit", 0)))
 delete this;} open
   } {
-    code {Fl::visual(FL_DOUBLE|FL_RGB);
+    code {pmesg("PD_UI::PD_UI()\\n");
+Fl::visual(FL_DOUBLE|FL_RGB);
 	// filter tooltip
 	snprintf(filter_tooltip, 512,
 			"* matches any sequence of 0 or more characters.\\n"
@@ -2570,7 +2571,8 @@ delete this;} open
 				"{X|Y|Z} or {X,Y,Z} matches any one of the subexpressions literally.\\n"
 				"\\\\x quotes the character x so it has no special meaning.\\n"
 				"x all other characters must be matched exactly.\\n"
-				"NOTE: Your query is automatically expanded to '*query*' to mimic prodatum's original filter behaviour.");} {}
+				"NOTE: Your query is automatically expanded to '*query*' to mimic prodatum's original filter behaviour.");} {selected
+    }
     Fl_Window main_window {
       callback {if (pxk->preset && pxk->preset->is_changed())
 {
@@ -2580,7 +2582,7 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open
+delete this;}
       xywh {916 300 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
@@ -3418,7 +3420,7 @@ pxk->preset->set_name(o->value(), 1, o->position());}
             label resizeable
             xywh {0 20 1 1} labeltype NO_LABEL resizable
           }
-          Fl_Menu_Bar {} {
+          Fl_Menu_Bar {} {open
             xywh {0 0 231 19} box FLAT_BOX color 7 labelsize 10 textsize 10
             code0 {o->global();}
           } {
@@ -3434,7 +3436,8 @@ pxk->preset->set_name(o->value(), 1, o->position());}
 	return;
 }
 delete pxk;
-pxk = new PXK(false);}
+pxk = new PXK(false);
+pxk->Inquire(device_id->value());}
                 xywh {15 15 36 21} shortcut 0x6f labelsize 12
               }
               MenuItem {} {
@@ -3802,7 +3805,7 @@ init_log_w->show();}
     }
     Fl_Window open_device {
       label {Open Device}
-      xywh {609 342 280 385} type Double box BORDER_BOX labelcolor 15 hide
+      xywh {499 205 280 385} type Double box BORDER_BOX labelcolor 15 hide
       class Double_Window modal xclass prodatum
     } {
       Fl_Box {} {
@@ -3916,7 +3919,7 @@ open_device->hide();}
     }
     Fl_Window preferences {
       label Preferences
-      callback {b_close_prefs->do_callback();} open
+      callback {b_close_prefs->do_callback();}
       xywh {1095 471 305 470} type Double box UP_BOX labelsize 11 hide
       class Double_Window xclass prodatum
     } {
@@ -4020,7 +4023,7 @@ else
 {
 cfg->set_cfg_option(CFG_MIDI_THRU, -1);
 o->label("Select... (optional)");
-}} open selected
+}} open
         tooltip {Control: Select the MIDI port that your controller is connected to (select again to disconnect).} xywh {20 307 205 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 align 84 textsize 13
       } {}
       Fl_Choice midi_ctrl_ch {
@@ -4535,11 +4538,13 @@ selected = 5;
 filter_tmp = 0;
 select(0);} {}
   }
-  Function {~PD_UI()} {} {
+  Function {~PD_UI()} {open
+  } {
     code {cfg->set_cfg_option(CFG_SYNCVIEW, syncview);
 cfg->set_cfg_option(CFG_WINDOW_WIDTH, main_window->w());
 cfg->set_cfg_option(CFG_WINDOW_HEIGHT, main_window->h());
 delete pxk;
+delete midi;
 pmesg("Bye.\\n");
 exit(0);} {}
   }

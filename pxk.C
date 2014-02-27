@@ -36,7 +36,7 @@ extern int max_read;
 
 extern bool got_answer;
 extern FilterMap FM[51];
-MIDI* midi = 0;
+extern MIDI* midi;
 Cfg* cfg = 0;
 
 volatile static bool join_bro = false;
@@ -284,13 +284,7 @@ PXK::PXK(bool autoconnect, int __id)
 		rom[i] = 0;
 		rom_index[i] = -1;
 	}
-	ui->device_info->label("");
-	if (midi)
-	{
-		delete midi;
-		midi = 0;
-	}
-	midi = new MIDI();
+	ui->device_info->label(0);
 	display_status("New PXK editor loaded.");
 	LoadConfig(autoconnect, __id);
 }
@@ -317,11 +311,6 @@ PXK::~PXK()
 		delete setup_copy;
 	if (setup_names)
 		delete[] setup_names;
-	if (midi)
-	{
-		delete midi;
-		midi = 0; // global object
-	}
 	if (cfg)
 	{
 		delete cfg;
@@ -333,10 +322,7 @@ void PXK::LoadConfig(bool autoconnect, int id)
 {
 	pmesg("PXK::LoadConfig(%d)\n", id);
 	if (cfg)
-	{
 		delete cfg;
-		cfg = 0;
-	}
 	cfg = new Cfg(id);
 	cfg->apply();
 	if (cfg->get_cfg_option(CFG_MIDI_IN) != -1 && cfg->get_cfg_option(CFG_MIDI_OUT) != -1)
@@ -745,7 +731,7 @@ void PXK::Inquire(unsigned char id)
 		unsigned char s[] =
 		{ 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
 		// send this twice, fixes ticket #4
-		midi->write_sysex(s, 6);
+//		midi->write_sysex(s, 6);
 		midi->write_sysex(s, 6);
 		inquired = true;
 		device_code = -1;
@@ -765,7 +751,7 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 		if (device_id == 127)
 		{
 			device_id = data[2];
-			ui->device_id->value((double) device_id);
+			ui->device_id->value((double) data[2]);
 			// load user config if we scanned using ID 127
 			delete cfg;
 			cfg = new Cfg(device_id);

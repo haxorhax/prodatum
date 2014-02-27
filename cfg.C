@@ -202,7 +202,7 @@ int Cfg::get_cfg_option(int opt) const
 	if (opt < NOOPTION && opt >= 0)
 		if (opt == CFG_SPEED)
 			return option[CFG_SPEED] * option[CFG_SPEED] * 10;
-		return option[opt];
+	return option[opt];
 	return 0;
 }
 
@@ -242,7 +242,7 @@ bool Cfg::set_export_dir(const char* dir)
 	struct stat sbuf;
 	if (stat(dir, &sbuf) == -1)
 	{
-		fl_alert("Directory must exist.\nUsing previous directory.");
+		fl_alert("Directory must exist.");
 		return false;
 	}
 	else
@@ -253,7 +253,7 @@ bool Cfg::set_export_dir(const char* dir)
 		if (fp == NULL)
 		{
 			if (errno == EACCES)
-				fl_alert("You don't have write permission at %s.\nUsing previous directory.", dir);
+				fl_alert("You don't have write permission at %s.", dir);
 			return false;
 		}
 		else
@@ -288,8 +288,11 @@ void Cfg::apply(bool colors_only)
 	ui->syncview = option[CFG_SYNCVIEW];
 	// UI INIT
 	// midi options
-	ui->device_id->value(option[CFG_DEVICE_ID]);
-	ui->r_user_id->value(option[CFG_DEVICE_ID]);
+	if (option[CFG_DEVICE_ID] != -1)
+	{
+		ui->device_id->value(option[CFG_DEVICE_ID]);
+		ui->r_user_id->value(option[CFG_DEVICE_ID]);
+	}
 	ui->midi_ctrl_ch->value(option[CFG_CONTROL_CHANNEL]);
 	ui->midi_automap->value(option[CFG_AUTOMAP]);
 	if (option[CFG_SPEED] != -1)
@@ -327,5 +330,6 @@ void Cfg::apply(bool colors_only)
 	ui->log_sysex_in->value(option[CFG_LOG_SYSEX_IN]);
 	ui->log_events_out->value(option[CFG_LOG_EVENTS_OUT]);
 	ui->log_events_in->value(option[CFG_LOG_EVENTS_IN]);
-	ui->main_window->resize(ui->main_window->x(), ui->main_window->y(), option[CFG_WINDOW_WIDTH], option[CFG_WINDOW_HEIGHT]);
+	ui->main_window->resize(ui->main_window->x(), ui->main_window->y(), option[CFG_WINDOW_WIDTH],
+			option[CFG_WINDOW_HEIGHT]);
 }

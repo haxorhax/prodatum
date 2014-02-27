@@ -571,29 +571,7 @@ MIDI::MIDI()
 	jack_ringbuffer_mlock(write_buffer);
 	jack_ringbuffer_mlock(read_buffer);
 #endif
-	populate_ports();
-}
-
-MIDI::~MIDI()
-{
-	pmesg("MIDI::~MIDI()\n");
-	stop_timer();
-	jack_ringbuffer_free(read_buffer);
-	jack_ringbuffer_free(write_buffer);
-}
-
-// get available system midi ports
-void MIDI::populate_ports()
-{
-	//pmesg("MIDI::populate_ports()\n");
-	ui->midi_outs->clear();
-	ui->midi_outs->copy_label("Select...");
-	ui->midi_ins->clear();
-	ui->midi_ins->copy_label("Select...");
-	ui->midi_ctrl->clear();
-	ui->midi_ctrl->copy_label("Select... (optional)");
-	ports_out.clear();
-	ports_in.clear();
+	// populate ports
 	for (unsigned char i = 0; i < Pm_CountDevices(); i++)
 	{
 		const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
@@ -612,6 +590,14 @@ void MIDI::populate_ports()
 			ports_in.push_back(i);
 		}
 	}
+}
+
+MIDI::~MIDI()
+{
+	pmesg("MIDI::~MIDI()\n");
+	stop_timer();
+	jack_ringbuffer_free(read_buffer);
+	jack_ringbuffer_free(write_buffer);
 }
 
 bool MIDI::in()
@@ -969,6 +955,8 @@ void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 	if (max_write < len + 3)
 		max_write = len + 3;
 #endif
+	while (jack_ringbuffer_write_space(write_buffer) < len + 3)
+		mysleep(10);
 	jack_ringbuffer_write(write_buffer, data, len + 3);
 	if (cfg->get_cfg_option(CFG_LOG_SYSEX_OUT))
 		pxk->log_add(sysex, len, 0);
@@ -985,8 +973,8 @@ void MIDI::write_event(int status, int value1, int value2, int channel) const
 	unsigned char stat = ((status & ~0xf) | channel) & 0xff;
 	const unsigned char msg[] =
 	{ stat, value1 & 0xff, value2 & 0xff };
-	if (jack_ringbuffer_write_space(write_buffer) < 3)
-		return;
+	while (jack_ringbuffer_write_space(write_buffer) < 3)
+		mysleep(10);
 	jack_ringbuffer_write(write_buffer, msg, 3);
 	// log midi events
 	if (cfg->get_cfg_option(CFG_LOG_EVENTS_OUT))
@@ -1011,20 +999,7 @@ void MIDI::nak(int packet) const
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7e, packet % 128, packet / 128, 0xf7 };
 	write_sysex(nak, 9);
 }
-//void MIDI::cancel() const
-//{
-//	pmesg("MIDI::cancel() \n");
-//	unsigned char cancel[] =
-//	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7d, 0xf7 };
-//	write_sysex(cancel, 7);
-//}
-//void MIDI::wait() const
-//{
-//	pmesg("MIDI::wait() \n");
-//	unsigned char wait[] =
-//	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7c, 0xf7 };
-//	write_sysex(wait, 7);
-//}
+
 void MIDI::eof() const
 {
 	pmesg("MIDI::eof() \n");

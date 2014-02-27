@@ -32,10 +32,10 @@
 static void load_data();
 
 const char* VERSION = "2.0rc9";
-PD_UI* ui;
-extern MIDI* midi;
-extern Cfg* cfg;
+PD_UI* ui = 0;
+MIDI* midi = 0;
 PXK* pxk = 0;
+extern Cfg* cfg;
 
 extern FilterMap FM[51];
 extern const char* rates[25];
@@ -86,6 +86,9 @@ int main(int argc, char *argv[])
 	ui = new PD_UI();
 	if (!ui)
 		return 1;
+	midi = new MIDI();
+	if (!midi)
+		return 2;
 #ifdef NDEBUG
 	ui->init_log_b->hide();
 	ui->init_log_m->hide();
@@ -94,7 +97,7 @@ int main(int argc, char *argv[])
 	ui->main_window->show();
 	pxk = new PXK(__auto_connect, __device);
 	if (!pxk)
-		return 2;
+		return 3;
 	return Fl::run();
 }
 
@@ -105,7 +108,7 @@ int main(int argc, char *argv[])
  */
 void PD_UI::select(int l)
 {
-	pmesg("PD_UI::select(%d)\n", l);
+	//pmesg("PD_UI::select(%d)\n", l);
 	static int prev;
 	if (g_arp_edit->visible())
 	{
