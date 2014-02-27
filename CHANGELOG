@@ -1,3 +1,9 @@
+v2.0rc9
+
+* program arp "COPY FROM": ROM selector would not update preset brwosa. fixed.
+* slightly compressed preferences dialog
+
+
 v2.0rc8
 
 * make sure value numbers in envelope editor play nicely with background color

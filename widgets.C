@@ -115,7 +115,11 @@ void PWid::cb(PWid*, void* p)
 	{
 		// return for those id's we use internally (that have no equivalent on the device)
 		if (((int*) p)[0] == 2 || (((int*) p)[0] >= 0x20 && ((int*) p)[0] <= 0x2d)) // copy_preset window widgets
+		{
+			if (((int*) p)[0] == 2)
+				pwid[2][0]->get_value(); // update preset arp "copy from" browser
 			return;
+		}
 		if (pwid_editing != pwid[((int*) p)[0]][((int*) p)[1]])
 		{
 			pwid_editing = pwid[((int*) p)[0]][((int*) p)[1]];

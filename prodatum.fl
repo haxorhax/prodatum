@@ -886,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
+    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2581,10 +2581,10 @@ delete this;} open
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
 delete this;} open
-      xywh {916 300 845 620} type Double resizable
+      xywh {916 300 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
-      class Double_Window xclass prodatum size_range {674 492 845 620} visible
+      class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
       Fl_Group supergroup {
         xywh {0 0 846 620} resizable
@@ -3418,7 +3418,7 @@ pxk->preset->set_name(o->value(), 1, o->position());}
             label resizeable
             xywh {0 20 1 1} labeltype NO_LABEL resizable
           }
-          Fl_Menu_Bar {} {selected
+          Fl_Menu_Bar {} {
             xywh {0 0 231 19} box FLAT_BOX color 7 labelsize 10 textsize 10
             code0 {o->global();}
           } {
@@ -3916,8 +3916,8 @@ open_device->hide();}
     }
     Fl_Window preferences {
       label Preferences
-      callback {b_close_prefs->do_callback();}
-      xywh {1095 471 305 499} type Double box UP_BOX labelsize 11 hide
+      callback {b_close_prefs->do_callback();} open
+      xywh {1095 471 305 470} type Double box UP_BOX labelsize 11 hide
       class Double_Window xclass prodatum
     } {
       Fl_Box {} {
@@ -3975,39 +3975,39 @@ cfg->set_cfg_option(CFG_KNOBMODE, i);}
       }
       Fl_Box {} {
         label {Export directory}
-        xywh {10 167 290 70} labelfont 1 labelcolor 8 align 133
+        xywh {10 165 290 35} labelfont 1 labelcolor 8 align 133
       }
       Fl_Input export_dir {
         callback {b_set->activate();}
-        tooltip {Export files will be written here} xywh {20 174 275 20} box UP_BOX labeltype NO_LABEL labelsize 10 align 0 when 1 textfont 4 textsize 12
+        tooltip {Export files will be written here} xywh {20 172 205 20} box UP_BOX labeltype NO_LABEL labelsize 10 align 0 when 1 textfont 4 textsize 12
         code0 {o->maximum_size(PATH_MAX);}
       }
       Fl_Button b_set {
-        label SET
+        label APPLY
         callback {if(!cfg->set_export_dir(export_dir->value()))
 {
 export_dir->value(cfg->get_export_dir());
 }
 o->deactivate();}
-        tooltip {Confirm new export directory} xywh {20 200 60 20} down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 16 deactivate
+        tooltip {Confirm new export directory} xywh {235 172 60 20} down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 16 deactivate
       }
       Fl_Box {} {
         label {MIDI performance}
-        xywh {10 255 290 47} labelfont 1 labelcolor 8 align 5
+        xywh {10 225 290 47} labelfont 1 labelcolor 8 align 5
       }
       Fl_Check_Button closed_loop_download {
         label {Closed loop preset download}
         callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD, o->value());}
-        tooltip {Closed loop downloads require prodatum to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: enabled)} xywh {20 262 269 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+        tooltip {Closed loop downloads require prodatum to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: enabled)} xywh {20 232 269 15} down_box DOWN_BOX value 1 color 7 selection_color 15
       }
       Fl_Check_Button closed_loop_upload {
         label {Closed loop preset upload}
         callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_UPLOAD, o->value());}
-        tooltip {Closed loop uploads require the device to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: enabled)} xywh {20 281 251 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+        tooltip {Closed loop uploads require the device to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: enabled)} xywh {20 251 251 15} down_box DOWN_BOX value 1 color 7 selection_color 15
       }
       Fl_Box {} {
         label Controller
-        xywh {10 330 290 60} labelfont 1 labelcolor 8 align 5
+        xywh {10 300 290 60} labelfont 1 labelcolor 8 align 5
       }
       Fl_Menu_Button midi_ctrl {
         label {Select... (optional)}
@@ -4020,55 +4020,55 @@ else
 {
 cfg->set_cfg_option(CFG_MIDI_THRU, -1);
 o->label("Select... (optional)");
-}} open
-        tooltip {Control: Select the MIDI port that your controller is connected to (select again to disconnect).} xywh {20 337 215 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 align 84 textsize 13
+}} open selected
+        tooltip {Control: Select the MIDI port that your controller is connected to (select again to disconnect).} xywh {20 307 205 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 align 84 textsize 13
       } {}
       Fl_Choice midi_ctrl_ch {
         label Channel
         callback {midi->set_control_channel_filter(o->value());} open
-        tooltip {Control Channel: Data to the control port will only be accepted for the selected channel(s).} xywh {20 363 50 20} down_box BORDER_BOX color 7 align 8 textsize 13
+        tooltip {Control Channel: Data to the control port will only be accepted for the selected channel(s).} xywh {20 333 50 20} down_box BORDER_BOX color 7 align 8 textsize 13
         code0 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("All");}
       } {}
       Fl_Check_Button midi_automap {
         label {Map to Basic Channel}
         callback {cfg->set_cfg_option(CFG_AUTOMAP, o->value());}
-        tooltip {When enabled voice messages from the controller will always leave prodatum on the channel that is selected in prodatum. This is helpful when your controller does not allow you to change the MIDI channel or if you do not want to switch channels on the controller all the time.} xywh {139 363 160 20} down_box DOWN_BOX value 1 color 7 selection_color 15
+        tooltip {When enabled voice messages from the controller will always leave prodatum on the channel that is selected in prodatum. This is helpful when your controller does not allow you to change the MIDI channel or if you do not want to switch channels on the controller all the time.} xywh {139 333 160 20} down_box DOWN_BOX value 1 color 7 selection_color 15
       }
       Fl_Box {} {
         label Colors
-        xywh {10 419 290 32} labelfont 1 labelcolor 8 align 5
+        xywh {10 389 290 32} labelfont 1 labelcolor 8 align 5
       }
       Fl_Button {} {
         label DEFAULT
         callback {set_default_colors();}
-        tooltip {Use prodatum's default colors} xywh {20 426 70 20} down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 16
+        tooltip {Use prodatum's default colors} xywh {20 396 70 20} down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 16
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_BACKGROUND_COLOR);}
-        xywh {110 426 25 20} down_box DOWN_BOX
+        xywh {110 396 25 20} down_box DOWN_BOX
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_BACKGROUND2_COLOR);}
-        xywh {150 426 25 20} down_box DOWN_BOX color 7 selection_color 7
+        xywh {150 396 25 20} down_box DOWN_BOX color 7 selection_color 7
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_FOREGROUND_COLOR);}
-        xywh {190 426 25 20} down_box DOWN_BOX color 0 selection_color 0
+        xywh {190 396 25 20} down_box DOWN_BOX color 0 selection_color 0
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_SELECTION_COLOR);}
-        xywh {230 426 25 20} down_box DOWN_BOX color 15 selection_color 15
+        xywh {230 396 25 20} down_box DOWN_BOX color 15 selection_color 15
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_INACTIVE_COLOR);}
-        xywh {270 426 25 20} down_box DOWN_BOX color 8 selection_color 8
+        xywh {270 396 25 20} down_box DOWN_BOX color 8 selection_color 8
       }
       Fl_Button b_close_prefs {
         label Close
         callback {preferences->hide();
 export_dir->value(cfg->get_export_dir());
 b_set->deactivate();}
-        xywh {225 465 70 25} down_box DOWN_BOX shortcut 0x70 selection_color 15 labelsize 12 align 20
+        xywh {225 435 70 25} down_box DOWN_BOX shortcut 0x70 selection_color 15 labelsize 12 align 20
       }
     }
     Fl_Window piano_w {
