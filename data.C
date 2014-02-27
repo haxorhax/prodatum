@@ -1471,7 +1471,7 @@ int ROM::set_name(int type, int number, const unsigned char* name)
 			break;
 		default:
 			pmesg("*** ROM::set_name unknown type: rom: %d type %d, number %d\n", id, type, number);
-			pxk->display_status("ROM::set_name() Unknown ROM.", true);
+			pxk->display_status("ROM::set_name() Unknown ROM.");
 			return 0;
 	}
 	return 1;
@@ -1512,7 +1512,7 @@ const unsigned char* ROM::get_name(int type, int number) const
 			return riff_names + 16 * number;
 		default:
 			pmesg("*** ROM::get_name unknown type: rom: %d type %d, number %d\n", id, type, number);
-			pxk->display_status("ROM::get_name() Unknown ROM.", true);
+			pxk->display_status("ROM::get_name() Unknown ROM.");
 			return 0;
 	}
 }

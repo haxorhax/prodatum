@@ -174,6 +174,8 @@ public:
 	void audit() const;
 	/// sends a randomize preset command
 	void randomize() const;
+	bool in();
+	bool out();
 };
 
 #endif /*MIDI_H_*/

@@ -16,8 +16,8 @@
  along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string.h>
-#include <string>
+//#include <string.h>
+//#include <string>
 #include <fstream>
 #include <FL/fl_ask.H>
 #include <FL/Fl_Tooltip.H>
@@ -286,9 +286,14 @@ PXK::PXK(bool autoconnect, int __id)
 		rom_index[i] = -1;
 	}
 	ui->device_info->label("");
-	LoadConfig(__id);
+	if (midi)
+	{
+		delete midi;
+		midi = 0;
+	}
+	midi = new MIDI();
 	display_status("New PXK editor loaded.");
-	ConnectPorts(autoconnect);
+	LoadConfig(autoconnect, __id);
 }
 
 PXK::~PXK()
@@ -325,76 +330,49 @@ PXK::~PXK()
 	}
 }
 
-bool PXK::LoadConfig(int id) const
+void PXK::LoadConfig(bool autoconnect, int id)
 {
 	pmesg("PXK::LoadConfig(%d)\n", id);
 	if (cfg)
 	{
-		if (cfg->get_cfg_option(CFG_DEVICE_ID) == id)
-			return true;
 		delete cfg;
 		cfg = 0;
 	}
 	cfg = new Cfg(id);
-	if (!cfg)
-		return false;
 	cfg->apply();
-	return true;
-}
-
-/* if autoconnection is enabled but the device is not powered
- we end up with an unconnected main window. this shows
- the open dialog if there is no answer*/
-static void check_connection(void* p)
-{
-	if (*(char*) p == -1)
+	if (cfg->get_cfg_option(CFG_MIDI_IN) != -1 && cfg->get_cfg_option(CFG_MIDI_OUT) != -1)
 	{
-		pmesg("check_connection()\n");
-		pxk->ConnectPorts(false);
-		ui->open_device->showup();
-	}
-}
-
-bool PXK::ConnectPorts(bool autoconnect)
-{
-	pmesg("PXK::ConnectPorts()\n");
-	inquired = false;
-	if (midi)
-	{
-		delete midi;
-		midi = 0;
-	}
-	midi = new MIDI();
-	if (!midi)
-		return false;
-	if (autoconnect)
-	{
-		if (midi->connect_out(cfg->get_cfg_option(CFG_MIDI_OUT)) && midi->connect_in(cfg->get_cfg_option(CFG_MIDI_IN)))
+		if (autoconnect)
 		{
-			ui->midi_outs->label(ui->midi_outs->text(cfg->get_cfg_option(CFG_MIDI_OUT)));
-			ui->midi_outs->value(cfg->get_cfg_option(CFG_MIDI_OUT));
-			ui->midi_ins->label(ui->midi_ins->text(cfg->get_cfg_option(CFG_MIDI_IN)));
-			ui->midi_ins->value(cfg->get_cfg_option(CFG_MIDI_IN));
-			if (midi->connect_thru(cfg->get_cfg_option(CFG_MIDI_THRU)))
-			{
-				ui->midi_ctrl->label(ui->midi_ctrl->text(cfg->get_cfg_option(CFG_MIDI_THRU)));
-				ui->midi_ctrl->value(cfg->get_cfg_option(CFG_MIDI_THRU));
-			}
+			ConnectPorts();
 			Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
-			Fl::add_timeout(.3, check_connection, (void*) &device_code);
 		}
 		else
-		{
-			ConnectPorts(false); // get clean MIDI object
 			ui->open_device->showup();
+	}
+	else if (midi->in() && midi->out())
+		Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
+	else
+		ui->open_device->showup();
+}
+
+void PXK::ConnectPorts()
+{
+	pmesg("PXK::ConnectPorts()\n");
+	if (midi->connect_out(cfg->get_cfg_option(CFG_MIDI_OUT)) && midi->connect_in(cfg->get_cfg_option(CFG_MIDI_IN)))
+	{
+		ui->midi_outs->label(ui->midi_outs->text(cfg->get_cfg_option(CFG_MIDI_OUT)));
+		ui->midi_outs->value(cfg->get_cfg_option(CFG_MIDI_OUT));
+		ui->midi_ins->label(ui->midi_ins->text(cfg->get_cfg_option(CFG_MIDI_IN)));
+		ui->midi_ins->value(cfg->get_cfg_option(CFG_MIDI_IN));
+		if (midi->connect_thru(cfg->get_cfg_option(CFG_MIDI_THRU)))
+		{
+			ui->midi_ctrl->label(ui->midi_ctrl->text(cfg->get_cfg_option(CFG_MIDI_THRU)));
+			ui->midi_ctrl->value(cfg->get_cfg_option(CFG_MIDI_THRU));
 		}
 	}
 	else
-	{
-		if (!ui->open_device->shown())
-			ui->open_device->showup();
-	}
-	return true;
+		ui->open_device->showup();
 }
 
 static void sync_police(void* synced)
@@ -738,13 +716,25 @@ void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned c
 	for (unsigned int i = 0; i < len; i++)
 	{
 		sprintf(n + buf + 2 * i, "%02X", sysex[i]);
-		if(io == 1)
+		if (io == 1)
 			ui->scope_i->Add(sysex[i] * 256);
 		else
 			ui->scope_o->Add(sysex[i] * 256);
 	}
 	ui->logbuf->append(buf);
 	delete[] buf;
+}
+
+/* if autoconnection is enabled but the device is not powered
+ we end up with an unconnected main window. this shows
+ the open dialog if there is no answer*/
+static void check_connection(void* p)
+{
+	if (*(char*) p == -1)
+	{
+		ui->open_device->showup();
+		pxk->inquired = false;
+	}
 }
 
 void PXK::Inquire(unsigned char id)
@@ -759,6 +749,8 @@ void PXK::Inquire(unsigned char id)
 		midi->write_sysex(s, 6);
 		midi->write_sysex(s, 6);
 		inquired = true;
+		device_code = -1;
+		Fl::add_timeout(.3, check_connection, (void*) &device_code);
 	}
 }
 
@@ -775,9 +767,10 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 		{
 			device_id = data[2];
 			ui->device_id->value((double) device_id);
-			// if we scanned using id 127 we load the config
-			// for the user if it exists
-			LoadConfig((int) device_id);
+			// load user config if we scanned using ID 127
+			delete cfg;
+			cfg = new Cfg(device_id);
+			cfg->apply();
 		}
 		device_code = 516;
 		midi->set_device_id(device_id); // so further sysex comes through
@@ -1134,7 +1127,7 @@ void PXK::incoming_generic_name(const unsigned char* data)
 	if (type < PRESET || type > RIFF)
 	{
 		pmesg("*** unknown name type %d\n", type);
-		display_status("*** Received unknown name type.", true);
+		display_status("*** Received unknown name type.");
 		name_set_incomplete = false;
 		return;
 	}
@@ -1142,7 +1135,7 @@ void PXK::incoming_generic_name(const unsigned char* data)
 	if (get_rom_index(rom_id) == -1)
 	{
 		pmesg("*** ROM %d does not exist\n", data[9] + 128 * data[10]);
-		display_status("*** Received unknown name type.", true);
+		display_status("*** Received unknown name type.");
 		name_set_incomplete = false;
 		return;
 	}
@@ -1421,11 +1414,11 @@ void PXK::load_export(const char* filename)
 #ifdef __linux
 	int offset = 0;
 	while (strncmp(filename + offset, "/", 1) != 0)
-		++offset;
+	++offset;
 	char n[PATH_MAX];
 	snprintf(n, PATH_MAX, "%s", filename + offset);
 	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
-		n[strlen(n) - 1] = '\0';
+	n[strlen(n) - 1] = '\0';
 	std::ifstream file(n, std::ifstream::binary);
 #else
 	std::ifstream file(filename, std::ifstream::binary);
@@ -1585,9 +1578,8 @@ const char* PXK::get_name(int code) const
 }
 
 /**
- * displays text in the status bar for 2 seconds
+ * displays text in the status bar for 1 second
  */
-static bool launch = true;
 static void status(void* p)
 {
 	static char message[40];
@@ -1595,51 +1587,16 @@ static void status(void* p)
 	{
 		strncpy(message, (char*) p, 40);
 		ui->status->label(message);
-		if (launch)
-			Fl::repeat_timeout(1.5, status);
-		else
-			Fl::repeat_timeout(.8, status); // dont display system message too long
+		Fl::repeat_timeout(1., status);
 	}
 	else
-	{
-		launch = true;
-		if (!pxk->status_message.empty())
-		{
-			strncpy(message, pxk->status_message.back().c_str(), 40);
-			pxk->status_message.clear(); // delete old messages
-			ui->status->label(message);
-			Fl::repeat_timeout(1.5, status);
-			return;
-		}
 		ui->status->label(0);
-	}
 }
 
-// currently spasce for ~30 characters max!
-void PXK::display_status(const char* message, bool top)
+void PXK::display_status(const char* message)
 {
-	//pmesg("PXK::display_status(%s, %s) \n", message, top ? "true" : "false");
-	if (top) // important stuff
-	{
-		if (!launch)
-			status_message.push_back(message);
-		else
-		{
-			launch = false;
-			Fl::remove_timeout(status, 0);
-			Fl::add_timeout(0, status, (void*) message);
-		}
-	}
-	else
-	{
-		if (launch)
-		{
-			Fl::remove_timeout(status, 0);
-			Fl::add_timeout(0, status, (void*) message);
-		}
-		else
-			status_message.push_back(message);
-	}
+	Fl::remove_timeout(status, 0);
+	Fl::add_timeout(0, status, (void*) message);
 }
 
 void PXK::update_fx_values(int id, int value) const

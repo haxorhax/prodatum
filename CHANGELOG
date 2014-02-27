@@ -8,6 +8,8 @@ v2.0rc8
 * pressing B will play an A now
 * changed channel and preset selection callbacks from "when released" to
   "when changed"
+* all widgets now believe in Drag'n'Drop. Basically the whole
+  main window is now Drag'n'Drop area.
 
 
 v2.0rc7

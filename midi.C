@@ -75,7 +75,7 @@ static PortMidiStream *port_thru; // controller port (eg keyboard)
 
 static jack_ringbuffer_t *read_buffer;
 static jack_ringbuffer_t *write_buffer;
-static int midi_device_id;
+volatile static int midi_device_id;
 static bool requested = false;
 
 static void show_error(void)
@@ -614,6 +614,21 @@ void MIDI::populate_ports()
 	}
 }
 
+bool MIDI::in()
+{
+	if (selected_port_in != -1)
+		return true;
+	return false;
+}
+
+bool MIDI::out()
+{
+	if (selected_port_out != -1)
+		return true;
+	return false;
+}
+
+
 void MIDI::set_device_id(int id)
 {
 	pmesg("MIDI::set_device_id(%d)\n", id);
@@ -644,7 +659,7 @@ int MIDI::start_timer()
 #else
 		Fl::remove_timeout(process_midi_in);
 #endif
-		pxk->display_status("*** Could not start MIDI timer.", true);
+		pxk->display_status("*** Could not start MIDI timer.");
 		fprintf(stderr, "*** Could not start MIDI timer.\n");
 #ifdef WIN32
 		fflush(stderr);
@@ -700,6 +715,8 @@ int MIDI::connect_out(int port)
 	pmesg("MIDI::connect_out(port: %d)\n", port);
 	if (port < 0 || port >= (int) ports_out.size())
 		return 0;
+	if (selected_port_out == port)
+		return 1;
 	if (midi_active)
 	{
 		process_midi_exit_flag = false;
@@ -718,11 +735,6 @@ int MIDI::connect_out(int port)
 			show_error();
 			return 0;
 		}
-	}
-	if (selected_port_out == port)
-	{
-		selected_port_out = -1;
-		return 0;
 	}
 	// device ID validation
 	try
@@ -755,6 +767,8 @@ int MIDI::connect_in(int port)
 	pmesg("MIDI::connect_in(port: %d)\n", port);
 	if (port < 0 || port >= (int) ports_in.size())
 		return 0;
+	if (selected_port_in == port)
+		return 1;
 	if (port == selected_port_thru)
 	{
 		fl_message("In-port must be different from Ctrl-port.");
@@ -777,11 +791,6 @@ int MIDI::connect_in(int port)
 			show_error();
 			return 0;
 		}
-	}
-	if (selected_port_in == port)
-	{
-		selected_port_in = -1;
-		return 0;
 	}
 	// device ID validation
 	try

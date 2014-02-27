@@ -198,6 +198,12 @@ int Double_Window::handle(int ev)
 				return 1;
 			}
 			break;
+		case FL_DND_ENTER:
+			ui->dnd_box->show();
+			break;
+		case FL_DND_LEAVE:
+			ui->dnd_box->hide();
+			break;
 	}
 	return Fl_Double_Window::handle(ev);
 }
@@ -235,6 +241,7 @@ int DND_Box::handle(int ev)
 		case FL_PASTE:
 			snprintf(evt_txt, Fl::event_length() + 1, "%s", Fl::event_text());
 			Fl::add_timeout(0.0, dndcback, (void*) this);
+			hide();
 			return 1;
 	}
 	return 0;
@@ -3420,6 +3427,8 @@ void Envelope_Editor::draw_envelope(char type, int x0, int y0, int luma)
 int Envelope_Editor::handle(int ev)
 {
 	static int dx, dy, phover = -1, first_drag;
+	if (!active_r())
+		return 0;
 	switch (ev)
 	{
 		case FL_ENTER:

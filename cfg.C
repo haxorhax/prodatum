@@ -117,6 +117,8 @@ Cfg::Cfg(int device_id)
 	{
 		for (i = 0; i < NOOPTION; i++)
 			option[i] = defaults[i];
+		if (device_id == -1)
+			option[CFG_DEVICE_ID] = 127;
 		return;
 	}
 	int check_file, check = 1;
@@ -286,11 +288,8 @@ void Cfg::apply(bool colors_only)
 	ui->syncview = option[CFG_SYNCVIEW];
 	// UI INIT
 	// midi options
-	if (option[CFG_DEVICE_ID] != -1)
-	{
-		ui->device_id->value(option[CFG_DEVICE_ID]);
-		ui->r_user_id->value(option[CFG_DEVICE_ID]);
-	}
+	ui->device_id->value(option[CFG_DEVICE_ID]);
+	ui->r_user_id->value(option[CFG_DEVICE_ID]);
 	ui->midi_ctrl_ch->value(option[CFG_CONTROL_CHANNEL]);
 	ui->midi_automap->value(option[CFG_AUTOMAP]);
 	if (option[CFG_SPEED] != -1)

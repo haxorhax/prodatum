@@ -55,8 +55,8 @@ private:
 	char device_id;
 	volatile bool synchronized;
 public:
-	bool LoadConfig(int id = -1) const;
-	bool ConnectPorts(bool);
+	void LoadConfig(bool, int id = -1);
+	void ConnectPorts();
 	bool Synchronize();
 	void Loading(bool upload = false) const;
 	void log_add(const unsigned char*, const unsigned int, unsigned char) const;
@@ -74,7 +74,7 @@ public:
 //	void incoming_ERROR(int, int);
 	void widget_callback(int, int, int layer = -2);
 	void cc_callback(int, int);
-	void display_status(const char*, bool top = false);
+	void display_status(const char*);
 	void Join();
 
 	/*
@@ -87,8 +87,8 @@ private:
 	char os_rev[5]; // OS revision
 	int user_presets; // available user presets
 	void create_device_info();
-	bool inquired;
 public:
+	bool inquired;
 	void Inquire(unsigned char);
 	void incoming_inquiry_data(const unsigned char*, int);
 	void incoming_hardware_config(const unsigned char*, int);

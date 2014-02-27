@@ -1341,7 +1341,7 @@ midi->request_arp_dump(arp->value()-1, 0);}
           code0 {o->set_id(1042);}
           class ROM_Choice
         } {}
-        Fl_Browser arp {selected
+        Fl_Browser arp {
           xywh {429 107 176 262} type Hold when 1 textfont 4 textsize 12
           code0 {o->set_id(1027);}
           class Browser
@@ -2581,64 +2581,17 @@ delete this;} open
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
-      xywh {909 274 845 620} type Double hide resizable
+delete this;} open
+      xywh {887 113 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
       Fl_Group supergroup {open
-        xywh {0 0 846 615} resizable
+        xywh {0 0 846 620} resizable
       } {
-        Fl_Group {} {
-          label name
-          xywh {225 0 621 21} labeltype NO_LABEL
-        } {
-          Fl_Box {} {
-            label resizable
-            xywh {214 20 1 1} labeltype NO_LABEL resizable
-          }
-          Fl_Box {} {
-            xywh {225 0 620 20} box FLAT_BOX color 7 labelfont 5 labelsize 12 labelcolor 49 align 24
-          }
-          Fl_Box n_n_m {
-            label {RR.PPP.B}
-            xywh {644 0 61 16} color 7 labelfont 4 labelsize 12 align 26
-          }
-          Fl_Input n_cat_m {
-            label {:}
-            callback {if (pxk->preset)
-pxk->preset->set_name(o->value(), 0, o->position());}
-            tooltip {Program category (3 characters max.)} xywh {715 0 27 19} box FLAT_BOX labelfont 4 labelsize 12 when 1 textfont 4 textsize 12
-            code0 {o->maximum_size(3);}
-            code2 {o->value("cat");}
-            class Input
-          }
-          Fl_Input n_name_m {
-            label {:}
-            callback {if (pxk->preset)
-pxk->preset->set_name(o->value(), 1, o->position());}
-            tooltip {Program name (12 characters max.) [CTRL+N to focus]} xywh {751 0 94 19} box FLAT_BOX labelfont 4 labelsize 12 when 1 textfont 4 textsize 12
-            code0 {o->maximum_size(12);}
-            code2 {o->value("Program Name");}
-            class Input
-          }
-        }
-        Fl_Group {} {
-          label status
-          xywh {280 0 283 22} labeltype NO_LABEL
-        } {
-          Fl_Box status {
-            label {((broadcast))}
-            xywh {281 0 281 17} box FLAT_BOX color 7 labelfont 4 labelsize 12 align 18
-          }
-          Fl_Box {} {
-            label resizeable
-            xywh {421 21 1 1} labeltype NO_LABEL resizable
-          }
-        }
-        Fl_Group g_main {open
-          xywh {0 19 843 596}
+        Fl_Group g_main {
+          xywh {0 19 843 596} hide
         } {
           Fl_Button {} {
             label {&Keyb.}
@@ -2655,7 +2608,7 @@ if (((Fl_Button*) o->array()[i])->value())
 	select(i);
 	Fl::focus(o->array()[i]);
 	break;
-}} open
+}}
             xywh {56 25 754 19} when 0
           } {
             Fl_Button {} {
@@ -2869,7 +2822,7 @@ else
             code0 {o->clear_visible_focus();}
           }
           Fl_Group g_value {
-            label VALUE open
+            label VALUE
             xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8
           } {
             Fl_Value_Output forma_out {
@@ -2929,7 +2882,7 @@ if (!eall && pxk->preset)
               class MiniPiano
             }
           }
-          Fl_Group g_pfx {open
+          Fl_Group g_pfx {
             xywh {639 129 196 324} labeltype NO_LABEL labelcolor 8 align 0
           } {
             Fl_Group g_effects {
@@ -3186,7 +3139,7 @@ pxk->save_setup(multisetups->value() - 1, s_name->value());}
           }
         }
         Fl_Group g_arp_edit {
-          xywh {0 20 843 595} box FLAT_BOX hide
+          xywh {0 20 843 595} box FLAT_BOX
         } {
           Fl_Box {} {
             xywh {10 30 40 279} labeltype NO_LABEL
@@ -3416,7 +3369,54 @@ arp_name_changed = false;}
           }
         }
         Fl_Group {} {
-          label menu open
+          label status
+          xywh {280 0 283 22} labeltype NO_LABEL
+        } {
+          Fl_Box status {
+            label {((broadcast))}
+            xywh {281 0 281 17} box FLAT_BOX color 7 labelfont 4 labelsize 12 align 18
+          }
+          Fl_Box {} {
+            label resizeable
+            xywh {421 21 1 1} labeltype NO_LABEL resizable
+          }
+        }
+        Fl_Group {} {
+          label name
+          xywh {214 0 632 21} labeltype NO_LABEL
+        } {
+          Fl_Box {} {
+            label resizable
+            xywh {214 20 1 1} labeltype NO_LABEL resizable
+          }
+          Fl_Box {} {
+            xywh {225 0 620 20} box FLAT_BOX color 7 labelfont 5 labelsize 12 labelcolor 49 align 24
+          }
+          Fl_Box n_n_m {
+            label {RR.PPP.B}
+            xywh {644 0 61 16} color 7 labelfont 4 labelsize 12 align 26
+          }
+          Fl_Input n_cat_m {
+            label {:}
+            callback {if (pxk->preset)
+pxk->preset->set_name(o->value(), 0, o->position());}
+            tooltip {Program category (3 characters max.)} xywh {715 0 27 19} box FLAT_BOX labelfont 4 labelsize 12 when 1 textfont 4 textsize 12
+            code0 {o->maximum_size(3);}
+            code2 {o->value("cat");}
+            class Input
+          }
+          Fl_Input n_name_m {
+            label {:}
+            callback {if (pxk->preset)
+pxk->preset->set_name(o->value(), 1, o->position());}
+            tooltip {Program name (12 characters max.) [CTRL+N to focus]} xywh {751 0 94 19} box FLAT_BOX labelfont 4 labelsize 12 when 1 textfont 4 textsize 12
+            code0 {o->maximum_size(12);}
+            code2 {o->value("Program Name");}
+            class Input
+          }
+        }
+        Fl_Group {} {
+          label menu
           xywh {0 0 424 21} labeltype NO_LABEL
         } {
           Fl_Box {} {
@@ -3769,8 +3769,8 @@ about->show();
             }
           }
         }
-        Fl_Box {} {
-          xywh {0 0 845 66} labeltype NO_LABEL when 0
+        Fl_Box dnd_box {
+          xywh {0 0 845 620} labeltype NO_LABEL when 0 hide
           class DND_Box
         }
       }
@@ -3806,9 +3806,9 @@ init_log_w->show();}
       }
     }
     Fl_Window open_device {
-      label {Open Device}
-      xywh {609 342 280 385} type Double box BORDER_BOX labelcolor 15 hide
-      class Double_Window modal xclass prodatum
+      label {Open Device} open
+      xywh {609 342 280 385} type Double box BORDER_BOX labelcolor 15
+      class Double_Window modal xclass prodatum visible
     } {
       Fl_Box {} {
         xywh {1 1 60 50} deactivate
@@ -3833,16 +3833,15 @@ init_log_w->show();}
           label ID
           callback {connect->deactivate();
 device_info->label(0);
-pxk->LoadConfig(o->value());
-pxk->ConnectPorts(true);
-r_user_id->value(o->value());}
+r_user_id->value(o->value());
+pxk->LoadConfig(true, o->value());}
           tooltip {ID: Must be unique for every device you intend to use prodatum with (you can set the ID in the Master Menu of your device)!} xywh {20 174 90 25} color 7 selection_color 15 labelsize 12 align 8 when 1 minimum 0 maximum 126 value 127 textfont 4 textsize 13
         }
         Fl_Button {} {
           label Update
           callback {connect->deactivate();
 device_info->label(0);
-pxk->Inquire(device_id->value());}
+pxk->Inquire(device_id->value());} selected
           tooltip {Request device information.} xywh {175 176 60 20} down_box DOWN_BOX color 7 selection_color 15 labelsize 11 align 16
         }
         Fl_Choice speed {
