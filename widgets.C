@@ -276,7 +276,7 @@ int Browser::get_value() const
 	// update instrument names in channel strips
 	if (id_layer[0] == 1409)
 	{
-		ui->main->layer_strip[id_layer[1]]->instrument->copy_label(text(v) + 5);
+		ui->main->layer_strip[id_layer[1]]->instrument->label(text(v) + 5);
 		if (v != 1)
 			ui->main->layer_strip[id_layer[1]]->activate();
 		else
@@ -324,19 +324,20 @@ void Browser::set_value(int v)
 				else
 					ui->preset_editor->g_link2->activate();
 			}
-			value(v + 2);
+			select(v + 2);
 		}
 		else if (v >= 0)
-			value(v + 1);
+			select(v + 1);
 		else
 			return;
 		apply_filter();
 		if (id_layer[0] == 897)
-			ui->copy_browser->value(v + 1);
+			ui->copy_browser->select(v + 1);
 		// update instrument names in channel strips
 		else if (id_layer[0] == 1409)
 		{
-			ui->main->layer_strip[id_layer[1]]->instrument->copy_label(text(v + 1) + 5);
+			if (v >= 0 && v < size())
+				ui->main->layer_strip[id_layer[1]]->instrument->label(text(v + 1) + 5);
 			if (v != 0)
 				ui->main->layer_strip[id_layer[1]]->activate();
 			else
@@ -402,16 +403,12 @@ void Browser::load_n(int type, int rom_id, int preset)
 	// update instrument names in channel strips
 	if (id_layer[0] == 1409)
 	{
-		if (val > 1 && val <= size())
-		{
-			ui->main->layer_strip[id_layer[1]]->instrument->copy_label(text(val) + 5);
+		if (val > 0 && val <= size())
+			ui->main->layer_strip[id_layer[1]]->instrument->label(text(val) + 5);
+		if (val != 0)
 			ui->main->layer_strip[id_layer[1]]->activate();
-		}
 		else
-		{
-			ui->main->layer_strip[id_layer[1]]->instrument->copy_label("   :None");
 			ui->main->layer_strip[id_layer[1]]->deactivate();
-		}
 	}
 }
 
@@ -4537,7 +4534,7 @@ void Piano::draw_highlights()
 				else
 				{
 					if (active_keys[key] == 2)
-						fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_RED, .7));
+						fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_MAGENTA, .7));
 					else
 					{
 						if (pushed == PIANO && key == hovered_key)
@@ -4557,7 +4554,7 @@ void Piano::draw_highlights()
 				else
 				{
 					if (active_keys[key] == 2)
-						fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_RED, .7));
+						fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_MAGENTA, .7));
 					else
 					{
 						if (pushed == PIANO && key == hovered_key)
@@ -4583,7 +4580,7 @@ void Piano::draw_highlights()
 							if (active_keys[key + 1] > 0)
 							{
 								if (active_keys[key + 1] == 2)
-									fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_RED, .7));
+									fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_MAGENTA, .7));
 								else
 									fl_color(fl_darker(FL_SELECTION_COLOR));
 							}
@@ -4610,7 +4607,7 @@ void Piano::draw_highlights()
 							if (active_keys[key - 1] > 0)
 							{
 								if (active_keys[key - 1] == 2)
-									fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_RED, .7));
+									fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_MAGENTA, .7));
 								else
 									fl_color(fl_darker(FL_SELECTION_COLOR));
 							}
@@ -4961,7 +4958,7 @@ void MiniPiano::draw_highlights()
 			if (taste_x0[key][1] == 1) // black keys (FL_BACKGROUND_COLOR)
 			{
 				if (active_keys[key] == 2)
-					fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_RED, .7));
+					fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_MAGENTA, .7));
 				else
 				{
 					if (pushed == PIANO && key == hovered_key)
@@ -4976,7 +4973,7 @@ void MiniPiano::draw_highlights()
 			else
 			{
 				if (active_keys[key] == 2)
-					fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_RED, .7));
+					fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_MAGENTA, .7));
 				else
 				{
 					if (pushed == PIANO && key == hovered_key)
@@ -4999,7 +4996,7 @@ void MiniPiano::draw_highlights()
 						if (active_keys[key + 1] == 2)
 						{
 							if (active_keys[key + 1] == 2)
-								fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_RED, .7));
+								fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_MAGENTA, .7));
 							else
 								fl_color(fl_darker(FL_SELECTION_COLOR));
 						}
@@ -5021,7 +5018,7 @@ void MiniPiano::draw_highlights()
 						else if (active_keys[key - 1] > 0)
 						{
 							if (active_keys[key - 1] == 2)
-								fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_RED, .7));
+								fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_MAGENTA, .7));
 							else
 								fl_color(fl_darker(FL_SELECTION_COLOR));
 						}

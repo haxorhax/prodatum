@@ -31,8 +31,7 @@ decl {\#include "images.H"} {}
 decl {\#include "Fl_Scope.H"} {public global
 } 
 
-decl {\#include <FL/filename.H>} {selected
-} 
+decl {\#include <FL/filename.H>} {} 
 
 decl {\#include <FL/Fl_Tooltip.H>} {} 
 
@@ -782,7 +781,6 @@ widget_class PD_Layer_Strip {
   }
   decl {int layer;} {}
   Fl_Button instrument {
-    label {   :None}
     callback {ui->select(layer + 1);}
     xywh {1 1 98 20} box FLAT_BOX down_box FLAT_BOX color 7 selection_color 15 labelfont 4 labelsize 9 align 80
   }
@@ -888,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
+    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2583,16 +2581,16 @@ delete this;} open
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
 delete this;} open
-      xywh {887 113 845 620} type Double hide resizable
+      xywh {916 300 845 620} type Double resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
-      class Double_Window xclass prodatum size_range {674 492 845 620}
+      class Double_Window xclass prodatum size_range {674 492 845 620} visible
     } {
-      Fl_Group supergroup {open
+      Fl_Group supergroup {
         xywh {0 0 846 620} resizable
       } {
         Fl_Group g_main {
-          xywh {0 19 843 596} hide
+          xywh {0 19 843 596}
         } {
           Fl_Button {} {
             label {&Keyb.}
@@ -3140,7 +3138,7 @@ pxk->save_setup(multisetups->value() - 1, s_name->value());}
           }
         }
         Fl_Group g_arp_edit {
-          xywh {0 20 843 595} box FLAT_BOX
+          xywh {0 20 843 595} box FLAT_BOX hide
         } {
           Fl_Box {} {
             xywh {10 30 40 279} labeltype NO_LABEL
@@ -3370,28 +3368,28 @@ arp_name_changed = false;}
           }
         }
         Fl_Group {} {
-          label status
-          xywh {280 0 283 22} labeltype NO_LABEL
+          label status open
+          xywh {280 0 283 19} labeltype NO_LABEL
         } {
+          Fl_Box {} {
+            label resizeable
+            xywh {421 18 1 1} labeltype NO_LABEL resizable
+          }
           Fl_Box status {
             label {((broadcast))}
             xywh {281 0 281 17} box FLAT_BOX color 7 labelfont 4 labelsize 12 align 18
           }
-          Fl_Box {} {
-            label resizeable
-            xywh {421 21 1 1} labeltype NO_LABEL resizable
-          }
         }
         Fl_Group {} {
           label name open
-          xywh {214 0 632 21} labeltype NO_LABEL
+          xywh {214 0 632 20} labeltype NO_LABEL
         } {
           Fl_Box {} {
             label resizable
-            xywh {214 20 1 1} labeltype NO_LABEL resizable
+            xywh {112 20 1 1} labeltype NO_LABEL resizable
           }
           Fl_Box {} {
-            xywh {225 0 620 20} box FLAT_BOX color 7 labelfont 5 labelsize 12 labelcolor 49 align 24
+            xywh {225 0 620 19} box FLAT_BOX color 7 labelfont 5 labelsize 12 labelcolor 49 align 24
           }
           Fl_Input n_cat_m {
             label {RR.PPP.B}
@@ -3413,15 +3411,15 @@ pxk->preset->set_name(o->value(), 1, o->position());}
           }
         }
         Fl_Group {} {
-          label menu
-          xywh {0 0 424 21} labeltype NO_LABEL
+          label menu open
+          xywh {0 0 231 20} labeltype NO_LABEL align 0
         } {
           Fl_Box {} {
             label resizeable
-            xywh {423 20 1 1} labeltype NO_LABEL resizable
+            xywh {0 20 1 1} labeltype NO_LABEL resizable
           }
-          Fl_Menu_Bar {} {open
-            xywh {0 0 231 20} box FLAT_BOX color 7 labelsize 10 textsize 10
+          Fl_Menu_Bar {} {selected
+            xywh {0 0 231 19} box FLAT_BOX color 7 labelsize 10 textsize 10
             code0 {o->global();}
           } {
             Submenu {} {
@@ -3803,7 +3801,7 @@ init_log_w->show();}
       }
     }
     Fl_Window open_device {
-      label {Open Device} open
+      label {Open Device}
       xywh {609 342 280 385} type Double box BORDER_BOX labelcolor 15 hide
       class Double_Window modal xclass prodatum
     } {
