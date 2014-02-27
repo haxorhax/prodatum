@@ -246,7 +246,7 @@ void Preset_Dump::show() const
 	snprintf(buf, 30, "%02d.%03d.%d %s", rom_id, number % 128, number / 128, name);
 	ui->main->preset_name->copy_label((char*) buf);
 	snprintf(buf, 30, "%02d.%03d.%d", rom_id, number % 128, number / 128);
-	ui->n_n_m->copy_label(buf);
+	ui->n_cat_m->copy_label(buf);
 	snprintf(buf, 17, "%s", name);
 	while (buf[strlen(buf) - 1] == ' ')
 		buf[strlen(buf) - 1] = '\0';

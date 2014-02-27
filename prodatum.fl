@@ -31,7 +31,8 @@ decl {\#include "images.H"} {}
 decl {\#include "Fl_Scope.H"} {public global
 } 
 
-decl {\#include <FL/filename.H>>} {} 
+decl {\#include <FL/filename.H>} {selected
+} 
 
 decl {\#include <FL/Fl_Tooltip.H>} {} 
 
@@ -3382,7 +3383,7 @@ arp_name_changed = false;}
           }
         }
         Fl_Group {} {
-          label name
+          label name open
           xywh {214 0 632 21} labeltype NO_LABEL
         } {
           Fl_Box {} {
@@ -3392,12 +3393,8 @@ arp_name_changed = false;}
           Fl_Box {} {
             xywh {225 0 620 20} box FLAT_BOX color 7 labelfont 5 labelsize 12 labelcolor 49 align 24
           }
-          Fl_Box n_n_m {
-            label {RR.PPP.B}
-            xywh {644 0 61 16} color 7 labelfont 4 labelsize 12 align 26
-          }
           Fl_Input n_cat_m {
-            label {:}
+            label {RR.PPP.B}
             callback {if (pxk->preset)
 pxk->preset->set_name(o->value(), 0, o->position());}
             tooltip {Program category (3 characters max.)} xywh {715 0 27 19} box FLAT_BOX labelfont 4 labelsize 12 when 1 textfont 4 textsize 12
@@ -3807,8 +3804,8 @@ init_log_w->show();}
     }
     Fl_Window open_device {
       label {Open Device} open
-      xywh {609 342 280 385} type Double box BORDER_BOX labelcolor 15
-      class Double_Window modal xclass prodatum visible
+      xywh {609 342 280 385} type Double box BORDER_BOX labelcolor 15 hide
+      class Double_Window modal xclass prodatum
     } {
       Fl_Box {} {
         xywh {1 1 60 50} deactivate
@@ -3841,7 +3838,7 @@ pxk->LoadConfig(true, o->value());}
           label Update
           callback {connect->deactivate();
 device_info->label(0);
-pxk->Inquire(device_id->value());} selected
+pxk->Inquire(device_id->value());}
           tooltip {Request device information.} xywh {175 176 60 20} down_box DOWN_BOX color 7 selection_color 15 labelsize 11 align 16
         }
         Fl_Choice speed {
