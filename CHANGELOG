@@ -1,6 +1,10 @@
 v2.0rc10
 
-* channel selection misbehaviour (rc9 regression) fixed.
+* channel selection doesn't work properly (rc9 regression). fixed.
+* mixer flickers when changing preset/channel/edit all. fixed.
+* master volume saved with config (default lvl: 80).
+  will be applied on startup.
+* pressing escape while in the arp editor, closes the arp editor, not prodatum
 
 
 v2.0rc9

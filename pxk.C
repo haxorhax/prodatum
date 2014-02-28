@@ -392,6 +392,8 @@ static void sync_police(void* synced)
 			pxk->load_setup();
 		else
 			midi->request_setup_dump();
+		// set master volume
+		midi->master_volume(cfg->get_cfg_option(CFG_MASTER_VOLUME));
 	}
 }
 
@@ -575,7 +577,9 @@ static void sync_bro(void* p)
 							pxk->rom[rom_nr]->load_name(type, name++);
 							if (name % 12 == 0)
 							{
+#ifndef NDEBUG
 								ui->init_log->append("R12");
+#endif
 								Fl::repeat_timeout(.12 + (double) (cfg->get_cfg_option(CFG_SPEED) / 1000.), sync_bro, p);
 								return;
 							}
@@ -1041,7 +1045,6 @@ void PXK::incoming_setup_dump(const unsigned char* data, int len)
 		setup_init = new Setup_Dump(len, data);
 		return;
 	}
-	display_status("Received setup dump.");
 	if (setup)
 	{
 		delete setup;
@@ -1061,11 +1064,11 @@ static void check_loading(void*)
 	}
 }
 
-void PXK::Loading(bool upload) const
+void PXK::Loading(bool upload)
 {
 	pmesg("PXK::Loading() \n");
 	Fl::remove_timeout(check_loading);
-	pxk->display_status("Loading...");
+	display_status("Loading...");
 	ui->supergroup->set_output();
 	got_answer = false;
 	if (upload)
@@ -1082,7 +1085,6 @@ void PXK::Loading(bool upload) const
 void PXK::load_setup()
 {
 	pmesg("PXK::load_setup() \n");
-	display_status("Loading setup...");
 	if (setup_init)
 	{
 		setup_init->upload();
@@ -1422,7 +1424,7 @@ void PXK::load_export(const char* filename)
 	pmesg("PXK::load_export(%s) \n", filename);
 	if (!setup)
 	{
-		pxk->display_status("*** Must be connected.");
+		display_status("*** Must be connected.");
 		return;
 	}
 	if (preset->is_changed())
@@ -1456,7 +1458,7 @@ void PXK::load_export(const char* filename)
 	file.seekg(0, std::ios::beg);
 	if (size < 1605 || size > 1615)
 	{
-		pxk->display_status("*** File format unsupported.");
+		display_status("*** File format unsupported.");
 		file.close();
 		return;
 	}
@@ -1465,7 +1467,7 @@ void PXK::load_export(const char* filename)
 	file.close();
 	if (!(sysex[0] == 0xf0 && sysex[1] == 0x18 && sysex[2] == 0x0f && sysex[4] == 0x55 && sysex[size - 1] == 0xf7))
 	{
-		pxk->display_status("*** File format unsupported.");
+		display_status("*** File format unsupported.");
 		delete[] sysex;
 		return;
 	}
@@ -1477,9 +1479,11 @@ void PXK::load_export(const char* filename)
 	if (0 != test_checksum(sysex, size, pos - DUMP_HEADER_SIZE + 1))
 	{
 		delete[] sysex;
+		display_status("File failed checksum test.");
 		return;
 	}
 	// load preset
+	display_status("Uploading...");
 	if (preset)
 	{
 		delete preset;
@@ -1600,23 +1604,17 @@ const char* PXK::get_name(int code) const
 /**
  * displays text in the status bar for 1 second
  */
-static void status(void* p)
+static void clear_status(void*)
 {
-	static char message[40];
-	if ((char*) p)
-	{
-		strncpy(message, (char*) p, 40);
-		ui->status->label(message);
-		Fl::repeat_timeout(1., status);
-	}
-	else
-		ui->status->label(0);
+	ui->status->label(0);
 }
 
 void PXK::display_status(const char* message)
 {
-	Fl::remove_timeout(status, 0);
-	Fl::add_timeout(0, status, (void*) message);
+	Fl::remove_timeout(clear_status);
+	Fl::add_timeout(1, clear_status);
+	ui->status->copy_label(message);
+	Fl::flush();
 }
 
 void PXK::update_fx_values(int id, int value) const

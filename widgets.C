@@ -282,8 +282,11 @@ int Browser::get_value() const
 	{
 		ui->main->layer_strip[id_layer[1]]->instrument->label(text(v) + 5);
 		if (v != 1)
-			ui->main->layer_strip[id_layer[1]]->activate();
-		else
+		{
+			if (!ui->main->layer_strip[id_layer[1]]->active())
+				ui->main->layer_strip[id_layer[1]]->activate();
+		}
+		else if (ui->main->layer_strip[id_layer[1]]->active())
 			ui->main->layer_strip[id_layer[1]]->deactivate();
 	}
 	else if (id_layer[0] == 1281 || id_layer[0] == 1290) // preset links
@@ -343,8 +346,11 @@ void Browser::set_value(int v)
 			if (v >= 0 && v < size())
 				ui->main->layer_strip[id_layer[1]]->instrument->label(text(v + 1) + 5);
 			if (v != 0)
-				ui->main->layer_strip[id_layer[1]]->activate();
-			else
+			{
+				if (!ui->main->layer_strip[id_layer[1]]->active())
+					ui->main->layer_strip[id_layer[1]]->activate();
+			}
+			else if (ui->main->layer_strip[id_layer[1]]->active())
 				ui->main->layer_strip[id_layer[1]]->deactivate();
 		}
 	}
@@ -409,10 +415,14 @@ void Browser::load_n(int type, int rom_id, int preset)
 	{
 		if (val > 0 && val <= size())
 			ui->main->layer_strip[id_layer[1]]->instrument->label(text(val) + 5);
-		if (val != 0)
-			ui->main->layer_strip[id_layer[1]]->activate();
-		else
-			ui->main->layer_strip[id_layer[1]]->deactivate();
+		// TODO: commented lines may cause problems but remove flicker
+//		if (val != 0)
+//		{
+//			if (!ui->main->layer_strip[id_layer[1]]->active())
+//				ui->main->layer_strip[id_layer[1]]->activate();
+//		}
+//		else if (ui->main->layer_strip[id_layer[1]]->active())
+//			ui->main->layer_strip[id_layer[1]]->deactivate();
 	}
 }
 
@@ -1809,7 +1819,7 @@ void Group::set_value(int v)
 int Group::get_value() const
 {
 	int v = 0;
-	for (int i = 0; i < children(); i++)
+	for (char i = 0; i < children(); i++)
 	{
 		if (((Fl_Button*) array()[i])->value())
 		{
@@ -1916,6 +1926,8 @@ void Group::dependency(int v) const
 Fl_Knob::Fl_Knob(int xx, int yy, int ww, int hh, const char *l) :
 		Fl_Valuator(xx, yy, ww, hh, l)
 {
+	id_layer[0] = 0;
+	id_layer[1] = 0;
 	a1 = 35;
 	a2 = 325;
 	_type = LINELIN;
@@ -2111,7 +2123,9 @@ int Fl_Knob::handle(int ev)
 			handle_push();
 			if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->setup_copy && pxk->preset_copy)
 			{
-				if (id_layer[0] < 788) // master setting
+				if (id_layer[0] == 0) // master volume
+					value((double) cfg->get_default(CFG_MASTER_VOLUME));
+				else if (id_layer[0] < 788) // master setting
 					value((double) pxk->setup_copy->get_value(id_layer[0], pxk->selected_channel));
 				else
 					value((double) pxk->preset_copy->get_value(id_layer[0], id_layer[1]));
@@ -2181,7 +2195,7 @@ int Fl_Knob::handle(int ev)
 			// keyboard events
 		case FL_FOCUS: // 1 = receive FL_KEYDOWN, FL_KEYUP, and FL_UNFOCUS events (widget becomes Fl::focus())
 			// show value in value field and make ourselfes the editing widget
-			if (pwid_editing != this)
+			if (pwid_editing != this && id_layer[0] != 0)
 			{
 				pwid_editing = this;
 				ui->value_input->minimum((double) minimax[0]);

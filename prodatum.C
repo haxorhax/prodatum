@@ -321,25 +321,23 @@ void PD_UI::edit_arp_x(int x)
 	pmesg("PD_UI::edit_arp_x(%d)\n", x);
 	if (x == 0 || x == -1) // preset arp
 	{
-		if (pxk->arp && pxk->arp->get_number() == ui->preset_editor->arp->value() - 1)
+		if (pxk->arp && pxk->arp->get_number() == preset_editor->arp->value() - 1)
 		{
-			ui->g_arp_edit->show();
-			ui->g_main->hide();
-			Fl::focus(ui->g_arp_edit);
+			g_arp_edit->show();
+			g_main->hide();
 		}
 		else
-			midi->request_arp_dump(ui->preset_editor->arp->value() - 1, 0);
+			midi->request_arp_dump(preset_editor->arp->value() - 1, 0);
 	}
 	else if (x == 1) // master arp
 	{
-		if (pxk->arp && pxk->arp->get_number() == ui->main->arp->value() - 1)
+		if (pxk->arp && pxk->arp->get_number() == main->arp->value() - 1)
 		{
-			ui->g_arp_edit->show();
-			ui->g_main->hide();
-			Fl::focus(ui->g_arp_edit);
+			g_arp_edit->show();
+			g_main->hide();
 		}
 		else
-			midi->request_arp_dump(ui->main->arp->value() - 1, 0);
+			midi->request_arp_dump(main->arp->value() - 1, 0);
 	}
 }
 
@@ -356,7 +354,7 @@ void PD_UI::set_eall(int v)
 		midi->edit_parameter_value(898, -1); // select all layers
 		pxk->selected_layer = 0;
 		// update UI
-		//ui->select(0);
+//		ui->select(0);
 		m_voice2->hide();
 		m_voice3->hide();
 		m_voice4->hide();
@@ -369,9 +367,12 @@ void PD_UI::set_eall(int v)
 			solo_b[i]->deactivate();
 		}
 		main->layer_strip[0]->copy->deactivate();
-		main->layer_strip[1]->deactivate();
-		main->layer_strip[2]->deactivate();
-		main->layer_strip[3]->deactivate();
+		if (main->layer_strip[1]->active())
+			main->layer_strip[1]->deactivate();
+		if (main->layer_strip[2]->active())
+			main->layer_strip[2]->deactivate();
+		if (main->layer_strip[3]->active())
+			main->layer_strip[3]->deactivate();
 		layer_editor[0]->copy_env->deactivate();
 		layer_editor[0]->copy_lfo->deactivate();
 		layer_editor[0]->copy_pc->deactivate();
@@ -408,9 +409,12 @@ void PD_UI::set_eall(int v)
 			solo_b[i]->activate();
 		}
 		main->layer_strip[0]->copy->activate();
-		main->layer_strip[1]->activate();
-		main->layer_strip[2]->activate();
-		main->layer_strip[3]->activate();
+//		if (!main->layer_strip[1]->active())
+//			main->layer_strip[1]->activate();
+//		if (!main->layer_strip[2]->active())
+//			main->layer_strip[2]->activate();
+//		if (!main->layer_strip[3]->active())
+//			main->layer_strip[3]->activate();
 		layer_editor[0]->copy_env->activate();
 		layer_editor[0]->copy_lfo->activate();
 		layer_editor[0]->copy_pc->activate();
@@ -492,7 +496,6 @@ void PD_UI::show_copy_preset(int type)
 			copy_arp_rom->set_value(0);
 			copy_browser->set_id(type);
 			g_copy_preset->show();
-			Fl::focus(copy_browser);
 			g_copy_arp_pattern->hide();
 			copy_arp_rom->deactivate();
 			break;
@@ -502,7 +505,6 @@ void PD_UI::show_copy_preset(int type)
 			copy_arp_rom->set_value(0);
 			copy_browser->set_id(type);
 			g_copy_preset->show();
-			Fl::focus(copy_browser);
 			g_copy_arp_pattern->hide();
 			copy_arp_rom->deactivate();
 			break;
@@ -511,7 +513,6 @@ void PD_UI::show_copy_preset(int type)
 			g_copy_preset->label("SOURCE");
 			copy_browser->set_id(type);
 			g_copy_preset->show();
-			Fl::focus(copy_browser);
 			g_copy_arp_pattern->hide();
 			copy_arp_rom->activate();
 			break;
@@ -519,7 +520,6 @@ void PD_UI::show_copy_preset(int type)
 			copy_preset->label("Copy Arp Pattern");
 			copy_arp_pattern_browser->set_id(type);
 			g_copy_arp_pattern->show();
-			Fl::focus(copy_arp_pattern_browser);
 			g_copy_preset->hide();
 			break;
 	}

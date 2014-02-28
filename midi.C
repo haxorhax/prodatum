@@ -1081,7 +1081,7 @@ void MIDI::edit_parameter_value(int id, int value) const
 
 void MIDI::master_volume(int volume) const
 {
-	pmesg("MIDI::master_volume() \n");
+	//pmesg("MIDI::master_volume(%d) \n", volume);
 	unsigned char master_vol[] =
 	{ 0xf0, 0x7f, midi_device_id, 0x04, 0x01, volume % 128, volume / 128, 0xf7 };
 	write_sysex(master_vol, 8);

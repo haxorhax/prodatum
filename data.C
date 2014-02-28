@@ -732,8 +732,6 @@ void Preset_Dump::undo()
 		c.value = get_value(p.id, p.layer);
 		// undo
 		pxk->widget_callback(p.id, p.value, p.layer);
-		// focus the widget
-		//((Fl_Widget*)pwid[p.id][p.layer])->take_focus();
 		// update stack
 		undo_s.pop_front();
 		redo_s.push_front(c);
@@ -943,7 +941,6 @@ void Arp_Dump::show() const
 	{
 		ui->g_arp_edit->show();
 		ui->g_main->hide();
-		Fl::focus(ui->g_arp_edit);
 	}
 }
 

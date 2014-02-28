@@ -54,6 +54,7 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_CONTROL_CHANNEL] = 0;
 	defaults[CFG_AUTOMAP] = 1;
 	defaults[CFG_DEVICE_ID] = device_id;
+	defaults[CFG_MASTER_VOLUME] = 80;
 	defaults[CFG_SPEED] = -1;
 	defaults[CFG_CLOSED_LOOP_UPLOAD] = 1;
 	defaults[CFG_CLOSED_LOOP_DOWNLOAD] = 1;
@@ -140,6 +141,11 @@ Cfg::Cfg(int device_id)
 	{
 		fl_message("Configuration format changed, using default values.\n"
 				"Sorry for the inconvenience.");
+#ifdef WIN32
+				_unlink(_fname);
+#else
+				unlink(_fname);
+#endif
 		for (i = 0; i < NOOPTION; i++)
 			option[i] = defaults[i];
 	}
@@ -191,7 +197,7 @@ Cfg::~Cfg()
 
 void Cfg::set_cfg_option(int opt, int value)
 {
-	pmesg("Cfg::set_cfg_option(%d, %d)  \n", opt, value);
+	//pmesg("Cfg::set_cfg_option(%d, %d)  \n", opt, value);
 	if (opt < NOOPTION && opt >= 0)
 		option[opt] = value;
 }
@@ -293,6 +299,7 @@ void Cfg::apply(bool colors_only)
 		ui->device_id->value(option[CFG_DEVICE_ID]);
 		ui->r_user_id->value(option[CFG_DEVICE_ID]);
 	}
+	ui->main->master_volume->value(option[CFG_MASTER_VOLUME]);
 	ui->midi_ctrl_ch->value(option[CFG_CONTROL_CHANNEL]);
 	ui->midi_automap->value(option[CFG_AUTOMAP]);
 	if (option[CFG_SPEED] != -1)

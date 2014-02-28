@@ -58,7 +58,7 @@ public:
 	void LoadConfig(bool, int id = -1);
 	void ConnectPorts();
 	bool Synchronize();
-	void Loading(bool upload = false) const;
+	void Loading(bool upload = false);
 	void log_add(const unsigned char*, const unsigned int, unsigned char) const;
 	bool Synchronized() const;
 	/// maps controller values to CC widget numbers (device -> UI)
