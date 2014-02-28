@@ -577,7 +577,7 @@ static void sync_bro(void* p)
 							if (name % 12 == 0)
 							{
 								ui->init_log->append("R12");
-								Fl::repeat_timeout(.1 + (double) (cfg->get_cfg_option(CFG_SPEED) / 1000.), sync_bro, p);
+								Fl::repeat_timeout(.12 + (double) (cfg->get_cfg_option(CFG_SPEED) / 1000.), sync_bro, p);
 								return;
 							}
 						}

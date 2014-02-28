@@ -2,6 +2,18 @@ v2.0rc9
 
 * program arp "COPY FROM": ROM selector would not update preset brwosa. fixed.
 * slightly compressed preferences dialog
+* synchronization got a turbo (***):
+  v2.0rc8: 2m 09s
+  v1.0.0:  1m 13s
+  v2.0rc9: 1m 1s
+* "Delay" effect on synchronizing (***):
+  0ms:   1m 1s (check your browsers, may result in missing names)
+  10ms:  1m 3s (safe option for me)
+  40ms:  1m 9s (comfortable starts here)
+  90ms:  1m 19s
+  160ms: 1m 33s (still fast compared to v2.0rc8)
+  
+*** (all times measured for a complete sync with 1 ROM (linux+xmidi2x2))
 
 
 v2.0rc8
