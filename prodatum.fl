@@ -1543,7 +1543,7 @@ l2_filter->do_callback();}
   }
 } 
 
-widget_class PD_Main {
+widget_class PD_Main {open
   xywh {746 383 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
@@ -1569,82 +1569,98 @@ widget_class PD_Main {
       } {
         Fl_Button {} {
           label 1
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {7 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 2
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {31 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 3
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {55 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 4
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {79 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 5
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {103 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 6
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {127 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 7
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {151 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 8
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {175 48 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 9
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {7 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 10
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {31 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 11
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {55 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 12
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {79 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 13
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {103 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 14
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {127 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 15
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {151 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
         Fl_Button {} {
           label 16
-          callback {((Group*)o->parent())->do_callback();}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();} selected
           xywh {175 72 22 22} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 64 when 1
         }
       }
@@ -3843,7 +3859,7 @@ pxk->Inquire(device_id->value());}
         }
         Fl_Choice speed {
           label {Sysex packet delay}
-          callback {cfg->set_cfg_option(CFG_SPEED, o->value());} open selected
+          callback {cfg->set_cfg_option(CFG_SPEED, o->value());} open
           tooltip {Delay: Change the response delay for preset dump requests. Also used when synchronizing (try higher values when you see garbage in the name browsers).} xywh {20 210 90 20} down_box BORDER_BOX color 7 labelsize 12 align 72 textsize 13
           code0 {o->add("0 [ms]");o->add("10 [ms]");o->add("40 [ms]");o->add("90 [ms]");o->add("160 [ms]");}
           code1 {o->value(1);}

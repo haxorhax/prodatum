@@ -1,3 +1,8 @@
+v2.0rc10
+
+* channel selection misbehaviour (rc9 regression) fixed.
+
+
 v2.0rc9
 
 * program arp "COPY FROM": ROM selector would not update preset brwosa. fixed.

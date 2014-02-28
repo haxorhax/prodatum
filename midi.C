@@ -957,7 +957,7 @@ void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 		max_write = len + 3;
 #endif
 	while (jack_ringbuffer_write_space(write_buffer) < len + 3)
-		mysleep(10);
+		Fl::wait(.1);
 	jack_ringbuffer_write(write_buffer, data, len + 3);
 	if (cfg->get_cfg_option(CFG_LOG_SYSEX_OUT))
 		pxk->log_add(sysex, len, 0);
@@ -975,7 +975,7 @@ void MIDI::write_event(int status, int value1, int value2, int channel) const
 	const unsigned char msg[] =
 	{ stat, value1 & 0xff, value2 & 0xff };
 	while (jack_ringbuffer_write_space(write_buffer) < 3)
-		mysleep(10);
+		Fl::wait(.1);
 	jack_ringbuffer_write(write_buffer, msg, 3);
 	// log midi events
 	if (cfg->get_cfg_option(CFG_LOG_EVENTS_OUT))

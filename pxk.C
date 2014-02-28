@@ -93,7 +93,6 @@ void PXK::widget_callback(int id, int value, int layer)
 		selected_channel = value;
 		// select multimode channel (to make pan and channel related controls work)
 		midi->edit_parameter_value(id, selected_channel);
-		mysleep(50);
 		// select basic channel (to get the edit buffer of the channels preset below)
 		midi->edit_parameter_value(139, selected_channel);
 		// update midi input filter
@@ -103,7 +102,7 @@ void PXK::widget_callback(int id, int value, int layer)
 		selected_preset = setup->get_value(130, selected_channel);
 		ui->preset_rom->set_value(selected_preset_rom);
 		ui->preset->set_value(selected_preset);
-		mysleep(80);
+		mysleep(33);
 		midi->request_preset_dump(-1, 0);
 		// FX channel
 		if (midi_mode != MULTI)
