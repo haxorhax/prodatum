@@ -300,7 +300,10 @@ PXK::~PXK()
 	mute(0, 3);
 	for (unsigned char i = 0; i <= roms; i++)
 		if (rom[i])
+		{
 			delete rom[i];
+			rom[i] = 0;
+		}
 	if (preset)
 		delete preset;
 	if (preset_copy)
@@ -367,8 +370,7 @@ static void sync_police(void* synced)
 		ui->init->hide();
 #ifndef NDEBUG
 		fl_alert("Sync failed. Please send the init log to rdxesy@@yahoo.de and check your cables + MIDI drivers etc.");
-		if (!ui->init_log_w->shown())
-			ui->init_log_w->showup();
+		ui->init_log_w->showup();
 #endif
 		return;
 	}
@@ -385,6 +387,7 @@ static void sync_police(void* synced)
 	else
 	{
 		ui->init->hide();
+		ui->main_window->showup(); // make main active (important!)
 		midi->filter_loose();
 		if (pxk->setup_init)
 			pxk->load_setup();
@@ -496,7 +499,6 @@ static void sync_bro(void* p)
 		}
 	}
 	// setup initialization complete
-
 	if (rom_nr <= pxk->roms)
 	{
 		if (type <= RIFF) // for every type
@@ -562,7 +564,24 @@ static void sync_bro(void* p)
 			{
 				if (!requested && name < names)
 				{
-					pxk->rom[rom_nr]->load_name(type, name++);
+					if (type == ARP && rom_nr != 0)
+						pxk->rom[rom_nr]->load_name(type, name++);
+					else // turbo
+					{
+						ui->init_progress->value((float) init_progress);
+						while (name < names)
+						{
+							if (join_bro)
+								goto Club;
+							pxk->rom[rom_nr]->load_name(type, name++);
+							if (name % 12 == 0)
+							{
+								ui->init_log->append("R12");
+								Fl::repeat_timeout(.1 + (double) (cfg->get_cfg_option(CFG_SPEED) / 1000.), sync_bro, p);
+								return;
+							}
+						}
+					}
 					requested = true;
 					got_answer = false;
 					countdown = 50;
@@ -659,6 +678,9 @@ void PXK::Join()
 	{
 		Fl::remove_timeout(sync_police);
 		join_bro = true;
+#ifndef NDEBUG
+		ui->init_log_w->showup();
+#endif
 	}
 }
 
@@ -677,6 +699,7 @@ bool PXK::Synchronize()
 	ui->init_progress->label("Synchronizing...");
 	join_bro = false;
 	timed_out = false;
+	name_set_incomplete = false;
 	Fl::add_timeout(0, sync_bro, (void*) &synchronized);
 	Fl::add_timeout(.3, sync_police, (void*) &synchronized);
 	return true;
@@ -731,7 +754,7 @@ void PXK::Inquire(unsigned char id)
 		unsigned char s[] =
 		{ 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
 		// send this twice, fixes ticket #4
-//		midi->write_sysex(s, 6);
+		midi->write_sysex(s, 6);
 		midi->write_sysex(s, 6);
 		inquired = true;
 		device_code = -1;
@@ -759,6 +782,7 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 		}
 		device_code = 516;
 		midi->set_device_id(device_id); // so further sysex comes through
+		mysleep(50);
 		midi->request_hardware_config();
 		snprintf(os_rev, 5, "%c%c%c%c", data[10], data[11], data[12], data[13]);
 		member_code = data[9] * 128 + data[8];
@@ -1041,10 +1065,10 @@ static void check_loading(void*)
 void PXK::Loading(bool upload) const
 {
 	pmesg("PXK::Loading() \n");
-	got_answer = false;
 	Fl::remove_timeout(check_loading);
 	pxk->display_status("Loading...");
 	ui->supergroup->set_output();
+	got_answer = false;
 	if (upload)
 		Fl::add_timeout((2000. + cfg->get_cfg_option(CFG_SPEED)) / 1000., check_loading);
 	else
@@ -1108,6 +1132,12 @@ void PXK::incoming_generic_name(const unsigned char* data)
 		free(__name);
 	}
 #endif
+	// might be the case when sync gets cancelled:
+	// there might be some incoming messages left
+	// that the OS will hand to portmidi when we connect
+	// to the port
+	if (rom[0] == 0)
+		return;
 	unsigned char type = data[6] % 0xF;
 	if (type < PRESET || type > RIFF)
 	{
@@ -1155,6 +1185,12 @@ void PXK::incoming_arp_dump(const unsigned char* data, int len)
 		free(__buffer);
 		free(__name);
 #endif
+		// might be the case when sync gets cancelled:
+		// there might be some incoming messages left
+		// that the OS will hand to portmidi when we connect
+		// to the port
+		if (rom[0] == 0)
+			return;
 		if (data[14] < 32) // not ascii, not a "real" arp dump
 		{
 			name_set_incomplete = false;

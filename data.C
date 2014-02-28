@@ -1084,7 +1084,7 @@ const unsigned char* Setup_Dump::get_data() const
 
 int Setup_Dump::set_value(int id, int value, int channel)
 {
-	pmesg("Setup_Dump::set_value(id: %d, value: %d, ch: %d)\n", id, value, channel);
+	//pmesg("Setup_Dump::set_value(id: %d, value: %d, ch: %d)\n", id, value, channel);
 	if (id == 388 && data)
 	{
 		data[0x4A] = value;

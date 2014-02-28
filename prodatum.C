@@ -896,10 +896,7 @@ void PD_UI::Cancel()
 {
 	pmesg("PD_UI::Cancel() \n");
 	pxk->Join();
-	delete pxk;
-	pxk = 0;
 	init->hide();
-	while (init->shown())
-		Fl::wait(.1);
+	delete pxk;
 	pxk = new PXK(false);
 }

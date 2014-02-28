@@ -95,14 +95,6 @@ static void show_error(void)
 
 static void process_midi(PtTimestamp, void*)
 {
-	if (!midi_active)
-	{
-		if (!jack_ringbuffer_read_space(write_buffer))
-		{
-			process_midi_exit_flag = true;
-			return;
-		}
-	}
 	PmEvent ev;
 	static unsigned char event[4]; // 3 midi bytes, one byte to distinguish device (0) and controller (1) events
 	static unsigned char data, shift;
@@ -116,6 +108,19 @@ static void process_midi(PtTimestamp, void*)
 	static bool result_out = false;
 	static bool __midi_wait = false;
 	static unsigned char poll = 0;
+	if (!midi_active)
+	{
+		if (!jack_ringbuffer_read_space(write_buffer))
+		{
+			process_midi_exit_flag = true;
+			__midi_wait = false;
+			receiving_sysex = false;
+			position = 3;
+			result_out = false;
+			poll = 0;
+			return;
+		}
+	}
 	do
 	{
 		// check if theres something from the device and write it to the read_buffer
@@ -544,7 +549,7 @@ static void process_midi_in(void*)
 	}
 #ifndef __linux
 	if (timer_running)
-	Fl::repeat_timeout(.01, process_midi_in);
+		Fl::repeat_timeout(.01, process_midi_in);
 #endif
 }
 
@@ -563,7 +568,7 @@ MIDI::MIDI()
 	port_thru = 0;
 #ifdef __linux
 	if (pipe(p) == -1)
-		fprintf(stderr, "*** Could not open pipe\n%s", strerror(errno));
+	fprintf(stderr, "*** Could not open pipe\n%s", strerror(errno));
 #endif
 	read_buffer = jack_ringbuffer_create(RINGBUFFER_READ);
 	write_buffer = jack_ringbuffer_create(RINGBUFFER_WRITE);
@@ -598,6 +603,12 @@ MIDI::~MIDI()
 	stop_timer();
 	jack_ringbuffer_free(read_buffer);
 	jack_ringbuffer_free(write_buffer);
+//	ui->midi_outs->clear();
+//	ui->midi_outs->copy_label("Select...");
+//	ui->midi_ins->clear();
+//	ui->midi_ins->copy_label("Select...");
+//	ui->midi_ctrl->clear();
+//	ui->midi_ctrl->copy_label("Select... (optional)");
 }
 
 bool MIDI::in()
@@ -613,7 +624,6 @@ bool MIDI::out()
 		return true;
 	return false;
 }
-
 
 void MIDI::set_device_id(int id)
 {
@@ -680,20 +690,11 @@ void MIDI::stop_timer()
 	Pm_Terminate();
 	Pt_Stop();
 	if (selected_port_in != -1)
-	{
 		Pm_Close(port_in);
-		port_in = 0;
-	}
 	if (selected_port_out != -1)
-	{
 		Pm_Close(port_out);
-		port_out = 0;
-	}
 	if (selected_port_thru != -1)
-	{
 		Pm_Close(port_thru);
-		port_thru = 0;
-	}
 }
 
 int MIDI::connect_out(int port)
