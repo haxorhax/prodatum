@@ -886,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
+    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2640,15 +2640,15 @@ if (pxk->preset && pxk->preset->is_changed())
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
 delete this;} open
-      xywh {874 271 845 620} type Double resizable
+      xywh {429 170 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
-      class Double_Window xclass prodatum size_range {674 492 845 620} visible
+      class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
       Fl_Group supergroup {open
         xywh {0 0 846 620} resizable
       } {
-        Fl_Group g_main {
+        Fl_Group g_main {open
           xywh {0 19 843 596}
         } {
           Fl_Button {} {
@@ -2885,7 +2885,7 @@ else
             code0 {o->clear_visible_focus();}
           }
           Fl_Group g_value {
-            label VALUE
+            label VALUE open
             xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8
           } {
             Fl_Value_Output forma_out {
@@ -2925,13 +2925,12 @@ cfg->set_cfg_option(CFG_DRLS, 0);
             Fl_Button b_eall {
               label {&Edit All}
               callback {set_eall(o->value());
-if (!o->value() && pxk->preset)
 if (!eall && pxk->preset)
 {
 	pxk->preset->show();
 	if (piano_w->shown())
 			piano->redraw();
-}}
+}} selected
               tooltip {Edit all layers} xywh {804 91 28 28} type Toggle down_box DOWN_BOX color 8 selection_color 72 labelsize 9 labelcolor 7 align 144
               code0 {o->clear_visible_focus();}
             }
@@ -3461,7 +3460,7 @@ pxk->preset->set_name(o->value(), 1, o->position());}
           }
         }
         Fl_Group {} {
-          label status selected
+          label status
           xywh {280 0 283 19} labeltype NO_LABEL
         } {
           Fl_Box {} {

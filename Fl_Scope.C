@@ -2,6 +2,8 @@
 #define Fl_Scope_Version "V0.0.2"
 #define DEBUG 0
 
+#define MIDI_EOX 0xf7
+
 /******************************************************************
 *                      Fl_Scope.cxx
 *
@@ -96,12 +98,12 @@ void Fl_Scope::draw(int xx, int yy, int ww, int hh)
     //fl_line(xx,(yy+hh) - (int)((float)*Ptr * ((float)hh/255.0)),xx+1,(yy+hh) - (int)((float)*Ptr2 * ((float)hh/255.0)) );
     if(DataType==FL_SCOPE_UNSIGNED)
     {
-     fl_line(xx,(yy+hh) - (int)((float)*Ptr * ((float)hh/65535.0)),xx+1,(yy+hh) - (int)((float)*Ptr2 * ((float)hh/65535.0)) );
+     fl_line(xx,(yy+hh) - (int)((float)*Ptr * ((float)hh/MIDI_EOX)),xx+1,(yy+hh) - (int)((float)*Ptr2 * ((float)hh/MIDI_EOX)) );
     }
     else
     {
-     Yval=(int) (  (float)((int)*Ptr) * (float)hh/(65535.0/2.0));
-     Yval2=(int) (  (float)((int)*Ptr2) * (float)hh/(65535.0/2.0));
+     Yval=(int) (  (float)((int)*Ptr) * (float)hh/(MIDI_EOX/2.0));
+     Yval2=(int) (  (float)((int)*Ptr2) * (float)hh/(MIDI_EOX/2.0));
      fl_line(xx,(yy+(hh/2)) - Yval,xx+1,(yy+(hh/2)) - Yval2 );
     }
     break;
@@ -109,11 +111,11 @@ void Fl_Scope::draw(int xx, int yy, int ww, int hh)
    case FL_SCOPE_DOT:
     if(DataType==FL_SCOPE_UNSIGNED)
     {
-     fl_point(xx,(yy+hh) - (int)((float)*Ptr * ((float)hh/65535.0)) );
+     fl_point(xx,(yy+hh) - (int)((float)*Ptr * ((float)hh/MIDI_EOX)) );
     }
     else
     {
-     Yval=(int) (  (float)((int)*Ptr) * (float)hh/(65535.0/2.0));
+     Yval=(int) (  (float)((int)*Ptr) * (float)hh/(MIDI_EOX/2.0));
      fl_point(xx,(yy+(hh/2)) - Yval);
     }
     break;  

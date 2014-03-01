@@ -147,8 +147,12 @@ void PXK::widget_callback(int id, int value, int layer)
 	if (id > 898)
 	{
 		if (ui->eall)
-			for (int i = 0; i < 4; i++)
-				ret |= preset->set_value(id, value, i);
+		{
+			ret |= preset->set_value(id, value, 0);
+			ret |= preset->set_value(id, value, 1);
+			ret |= preset->set_value(id, value, 2);
+			ret |= preset->set_value(id, value, 3);
+		}
 		else
 			ret = preset->set_value(id, value, selected_layer);
 	}
@@ -729,9 +733,9 @@ void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned c
 	{
 		sprintf(n + buf + 2 * i, "%02X", sysex[i]);
 		if (io == 1)
-			ui->scope_i->Add(sysex[i] * 256);
+			ui->scope_i->Add(sysex[i]); // TODO test
 		else
-			ui->scope_o->Add(sysex[i] * 256);
+			ui->scope_o->Add(sysex[i]);
 	}
 	ui->logbuf->append(buf);
 	delete[] buf;

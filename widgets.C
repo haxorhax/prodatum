@@ -4796,11 +4796,11 @@ void Piano::reset_active_keys()
 void Piano::set_range_values(char md, char layer, char low_k, char low_f, char high_k, char high_f)
 {
 	//pmesg("Piano::set_range_values(%d, %d, %d, %d, %d, %d)\n", md, layer, low_k, low_f, high_k, high_f);
-	if (low_k < 0 || low_k > 127)
+	if (low_k < 0)
 		low_k = 0;
 	if (low_f < 0 || low_f + low_k > 127)
 		low_f = 0;
-	if (high_k < 0 || high_k > 127)
+	if (high_k < 0)
 		high_k = 127;
 	if (high_f < 0 || high_k - high_f < 0)
 		high_f = 0;
