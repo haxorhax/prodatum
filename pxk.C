@@ -733,7 +733,7 @@ void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned c
 	{
 		sprintf(n + buf + 2 * i, "%02X", sysex[i]);
 		if (io == 1)
-			ui->scope_i->Add(sysex[i]); // TODO test
+			ui->scope_i->Add(sysex[i]);
 		else
 			ui->scope_o->Add(sysex[i]);
 	}

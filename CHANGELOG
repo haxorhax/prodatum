@@ -3,6 +3,7 @@ v2.0rc11
 * autofocus knobs when hovered.
 * minipianos: mousewheel can shift keyrange (octave)
 * when saving a preset, update the internal clone too
+* tuned range of the ultra cool scope.
 
 
 v2.0rc10
