@@ -373,7 +373,6 @@ class Fl_Knob: public Fl_Valuator, public PWid
 	float _percent;
 	int _scaleticks;
 	short a1, a2;
-	bool selected;
 	void draw();
 	int handle(int event);
 	void draw_scale(const int ox, const int oy, const int side);

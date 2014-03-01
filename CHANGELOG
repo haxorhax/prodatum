@@ -1,3 +1,10 @@
+v2.0rc11
+
+* autofocus knobs when hovered.
+* minipianos: mousewheel can shift keyrange (octave)
+* when saving a preset, update the internal clone too
+
+
 v2.0rc10
 
 * channel selection doesn't work properly (rc9 regression). fixed.

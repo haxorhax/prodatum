@@ -57,8 +57,6 @@ void PXK::widget_callback(int id, int value, int layer)
 		switch (id)
 		{
 			case (278): // master riff
-				current = setup->get_value(id);
-				break;
 			case (643): // master arp
 				current = setup->get_value(id);
 				break;
@@ -314,10 +312,13 @@ PXK::~PXK()
 	if (setup_names)
 		delete[] setup_names;
 	if (cfg)
-	{
 		delete cfg;
-		cfg = 0; // global object
-	}
+	preset = 0;
+	preset_copy = 0;
+	setup = 0;
+	setup_copy = 0;
+	setup_names = 0;
+	cfg = 0;
 }
 
 void PXK::LoadConfig(bool autoconnect, int id)
@@ -692,6 +693,7 @@ bool PXK::Synchronize()
 	if (synchronized)
 		return false;
 	pmesg("PXK::Synchronize()\n");
+	display_status("Synchronizing...");
 #ifndef NDEBUG
 	char buf[64];
 	snprintf(buf, 64, "PXK::Synchronize() %d[ms]\n\n", cfg->get_cfg_option(CFG_SPEED));
@@ -699,7 +701,6 @@ bool PXK::Synchronize()
 #endif
 	midi->filter_strict(); // filter everything but sysex for sync
 	init_progress = 0;
-	ui->init_progress->label("Synchronizing...");
 	join_bro = false;
 	timed_out = false;
 	name_set_incomplete = false;
@@ -1068,7 +1069,7 @@ void PXK::Loading(bool upload)
 {
 	pmesg("PXK::Loading() \n");
 	Fl::remove_timeout(check_loading);
-	display_status("Loading...");
+	display_status("Loading program...");
 	ui->supergroup->set_output();
 	got_answer = false;
 	if (upload)
@@ -1224,7 +1225,7 @@ void PXK::incoming_arp_dump(const unsigned char* data, int len)
 	{
 		delete arp;
 		arp = new Arp_Dump(len, data);
-		display_status("Arp dump loaded.");
+		display_status("Arp pattern loaded.");
 	}
 }
 
@@ -1240,14 +1241,14 @@ void PXK::incoming_ACK(int packet)
 void PXK::incoming_NAK(int packet)
 {
 	pmesg("PD:incoming_NAK:(packet: %d) \n", packet);
-	display_status("Received NAK. Retrying...");
+//	display_status("Received NAK. Retrying...");
 	if (preset && nak_count < 3)
 	{
 		preset->upload(packet);
 		++nak_count;
 	}
 	else
-		fl_message("Closed Loop Upload failed!\nData is currupt.");
+		fl_message("Closed Loop Upload failed!");
 }
 
 //void PXK::incoming_ERROR(int cmd, int sub)
@@ -1612,9 +1613,8 @@ static void clear_status(void*)
 void PXK::display_status(const char* message)
 {
 	Fl::remove_timeout(clear_status);
-	Fl::add_timeout(1, clear_status);
+	Fl::add_timeout(1.5, clear_status);
 	ui->status->copy_label(message);
-	Fl::flush();
 }
 
 void PXK::update_fx_values(int id, int value) const
@@ -2016,8 +2016,8 @@ void PXK::start_over()
 	// let it think..
 	mysleep(53);
 	midi->edit_parameter_value(139, selected_channel);
-	preset_copy->clone(preset);
-	preset->set_changed(false);
+	delete preset;
+	preset = preset_copy->clone();
 	show_preset();
 }
 

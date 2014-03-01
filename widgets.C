@@ -415,14 +415,6 @@ void Browser::load_n(int type, int rom_id, int preset)
 	{
 		if (val > 0 && val <= size())
 			ui->main->layer_strip[id_layer[1]]->instrument->label(text(val) + 5);
-		// TODO: commented lines may cause problems but remove flicker
-//		if (val != 0)
-//		{
-//			if (!ui->main->layer_strip[id_layer[1]]->active())
-//				ui->main->layer_strip[id_layer[1]]->activate();
-//		}
-//		else if (ui->main->layer_strip[id_layer[1]]->active())
-//			ui->main->layer_strip[id_layer[1]]->deactivate();
 	}
 }
 
@@ -478,12 +470,6 @@ int Browser::handle(int ev)
 	static int key;
 	switch (ev)
 	{
-		// Mouse Events
-		case FL_ENTER: // 1 = receive FL_LEAVE and FL_MOVE events (widget becomes Fl::belowmouse())
-		case FL_LEAVE:
-			return 1;
-		case FL_MOVE: // sent to Fl::belowmouse()
-			return 1;
 		case FL_PUSH: // 1 = receive FL_DRAG and the matching (Fl::event_button()) FL_RELEASE event (becomes Fl::pushed())
 			if (ev == Fl::event_clicks() && pxk->preset) // double click
 			{
@@ -599,14 +585,7 @@ int Browser::handle(int ev)
 			break;
 		case FL_DRAG: // button state is in Fl::event_state() (FL_SHIFT FL_CAPS_LOCK FL_CTRL FL_ALT FL_NUM_LOCK FL_META FL_SCROLL_LOCK FL_BUTTON1 FL_BUTTON2 FL_BUTTON3)
 			return 0;
-		case FL_MOUSEWHEEL:
-			if (this != Fl::belowmouse())
-				return 0;
-			break;
 			// keyboard events
-		case FL_FOCUS: // 1 = receive FL_KEYDOWN, FL_KEYUP, and FL_UNFOCUS events (widget becomes Fl::focus())
-		case FL_UNFOCUS: // received when another widget gets the focus and we had the focus
-			return 1;
 		case FL_KEYDOWN: // key press (Fl::event_key())
 			key = Fl::event_key();
 			if (key == FL_Down)
@@ -685,6 +664,9 @@ int Browser::handle(int ev)
 			break;
 		case FL_DND_ENTER: // 1 = receive FL_DND_DRAG, FL_DND_LEAVE and FL_DND_RELEASE events
 			return 0;
+		case FL_MOUSEWHEEL:
+			if (this != Fl::belowmouse())
+				return 0;
 	}
 	return Fl_Browser::handle(ev);
 }
@@ -1506,7 +1488,6 @@ int Slider::handle(int ev)
 {
 	switch (ev)
 	{
-		// Mouse Events
 		case FL_PUSH:
 			if (FL_RIGHT_MOUSE == Fl::event_button())
 				return 1;
@@ -1863,8 +1844,6 @@ void Group::dependency(int v) const
 {
 	if (id_layer[0] == 129) // channel select
 	{
-		//((Fl_Widget*) this)->deactivate();
-		//ui->value_input->deactivate();
 		if (MULTI != pxk->midi_mode || v == pxk->selected_fx_channel || -1 == pxk->selected_fx_channel)
 			ui->fx->activate();
 		else
@@ -1933,7 +1912,6 @@ Fl_Knob::Fl_Knob(int xx, int yy, int ww, int hh, const char *l) :
 	_type = LINELIN;
 	_percent = 0.7;
 	_scaleticks = 12;
-	selected = false;
 }
 
 void Fl_Knob::set_id(int v, int l)
@@ -2099,7 +2077,7 @@ void Fl_Knob::draw()
 	fl_pie(ox + 9, oy + 9, side - 18, side - 18, 0, 360);
 	// top
 	if (active_r())
-		(selected) ? fl_color(FL_SELECTION_COLOR) : fl_color(FL_BACKGROUND2_COLOR);
+		(this == Fl::focus()) ? fl_color(FL_SELECTION_COLOR) : fl_color(FL_BACKGROUND2_COLOR);
 	else
 		fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .8));
 	fl_pie(ox + 10, oy + 10, side - 20, side - 20, 0, 360);
@@ -2117,8 +2095,12 @@ int Fl_Knob::handle(int ev)
 	switch (ev)
 	{
 		case FL_ENTER: // 1 = receive FL_LEAVE and FL_MOVE events (widget becomes Fl::belowmouse())
-		case FL_LEAVE:
-			return 1;
+			if (active_r())
+			{
+				take_focus();
+				return 1;
+			}
+			return 0;
 		case FL_PUSH: // 1 = receive FL_DRAG and the matching (Fl::event_button()) FL_RELEASE event (becomes Fl::pushed())
 			handle_push();
 			if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->setup_copy && pxk->preset_copy)
@@ -2130,11 +2112,9 @@ int Fl_Knob::handle(int ev)
 				else
 					value((double) pxk->preset_copy->get_value(id_layer[0], id_layer[1]));
 				do_callback();
-				take_focus();
 			}
 			else
 			{
-				take_focus();
 				px = Fl::event_x();
 				py = Fl::event_y();
 			}
@@ -2194,6 +2174,7 @@ int Fl_Knob::handle(int ev)
 			break;
 			// keyboard events
 		case FL_FOCUS: // 1 = receive FL_KEYDOWN, FL_KEYUP, and FL_UNFOCUS events (widget becomes Fl::focus())
+			damage(2);
 			// show value in value field and make ourselfes the editing widget
 			if (pwid_editing != this && id_layer[0] != 0)
 			{
@@ -2203,18 +2184,12 @@ int Fl_Knob::handle(int ev)
 			}
 			ui->value_input->value((double) value());
 			ui->forma_out->set_value(id_layer[0], id_layer[1], value());
-			selected = true;
-			damage(2);
 			return 1;
 		case FL_UNFOCUS: // received when another widget gets the focus and we had the focus
-			if (selected)
-			{
-				selected = false;
-				redraw();
-			}
+			damage(2);
 			return 1;
 		case FL_KEYDOWN: // key press (Fl::event_key())
-			if (selected)
+			if (this == Fl::focus())
 			{
 				int key = Fl::event_key();
 				double v1 = value(); // current value
@@ -2294,7 +2269,7 @@ void Fl_Knob::draw_cursor(const int ox, const int oy, const int side)
 	double angle;
 	// top
 	(active_r()) ? fl_color(FL_FOREGROUND_COLOR) : fl_color(fl_darker(FL_FOREGROUND_COLOR));
-	(selected) ? fl_color(fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR)) : fl_color(fl_color());
+	(this == Fl::focus()) ? fl_color(fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR)) : fl_color(fl_color());
 	rds = (side - 18) / 2.0;
 	cur = _percent * rds / 2;
 	cx = ox + side / 2;
@@ -3446,9 +3421,6 @@ int Envelope_Editor::handle(int ev)
 		return 0;
 	switch (ev)
 	{
-		case FL_ENTER:
-			return 1;
-
 		case FL_LEAVE:
 			fl_cursor(FL_CURSOR_DEFAULT);
 			if (hover > -1)
@@ -4868,7 +4840,7 @@ void Piano::set_transpose(char l1, char l2, char l3, char l4)
 
 void Piano::commit_changes()
 {
-	pmesg("Piano::commit_changes()\n");
+	//pmesg("Piano::commit_changes()\n");
 	if (pushed < PRESET_ARP)
 	{
 		for (int range = 0; range < 4; range++)
@@ -5144,8 +5116,6 @@ int MiniPiano::handle(int ev)
 {
 	switch (ev)
 	{
-		case FL_ENTER:
-			return 1;
 		case FL_LEAVE:
 			if (hovered_key != NONE)
 			{
@@ -5164,7 +5134,6 @@ int MiniPiano::handle(int ev)
 				previous_hovered_key = NONE;
 			}
 			return 1;
-
 		case FL_PUSH:
 			push_x = 0;
 			pushed = NONE;
@@ -5255,7 +5224,6 @@ int MiniPiano::handle(int ev)
 				}
 			}
 			return 1;
-
 		case FL_RELEASE:
 			if (FL_LEFT_MOUSE == Fl::event_button() && pushed == PIANO)
 			{
@@ -5269,6 +5237,13 @@ int MiniPiano::handle(int ev)
 				return 1;
 			}
 			return 1;
+		case FL_MOUSEWHEEL:
+			if (this == Fl::belowmouse())
+			{
+				shift_octave(Fl::event_dy());
+				return 1;
+			}
+			return 0;
 	}
 	return Fl_Box::handle(ev);
 }
@@ -5585,7 +5560,5 @@ void Text_Display::resize(int X, int Y, int W, int H)
 {
 	if (w() != W)
 		wrap_mode(1, W / c_w - 4);
-	//	if (w() != W || h() != H)
-	//		show_insert_position();
 	Fl_Text_Display::resize(X, Y, W, H);
 }

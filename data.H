@@ -104,9 +104,8 @@ public:
 	bool disable_add_undo;
 	/**
 	 * clone this preset dump
-	 * @param dst pointer to destination (will be deleted)
 	 */
-	void clone(Preset_Dump* dst) const;
+	Preset_Dump* clone() const;
 	///
 	void set_changed(bool);
 	/// returns the preset name

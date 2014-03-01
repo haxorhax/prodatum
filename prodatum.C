@@ -31,7 +31,7 @@
 
 static void load_data();
 
-const char* VERSION = "2.0rc10";
+const char* VERSION = "2.0rc11";
 PD_UI* ui = 0;
 MIDI* midi = 0;
 PXK* pxk = 0;
@@ -391,7 +391,7 @@ void PD_UI::set_eall(int v)
 		if (piano_w->shown())
 			piano->redraw();
 		eall = true;
-		pxk->display_status("Edit All Layers enabled.");
+		pxk->display_status("Edit all layers enabled.");
 	}
 	if (!v && eall)
 	{
@@ -424,7 +424,7 @@ void PD_UI::set_eall(int v)
 		b_eall->clear();
 		m_eall->clear();
 		eall = false;
-		pxk->display_status("Edit All Layers disabled.");
+		pxk->display_status("Edit all layers disabled.");
 	}
 }
 

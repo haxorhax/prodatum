@@ -377,7 +377,7 @@ static void process_midi_in(void*)
 					case 0x7d: // CANCEL
 						got_answer = true;
 						requested = false;
-						pxk->display_status("Device cancelled.");
+						pxk->display_status("Device sent CANCEL.");
 						ui->supergroup->clear_output();
 						break;
 					case 0x70: // ERROR
@@ -577,6 +577,7 @@ MIDI::MIDI()
 	jack_ringbuffer_mlock(read_buffer);
 #endif
 	// populate ports
+	pxk->display_status("Populating MIDI ports...");
 	for (unsigned char i = 0; i < Pm_CountDevices(); i++)
 	{
 		const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
@@ -797,11 +798,8 @@ int MIDI::connect_in(int port)
 		show_error();
 		return 0;
 	}
-	// filter messages we dont process
 	// only allow sysex for now
-	pmerror = Pm_SetFilter(port_in, ~1); // TODO: test
-//			PM_FILT_SYSTEMCOMMON | PM_FILT_ACTIVE | PM_FILT_CLOCK | PM_FILT_PLAY | PM_FILT_TICK | PM_FILT_FD | PM_FILT_RESET
-//					| PM_FILT_AFTERTOUCH | PM_FILT_PROGRAM | PM_FILT_PITCHBEND);
+	pmerror = Pm_SetFilter(port_in, ~1);
 	if (pmerror < 0)
 	{
 		show_error();
@@ -881,11 +879,8 @@ void MIDI::set_control_channel_filter(int channel) const
 {
 	pmesg("MIDI::set_control_channel_filter(%d)\n", channel);
 	cfg->set_cfg_option(CFG_CONTROL_CHANNEL, channel);
-	if (channel == 16)
-		pmerror = Pm_SetChannelMask(port_thru, ~0); // TODO: test
-//				Pm_Channel(0) | Pm_Channel(1) | Pm_Channel(2) | Pm_Channel(3) | Pm_Channel(4) | Pm_Channel(5) | Pm_Channel(6)
-//				| Pm_Channel(7) | Pm_Channel(8) | Pm_Channel(9) | Pm_Channel(10) | Pm_Channel(11) | Pm_Channel(12)
-//				| Pm_Channel(13) | Pm_Channel(14) | Pm_Channel(15));
+	if (channel == 16) // 0-15, single channels
+		pmerror = Pm_SetChannelMask(port_thru, ~0); // all channels
 	else
 		pmerror = Pm_SetChannelMask(port_thru, Pm_Channel(channel));
 	if (pmerror < 0)
@@ -1039,6 +1034,7 @@ void MIDI::request_preset_dump(int preset, int rom_id) const
 void MIDI::request_setup_dump() const
 {
 	pmesg("MIDI::request_setup_dump() \n");
+	pxk->display_status("Loading multisetup...");
 	if (requested)
 		return;
 	unsigned char request[] =

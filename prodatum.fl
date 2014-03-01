@@ -886,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
+    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2639,16 +2639,16 @@ if (pxk->preset && pxk->preset->is_changed())
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open selected
+delete this;} open
       xywh {874 271 845 620} type Double resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620} visible
     } {
-      Fl_Group supergroup {
+      Fl_Group supergroup {open
         xywh {0 0 846 620} resizable
       } {
-        Fl_Group g_main {open
+        Fl_Group g_main {
           xywh {0 19 843 596}
         } {
           Fl_Button {} {
@@ -3431,19 +3431,6 @@ arp_name_changed = false;}
           }
         }
         Fl_Group {} {
-          label status
-          xywh {280 0 283 19} labeltype NO_LABEL
-        } {
-          Fl_Box {} {
-            label resizeable
-            xywh {421 18 1 1} labeltype NO_LABEL resizable
-          }
-          Fl_Box status {
-            label {((broadcast))}
-            xywh {281 0 281 17} box FLAT_BOX color 7 labelfont 4 labelsize 12 align 18
-          }
-        }
-        Fl_Group {} {
           label name
           xywh {214 0 632 20} labeltype NO_LABEL
         } {
@@ -3471,6 +3458,19 @@ pxk->preset->set_name(o->value(), 1, o->position());}
             code0 {o->maximum_size(12);}
             code2 {o->value("Program Name");}
             class Input
+          }
+        }
+        Fl_Group {} {
+          label status selected
+          xywh {280 0 283 19} labeltype NO_LABEL
+        } {
+          Fl_Box {} {
+            label resizeable
+            xywh {421 18 1 1} labeltype NO_LABEL resizable
+          }
+          Fl_Box status {
+            label {((broadcast))}
+            xywh {281 0 281 17} box FLAT_BOX color 7 labelfont 4 labelsize 12 align 18
           }
         }
         Fl_Group {} {

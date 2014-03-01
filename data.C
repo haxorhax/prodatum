@@ -111,9 +111,10 @@ int Preset_Dump::get_extra_controller() const
 	return extra_controller;
 }
 
-void Preset_Dump::clone(Preset_Dump* dst) const
+Preset_Dump* Preset_Dump::clone() const
 {
-	memcpy(dst->data, data, size);
+	Preset_Dump* dump = new Preset_Dump(size, data, packet_size);
+	return dump;
 }
 
 const char* Preset_Dump::get_name() const
@@ -371,6 +372,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		if (closed_loop)
 			pxk->Loading(true);
 	}
+	pxk->display_status("Uploading program...");
 	if (closed_loop)
 	{
 		// first we send the dump header
@@ -404,7 +406,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 			if (show_preset)
 				pxk->show_preset();
 			if (unibble(data + 7, data + 8) == -1)
-				pxk->display_status("Upload successful.");
+				pxk->display_status("Program loaded into edit buffer.");
 			else
 				pxk->display_status("Program saved.");
 		}
@@ -441,7 +443,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 				if (show_preset)
 					pxk->show_preset();
 				if (unibble(data + 7, data + 8) == -1)
-					pxk->display_status("Upload successful.");
+					pxk->display_status("Program loaded into edit buffer.");
 				else
 					pxk->display_status("Program saved.");
 			}
@@ -468,7 +470,7 @@ void Preset_Dump::save_file()
 	update_checksum(); // save a valid dump
 	file.write((const char*) data, size);
 	file.close();
-	pxk->display_status("Saved to export directory.");
+	pxk->display_status("Program file saved.");
 }
 
 void Preset_Dump::move(int new_number)
@@ -572,7 +574,7 @@ void Preset_Dump::copy(int type, int src, int dst)
 			if (ui->preset_rom->value() == 0)
 				ui->preset->load_n(PRESET, 0, dst);
 			ui->copy_browser->load_n(PRESET, 0, dst);
-			pxk->display_status("Copied.");
+			pxk->display_status("Copied program.");
 		}
 			break;
 		case C_PRESET_COMMON:
@@ -588,7 +590,7 @@ void Preset_Dump::copy(int type, int src, int dst)
 				mysleep(100);
 				midi->request_preset_dump(-1, 0);
 			}
-			pxk->display_status("Copied.");
+			pxk->display_status("Copied arp paramaters.");
 			break;
 		}
 		case C_FX:
@@ -597,28 +599,28 @@ void Preset_Dump::copy(int type, int src, int dst)
 			copy_layer_parameter_range(1409, 1992, src, dst);
 			update_piano();
 			update_envelopes();
-			pxk->display_status("Copied.");
+			pxk->display_status("Copied layer parameters.");
 			break;
 		case C_LAYER_COMMON:
 			copy_layer_parameter_range(1409, 1439, src, dst);
-			pxk->display_status("Copied.");
+			pxk->display_status("Copied layer parameters.");
 			break;
 		case C_LAYER_FILTER:
 			copy_layer_parameter_range(1537, 1539, src, dst);
-			pxk->display_status("Copied.");
+			pxk->display_status("Copied filter parameters.");
 			break;
 		case C_LAYER_LFO:
 			copy_layer_parameter_range(1665, 1674, src, dst);
-			pxk->display_status("Copied.");
+			pxk->display_status("Copied LFO parameters.");
 			break;
 		case C_LAYER_ENVELOPE:
 			copy_layer_parameter_range(1793, 1834, src, dst);
 			update_envelopes();
-			pxk->display_status("Copied.");
+			pxk->display_status("Copied envelope parameters.");
 			break;
 		case C_LAYER_PATCHCORD:
 			copy_layer_parameter_range(1921, 1992, src, dst);
-			pxk->display_status("Copied.");
+			pxk->display_status("Copied patchcord parameters.");
 			break;
 		case C_ARP_PATTERN:
 		{
@@ -641,7 +643,7 @@ void Preset_Dump::copy(int type, int src, int dst)
 				ui->preset_editor->arp->load_n(ARP, 0, dst);
 			if (ui->main->arp_rom->value() == 0)
 				ui->main->arp->load_n(ARP, 0, dst);
-			pxk->display_status("Copied.");
+			pxk->display_status("Copied arp pattern.");
 			break;
 		}
 		case SAVE_PRESET:
@@ -655,6 +657,8 @@ void Preset_Dump::copy(int type, int src, int dst)
 			move(dst);
 			upload(0, cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD));
 			set_changed(false);
+			delete pxk->preset_copy;
+			pxk->preset_copy = clone();
 		}
 	}
 }
