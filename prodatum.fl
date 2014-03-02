@@ -2580,7 +2580,6 @@ delete this;} public
   decl {int copy_type;} {}
   decl {int copy_src;} {}
   decl {char* filter_tmp;} {}
-  decl {bool arp_name_changed;} {}
   decl {void Cancel();} {}
   decl {void Reset(char, char);} {}
   decl {void set_color(Fl_Color);} {}
@@ -2624,14 +2623,7 @@ Fl::visual(FL_DOUBLE|FL_RGB);
 				"x all other characters must be matched exactly.\\n"
 				"NOTE: Your query is automatically expanded to '*query*' to mimic prodatum's original filter behaviour.");} {}
     Fl_Window main_window {
-      callback {if (g_arp_edit->visible())
-{
-g_arp_edit->hide();
-g_main->show();
-return;
-}
-
-if (pxk->preset && pxk->preset->is_changed())
+      callback {if (pxk->preset && pxk->preset->is_changed())
 {
 	if (dismiss(1) == 1)
 		delete this;
@@ -2645,11 +2637,12 @@ delete this;}
       code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
-      Fl_Group supergroup {open
+      Fl_Group supergroup {
         xywh {0 0 846 620} resizable
       } {
-        Fl_Group g_main {
-          xywh {0 19 843 596}
+        Fl_Group {} {
+          label main
+          xywh {0 19 843 596} labeltype NO_LABEL
         } {
           Fl_Button {} {
             label {&Keyb.}
@@ -2936,7 +2929,7 @@ if (!eall && pxk->preset)
             }
           }
           Fl_Group g_minipiano {
-            label MINIPIANO selected
+            label MINIPIANO
             xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8 hide
           } {
             Fl_Box global_minipiano {
@@ -3200,235 +3193,6 @@ pxk->save_setup(multisetups->value() - 1, s_name->value());}
             }
           }
         }
-        Fl_Group g_arp_edit {
-          xywh {0 20 843 595} box FLAT_BOX hide
-        } {
-          Fl_Box {} {
-            xywh {10 30 40 279} labeltype NO_LABEL
-            code0 {o->init(0);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {53 30 40 279} labeltype NO_LABEL
-            code0 {o->init(1);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {96 30 40 279} labeltype NO_LABEL
-            code0 {o->init(2);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {139 30 40 279} labeltype NO_LABEL
-            code0 {o->init(3);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {182 30 40 279} labeltype NO_LABEL
-            code0 {o->init(4);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {225 30 40 279} labeltype NO_LABEL
-            code0 {o->init(5);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {268 30 40 279} labeltype NO_LABEL
-            code0 {o->init(6);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {311 30 40 279} labeltype NO_LABEL
-            code0 {o->init(7);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {354 30 40 279} labeltype NO_LABEL
-            code0 {o->init(8);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {397 30 40 279} labeltype NO_LABEL
-            code0 {o->init(9);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {440 30 40 279} labeltype NO_LABEL
-            code0 {o->init(10);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {483 30 40 279} labeltype NO_LABEL
-            code0 {o->init(11);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {526 30 40 279} labeltype NO_LABEL
-            code0 {o->init(12);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {569 30 40 279} labeltype NO_LABEL
-            code0 {o->init(13);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {612 30 40 279} labeltype NO_LABEL
-            code0 {o->init(14);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {655 30 40 279} labeltype NO_LABEL
-            code0 {o->init(15);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {10 325 40 279} labeltype NO_LABEL
-            code0 {o->init(16);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {53 325 40 279} labeltype NO_LABEL
-            code0 {o->init(17);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {96 325 40 279} labeltype NO_LABEL
-            code0 {o->init(18);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {139 325 40 279} labeltype NO_LABEL
-            code0 {o->init(19);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {182 325 40 279} labeltype NO_LABEL
-            code0 {o->init(20);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {225 325 40 279} labeltype NO_LABEL
-            code0 {o->init(21);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {268 325 40 279} labeltype NO_LABEL
-            code0 {o->init(22);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {311 325 40 279} labeltype NO_LABEL
-            code0 {o->init(23);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {354 325 40 279} labeltype NO_LABEL
-            code0 {o->init(24);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {397 325 40 279} labeltype NO_LABEL
-            code0 {o->init(25);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {440 325 40 279} labeltype NO_LABEL
-            code0 {o->init(26);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {483 325 40 279} labeltype NO_LABEL
-            code0 {o->init(27);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {526 325 40 279} labeltype NO_LABEL
-            code0 {o->init(28);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {569 325 40 279} labeltype NO_LABEL
-            code0 {o->init(29);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {612 325 40 279} labeltype NO_LABEL
-            code0 {o->init(30);}
-            class PD_Arp_Step
-          }
-          Fl_Box {} {
-            xywh {655 325 40 279} labeltype NO_LABEL
-            code0 {o->init(31);}
-            class PD_Arp_Step
-          }
-          Fl_Input arp_name {
-            label NAME
-            callback {arp_name_changed = true;}
-            tooltip {Arpeggiator pattern name} xywh {705 554 127 20} box UP_BOX labelsize 10 align 5 when 1 textfont 4 textsize 12
-            code0 {o->maximum_size(12);}
-            class Input
-          }
-          Fl_Button {} {
-            label CLOSE
-            callback {if (arp_name_changed && pxk->arp) pxk->arp->rename(arp_name->value());
-arp_name_changed = false;
-g_main->show();
-g_arp_edit->hide();}
-            tooltip {Keep settings and return} xywh {705 579 60 25} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 16
-          }
-          Fl_Button {} {
-            label RESET
-            callback {if (pxk->arp) pxk->arp->reset_pattern();
-arp_name_changed = false;}
-            tooltip {Undo all changes} xywh {772 579 60 25} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 16
-          }
-          Fl_Box {} {
-            label OP
-            xywh {698 30 1 90} box BORDER_BOX color 7 labelsize 10 align 8
-          }
-          Fl_Box {} {
-            label TIME
-            xywh {698 123 1 16} box BORDER_BOX color 7 labelsize 10 align 8
-          }
-          Fl_Box {} {
-            label REPEAT
-            xywh {698 141 1 16} box BORDER_BOX color 7 labelsize 10 align 8
-          }
-          Fl_Box {} {
-            label VELOCITY
-            xywh {698 159 1 16} box BORDER_BOX color 7 labelsize 10 align 8
-          }
-          Fl_Box {} {
-            label {PITCH | OFFSET}
-            xywh {698 179 1 16} box BORDER_BOX color 7 labelsize 10 align 8
-          }
-          Fl_Box {} {
-            label OP
-            xywh {698 325 1 90} box BORDER_BOX color 7 labelsize 10 align 8
-          }
-          Fl_Box {} {
-            label TIME
-            xywh {698 418 1 16} box BORDER_BOX color 7 labelsize 10 align 8
-          }
-          Fl_Box {} {
-            label REPEAT
-            xywh {698 436 1 16} box BORDER_BOX color 7 labelsize 10 align 8
-          }
-          Fl_Box {} {
-            label VELOCITY
-            xywh {698 454 1 16} box BORDER_BOX color 7 labelsize 10 align 8
-          }
-          Fl_Box {} {
-            label {PITCH | OFFSET}
-            xywh {698 474 1 16} box BORDER_BOX color 7 labelsize 10 align 8
-          }
-          Fl_Output pattern_length {
-            label {BEATS:TICKS}
-            tooltip {Pattern length (48 Ticks/Beat)} xywh {705 280 127 30} box FLAT_BOX color 49 labelsize 10 align 5 textfont 4 textsize 24
-          }
-        }
         Fl_Group {} {
           label name
           xywh {112 0 734 21} labeltype NO_LABEL
@@ -3473,14 +3237,14 @@ pxk->preset->set_name(o->value(), 1, o->position());}
           }
         }
         Fl_Group {} {
-          label menu
+          label menu open
           xywh {0 0 231 21} labeltype NO_LABEL align 0
         } {
           Fl_Box {} {
             label resizeable
             xywh {0 20 1 1} labeltype NO_LABEL resizable
           }
-          Fl_Menu_Bar {} {
+          Fl_Menu_Bar {} {open
             xywh {0 0 231 19} box FLAT_BOX color 7 labelsize 10 textsize 10
             code0 {o->global();}
           } {
@@ -3620,7 +3384,7 @@ preferences->showup();}
               }
             }
             Submenu {} {
-              label Window
+              label Window open
               xywh {10 10 70 21} labelsize 12
             } {
               MenuItem {} {
@@ -3687,6 +3451,15 @@ else{
 piano_w->showup();
 }}
                 xywh {10 10 36 21} shortcut 0x6b labelsize 12
+              }
+              MenuItem {} {
+                label {Arp editor}
+                callback {if (arp_editor_w->shown() && arp_editor_w->visible())
+arp_editor_w->hide();
+else{
+arp_editor_w->showup();
+}}
+                xywh {10 10 36 21} shortcut 0x60 labelsize 12
               }
               MenuItem {} {
                 label {&Message log}
@@ -3828,6 +3601,232 @@ about->show();
         Fl_Box dnd_box {
           xywh {0 0 845 620} labeltype NO_LABEL when 0 hide
           class DND_Box
+        }
+      }
+    }
+    Fl_Window arp_editor_w {
+      label {Arpeggio editor}
+      xywh {775 120 760 600} type Double align 0 hide resizable
+      class Double_Window xclass prodatum size_range {640 480 760 600}
+    } {
+      Fl_Group {} {
+        label {arp editor}
+        xywh {5 5 750 590} box FLAT_BOX labeltype NO_LABEL align 0
+      } {
+        Fl_Box {} {
+          xywh {5 5 40 279} labeltype NO_LABEL
+          code0 {o->init(0);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {48 5 40 279} labeltype NO_LABEL
+          code0 {o->init(1);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {91 5 40 279} labeltype NO_LABEL
+          code0 {o->init(2);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {134 5 40 279} labeltype NO_LABEL
+          code0 {o->init(3);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {177 5 40 279} labeltype NO_LABEL
+          code0 {o->init(4);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {220 5 40 279} labeltype NO_LABEL
+          code0 {o->init(5);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {263 5 40 279} labeltype NO_LABEL
+          code0 {o->init(6);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {306 5 40 279} labeltype NO_LABEL
+          code0 {o->init(7);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {349 5 40 279} labeltype NO_LABEL
+          code0 {o->init(8);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {392 5 40 279} labeltype NO_LABEL
+          code0 {o->init(9);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {435 5 40 279} labeltype NO_LABEL
+          code0 {o->init(10);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {478 5 40 279} labeltype NO_LABEL
+          code0 {o->init(11);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {521 5 40 279} labeltype NO_LABEL
+          code0 {o->init(12);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {564 5 40 279} labeltype NO_LABEL
+          code0 {o->init(13);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {607 5 40 279} labeltype NO_LABEL
+          code0 {o->init(14);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {650 5 40 279} labeltype NO_LABEL
+          code0 {o->init(15);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          label OP
+          xywh {693 5 1 90} box BORDER_BOX color 7 labelsize 10 align 8
+        }
+        Fl_Box {} {
+          label TIME
+          xywh {693 98 1 16} box BORDER_BOX color 7 labelsize 10 align 8
+        }
+        Fl_Box {} {
+          label REPEAT
+          xywh {693 116 1 16} box BORDER_BOX color 7 labelsize 10 align 8
+        }
+        Fl_Box {} {
+          label VELOCITY
+          xywh {693 134 1 16} box BORDER_BOX color 7 labelsize 10 align 8
+        }
+        Fl_Box {} {
+          label OFFSET
+          xywh {693 154 1 130} box BORDER_BOX color 7 labelsize 10 align 8
+        }
+        Fl_Output pattern_length {selected
+          tooltip {Pattern length (48 Ticks/Beat)} xywh {306 285 154 30} box FLAT_BOX color 49 labeltype NO_LABEL labelsize 10 align 0 textfont 4 textsize 24
+        }
+        Fl_Input arp_name {
+          label Name
+          callback {if (pxk->arp) pxk->arp->rename(arp_name->value());}
+          tooltip {Arpeggiator pattern name} xywh {590 290 100 20} box UP_BOX labelsize 10 when 1 textfont 4 textsize 12
+          code0 {o->maximum_size(12);}
+          class Input
+        }
+        Fl_Button {} {
+          label Reset
+          callback {if (pxk->arp) pxk->arp->reset_pattern();}
+          tooltip {Undo all changes} xywh {693 290 60 20} down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 16
+        }
+        Fl_Box {} {
+          xywh {5 316 40 279} labeltype NO_LABEL
+          code0 {o->init(16);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {48 316 40 279} labeltype NO_LABEL
+          code0 {o->init(17);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {91 316 40 279} labeltype NO_LABEL
+          code0 {o->init(18);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {134 316 40 279} labeltype NO_LABEL
+          code0 {o->init(19);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {177 316 40 279} labeltype NO_LABEL
+          code0 {o->init(20);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {220 316 40 279} labeltype NO_LABEL
+          code0 {o->init(21);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {263 316 40 279} labeltype NO_LABEL
+          code0 {o->init(22);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {306 316 40 279} labeltype NO_LABEL
+          code0 {o->init(23);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {349 316 40 279} labeltype NO_LABEL
+          code0 {o->init(24);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {392 316 40 279} labeltype NO_LABEL
+          code0 {o->init(25);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {435 316 40 279} labeltype NO_LABEL
+          code0 {o->init(26);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {478 316 40 279} labeltype NO_LABEL
+          code0 {o->init(27);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {521 316 40 279} labeltype NO_LABEL
+          code0 {o->init(28);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {564 316 40 279} labeltype NO_LABEL
+          code0 {o->init(29);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {607 316 40 279} labeltype NO_LABEL
+          code0 {o->init(30);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          xywh {650 316 40 279} labeltype NO_LABEL
+          code0 {o->init(31);}
+          class PD_Arp_Step
+        }
+        Fl_Box {} {
+          label OP
+          xywh {693 316 1 90} box BORDER_BOX color 7 labelsize 10 align 8
+        }
+        Fl_Box {} {
+          label TIME
+          xywh {693 409 1 16} box BORDER_BOX color 7 labelsize 10 align 8
+        }
+        Fl_Box {} {
+          label REPEAT
+          xywh {693 427 1 16} box BORDER_BOX color 7 labelsize 10 align 8
+        }
+        Fl_Box {} {
+          label VELOCITY
+          xywh {693 445 1 16} box BORDER_BOX color 7 labelsize 10 align 8
+        }
+        Fl_Box {} {
+          label OFFSET
+          xywh {693 465 1 130} box BORDER_BOX color 7 labelsize 10 align 8
         }
       }
     }
@@ -4592,7 +4591,6 @@ init_progress->minimum(.0);
 init_progress->maximum(1.);
 selected_step = -1;
 eall = false;
-arp_name_changed = false;
 selected = 5;
 filter_tmp = 0;
 select(0);} {}

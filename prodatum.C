@@ -110,13 +110,13 @@ void PD_UI::select(int l)
 {
 	//pmesg("PD_UI::select(%d)\n", l);
 	static int prev;
-	if (g_arp_edit->visible())
-	{
-		g_arp_edit->hide();
-		g_main->show();
-		if (l == selected)
-			return;
-	}
+//	if (g_arp_edit->visible())
+//	{
+//		g_arp_edit->hide();
+//		g_main->show();
+//		if (l == selected)
+//			return;
+//	}
 	if (l == selected)
 	{
 		if (l == 5 && b_links->value())
@@ -267,6 +267,7 @@ void PD_Arp_Step::init(int s)
 	offset->set_step(s);
 	velocity->set_id(785, s);
 	duration->set_id(786, s);
+	duration->value(4.);
 	repeat->set_id(787, s);
 	arp_step[s] = this;
 	char buf[3];
@@ -276,7 +277,9 @@ void PD_Arp_Step::init(int s)
 
 void PD_Arp_Step::edit_value(int id, int value)
 {
-	//pmesg("PD_Arp_Step::edit_value(%d, %d)\n", id, value);
+//	pmesg("PD_Arp_Step::edit_value(%d, %d)\n", id, value);
+	if (!pxk->arp)
+		return;
 	if (ui->selected_step != step)
 	{
 		midi->edit_parameter_value(770, step);
@@ -289,7 +292,7 @@ void PD_Arp_Step::edit_value(int id, int value)
 
 void PD_Arp_Step::set_values(int off, int vel, int dur, int rep)
 {
-	//pmesg("PD_Arp_Step::set_values(%d, %d, %d, %d)\n", off, vel, dur, rep);
+//	pmesg("PD_Arp_Step::set_values(%d, %d, %d, %d)\n", off, vel, dur, rep);
 	if (off > -49)
 	{
 		if (off < 49)
@@ -322,20 +325,14 @@ void PD_UI::edit_arp_x(int x)
 	if (x == 0 || x == -1) // preset arp
 	{
 		if (pxk->arp && pxk->arp->get_number() == preset_editor->arp->value() - 1)
-		{
-			g_arp_edit->show();
-			g_main->hide();
-		}
+			ui->arp_editor_w->showup();
 		else
 			midi->request_arp_dump(preset_editor->arp->value() - 1, 0);
 	}
 	else if (x == 1) // master arp
 	{
 		if (pxk->arp && pxk->arp->get_number() == main->arp->value() - 1)
-		{
-			g_arp_edit->show();
-			g_main->hide();
-		}
+			ui->arp_editor_w->showup();
 		else
 			midi->request_arp_dump(main->arp->value() - 1, 0);
 	}
@@ -354,7 +351,6 @@ void PD_UI::set_eall(int v)
 		midi->edit_parameter_value(898, -1); // select all layers
 		pxk->selected_layer = 0;
 		// update UI
-//		ui->select(0);
 		m_voice2->hide();
 		m_voice3->hide();
 		m_voice4->hide();
@@ -409,12 +405,6 @@ void PD_UI::set_eall(int v)
 			solo_b[i]->activate();
 		}
 		main->layer_strip[0]->copy->activate();
-//		if (!main->layer_strip[1]->active())
-//			main->layer_strip[1]->activate();
-//		if (!main->layer_strip[2]->active())
-//			main->layer_strip[2]->activate();
-//		if (!main->layer_strip[3]->active())
-//			main->layer_strip[3]->activate();
 		layer_editor[0]->copy_env->activate();
 		layer_editor[0]->copy_lfo->activate();
 		layer_editor[0]->copy_pc->activate();

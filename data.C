@@ -941,11 +941,7 @@ void Arp_Dump::show() const
 		arp_step[i]->set_values(offset, velocity, duration, repeat);
 	}
 	update_sequence_length_information();
-	if (!ui->g_arp_edit->visible())
-	{
-		ui->g_arp_edit->show();
-		ui->g_main->hide();
-	}
+	ui->arp_editor_w->showup();
 }
 
 void Arp_Dump::update_sequence_length_information() const
@@ -996,33 +992,39 @@ void Arp_Dump::reset_step(int step) const
 
 void Arp_Dump::rename(const char* newname) const
 {
-	pmesg("Arp_Dump::rename(%s)\n", newname);
+//	pmesg("Arp_Dump::rename(%s)\n", newname);
 	unsigned char buf[17];
 	snprintf((char*) buf, 17, "%s                 ", newname);
 	for (unsigned char i = 0; i < 12; i++)
 	{
 		if (buf[i] < (0x20 & 0x7f) || buf[i] > (0x7e & 0x7f))
-			buf[i] = 0x32;
+			buf[i] = 0x20;
 		midi->edit_parameter_value(771 + i, buf[i]);
 	}
-	update_name(buf);
-}
-
-void Arp_Dump::update_name(const unsigned char* np) const
-{
-	//pmesg("Arp_Dump::update_name(%s)\n", np);
-	pxk->rom[0]->set_name(ARP, number, np);
+	pxk->rom[0]->set_name(ARP, number, buf);
 	ui->copy_arp_pattern_browser->load_n(ARP, 0, number);
 	if (ui->preset_editor->arp_rom->value() == 0)
 		ui->preset_editor->arp->load_n(ARP, 0, number);
 	if (ui->main->arp_rom->value() == 0)
 		ui->main->arp->load_n(ARP, 0, number);
+	// window title
+	char n[13];
+	snprintf(n, 13, "%s", buf);
+	while (n[strlen(n) - 1] == ' ')
+		n[strlen(n) - 1] = '\0';
+	ui->arp_editor_w->copy_label(n);
+}
+
+void Arp_Dump::update_name(const unsigned char* np) const
+{
+	//pmesg("Arp_Dump::update_name(%s)\n", np);
 	// fill name field
 	char n[13];
 	snprintf(n, 13, "%s", np);
 	while (n[strlen(n) - 1] == ' ')
 		n[strlen(n) - 1] = '\0';
 	ui->arp_name->value(n);
+	ui->arp_editor_w->copy_label(n);
 }
 
 void Arp_Dump::reset_pattern() const
