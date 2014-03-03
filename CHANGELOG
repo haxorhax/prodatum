@@ -2,13 +2,14 @@ v2.0rc12
 
 * a new drug was developed: the arp editor got a xxxx seperate window.
 * arp editor: root note selector added, so offset note values show relative
-  to a root note of your choice
-* minipianos: middle click a key to set the note that is being played back
-  when pressing 'B' (default is A-3). this will also set the velocity for
-  the 'B' shortcut to the current setting of the minipiano. changing the
-  velocity of the minipiano does not change the velocity for the shortcut.
+  to a note of your choice
+* minipianos: middle click a key to set the note and velocity that is being
+  played back when pressing 'B' (default is A 3). middle click on the case
+  to just set the velocity
   NOTE: this only works with the minipianos since the big keyboard uses the
-  middle-mouse button to set the transpose.
+  middle-mouse button to set the layer transpose value.
+* ask for confirmation when about to change the multisetup and there are
+  unsaved changes
 
 
 v2.0rc11

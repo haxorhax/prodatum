@@ -1084,7 +1084,7 @@ instrument_filter->do_callback();}
   }
 } 
 
-widget_class PD_Preset_Editor {open
+widget_class PD_Preset_Editor {
   xywh {538 226 830 565} type Double box BORDER_BOX hide position_relative
 } {
   Fl_Group g_riff {
@@ -2632,7 +2632,7 @@ Fl::visual(FL_DOUBLE|FL_RGB);
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
+delete this;} open
       xywh {546 175 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
@@ -2642,7 +2642,7 @@ delete this;}
         xywh {0 0 846 620} resizable
       } {
         Fl_Group {} {
-          label main open
+          label main
           xywh {0 19 843 596} labeltype NO_LABEL
         } {
           Fl_Button {} {
@@ -2879,7 +2879,7 @@ else
             code0 {o->clear_visible_focus();}
           }
           Fl_Group g_value {
-            label VALUE open
+            label VALUE
             xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8
           } {
             Fl_Value_Output forma_out {
@@ -3167,13 +3167,19 @@ preset_filter->do_callback();}
             }
           }
           Fl_Group g_multisetups {
-            label MULTISETUP
+            label MULTISETUP open
             xywh {639 146 196 304} box THIN_DOWN_BOX labelfont 1 labelcolor 8 hide
           } {
             Fl_Browser multisetups {
-              callback {o->deactivate();
+              callback {if (pxk->preset && pxk->preset->is_changed())
+{
+	if (dismiss(0) != 1)
+	return;
+}
+pxk->preset->set_changed(false);
+o->deactivate();
 midi->copy(C_SETUP, o->value() - 1, -1);
-midi->request_setup_dump();}
+midi->request_setup_dump();} selected
               xywh {649 152 176 226} type Hold when 0 textfont 4 textsize 12 deactivate
             }
             Fl_Input s_name {
@@ -3239,7 +3245,7 @@ pxk->preset->set_name(o->value(), 1, o->position());}
           }
         }
         Fl_Group {} {
-          label menu open
+          label menu
           xywh {0 0 231 21} labeltype NO_LABEL align 0
         } {
           Fl_Box {} {
@@ -3251,7 +3257,7 @@ pxk->preset->set_name(o->value(), 1, o->position());}
             code0 {o->global();}
           } {
             Submenu {} {
-              label File
+              label File open
               xywh {10 10 70 21} labelsize 12
             } {
               MenuItem {} {
@@ -3386,7 +3392,7 @@ preferences->showup();}
               }
             }
             Submenu {} {
-              label Window open
+              label Window
               xywh {10 10 70 21} labelsize 12
             } {
               MenuItem {} {
@@ -3873,7 +3879,7 @@ init_log_w->show();}
       }
     }
     Fl_Window open_device {
-      label {Open Device} open
+      label {Open Device}
       xywh {499 205 280 385} type Double box BORDER_BOX labelcolor 15 hide
       class Double_Window modal xclass prodatum
     } {
@@ -3964,7 +3970,7 @@ o->label("Select...");
       }
       Fl_Button {} {
         label {?}
-        callback {device_info->label("A device is identified by it's ID. prodatum keeps a configuration for every ID. To load a different configuration, use the ID selector below. prodatum will load the last used ID on startup.");} selected
+        callback {device_info->label("A device is identified by it's ID. prodatum keeps a configuration for every ID. To load a different configuration, use the ID selector below. prodatum will load the last used ID on startup.");}
         xywh {20 351 25 25} down_box DOWN_BOX color 7 selection_color 15 labelsize 12 align 16
       }
       Fl_Button connect {

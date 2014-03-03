@@ -3148,8 +3148,8 @@ void Envelope_Editor::draw()
 	int x0 = ee_x0 + 5;
 	float y0 = (float) ee_y0 + 25. + ((float) ee_h - 50.) / 2.;
 	fl_color(FL_BACKGROUND2_COLOR);
-	draw_box(FL_THIN_UP_BOX, x0 - 1, ee_y0 + 25., ee_w - 8, ee_h - 50, FL_INACTIVE_COLOR);
-	fl_push_clip(x0 + 1, (float) ee_y0 + 27., ee_w - 12, ee_h - 54);
+	draw_box(FL_THIN_UP_BOX, x0 - 1, ee_y0 + 22., ee_w - 8, ee_h - 46, FL_INACTIVE_COLOR);
+	fl_push_clip(x0 + 1, (float) ee_y0 + 24., ee_w - 12, ee_h - 50);
 	unsigned char r, g, b;
 	Fl::get_color(FL_INACTIVE_COLOR, r, g, b);
 	int luma = (r + r + b + g + g + g) / 6;
@@ -3163,9 +3163,9 @@ void Envelope_Editor::draw()
 	while ((x_val - x0) / zoomlevel < (ee_w - 10) / zoomlevel - 1)
 	{
 		if (mode == VOLUME)
-			fl_line(x_val, ee_y0 + 25, x_val, y0);
+			fl_line(x_val, ee_y0 + 24, x_val, y0);
 		else
-			fl_line(x_val, ee_y0 + 25, x_val, ee_y0 + ee_h - 25);
+			fl_line(x_val, ee_y0 + 24, x_val, ee_y0 + ee_h - 24);
 		x_val += 8. * x_step;
 	}
 	// horizontale
@@ -3363,7 +3363,7 @@ void Envelope_Editor::draw_envelope(char type, int x0, int y0, int luma)
 	// lines between dragboxes
 	float blend = .0;
 	if (luma > 128)
-		blend = .9;
+		blend = .8;
 	else
 		blend = .6;
 	switch (type)

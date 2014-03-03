@@ -373,7 +373,7 @@ static void sync_police(void* synced)
 	{
 		ui->init->hide();
 #ifndef NDEBUG
-		fl_alert("Sync failed. Please send the init log to rdxesy@@yahoo.de and check your cables + MIDI drivers etc.");
+		fl_alert("Sync failed. Please send the init log to rdxesy@@yahoo.de and check your cables & MIDI drivers etc.");
 		ui->init_log_w->showup();
 #endif
 		return;

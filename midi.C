@@ -394,7 +394,6 @@ static void process_midi_in(void*)
 						ui->init_log->append("\n");
 						free(__buffer);
 #endif
-						break;
 				}
 				if (cfg->get_cfg_option(CFG_LOG_SYSEX_IN))
 					pxk->log_add(sysex, len, 1);
@@ -533,9 +532,6 @@ static void process_midi_in(void*)
 						v |= event[1];
 						ui->pitchwheel->value((double) v);
 					}
-						break;
-					default:
-						;
 				}
 			}
 			// log midi events
