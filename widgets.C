@@ -5463,6 +5463,12 @@ void Step_Offset::set_step(int step)
 	s = step;
 }
 
+void Step_Offset::set_root(char r)
+{
+	root = r;
+	redraw();
+}
+
 int Step_Offset::handle(int ev)
 {
 	switch (ev)
@@ -5558,6 +5564,8 @@ void Step_Offset::draw()
 	int p = v % 12;
 	if (v < 0 && p != 0)
 		p += 12;
+	p += root;
+	p %= 12;
 	char buf[6];
 	snprintf(buf, 6, "%s%+3d", transpose_values[p], v);
 	fl_font(textfont(), textsize());

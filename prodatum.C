@@ -31,7 +31,7 @@
 
 static void load_data();
 
-const char* VERSION = "2.0rc11";
+const char* VERSION = "2.0rc12";
 PD_UI* ui = 0;
 MIDI* midi = 0;
 PXK* pxk = 0;
@@ -93,6 +93,9 @@ int main(int argc, char *argv[])
 	ui->init_log_b->hide();
 	ui->init_log_m->hide();
 #endif
+	char label[17];
+	snprintf(label, 17, "prodatum %s", VERSION);
+	ui->main_window->label(label);
 	ui->main_window->free_position();
 	ui->main_window->show();
 	pxk = new PXK(__auto_connect, __device);
@@ -110,13 +113,6 @@ void PD_UI::select(int l)
 {
 	//pmesg("PD_UI::select(%d)\n", l);
 	static int prev;
-//	if (g_arp_edit->visible())
-//	{
-//		g_arp_edit->hide();
-//		g_main->show();
-//		if (l == selected)
-//			return;
-//	}
 	if (l == selected)
 	{
 		if (l == 5 && b_links->value())

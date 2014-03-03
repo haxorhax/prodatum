@@ -1229,16 +1229,18 @@ class Step_Offset: public Fl_Value_Slider
 {
 	int handle(int event);
 	int s;
+	char root;
 protected:
 	void draw(int X, int Y, int W, int H);
 public:
 	Step_Offset(int x, int y, int w, int h, char* const label = 0) :
 			Fl_Value_Slider(x, y, w, h, label)
 	{
-		;
+		root = 0;
 	}
 	void draw();
 	void set_step(int step);
+	void set_root(char);
 };
 
 // ###################

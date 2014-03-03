@@ -1,6 +1,8 @@
 v2.0rc12
 
 * a new drug was developed: the arp editor got a xxxx seperate window.
+* arp editor: root note selector added, so offset note values show relative
+  to a root note of your choice
 * minipianos: middle click a key to set the note that is being played back
   when pressing 'B' (default is A-3). this will also set the velocity for
   the 'B' shortcut to the current setting of the minipiano. changing the

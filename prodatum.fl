@@ -91,7 +91,7 @@ o->c = val;
 if (val == 4) // note
 edit_value(784, (int) offset->value());
 else
-edit_value(784, val - 52);} open
+edit_value(784, val - 52);}
     xywh {0 0 40 90} labeltype NO_LABEL labelsize 10 labelcolor 7 align 0 when 0
     class Step_Type
   } {
@@ -1084,11 +1084,11 @@ instrument_filter->do_callback();}
   }
 } 
 
-widget_class PD_Preset_Editor {
+widget_class PD_Preset_Editor {open
   xywh {538 226 830 565} type Double box BORDER_BOX hide position_relative
 } {
   Fl_Group g_riff {
-    label RIFF open
+    label RIFF
     xywh {4 23 196 384} box THIN_DOWN_BOX labelfont 1 labelcolor 8
   } {
     Fl_Choice riff_rom {open
@@ -1116,7 +1116,7 @@ riff_filter->do_callback();}
       xywh {164 380 26 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 12
     }
   }
-  Fl_Group program {open
+  Fl_Group program {
     xywh {208 1 417 406}
   } {
     Fl_Button copy_arp_b {
@@ -1410,7 +1410,7 @@ arp_filter->do_callback();}
       }
     }
   }
-  Fl_Group links {open
+  Fl_Group links {
     xywh {210 1 414 406} hide
   } {
     Fl_Group {} {
@@ -1567,7 +1567,7 @@ widget_class PD_Main {
   decl {Fl_Widget* ctrl_x[16];} {public
   }
   Fl_Group {} {
-    label main
+    label main open
     xywh {0 0 834 574} labeltype NO_LABEL align 0
   } {
     Fl_Group {} {
@@ -1577,8 +1577,9 @@ widget_class PD_Main {
       Fl_Button preset_name {
         callback {ui->select(5);}
         tooltip {Program name} xywh {5 24 194 20} box FLAT_BOX down_box FLAT_BOX color 7 selection_color 15 labelfont 4 labelsize 12 align 84
+        code0 {o->clear_visible_focus();}
       }
-      Fl_Group channel_select {
+      Fl_Group channel_select {open
         tooltip {Select preset by channel or activate channel in omni and poly-mode.} xywh {4 23 196 73} labeltype NO_LABEL labelfont 1 labelcolor 15 when 0
         code0 {o->set_id(129);}
         class Group
@@ -2488,7 +2489,7 @@ riff_filter->do_callback();}
       }
     }
     Fl_Group {} {
-      label MASTER open
+      label MASTER
       xywh {634 433 196 132} box THIN_DOWN_BOX labelfont 1 labelcolor 8
     } {
       Fl_Counter {} {
@@ -2641,7 +2642,7 @@ delete this;}
         xywh {0 0 846 620} resizable
       } {
         Fl_Group {} {
-          label main
+          label main open
           xywh {0 19 843 596} labeltype NO_LABEL
         } {
           Fl_Button {} {
@@ -2878,11 +2879,12 @@ else
             code0 {o->clear_visible_focus();}
           }
           Fl_Group g_value {
-            label VALUE
+            label VALUE open
             xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8
           } {
             Fl_Value_Output forma_out {
               tooltip {Formatted value display} xywh {640 67 194 20} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 textfont 4 textsize 12
+              code0 {o->clear_visible_focus();}
               class Formatted_Output
             }
             Fl_Button undo_b {
@@ -3606,11 +3608,11 @@ about->show();
     }
     Fl_Window arp_editor_w {
       label {Arpeggio editor}
-      xywh {775 120 760 600} type Double align 0 hide resizable
+      xywh {557 135 760 600} type Double align 0 hide resizable
       class Double_Window xclass prodatum size_range {640 480 760 600}
     } {
       Fl_Group {} {
-        label {arp editor}
+        label {arp editor} open
         xywh {5 5 750 590} box FLAT_BOX labeltype NO_LABEL align 0
       } {
         Fl_Box {} {
@@ -3713,20 +3715,30 @@ about->show();
           label OFFSET
           xywh {693 154 1 130} box BORDER_BOX color 7 labelsize 10 align 8
         }
-        Fl_Output pattern_length {selected
+        Fl_Choice arp_root {
+          callback {for (char i = 0; i < 32; i++)
+arp_step[i]->offset->set_root(o->value());} open
+          tooltip {Show offsets relative to the selected root note} xywh {5 290 83 20} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 10 align 0 textsize 12
+          code0 {o->add("C");o->add("C\#");o->add("D");}
+          code1 {o->add("D\#");o->add("E");o->add("F");}
+          code2 {o->add("F\#");o->add("G");o->add("G\#");}
+          code3 {o->add("A");o->add("A\#");o->add("B");o->value(0);o->clear_visible_focus();}
+        } {}
+        Fl_Output pattern_length {
           tooltip {Pattern length (48 Ticks/Beat)} xywh {306 285 154 30} box FLAT_BOX color 49 labeltype NO_LABEL labelsize 10 align 0 textfont 4 textsize 24
+          code0 {o->clear_visible_focus();}
         }
         Fl_Input arp_name {
-          label Name
           callback {if (pxk->arp) pxk->arp->rename(arp_name->value());}
-          tooltip {Arpeggiator pattern name} xywh {590 290 100 20} box UP_BOX labelsize 10 when 1 textfont 4 textsize 12
+          tooltip {Arpeggiator pattern name} xywh {91 290 126 20} box UP_BOX labeltype NO_LABEL labelsize 10 align 0 when 1 textfont 4 textsize 12
           code0 {o->maximum_size(12);}
           class Input
         }
         Fl_Button {} {
           label Reset
           callback {if (pxk->arp) pxk->arp->reset_pattern();}
-          tooltip {Undo all changes} xywh {693 290 60 20} down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 16
+          tooltip {Reset pattern to it's original state} xywh {693 290 60 20} down_box DOWN_BOX color 7 selection_color 15 labelsize 10 align 16
+          code0 {o->clear_visible_focus();}
         }
         Fl_Box {} {
           xywh {5 316 40 279} labeltype NO_LABEL
@@ -3861,7 +3873,7 @@ init_log_w->show();}
       }
     }
     Fl_Window open_device {
-      label {Open Device}
+      label {Open Device} open
       xywh {499 205 280 385} type Double box BORDER_BOX labelcolor 15 hide
       class Double_Window modal xclass prodatum
     } {
@@ -3952,7 +3964,7 @@ o->label("Select...");
       }
       Fl_Button {} {
         label {?}
-        callback {device_info->label("A device is identified by it's \\"Device ID\\". prodatum keeps a configuration for every ID. To load a different configuration, use the \\"Device ID\\" selector. prodatum will load the configuration from the previous session on startup.");}
+        callback {device_info->label("A device is identified by it's ID. prodatum keeps a configuration for every ID. To load a different configuration, use the ID selector below. prodatum will load the last used ID on startup.");} selected
         xywh {20 351 25 25} down_box DOWN_BOX color 7 selection_color 15 labelsize 12 align 16
       }
       Fl_Button connect {
