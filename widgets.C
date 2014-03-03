@@ -159,20 +159,23 @@ void Double_Window::resize(int x, int y, int w, int h)
 	Fl_Window::resize(x, y, w, h);
 }
 
+static char scut_b_key = 57; // last played note in minipianos
+static char scut_b_velo = 100;
+
 int Double_Window::handle(int ev)
 {
-	static bool playing = false;
+	static char playing = -1;
 	switch (ev)
 	{
 		case FL_KEYDOWN:
-			if (!playing && Fl::event_key() == 'b')
+			if (playing == -1 && Fl::event_key() == 'b')
 			{
-				playing = true;
+				playing = scut_b_key;
 				if (midi)
-					midi->write_event(NOTE_ON, 57, 110);
-				ui->piano->activate_key(1, 57);
-				ui->main->minipiano->activate_key(1, 57);
-				ui->global_minipiano->activate_key(1, 57);
+					midi->write_event(NOTE_ON, playing, scut_b_velo);
+				ui->piano->activate_key(1, playing);
+				ui->main->minipiano->activate_key(1, playing);
+				ui->global_minipiano->activate_key(1, playing);
 				return 1;
 			}
 			else if (Fl::event_key() == 'f')
@@ -191,14 +194,14 @@ int Double_Window::handle(int ev)
 			}
 			break;
 		case FL_KEYUP:
-			if (playing && Fl::event_key() == 'b')
+			if (playing != -1 && Fl::event_key() == 'b')
 			{
-				playing = false;
 				if (midi)
-					midi->write_event(NOTE_OFF, 57, 0);
-				ui->piano->activate_key(-1, 57);
-				ui->main->minipiano->activate_key(-1, 57);
-				ui->global_minipiano->activate_key(-1, 57);
+					midi->write_event(NOTE_OFF, playing, 0);
+				ui->piano->activate_key(-1, playing);
+				ui->main->minipiano->activate_key(-1, playing);
+				ui->global_minipiano->activate_key(-1, playing);
+				playing = -1;
 				return 1;
 			}
 			break;
@@ -5188,6 +5191,13 @@ int MiniPiano::handle(int ev)
 						}
 						damage(D_HIGHLIGHT);
 					}
+					// set note and velocity for 'B' shortcut
+					// see Double_Window handler
+				case FL_MIDDLE_MOUSE:
+					if (Fl::event_inside(key_x, key_y, key_w, h_white))
+						scut_b_key = hovered_key;
+					scut_b_velo = key_velocity;
+					return 1;
 			}
 			return 1;
 
