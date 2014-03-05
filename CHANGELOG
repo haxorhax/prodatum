@@ -1,8 +1,10 @@
 v2.0rc13
 
 * envelope editor got tooltips (!!!)
-* when volume envelope is set to "Factory" prevent envelope editing to avoid
-  confusion when changes made have no effect
+* when volume envelope is set to "Factory" prevent editing to avoid
+  confusion when changes made have no effect (happened to me)
+  even though technically you can edit the envelope 'offline', avoiding
+  confusion has priority
 * draw envelope values at cursor instead of box (better eye-hand coordination)
 * removed unused variables, made code C11 compliant, -Wall -W cleanup
 * minipiano got tooltip

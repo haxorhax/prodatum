@@ -4037,9 +4037,10 @@ void Piano::draw()
 }
 
 const char* tt_p0 =
-		"1/2/3/4: Layer keyrange & key crossfade\nP: Preset arp keyrange\nM: Master arp keyrange\n1/2: Link 1/2 keyrange";
-const char* tt_p1 = "1/2/3/4: Layer velocity range & velocity crossfade";
-const char* tt_p2 = "1/2/3/4: Layer real-time range & real-time crossfade";
+		"Mousewheel: cycle range type\n\n1/2/3/4: Layer keyrange & key crossfade\nP: Preset arp keyrange\nM: Master arp keyrange\n1/2: Link 1/2 keyrange";
+const char* tt_p1 = "Mousewheel: cycle range type\n\n1/2/3/4: Layer velocity range & velocity crossfade";
+const char* tt_p2 = "Mousewheel: cycle range type\n\n1/2/3/4: Layer real-time range & real-time crossfade";
+const char* tt_p3 = "Left: play\nRight: latch\nDrag: set velocity";
 
 int Piano::handle(int ev)
 {
@@ -4073,7 +4074,9 @@ int Piano::handle(int ev)
 			return 1;
 		case FL_MOVE:
 			Fl_Tooltip::enter_area(this, 0, 0, 0, 0, 0);
-			if (Fl::event_inside(keyboard_x0, keyboard_y0 + h_white, keyboard_w, 120)) // ranges
+			if (mode == KEYRANGE && Fl::event_inside(keyboard_x0, keyboard_y0 - 10, keyboard_w, 10)) // case
+				Fl_Tooltip::enter_area(this, keyboard_x0, keyboard_y0 + h_white, keyboard_w, 120, tt_p3);
+			else if (Fl::event_inside(keyboard_x0, keyboard_y0 + h_white, keyboard_w, 120)) // ranges
 			{
 				if (mode == KEYRANGE)
 					Fl_Tooltip::enter_area(this, keyboard_x0, keyboard_y0 + h_white, keyboard_w, 120, tt_p0);
@@ -4090,7 +4093,9 @@ int Piano::handle(int ev)
 				}
 				bool changed = false;
 				for (i = 0; i < 8; i++)
+				{
 					for (j = 0; j < 4; j++)
+					{
 						if (Fl::event_inside(dragbox[mode][i][j][0], dragbox[mode][i][j][1], w_black, 8))
 						{
 							fl_cursor(FL_CURSOR_CROSS);
@@ -4102,8 +4107,13 @@ int Piano::handle(int ev)
 							highlight_dragbox[i][j] = 0;
 							changed = true;
 						}
+					}
+				}
 				if (changed)
+				{
+					Fl_Tooltip::enter_area(this, 0, 0, 0, 0, 0);
 					damage(D_RANGES);
+				}
 				return 1;
 			}
 			else if (mode == KEYRANGE && Fl::event_inside(keyboard_x0, keyboard_y0, keyboard_w, h_white)) // keys
@@ -4171,7 +4181,6 @@ int Piano::handle(int ev)
 								}
 					}
 					// set velocity
-
 					else if (Fl::event_inside(keyboard_x0, keyboard_y0 - 10, keyboard_w, 10) && mode == KEYRANGE)
 						push_x = Fl::event_x();
 					break;
