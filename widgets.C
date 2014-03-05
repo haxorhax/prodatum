@@ -3094,6 +3094,7 @@ void Envelope_Editor::draw()
 		else if (i == 4)
 			fl_draw("(( Y ))", mode_button[i] + 3, ee_y0 + 14);
 	}
+//	fl_rectf(ee_x0, ee_y0 + 2, ee_w, 18);
 	// lower bar
 	fl_font(FL_HELVETICA, 10);
 	fl_color(FL_BACKGROUND2_COLOR);
@@ -3113,6 +3114,7 @@ void Envelope_Editor::draw()
 		}
 	draw_box(FL_BORDER_BOX, copy_button[mode], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
 	draw_b_label(VOLUME_SELECTED + mode, fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR));
+//	fl_rectf(ee_x0, ee_y0 + ee_h - 21, ee_w, 18);
 	// shapes
 	for (i = 0; i < 4; i++)
 	{
@@ -3401,6 +3403,12 @@ void Envelope_Editor::draw_envelope(unsigned char type, int x0, int y0, int luma
 	fl_line(dragbox[DCY_2][0], dragbox[DCY_2][1], dragbox[RLS_1][0], dragbox[RLS_1][1]);
 	fl_line(dragbox[RLS_1][0], dragbox[RLS_1][1], dragbox[RLS_2][0], dragbox[RLS_2][1]);
 	// dragboxes
+	if (type == VOLUME && env[VOLUME].mode == FACTORY)
+	{
+		fl_line_style(0);
+		fl_pop_clip();
+		return;
+	}
 	if (type == mode)
 	{
 		fl_rectf(dragbox[ATK_1][0] - 4, dragbox[ATK_1][1] - 4, 9, 9);
@@ -3420,6 +3428,23 @@ void Envelope_Editor::draw_envelope(unsigned char type, int x0, int y0, int luma
 	fl_pop_clip();
 	return;
 }
+
+// envelope editor tooltips
+static const char* tt0 =
+		"Factory: Uses the factory preset envelope contained in each instrument. If you select the \"Factory\" mode, the Volume Envelope parameters are disabled and the factory defined settings are used instead.";
+static const char* tt00 =
+		"Repeat: When the envelope repeat function is On, the Attack (1&2) and Decay (1&2) stages will continue to repeat as long as the key is held. As soon as the key is released, the envelope continues through its normal Release stages (1&2).";
+static const char* tt1 =
+		"Time-based: Defines the Volume Envelope rates from 0 to 127 (approximately 1 ms to 160 seconds). The Master clock has no affect on timebased rates.";
+static const char* tt2 =
+		"Tempo-based: The Volume Envelope times vary based on the master tempo setting. Note values are displayed instead of a number when the time corresponds to an exact note value. Tempo-based envelopes are useful when using external sequencers and arpeggiators because the envelope rates compress and expand according to the Master Tempo setting, keeping the envelopes in sync with the sequence or arpeggio.";
+static const char* tt3 = "Layer: Show volume, filter and auxillary envelopes superimposed on each other.";
+static const char* tt4 = "Keep envelope selection, zoom level and envelope layer settings in sync between voices.";
+
+static const char* bt0 = "Select volume-, filter- or auxillary envelope (shortcut: Mousewheel).";
+static const char* bt1 = "Copy current envelope values to this envelope.";
+static const char* bt2 =
+		"Some common envelope shapes (Plucked, String, Organ and Percussion) to replace the currently selected envelope.";
 
 int Envelope_Editor::handle(int ev)
 {
@@ -3485,12 +3510,15 @@ int Envelope_Editor::handle(int ev)
 			break;
 
 		case FL_MOVE:
+			Fl_Tooltip::enter_area(this, 0, 0, 0, 0, 0);
 			button_hover = -1;
 			phover = -1;
 			hover_list = 0;
 			// coordinate system
 			if (Fl::event_inside(ee_x0 + 2, ee_y0 + 22, ee_w - 4, ee_h - 43))
 			{
+				if (mode == VOLUME && env[VOLUME].mode == FACTORY)
+					return 1;
 				for (unsigned char i = 0; i < 6; i++)
 				{
 					if (Fl::event_inside(dragbox[i][0] - 4, dragbox[i][1] - 4, 9, 9))
@@ -3516,22 +3544,51 @@ int Envelope_Editor::handle(int ev)
 				}
 			}
 			// mode buttons
-			else if (Fl::event_inside(ee_x0, ee_y0, ee_w, 19))
+			else if (Fl::event_inside(ee_x0, ee_y0 + 2, ee_w, 18))
 			{
 				fl_cursor(FL_CURSOR_DEFAULT);
 				for (unsigned char i = 0; i < 5; i++)
-					if (Fl::event_inside(mode_button[i] - 2, ee_y0 + 3, 52, 17))
+					if (Fl::event_inside(mode_button[i] - 2, ee_y0 + 2, 52, 18))
+					{
+						const char* tt = 0;
+						switch (i)
+						{
+							case 0:
+								if (mode == VOLUME)
+									tt = tt0;
+								else
+									tt = tt00;
+								break;
+							case 1:
+								tt = tt1;
+								break;
+							case 2:
+								tt = tt2;
+								break;
+							case 3:
+								tt = tt3;
+								break;
+							case 4:
+								tt = tt4;
+								break;
+						}
+						Fl_Tooltip::enter_area(this, mode_button[i], 2, 60, 17, tt);
 						button_hover = i;
+						return 1;
+					}
 			}
 			// extra buttons
-			else if (Fl::event_inside(ee_x0, ee_y0 + ee_h - 18, ee_w, 15))
+			else if (Fl::event_inside(ee_x0, ee_y0 + ee_h - 21, ee_w, 18))
 			{
 				fl_cursor(FL_CURSOR_DEFAULT);
-
 				for (unsigned char i = 0; i < 6; i++)
 				{
 					if (Fl::event_inside(copy_button[i], ee_y0 + ee_h - 21, 17, 17))
 					{
+						if (i > 2)
+							Fl_Tooltip::enter_area(this, copy_button[i], ee_h - 21, 60, 17, bt1);
+						else
+							Fl_Tooltip::enter_area(this, copy_button[i], ee_h - 21, 60, 17, bt0);
 						button_hover = i + VOLUME_SELECTED;
 						return 1;
 					}
@@ -3540,6 +3597,7 @@ int Envelope_Editor::handle(int ev)
 				{
 					if (Fl::event_inside(shape_button[i], ee_y0 + ee_h - 21, 17, 17))
 					{
+						Fl_Tooltip::enter_area(this, copy_button[i], ee_h - 21, 60, 17, bt2);
 						button_hover = i + SHAPE_A;
 						return 1;
 					}
@@ -3970,6 +4028,11 @@ void Piano::draw()
 		draw_case();
 }
 
+const char* tt_p0 =
+		"1/2/3/4: Layer keyrange & key crossfade\nP: Preset arp keyrange\nM: Master arp keyrange\n1/2: Link 1/2 keyranges";
+const char* tt_p1 = "1/2/3/4: Layer velocity range & velocity crossfade";
+const char* tt_p2 = "1/2/3/4: Layer real-time range & real-time crossfade";
+
 int Piano::handle(int ev)
 {
 	static unsigned char i = 0;
@@ -4001,8 +4064,15 @@ int Piano::handle(int ev)
 			set_mode(tmp);
 			return 1;
 		case FL_MOVE:
+			Fl_Tooltip::enter_area(this, 0, 0, 0, 0, 0);
 			if (Fl::event_inside(keyboard_x0, keyboard_y0 + h_white, keyboard_w, 120)) // ranges
 			{
+				if (mode == KEYRANGE)
+					Fl_Tooltip::enter_area(this, keyboard_x0, keyboard_y0 + h_white, keyboard_w, 120, tt_p0);
+				else if (mode == VELOCITY)
+					Fl_Tooltip::enter_area(this, keyboard_x0, keyboard_y0 + h_white, keyboard_w, 120, tt_p1);
+				else if (mode == REALTIME)
+					Fl_Tooltip::enter_area(this, keyboard_x0, keyboard_y0 + h_white, keyboard_w, 120, tt_p2);
 				if (hovered_key != NONE)
 				{
 					if (mode == KEYRANGE)
@@ -5116,6 +5186,9 @@ void MiniPiano::draw_piano()
 	fl_pop_clip();
 }
 
+const char* mp_tt =
+		"Mousewheel: shift keyrange\nDrag on case: set velocity\nLeft: play\nRight: latch\nMiddle on key: set 'B' note & velocity\nMiddle on case: set 'B' velocity";
+
 int MiniPiano::handle(int ev)
 {
 	switch (ev)
@@ -5129,6 +5202,7 @@ int MiniPiano::handle(int ev)
 			}
 			return 1;
 		case FL_MOVE:
+			Fl_Tooltip::enter_area(this, 0, 0, 0, 0, 0);
 			if (Fl::event_inside(key_x, key_y, key_w, h_white))
 				calc_hovered(Fl::event_x(), Fl::event_y() - key_y);
 			else if (hovered_key != NONE)
@@ -5137,6 +5211,8 @@ int MiniPiano::handle(int ev)
 				hovered_key = NONE;
 				previous_hovered_key = NONE;
 			}
+			else
+				Fl_Tooltip::enter_area(this, keyboard_x0, keyboard_y0, keyboard_w, keyboard_h, mp_tt);
 			return 1;
 		case FL_PUSH:
 			push_x = 0;

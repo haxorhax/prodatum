@@ -49,6 +49,7 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Text_Display.H>
+#include <FL/Fl_Tooltip.H>
 
 #include "config.h"
 
