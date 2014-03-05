@@ -136,7 +136,7 @@ class Double_Window: public Fl_Double_Window
 	bool w__shown;
 public:
 	void showup();
-	void resize(int,int,int,int);
+	void resize(int, int, int, int);
 	bool __main;
 	Double_Window(int w, int h, char* const label = 0) :
 			Fl_Double_Window(w, h, label)
@@ -932,9 +932,9 @@ class Envelope_Editor: public Fl_Box
 	virtual int handle(int event);
 	void draw();
 	void draw_b_label(char, Fl_Color);
-	void draw_envelope(char type, int x0, int y0, int luma);
-	void copy_envelope(char src, char dst);
-	void set_shape(char dst, char shape);
+	void draw_envelope(unsigned char type, int x0, int y0, int luma);
+	void copy_envelope(unsigned char src, unsigned char dst);
+	void set_shape(unsigned char dst, char shape);
 	char layer;
 	int ee_x0;
 	int ee_y0;
@@ -969,7 +969,7 @@ public:
 		set_shape(FILTER, SHAPE_A);
 		set_shape(AUXILIARY, SHAPE_C);
 	}
-	void set_data(char type, int* stages, char mode, char repeat);
+	void set_data(unsigned char type, int* stages, char mode, char repeat);
 	void set_layer(char l);
 	void sync_view(char l, char m = 0, float z = .0, bool o = false);
 };
@@ -1007,8 +1007,8 @@ class Piano: public Fl_Box
 	{
 		D_RANGES = 1, D_KEYS, D_HIGHLIGHT = 4, D_CASE = 8
 	};
-	char mode; // 0 = keyrange, 1 = velocity, 2 = realtime
-	char modes;
+	unsigned char mode; // 0 = keyrange, 1 = velocity, 2 = realtime
+	unsigned char modes;
 	int keyboard_x0, keyboard_y0, keyboard_w, keyboard_h;
 	char h_white, w_white, h_black, w_black;
 	int taste_x0[128][2];
@@ -1087,9 +1087,9 @@ public:
 			offset += 7 * (w_white - 1);
 		}
 		// y-koordinaten der dragboxes
-		for (char m = 0; m < 3; m++)
-			for (char i = 0; i < 4; i++)
-				for (char j = 0; j < 4; j++)
+		for (unsigned char m = 0; m < 3; m++)
+			for (unsigned char i = 0; i < 4; i++)
+				for (unsigned char j = 0; j < 4; j++)
 				{
 					if (j == LOW_KEY || j == HIGH_KEY)
 						dragbox[m][i][j][1] = keyboard_y0 + 5 + keyboard_h + i * 18;
@@ -1107,16 +1107,17 @@ public:
 		dragbox[0][7][LOW_KEY][1] = dragbox[0][6][LOW_KEY][1] + 10;
 		dragbox[0][7][HIGH_KEY][1] = dragbox[0][7][LOW_KEY][1];
 		// x koordinaten
-		for (char m = 0; m < 3; m++)
-			for (char i = 0; i < 8; i++)
+		for (unsigned char m = 0; m < 3; m++)
+			for (unsigned char i = 0; i < 8; i++)
 				set_range_values(m, i, 0, 0, 127, 0);
 	}
 
-	void set_range_values(char md, char layer, char low_k, char low_f, char high_k, char high_f);
+	void set_range_values(unsigned char md, unsigned char layer, unsigned char low_k, unsigned char low_f,
+			unsigned char high_k, unsigned char high_f);
 	void set_transpose(char l1, char l2, char l3, char l4);
 	void select_transpose_layer(char l);
 	void set_mode(char m);
-	void activate_key(char value, char key);
+	void activate_key(char value, unsigned char key);
 	void reset_active_keys();
 };
 

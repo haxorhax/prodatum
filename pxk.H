@@ -130,7 +130,7 @@ private:
 public:
 	ROM* rom[5];
 	unsigned char roms; // number of roms
-	char get_rom_index(char) const;
+	unsigned char get_rom_index(char) const;
 
 	/*
 	 * preset specific

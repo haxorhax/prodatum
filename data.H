@@ -53,7 +53,7 @@ class Preset_Dump
 	/// redo stack
 	std::deque<parameter> redo_s;
 	/// push undo parameter on stack
-	void add_undo(int id, int value, int layer);
+	void add_undo(int id, int layer);
 	void update_ui_from_xdo(int id, int value, int layer) const;
 	/**
 	 * maps parameter IDs to offset values in the dump

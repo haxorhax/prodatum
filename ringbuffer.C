@@ -41,7 +41,7 @@ jack_ringbuffer_create (size_t sz)
 
   rb = (jack_ringbuffer_t*) malloc (sizeof (jack_ringbuffer_t));
 
-  for (power_of_two = 1; 1 << power_of_two < sz; power_of_two++);
+  for (power_of_two = 1; 1 << power_of_two < (int) sz; power_of_two++);
 
   rb->size = 1 << power_of_two;
   rb->size_mask = rb->size;

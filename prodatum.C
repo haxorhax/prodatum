@@ -133,6 +133,7 @@ void PD_UI::select(int l)
 		l = prev;
 	}
 	((Fl_Button*) selector->child(l))->setonly();
+	Fl::flush();
 	prev = selected;
 	if (l == 5)
 	{
@@ -805,15 +806,14 @@ void PD_UI::Reset(char user_data, char rom_data)
 	dirent **files;
 	int num_files = fl_filename_list(config_dir, &files);
 	char buf[PATH_MAX];
-	int f_size = 20;
-	char f[f_size];
+	char f[20];
 	int deleted = 0;
 	if (user_data >= 0)
 	{
 		if (user_data == 127) // delete all user data
-			snprintf(f, f_size, "n_???_0_*");
+			snprintf(f, 20, "n_???_0_*");
 		else
-			snprintf(f, f_size, "n_???_0_%d", user_data);
+			snprintf(f, 20, "n_???_0_%d", user_data);
 		for (int i = 0; i < num_files; i++)
 		{
 			if (fl_filename_match(files[i]->d_name, f))
@@ -840,9 +840,9 @@ void PD_UI::Reset(char user_data, char rom_data)
 	if (rom_data >= 1)
 	{
 		if (rom_data == 1) // delete all rom data
-			snprintf(f, f_size, "n_???_[123456789]*");
+			snprintf(f, 20, "n_???_[123456789]*");
 		else
-			snprintf(f, f_size, "n_???_%d", rom_data);
+			snprintf(f, 20, "n_???_%d", rom_data);
 		for (int i = 0; i < num_files; i++)
 		{
 			if (fl_filename_match(files[i]->d_name, f))

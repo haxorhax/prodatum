@@ -819,7 +819,7 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 	}
 }
 
-char PXK::get_rom_index(char id) const
+unsigned char PXK::get_rom_index(char id) const
 {
 	if (id == 0)
 		return 0;
@@ -831,7 +831,7 @@ char PXK::get_rom_index(char id) const
 		return 3;
 	if (rom_index[4] == id)
 		return 4;
-	return -1;
+	return 5;
 }
 
 void PXK::incoming_hardware_config(const unsigned char* data, int len)
@@ -1153,7 +1153,7 @@ void PXK::incoming_generic_name(const unsigned char* data)
 		return;
 	}
 	int rom_id = data[9] + 128 * data[10];
-	if (get_rom_index(rom_id) == -1)
+	if (get_rom_index(rom_id) == 5)
 	{
 		pmesg("*** ROM %d does not exist\n", data[9] + 128 * data[10]);
 		display_status("*** Received unknown name type.");
@@ -1219,7 +1219,7 @@ void PXK::incoming_arp_dump(const unsigned char* data, int len)
 			return;
 		}
 		int rom_id = data[len - 3] + 128 * data[len - 2];
-		if (get_rom_index(rom_id) != -1)
+		if (get_rom_index(rom_id) != 5)
 		{
 			rom[get_rom_index(rom_id)]->set_name(ARP, number, data + 14);
 			++init_progress;

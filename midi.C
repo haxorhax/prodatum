@@ -387,7 +387,7 @@ static void process_midi_in(void*)
 						ui->init_log->append("\nprocess_midi_in: Received unrecognized e-mu sysex:\n");
 						char* __buffer = (char*) malloc(len * sizeof(char));
 						for (unsigned int i = 0; i < len; i++)
-							snprintf(__buffer + i, 1, "%x", (int) sysex + i);
+							snprintf(__buffer + i, 1, "%x", *(sysex + i));
 						ui->init_log->append(__buffer);
 						ui->init_log->append("\n");
 						free(__buffer);
@@ -416,7 +416,7 @@ static void process_midi_in(void*)
 				ui->init_log->append("\nprocess_midi_in: Received unknown sysex:\n");
 				char* __buffer = (char*) malloc(len * sizeof(char));
 				for (unsigned int i = 0; i < len; i++)
-					snprintf(__buffer + i, 1, "%x", (int) sysex + i);
+					snprintf(__buffer + i, 1, "%x", *(sysex + i));
 				ui->init_log->append(__buffer);
 				ui->init_log->append("\n");
 				free(__buffer);
@@ -535,15 +535,15 @@ static void process_midi_in(void*)
 			// log midi events
 			if (cfg->get_cfg_option(CFG_LOG_EVENTS_IN))
 			{
-				char buf[30];
-				snprintf(buf, 30, "\nIE.%lu::%02X%02X%02X", ++count_events, event[0], event[1], event[2]);
-				ui->logbuf->append(buf);
+				char _b[30];
+				snprintf(_b, 30, "\nIE.%lu::%02X%02X%02X", ++count_events, event[0], event[1], event[2]);
+				ui->logbuf->append(_b);
 			}
 		}
 	}
 #ifndef __linux
 	if (timer_running)
-		Fl::repeat_timeout(.01, process_midi_in);
+	Fl::repeat_timeout(.01, process_midi_in);
 #endif
 }
 
@@ -562,7 +562,7 @@ MIDI::MIDI()
 	port_thru = 0;
 #ifdef __linux
 	if (pipe(p) == -1)
-	fprintf(stderr, "*** Could not open pipe\n%s", strerror(errno));
+		fprintf(stderr, "*** Could not open pipe\n%s", strerror(errno));
 #endif
 	read_buffer = jack_ringbuffer_create(RINGBUFFER_READ);
 	write_buffer = jack_ringbuffer_create(RINGBUFFER_WRITE);
@@ -971,7 +971,7 @@ void MIDI::write_event(int status, int value1, int value2, int channel) const
 	if (cfg->get_cfg_option(CFG_LOG_EVENTS_OUT))
 	{
 		char buf[30];
-		snprintf(buf, 30, "\nOE.%lu::%02x%02x%02x", ++count, stat, value1, value2);
+		snprintf(buf, 30, "\nOE.%lu::%02x%02x%02x", ++count, stat, v1, v2);
 		ui->logbuf->append(buf);
 	}
 }
@@ -981,18 +981,18 @@ void MIDI::ack(int packet) const
 	pmesg("MIDI::ack(packet: %d) \n", packet);
 	unsigned char l = packet % 128;
 	unsigned char m = packet / 128;
-	unsigned char ack[] =
+	unsigned char a[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7f, l, m, 0xf7 };
-	write_sysex(ack, 9);
+	write_sysex(a, 9);
 }
 void MIDI::nak(int packet) const
 {
 	pmesg("MIDI::nak(packet: %d) \n", packet);
 	unsigned char l = packet % 128;
 	unsigned char m = packet / 128;
-	unsigned char nak[] =
+	unsigned char n[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7e, l, m, 0xf7 };
-	write_sysex(nak, 9);
+	write_sysex(n, 9);
 }
 
 void MIDI::eof() const
@@ -1119,18 +1119,18 @@ void MIDI::copy(int cmd, int src, int dst, int src_l, int dst_l, int rom_id) con
 	{
 		unsigned char s_l = src_l & 0xff;
 		unsigned char d_l = dst_l & 0xff;
-		unsigned char copy[] =
+		unsigned char cm[] =
 		{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, c, srcl, srcm, s_l, 0, dstl, dstm, d_l, 0, rl, rm, 0xf7 };
-		write_sysex(copy, 17);
+		write_sysex(cm, 17);
 	}
 	// layer independent
 	else
 	{
 		if (cmd == 0x2c) // copy setup
 		{
-			unsigned char copy[] =
+			unsigned char cm[] =
 			{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, c, srcl, srcm, dstl, dstm, 0xf7 };
-			write_sysex(copy, 11);
+			write_sysex(cm, 11);
 			// set device id to our chosen device id
 			// so it will respond to our requests
 			edit_parameter_value(388, midi_device_id);
@@ -1139,9 +1139,9 @@ void MIDI::copy(int cmd, int src, int dst, int src_l, int dst_l, int rom_id) con
 		}
 		else
 		{
-			unsigned char copy[] =
+			unsigned char cm[] =
 			{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, c, srcl, srcm, dstl, dstm, rl, rm, 0xf7 };
-			write_sysex(copy, 13);
+			write_sysex(cm, 13);
 		}
 	}
 }
@@ -1185,9 +1185,9 @@ void MIDI::randomize() const
 		{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x72, 0x7f, 0x7f, 0, 0, b1l, b1m, b2l, b2m, 0xf7 };
 		write_sysex(seedr, 15);
 	}
-	unsigned char randomize[] =
+	unsigned char r[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x71, 0x7f, 0x7f, 0, 0, 0xf7 };
-	write_sysex(randomize, 11);
+	write_sysex(r, 11);
 	mysleep(200);
 	request_preset_dump(-1, 0);
 }

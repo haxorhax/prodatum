@@ -168,10 +168,10 @@ int Preset_Dump::set_value(int id, int value, int layer)
 		{
 			parameter current = undo_s.front();
 			if (current.id != id || current.layer != layer)
-				add_undo(id, value, layer);
+				add_undo(id, layer);
 		}
 		else
-			add_undo(id, value, layer);
+			add_undo(id, layer);
 	}
 	// for names, only one byte is used per character...
 	data[offset] = value % 128;
@@ -663,7 +663,7 @@ void Preset_Dump::copy(int type, int src, int dst)
 	}
 }
 
-void Preset_Dump::add_undo(int id, int value, int layer)
+void Preset_Dump::add_undo(int id, int layer)
 {
 	if (disable_add_undo)
 		return;

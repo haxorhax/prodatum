@@ -362,8 +362,8 @@ void Browser::set_value(int v)
 void Browser::load_n(int type, int rom_id, int preset)
 {
 	//pmesg("Browser::load_n(%d, %d, %d) (id:%d layer:%d)\n", type, rom_id, preset, id_layer[0], id_layer[1]);
-	char rom_ = pxk->get_rom_index(rom_id);
-	if (rom_ == -1)
+	unsigned char rom_ = pxk->get_rom_index(rom_id);
+	if (rom_ == 5)
 		return;
 	if (!pxk->rom[rom_])
 		return;
@@ -692,7 +692,7 @@ void ROM_Choice::set_id(int v, int l)
 
 void ROM_Choice::set_value(int v)
 {
-	if (v == 0 || pxk->get_rom_index(v) != -1)
+	if (v == 0 || pxk->get_rom_index(v) != 5)
 	{
 		value(pxk->get_rom_index(v) - no_user);
 		dependency(v, false);
@@ -1803,7 +1803,7 @@ void Group::set_value(int v)
 int Group::get_value() const
 {
 	int v = 0;
-	for (char i = 0; i < children(); i++)
+	for (unsigned char i = 0; i < children(); i++)
 	{
 		if (((Fl_Button*) array()[i])->value())
 		{
@@ -3344,7 +3344,7 @@ void Envelope_Editor::draw()
 	}
 }
 
-void Envelope_Editor::draw_envelope(char type, int x0, int y0, int luma)
+void Envelope_Editor::draw_envelope(unsigned char type, int x0, int y0, int luma)
 {
 	fl_push_clip(ee_x0 + 1, ee_y0 + 21, ee_w - 2, ee_h - 42);
 	// x-scaling
@@ -3491,7 +3491,7 @@ int Envelope_Editor::handle(int ev)
 			// coordinate system
 			if (Fl::event_inside(ee_x0 + 2, ee_y0 + 22, ee_w - 4, ee_h - 43))
 			{
-				for (char i = 0; i < 6; i++)
+				for (unsigned char i = 0; i < 6; i++)
 				{
 					if (Fl::event_inside(dragbox[i][0] - 4, dragbox[i][1] - 4, 9, 9))
 					{
@@ -3519,7 +3519,7 @@ int Envelope_Editor::handle(int ev)
 			else if (Fl::event_inside(ee_x0, ee_y0, ee_w, 19))
 			{
 				fl_cursor(FL_CURSOR_DEFAULT);
-				for (char i = 0; i < 5; i++)
+				for (unsigned char i = 0; i < 5; i++)
 					if (Fl::event_inside(mode_button[i] - 2, ee_y0 + 3, 52, 17))
 						button_hover = i;
 			}
@@ -3528,7 +3528,7 @@ int Envelope_Editor::handle(int ev)
 			{
 				fl_cursor(FL_CURSOR_DEFAULT);
 
-				for (char i = 0; i < 6; i++)
+				for (unsigned char i = 0; i < 6; i++)
 				{
 					if (Fl::event_inside(copy_button[i], ee_y0 + ee_h - 21, 17, 17))
 					{
@@ -3536,7 +3536,7 @@ int Envelope_Editor::handle(int ev)
 						return 1;
 					}
 				}
-				for (char i = 0; i < 4; i++)
+				for (unsigned char i = 0; i < 4; i++)
 				{
 					if (Fl::event_inside(shape_button[i], ee_y0 + ee_h - 21, 17, 17))
 					{
@@ -3809,12 +3809,12 @@ int Envelope_Editor::handle(int ev)
 	return Fl_Box::handle(ev);
 }
 
-void Envelope_Editor::set_data(char type, int* stages, char mode, char repeat)
+void Envelope_Editor::set_data(unsigned char type, int* stages, char mode, char repeat)
 {
 	//pmesg("Envelope_Editor::set_data(%d, int*, %d, %d)\n", type, mode, repeat);
 	env[type].mode = mode;
 	env[type].repeat = repeat;
-	for (char i = 0; i < 6; i++)
+	for (unsigned char i = 0; i < 6; i++)
 	{
 		env[type].stage[i][0] = *(stages + i * 2);
 		env[type].stage[i][1] = *(stages + i * 2 + 1);
@@ -3822,11 +3822,11 @@ void Envelope_Editor::set_data(char type, int* stages, char mode, char repeat)
 	redraw();
 }
 
-void Envelope_Editor::copy_envelope(char src, char dst)
+void Envelope_Editor::copy_envelope(unsigned char src, unsigned char dst)
 {
 	if (dst == src)
 		return;
-	for (int i = 0; i < 6; i++)
+	for (unsigned int i = 0; i < 6; i++)
 	{
 		env[dst].stage[i][0] = env[src].stage[i][0];
 		env[dst].stage[i][1] = env[src].stage[i][1];
@@ -3838,7 +3838,7 @@ void Envelope_Editor::copy_envelope(char src, char dst)
 	redraw();
 }
 
-void Envelope_Editor::set_shape(char dst, char shape)
+void Envelope_Editor::set_shape(unsigned char dst, char shape)
 {
 	switch (shape)
 	{
@@ -3902,7 +3902,7 @@ void Envelope_Editor::set_shape(char dst, char shape)
 	redraw();
 	if (!pxk) // not there on init
 		return;
-	for (int i = 0; i < 6; i++)
+	for (unsigned char i = 0; i < 6; i++)
 	{
 		pxk->widget_callback(1793 + 1 + dst * 13 + i * 2, env[dst].stage[i][0], layer);
 		pxk->widget_callback(1793 + 1 + dst * 13 + i * 2 + 1, env[dst].stage[i][1], layer);
@@ -4776,7 +4776,7 @@ void Piano::set_mode(char m)
 
 // called by midi->process_not_sysex to highlight incoming midi events
 // on the keyboard
-void Piano::activate_key(char value, char key)
+void Piano::activate_key(char value, unsigned char key)
 {
 	if (active_keys[key] == value || (active_keys[key] == 2 && value == -1) || (pushed != NONE && key == hovered_key))
 		return;
@@ -4800,16 +4800,13 @@ void Piano::reset_active_keys()
 }
 
 // map keys to 2-d space
-void Piano::set_range_values(char md, char layer, char low_k, char low_f, char high_k, char high_f)
+void Piano::set_range_values(unsigned char md, unsigned char layer, unsigned char low_k, unsigned char low_f,
+		unsigned char high_k, unsigned char high_f)
 {
 	//pmesg("Piano::set_range_values(%d, %d, %d, %d, %d, %d)\n", md, layer, low_k, low_f, high_k, high_f);
-	if (low_k < 0)
-		low_k = 0;
-	if (low_f < 0 || low_f + low_k > 127)
+	if (low_f + low_k > 127)
 		low_f = 0;
-	if (high_k < 0)
-		high_k = 127;
-	if (high_f < 0 || high_k - high_f < 0)
+	if (high_k - high_f < 0)
 		high_f = 0;
 	dragbox[md][layer][LOW_KEY][0] = taste_x0[low_k][0];
 	dragbox[md][layer][LOW_FADE][0] = taste_x0[low_k + low_f][0];
@@ -4850,7 +4847,7 @@ void Piano::commit_changes()
 	//pmesg("Piano::commit_changes()\n");
 	if (pushed < PRESET_ARP)
 	{
-		for (int range = 0; range < 4; range++)
+		for (unsigned char range = 0; range < 4; range++)
 		{
 			if (prev_key_value[mode][pushed][range] != new_key_value[mode][pushed][range])
 			{
