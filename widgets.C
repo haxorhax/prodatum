@@ -3327,9 +3327,9 @@ void Envelope_Editor::draw()
 			if (tmp_tempo)
 				snprintf(info, 15, "%s %5s%4d", tmp, tmp_tempo, env[mode].stage[i][1]);
 			else
-				snprintf(info, 15, "%s %5d%4d", tmp, env[mode].stage[i][0], env[mode].stage[i][1]);
+				snprintf(info, 15, "%s%4d%4d", tmp, env[mode].stage[i][0], env[mode].stage[i][1]);
 			if (i == hover)
-				fl_font(FL_COURIER_ITALIC, 13);
+				fl_font(FL_COURIER_BOLD_ITALIC, 13);
 			else
 				fl_font(FL_COURIER, 13);
 			// when we drag out of the visible area, keep the info text inside
