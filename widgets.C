@@ -3188,6 +3188,7 @@ void Envelope_Editor::draw()
 		fl_color(fl_darker(FL_INACTIVE_COLOR));
 	else
 		fl_color(fl_lighter(FL_INACTIVE_COLOR));
+	Fl_Color null = fl_color();
 	fl_line(x0 + 1, y0, x0 + ee_w - 11, y0);
 	fl_line_style(0);
 	fl_pop_clip();
@@ -3196,10 +3197,17 @@ void Envelope_Editor::draw()
 	{
 		for (i = 0; i < modes; i++)
 		{
-			if (i == mode)
+			if (i == mode || (i == VOLUME && env[VOLUME].mode == FACTORY))
 				continue;
 			draw_envelope(i, x0, y0, luma);
 		}
+	}
+	if (mode == VOLUME && env[VOLUME].mode == FACTORY)
+	{
+		fl_color(null);
+		fl_font(FL_COURIER, 13);
+		fl_draw("(using factory envelope)", x0 + 100, y0 + 15);
+		return;
 	}
 	if (active_r())
 		draw_envelope(mode, x0, y0, luma);
@@ -3406,12 +3414,6 @@ void Envelope_Editor::draw_envelope(unsigned char type, int x0, int y0, int luma
 	fl_line(dragbox[DCY_2][0], dragbox[DCY_2][1], dragbox[RLS_1][0], dragbox[RLS_1][1]);
 	fl_line(dragbox[RLS_1][0], dragbox[RLS_1][1], dragbox[RLS_2][0], dragbox[RLS_2][1]);
 	// dragboxes
-	if (type == VOLUME && env[VOLUME].mode == FACTORY)
-	{
-		fl_line_style(0);
-		fl_pop_clip();
-		return;
-	}
 	if (type == mode)
 	{
 		fl_rectf(dragbox[ATK_1][0] - 4, dragbox[ATK_1][1] - 4, 9, 9);
@@ -3434,13 +3436,13 @@ void Envelope_Editor::draw_envelope(unsigned char type, int x0, int y0, int luma
 
 // envelope editor tooltips
 static const char* tt0 =
-		"Factory: Uses the factory preset envelope contained in each instrument. If you select the \"Factory\" mode, the Volume Envelope parameters are disabled and the factory defined settings are used instead.";
+		"Factory: Uses the factory preset envelope contained in each instrument. If you select the \"Factory\" mode, the Volume Envelope parameters are disabled and the factory defined settings are used instead. Factory Mode is useful for Instruments containing multiple drums, since each drum can have its own envelope settings.";
 static const char* tt00 =
 		"Repeat: When the envelope repeat function is On, the Attack (A1 & A2) and Decay (D1 & D2) stages will continue to repeat as long as the key is held. As soon as the key is released, the envelope continues through its normal Release stages (R1 & R2).";
 static const char* tt1 =
-		"Time-based: Defines the Volume Envelope rates from 0 to 127 (approximately 1 ms to 160 seconds). The Master clock has no affect on timebased rates.";
+		"Time: Defines the envelope rates from 0 to 127 (approximately 1 ms to 160 seconds). The Master clock has no affect on timebased rates. If two adjacent segments have the same level in a \"time-based\" envelope, the segment will be skipped. Adjacent segments must have different levels for the rate control to work.";
 static const char* tt2 =
-		"Tempo-based: The Volume Envelope times vary based on the master tempo setting. Note values are displayed instead of a number when the time corresponds to an exact note value. Tempo-based envelopes are useful when using external sequencers and arpeggiators because the envelope rates compress and expand according to the Master Tempo setting, keeping the envelopes in sync with the sequence or arpeggio.";
+		"Tempo: The envelope times vary based on the master tempo setting. Note values are displayed instead of a number when the time corresponds to an exact note value. Tempo-based envelopes are useful when using external sequencers and arpeggiators because the envelope rates compress and expand according to the Master Tempo setting, keeping the envelopes in sync with the sequence or arpeggio.";
 static const char* tt3 = "Superimpose: Always show all voice envelopes.";
 static const char* tt4 = "Keep envelope selection, zoom level and superimpose settings in sync between voices.";
 
@@ -4035,7 +4037,7 @@ void Piano::draw()
 }
 
 const char* tt_p0 =
-		"1/2/3/4: Layer keyrange & key crossfade\nP: Preset arp keyrange\nM: Master arp keyrange\n1/2: Link 1/2 keyranges";
+		"1/2/3/4: Layer keyrange & key crossfade\nP: Preset arp keyrange\nM: Master arp keyrange\n1/2: Link 1/2 keyrange";
 const char* tt_p1 = "1/2/3/4: Layer velocity range & velocity crossfade";
 const char* tt_p2 = "1/2/3/4: Layer real-time range & real-time crossfade";
 
