@@ -3216,7 +3216,7 @@ void Envelope_Editor::draw()
 		if (hover_list & (1 << i))
 			hovers += 12;
 	char info[15];
-	int y_offset = 16;
+	int y_offset = 0;
 	for (i = 0; i < 6; i++)
 	{
 		if (hover_list & (1 << i))
@@ -3329,16 +3329,21 @@ void Envelope_Editor::draw()
 			else
 				snprintf(info, 15, "%s %5d%4d", tmp, env[mode].stage[i][0], env[mode].stage[i][1]);
 			if (i == hover)
-				fl_font(FL_COURIER_ITALIC, 12);
+				fl_font(FL_COURIER_ITALIC, 13);
 			else
-				fl_font(FL_COURIER, 12);
+				fl_font(FL_COURIER, 13);
 			// when we drag out of the visible area, keep the info text inside
-			int x_offset = 15;
-			if (dragbox[hover][0] + 120 > ee_x0 + ee_w)
-				x_offset -= (dragbox[hover][0] + 120) - (ee_x0 + ee_w);
-			if (y_offset == 16 && dragbox[hover][1] + 8 + hovers > ee_y0 + ee_h - 25)
-				y_offset -= (dragbox[hover][1] + 8 + hovers) - (ee_y0 + ee_h - 25);
-			fl_draw(info, dragbox[hover][0] + x_offset, dragbox[hover][1] + y_offset);
+			int __x = Fl::event_x() + 13;
+			int __y = Fl::event_y() + 15 + y_offset;
+			if (__x + 110 > ee_x0 + ee_w)
+				__x = ee_x0 + ee_w - 110;
+			else if (__x < ee_x0 + 13)
+				__x = ee_x0 + 13;
+			if (__y > ee_y0 + ee_h - 15 - hovers)
+				__y = ee_y0 + ee_h - 15 - hovers + y_offset;
+			else if (__y < ee_y0 + 35 + y_offset)
+				__y = ee_y0 + 35 + y_offset;
+			fl_draw(info, __x, __y);
 			y_offset += 12;
 		}
 	}
@@ -3431,7 +3436,7 @@ void Envelope_Editor::draw_envelope(unsigned char type, int x0, int y0, int luma
 static const char* tt0 =
 		"Factory: Uses the factory preset envelope contained in each instrument. If you select the \"Factory\" mode, the Volume Envelope parameters are disabled and the factory defined settings are used instead.";
 static const char* tt00 =
-		"Repeat: When the envelope repeat function is On, the Attack (1&2) and Decay (1&2) stages will continue to repeat as long as the key is held. As soon as the key is released, the envelope continues through its normal Release stages (1&2).";
+		"Repeat: When the envelope repeat function is On, the Attack (A1 & A2) and Decay (D1 & D2) stages will continue to repeat as long as the key is held. As soon as the key is released, the envelope continues through its normal Release stages (R1 & R2).";
 static const char* tt1 =
 		"Time-based: Defines the Volume Envelope rates from 0 to 127 (approximately 1 ms to 160 seconds). The Master clock has no affect on timebased rates.";
 static const char* tt2 =
@@ -3723,6 +3728,7 @@ int Envelope_Editor::handle(int ev)
 						break;
 				}
 			}
+			hover_list = 0;
 			button_push = false;
 			redraw();
 			return 1;

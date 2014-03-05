@@ -1,13 +1,13 @@
 v2.0rc13
 
-* envelope editor buttons got tooltips
-* when volume envelope is set to "Factory" make it uneditable(?) to avoid
-  confusion when changes have no effect
-* fix potential issue with top tab selection (main, voice1, voice2...)
-* removed unused variables and made code C11 compliant
+* envelope editor got tooltips (!!!)
+* when volume envelope is set to "Factory" prevent envelope editing to avoid
+  confusion when changes made have no effect
+* draw envelope values at cursor instead of box (better eye-hand coordination)
+* removed unused variables, made code C11 compliant, -Wall -W cleanup
 * minipiano got tooltip
 * keyboard got tooltips
-* slightly increased saturation for some default colors
+* slightly increased saturation for some of the default colors
 
 
 v2.0rc12
