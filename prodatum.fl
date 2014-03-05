@@ -774,8 +774,8 @@ widget_class PD_Layer_Patchcords {
   }
 } 
 
-widget_class PD_Layer_Strip {
-  xywh {600 444 100 540} type Double hide position_relative
+widget_class PD_Layer_Strip {open
+  xywh {600 250 100 540} type Double hide position_relative
 } {
   decl {void init(int layer);} {public
   }
@@ -834,11 +834,11 @@ coarse->do_callback();
   }
   Fl_Dial chorus {
     label Chorus
-    private tooltip {Chorus (detuning amount 1-100%)} xywh {7 143 40 40} color 7 labelsize 10 align 1 maximum 100 step 1
+    private tooltip {Chorus (detuning amount 1-100%) Because it works by doubling instruments, Chorusing halves the number of notes you can play.} xywh {7 143 40 40} color 7 labelsize 10 align 1 maximum 100 step 1
     class Fl_Knob
   }
   Fl_Dial width {
-    label Width
+    label {C.Width}
     private tooltip {Chorus width (stereo spreading 0-100%)} xywh {53 143 40 40} color 7 labelsize 10 align 1 maximum 100 step 1
     class Fl_Knob
   }
@@ -846,16 +846,16 @@ coarse->do_callback();
     tooltip {Filter Type. Allows you to choose the type of filter for the layer} xywh {5 183 90 20} down_box BORDER_BOX color 7 labeltype NO_LABEL align 64 textfont 4 textsize 12
     class Choice
   } {}
-  Fl_Group filter_knobs {
+  Fl_Group filter_knobs {open
     xywh {7 203 87 55}
   } {
     Fl_Dial cutoff {
-      label Cutoff
+      label {Freq.} selected
       private tooltip {Control various elements of the filter depending on the type of filter used} xywh {7 218 40 40} color 7 labelsize 10 align 1 maximum 255 step 1
       class Fl_Knob
     }
     Fl_Dial emphasis {
-      label Res
+      label Q
       private tooltip {Control various elements of the filter depending on the type of filter used} xywh {53 218 40 40} color 7 labelsize 10 align 1 maximum 127 step 1
       class Fl_Knob
     }
@@ -958,7 +958,7 @@ coarse->do_callback();
 } 
 
 widget_class PD_Layer_Editor {
-  xywh {605 376 830 565} type Double box BORDER_BOX hide position_relative
+  xywh {373 173 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {void init(int l);} {public
   }
@@ -1560,7 +1560,7 @@ l2_filter->do_callback();}
 } 
 
 widget_class PD_Main {
-  xywh {756 102 830 565} type Double box BORDER_BOX hide position_relative
+  xywh {444 102 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
   }
@@ -2633,7 +2633,7 @@ Fl::visual(FL_DOUBLE|FL_RGB);
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
 delete this;} open
-      xywh {546 175 845 620} type Double hide resizable
+      xywh {407 158 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620}
@@ -2943,7 +2943,7 @@ if (!eall && pxk->preset)
             xywh {639 129 196 324} labeltype NO_LABEL labelcolor 8 align 0
           } {
             Fl_Group g_effects {
-              label EFFECTS
+              label EFFECTS open
               tooltip {Effects section (it is disabled when the selected channel and the selected FX channel differ)} xywh {639 146 196 304} box THIN_DOWN_BOX labelfont 1 labelcolor 8 hide
             } {
               Fl_Choice fx_channel {open
@@ -3202,7 +3202,7 @@ pxk->save_setup(multisetups->value() - 1, s_name->value());}
           }
         }
         Fl_Group {} {
-          label name open
+          label name
           xywh {112 0 734 21} labeltype NO_LABEL
         } {
           Fl_Box {} {
@@ -3224,7 +3224,7 @@ pxk->preset->set_name(o->value(), 0, o->position());}
           Fl_Input n_name_m {
             label {:}
             callback {if (pxk->preset)
-pxk->preset->set_name(o->value(), 1, o->position());} selected
+pxk->preset->set_name(o->value(), 1, o->position());}
             tooltip {Program name (12 characters max.)} xywh {751 0 94 19} box FLAT_BOX labelfont 4 labelsize 12 when 1 textfont 4 textsize 12
             code0 {o->maximum_size(12);}
             code2 {o->value("Program Name");}
