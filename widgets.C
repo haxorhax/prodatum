@@ -3549,11 +3549,11 @@ int Envelope_Editor::handle(int ev)
 				}
 			}
 			// mode buttons
-			else if (Fl::event_inside(ee_x0, ee_y0 + 2, ee_w, 18))
+			else if (Fl::event_inside(ee_x0, ee_y0 + 3, ee_w, 17))
 			{
 				fl_cursor(FL_CURSOR_DEFAULT);
 				for (unsigned char i = 0; i < 5; i++)
-					if (Fl::event_inside(mode_button[i] - 2, ee_y0 + 2, 52, 18))
+					if (Fl::event_inside(mode_button[i] - 2, ee_y0 + 3, 52, 17))
 					{
 						const char* tt = 0;
 						switch (i)
