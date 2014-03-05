@@ -3094,7 +3094,6 @@ void Envelope_Editor::draw()
 		else if (i == 4)
 			fl_draw("(( Y ))", mode_button[i] + 3, ee_y0 + 14);
 	}
-//	fl_rectf(ee_x0, ee_y0 + 2, ee_w, 18);
 	// lower bar
 	fl_font(FL_HELVETICA, 10);
 	fl_color(FL_BACKGROUND2_COLOR);
@@ -3114,7 +3113,6 @@ void Envelope_Editor::draw()
 		}
 	draw_box(FL_BORDER_BOX, copy_button[mode], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
 	draw_b_label(VOLUME_SELECTED + mode, fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR));
-//	fl_rectf(ee_x0, ee_y0 + ee_h - 21, ee_w, 18);
 	// shapes
 	for (i = 0; i < 4; i++)
 	{
@@ -3438,13 +3436,13 @@ static const char* tt1 =
 		"Time-based: Defines the Volume Envelope rates from 0 to 127 (approximately 1 ms to 160 seconds). The Master clock has no affect on timebased rates.";
 static const char* tt2 =
 		"Tempo-based: The Volume Envelope times vary based on the master tempo setting. Note values are displayed instead of a number when the time corresponds to an exact note value. Tempo-based envelopes are useful when using external sequencers and arpeggiators because the envelope rates compress and expand according to the Master Tempo setting, keeping the envelopes in sync with the sequence or arpeggio.";
-static const char* tt3 = "Layer: Show volume, filter and auxillary envelopes superimposed on each other.";
-static const char* tt4 = "Keep envelope selection, zoom level and envelope layer settings in sync between voices.";
+static const char* tt3 = "Superimpose: Always show all voice envelopes.";
+static const char* tt4 = "Keep envelope selection, zoom level and superimpose settings in sync between voices.";
 
 static const char* bt0 = "Select volume-, filter- or auxillary envelope (shortcut: Mousewheel).";
 static const char* bt1 = "Copy current envelope values to this envelope.";
-static const char* bt2 =
-		"Some common envelope shapes (Plucked, String, Organ and Percussion) to replace the currently selected envelope.";
+static const char* bt2 = "Some common envelope shapes: Plucked, String, Organ and Percussion.";
+static const char* st0 = "Drag: zoom\nMousewheel: cycle envelopes\nMousewheel over overlapping values: cycle selection";
 
 int Envelope_Editor::handle(int ev)
 {
@@ -3515,14 +3513,16 @@ int Envelope_Editor::handle(int ev)
 			phover = -1;
 			hover_list = 0;
 			// coordinate system
-			if (Fl::event_inside(ee_x0 + 2, ee_y0 + 22, ee_w - 4, ee_h - 43))
+			if (Fl::event_inside(ee_x0 + 2, ee_y0 + 20, ee_w - 4, ee_h - 42))
 			{
+				Fl_Tooltip::enter_area(this, ee_x0 + 2, ee_y0 + 20, ee_w - 4, ee_h - 42, st0);
 				if (mode == VOLUME && env[VOLUME].mode == FACTORY)
 					return 1;
 				for (unsigned char i = 0; i < 6; i++)
 				{
 					if (Fl::event_inside(dragbox[i][0] - 4, dragbox[i][1] - 4, 9, 9))
 					{
+						Fl_Tooltip::enter_area(this, 0, 0, 0, 0, 0);
 						phover = i;
 						if (hover == -1)
 							hover = i;
@@ -5187,7 +5187,7 @@ void MiniPiano::draw_piano()
 }
 
 const char* mp_tt =
-		"Mousewheel: shift keyrange\nDrag on case: set velocity\nLeft: play\nRight: latch\nMiddle on key: set 'B' note & velocity\nMiddle on case: set 'B' velocity";
+		"Left: play\nRight: latch\nMiddle on key: set 'B' note & velocity\nMiddle on case: set 'B' velocity\nMousewheel: octave shift\nDrag on case: set velocity";
 
 int MiniPiano::handle(int ev)
 {
