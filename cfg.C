@@ -71,8 +71,8 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_LOG_EVENTS_IN] = 0;
 	defaults[CFG_WINDOW_WIDTH] = 845;
 	defaults[CFG_WINDOW_HEIGHT] = 620;
-	defaults[CFG_BGR] = 118;
-	defaults[CFG_BGG] = 119;
+	defaults[CFG_BGR] = 114;
+	defaults[CFG_BGG] = 116;
 	defaults[CFG_BGB] = 126;
 	defaults[CFG_BG2R] = 50;
 	defaults[CFG_BG2G] = 53;
@@ -80,9 +80,9 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_FGR] = 229;
 	defaults[CFG_FGG] = 229;
 	defaults[CFG_FGB] = 229;
-	defaults[CFG_SLR] = 228;
+	defaults[CFG_SLR] = 219;
 	defaults[CFG_SLG] = 240;
-	defaults[CFG_SLB] = 209;
+	defaults[CFG_SLB] = 186;
 	defaults[CFG_INR] = 175;
 	defaults[CFG_ING] = 175;
 	defaults[CFG_INB] = 170;
