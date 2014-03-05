@@ -10,6 +10,8 @@ v2.0rc13
 * minipiano got tooltip
 * keyboard got tooltips
 * slightly increased saturation for some of the default colors
+* changed filter knob labels (Cutoff > Freq. and Res > Q) to be more
+  general valid for all the different filter types
 
 
 v2.0rc12

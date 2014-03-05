@@ -3436,13 +3436,13 @@ void Envelope_Editor::draw_envelope(unsigned char type, int x0, int y0, int luma
 
 // envelope editor tooltips
 static const char* tt0 =
-		"Factory: Uses the factory preset envelope contained in each instrument. If you select the \"Factory\" mode, the Volume Envelope parameters are disabled and the factory defined settings are used instead. Factory Mode is useful for Instruments containing multiple drums, since each drum can have its own envelope settings.";
+		"Factory: Uses the factory preset envelope contained in each instrument. If you select this mode, the volume envelope parameters are disabled and the factory defined settings are used instead. Factory mode is useful for instruments containing multiple drums, since each drum can have its own envelope settings.";
 static const char* tt00 =
-		"Repeat: When the envelope repeat function is On, the Attack (A1 & A2) and Decay (D1 & D2) stages will continue to repeat as long as the key is held. As soon as the key is released, the envelope continues through its normal Release stages (R1 & R2).";
+		"Repeat: When the envelope repeat function is on, the attack (A1 & A2) and decay (D1 & D2) stages will continue to repeat as long as the key is held. As soon as the key is released, the envelope continues through its normal release stages (R1 & R2).";
 static const char* tt1 =
-		"Time: Defines the envelope rates from 0 to 127 (approximately 1 ms to 160 seconds). The Master clock has no affect on timebased rates. If two adjacent segments have the same level in a \"time-based\" envelope, the segment will be skipped. Adjacent segments must have different levels for the rate control to work.";
+		"Time: Defines the envelope rates from 0 to 127 (approximately 1 ms to 160 seconds). The master clock has no affect on timebased rates. If two adjacent segments have the same level in a time-based envelope, the segment will be skipped. Adjacent segments must have different levels for the rate control to work.";
 static const char* tt2 =
-		"Tempo: The envelope times vary based on the master tempo setting. Note values are displayed instead of a number when the time corresponds to an exact note value. Tempo-based envelopes are useful when using external sequencers and arpeggiators because the envelope rates compress and expand according to the Master Tempo setting, keeping the envelopes in sync with the sequence or arpeggio.";
+		"Tempo: The envelope times vary based on the master tempo setting. Note values are displayed instead of a number when the time corresponds to an exact note value. Tempo-based envelopes are useful when using external sequencers and arpeggiators because the envelope rates compress and expand according to the master tempo setting, keeping the envelopes in sync with the sequence or arpeggio.";
 static const char* tt3 = "Superimpose: Always show all voice envelopes.";
 static const char* tt4 = "Keep envelope selection, zoom level and superimpose settings in sync between voices.";
 
@@ -4040,7 +4040,7 @@ const char* tt_p0 =
 		"Mousewheel: cycle range type\n\n1/2/3/4: Layer keyrange & key crossfade\nP: Preset arp keyrange\nM: Master arp keyrange\n1/2: Link 1/2 keyrange";
 const char* tt_p1 = "Mousewheel: cycle range type\n\n1/2/3/4: Layer velocity range & velocity crossfade";
 const char* tt_p2 = "Mousewheel: cycle range type\n\n1/2/3/4: Layer real-time range & real-time crossfade";
-const char* tt_p3 = "Left: play\nRight: latch\nDrag: set velocity";
+const char* tt_p3 = "Left: play\nRight: latch\nDrag on 'case': set velocity";
 
 int Piano::handle(int ev)
 {
@@ -5204,7 +5204,7 @@ void MiniPiano::draw_piano()
 }
 
 const char* mp_tt =
-		"Left: play\nRight: latch\nMiddle on key: set 'B' note & velocity\nMiddle on case: set 'B' velocity\nMousewheel: octave shift\nDrag on case: set velocity";
+		"Left: play\nRight: latch\nMousewheel: octave shift\nMiddle on key: set 'B' note & velocity\nMiddle on case: set 'B' velocity\nDrag on 'case': set velocity";
 
 int MiniPiano::handle(int ev)
 {
