@@ -39,10 +39,10 @@ static bool automap = true;
 
 // check buffer spaces
 #ifndef NDEBUG
-int write_space = RINGBUFFER_WRITE;
-int read_space = RINGBUFFER_READ;
-int max_write = 0;
-int max_read = 0;
+unsigned int write_space = RINGBUFFER_WRITE;
+unsigned int read_space = RINGBUFFER_READ;
+unsigned int max_write = 0;
+unsigned int max_read = 0;
 #endif
 
 /**
@@ -75,7 +75,7 @@ static PortMidiStream *port_thru; // controller port (eg keyboard)
 
 static jack_ringbuffer_t *read_buffer;
 static jack_ringbuffer_t *write_buffer;
-volatile static int midi_device_id;
+volatile static unsigned char midi_device_id = 127;
 static bool requested = false;
 
 static void show_error(void)
@@ -103,7 +103,6 @@ static void process_midi(PtTimestamp, void*)
 	static unsigned char local_read_buffer[SYSEX_MAX_SIZE];
 	static unsigned char local_write_buffer[SYSEX_MAX_SIZE];
 	static unsigned int position = 3;
-	static unsigned char header[3];
 	static bool receiving_sysex = false;
 	static bool result_out = false;
 	static bool __midi_wait = false;
@@ -281,7 +280,6 @@ static void process_midi_in(int fd, void*)
 static void process_midi_in(void*)
 #endif
 {
-	static unsigned long count = 0;
 	static unsigned long count_events = 0;
 	static unsigned char sysex[SYSEX_MAX_SIZE];
 	static unsigned int len;
@@ -389,7 +387,7 @@ static void process_midi_in(void*)
 						ui->init_log->append("\nprocess_midi_in: Received unrecognized e-mu sysex:\n");
 						char* __buffer = (char*) malloc(len * sizeof(char));
 						for (unsigned int i = 0; i < len; i++)
-							snprintf(__buffer + i, 1, "%x", sysex + i);
+							snprintf(__buffer + i, 1, "%x", (int) sysex + i);
 						ui->init_log->append(__buffer);
 						ui->init_log->append("\n");
 						free(__buffer);
@@ -418,7 +416,7 @@ static void process_midi_in(void*)
 				ui->init_log->append("\nprocess_midi_in: Received unknown sysex:\n");
 				char* __buffer = (char*) malloc(len * sizeof(char));
 				for (unsigned int i = 0; i < len; i++)
-					snprintf(__buffer + i, 1, "%x", sysex + i);
+					snprintf(__buffer + i, 1, "%x", (int) sysex + i);
 				ui->init_log->append(__buffer);
 				ui->init_log->append("\n");
 				free(__buffer);
@@ -622,7 +620,7 @@ bool MIDI::out()
 	return false;
 }
 
-void MIDI::set_device_id(int id)
+void MIDI::set_device_id(unsigned char id)
 {
 	pmesg("MIDI::set_device_id(%d)\n", id);
 	midi_device_id = id;
@@ -933,7 +931,6 @@ void MIDI::filter_strict() const
 void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 {
 	//pmesg("MIDI::write_sysex(data, len: %d)\n", len);
-	static unsigned int count = 0;
 	static unsigned char data[SYSEX_MAX_SIZE];
 	if (!midi_active || len > SYSEX_MAX_SIZE)
 		return;
@@ -963,8 +960,10 @@ void MIDI::write_event(int status, int value1, int value2, int channel) const
 	if (channel == -1)
 		channel = pxk->selected_channel;
 	unsigned char stat = ((status & ~0xf) | channel) & 0xff;
+	unsigned char v1 = value1 & 0xff;
+	unsigned char v2 = value2 & 0xff;
 	const unsigned char msg[] =
-	{ stat, value1 & 0xff, value2 & 0xff };
+	{ stat, v1, v2 };
 	while (jack_ringbuffer_write_space(write_buffer) < 3)
 		Fl::wait(.1);
 	jack_ringbuffer_write(write_buffer, msg, 3);
@@ -980,15 +979,19 @@ void MIDI::write_event(int status, int value1, int value2, int channel) const
 void MIDI::ack(int packet) const
 {
 	pmesg("MIDI::ack(packet: %d) \n", packet);
+	unsigned char l = packet % 128;
+	unsigned char m = packet / 128;
 	unsigned char ack[] =
-	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7f, packet % 128, packet / 128, 0xf7 };
+	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7f, l, m, 0xf7 };
 	write_sysex(ack, 9);
 }
 void MIDI::nak(int packet) const
 {
 	pmesg("MIDI::nak(packet: %d) \n", packet);
+	unsigned char l = packet % 128;
+	unsigned char m = packet / 128;
 	unsigned char nak[] =
-	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7e, packet % 128, packet / 128, 0xf7 };
+	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7e, l, m, 0xf7 };
 	write_sysex(nak, 9);
 }
 
@@ -1019,9 +1022,13 @@ void MIDI::request_preset_dump(int preset, int rom_id) const
 	pmesg("MIDI::request_preset_dump(preset: %d, rom: %d) \n", preset, rom_id);
 	if (preset < 0) // edit buffer
 		preset += 16384;
+	unsigned char pl = preset % 128;
+	unsigned char pm = preset / 128;
+	unsigned char rl = rom_id % 128;
+	unsigned char rm = rom_id / 128;
+	unsigned char loop = cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD) ? 0x02 : 0x04;
 	unsigned char request[] =
-	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x11, cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD) ? 0x02 : 0x04, preset
-			% 128, preset / 128, rom_id % 128, rom_id / 128, 0xf7 };
+	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x11, loop, pl, pm, rl, rm, 0xf7 };
 	write_sysex(request, 12);
 	pxk->Loading();
 	requested = true;
@@ -1044,8 +1051,12 @@ void MIDI::request_arp_dump(int number, int rom_id) const
 	//pmesg("MIDI::request_arp_dump(#: %d, rom: %d)\n", number, rom_id);
 	if (number < 0)
 		number += 16384;
+	unsigned char nl = number % 128;
+	unsigned char nm = number / 128;
+	unsigned char rl = rom_id % 128;
+	unsigned char rm = rom_id / 128;
 	unsigned char request[] =
-	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x19, number % 128, number / 128, rom_id % 128, rom_id / 128, 0xf7 };
+	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x19, nl, nm, rl, rm, 0xf7 };
 	write_sysex(request, 11);
 	requested = true;
 }
@@ -1053,29 +1064,39 @@ void MIDI::request_arp_dump(int number, int rom_id) const
 void MIDI::request_name(int type, int number, int rom_id) const
 {
 	//pmesg("MIDI::request_name(type: %d, #: %d, rom_id: %d)\n", type, number, rom_id);
+	unsigned char nl = number % 128;
+	unsigned char nm = number / 128;
+	unsigned char rl = rom_id % 128;
+	unsigned char rm = rom_id / 128;
+	unsigned char t = type & 0xff;
 	unsigned char request[] =
-	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x0c, type, number % 128, number / 128, rom_id % 128, rom_id / 128, 0xf7 };
+	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x0c, t, nl, nm, rl, rm, 0xf7 };
 	write_sysex(request, 12);
 }
 
 void MIDI::edit_parameter_value(int id, int value) const
 {
 	//pmesg("MIDI::edit_parameter_value(id: %d, value: %d) \n", id, value);
-	static unsigned char plsb, pmsb, vlsb, vmsb;
 	if (id < 0)
 		id += 16384;
 	if (value < 0)
 		value += 16384;
+	unsigned char il = id % 128;
+	unsigned char im = id / 128;
+	unsigned char vl = value % 128;
+	unsigned char vm = value / 128;
 	unsigned char request[] =
-	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x01, 0x02, id % 128, id / 128, value % 128, value / 128, 0xf7 };
+	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x01, 0x02, il, im, vl, vm, 0xf7 };
 	write_sysex(request, 12);
 }
 
 void MIDI::master_volume(int volume) const
 {
 	//pmesg("MIDI::master_volume(%d) \n", volume);
+	unsigned char vl = volume % 128;
+	unsigned char vm = volume / 128;
 	unsigned char master_vol[] =
-	{ 0xf0, 0x7f, midi_device_id, 0x04, 0x01, volume % 128, volume / 128, 0xf7 };
+	{ 0xf0, 0x7f, midi_device_id, 0x04, 0x01, vl, vm, 0xf7 };
 	write_sysex(master_vol, 8);
 }
 
@@ -1086,12 +1107,20 @@ void MIDI::copy(int cmd, int src, int dst, int src_l, int dst_l, int rom_id) con
 		dst += 16384;
 	if (src < 0)
 		src += 16384;
+	unsigned char c = cmd & 0xff;
+	unsigned char rl = rom_id % 128;
+	unsigned char rm = rom_id / 128;
+	unsigned char srcl = src % 128;
+	unsigned char srcm = src / 128;
+	unsigned char dstl = dst % 128;
+	unsigned char dstm = dst / 128;
 	// layer dependent
 	if (cmd > 0x24 && cmd < 0x2b)
 	{
+		unsigned char s_l = src_l & 0xff;
+		unsigned char d_l = dst_l & 0xff;
 		unsigned char copy[] =
-		{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, cmd, src % 128, src / 128, src_l, 0, dst % 128, dst / 128, dst_l, 0,
-				rom_id % 128, rom_id / 128, 0xf7 };
+		{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, c, srcl, srcm, s_l, 0, dstl, dstm, d_l, 0, rl, rm, 0xf7 };
 		write_sysex(copy, 17);
 	}
 	// layer independent
@@ -1100,7 +1129,7 @@ void MIDI::copy(int cmd, int src, int dst, int src_l, int dst_l, int rom_id) con
 		if (cmd == 0x2c) // copy setup
 		{
 			unsigned char copy[] =
-			{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, cmd, src % 128, src / 128, dst % 128, dst / 128, 0xf7 };
+			{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, c, srcl, srcm, dstl, dstm, 0xf7 };
 			write_sysex(copy, 11);
 			// set device id to our chosen device id
 			// so it will respond to our requests
@@ -1111,8 +1140,7 @@ void MIDI::copy(int cmd, int src, int dst, int src_l, int dst_l, int rom_id) con
 		else
 		{
 			unsigned char copy[] =
-			{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, cmd, src % 128, src / 128, dst % 128, dst / 128, rom_id % 128, rom_id
-					/ 128, 0xf7 };
+			{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, c, srcl, srcm, dstl, dstm, rl, rm, 0xf7 };
 			write_sysex(copy, 13);
 		}
 	}
@@ -1149,9 +1177,12 @@ void MIDI::randomize() const
 		int byte1 = random() % 16384;
 		int byte2 = random() % 16384;
 #endif
+		unsigned char b1l = byte1 % 128;
+		unsigned char b1m = byte1 / 128;
+		unsigned char b2l = byte2 % 128;
+		unsigned char b2m = byte2 / 128;
 		unsigned char seedr[] =
-		{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x72, 0x7f, 0x7f, 0, 0, byte1 % 128, byte1 / 128, byte2 % 128, byte2
-				/ 128, 0xf7 };
+		{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x72, 0x7f, 0x7f, 0, 0, b1l, b1m, b2l, b2m, 0xf7 };
 		write_sysex(seedr, 15);
 	}
 	unsigned char randomize[] =

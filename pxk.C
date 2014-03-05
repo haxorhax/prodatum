@@ -28,10 +28,10 @@ extern PXK* pxk;
 
 // buffer spaces
 #ifndef NDEBUG
-extern int write_space;
-extern int read_space;
-extern int max_write;
-extern int max_read;
+extern unsigned int write_space;
+extern unsigned int read_space;
+extern unsigned int max_write;
+extern unsigned int max_read;
 #endif
 
 extern bool got_answer;
@@ -407,7 +407,7 @@ static void sync_bro(void* p)
 	if (join_bro)
 		goto Club;
 	// general variables
-	static unsigned int name = 0;
+	static int name = 0;
 	static char _label[64];
 	static unsigned char countdown;
 #ifndef NDEBUG
@@ -789,7 +789,7 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 			cfg->apply();
 		}
 		device_code = 516;
-		midi->set_device_id(device_id); // so further sysex comes through
+		midi->set_device_id((unsigned char) device_id); // so further sysex comes through
 		mysleep(50);
 		midi->request_hardware_config();
 		snprintf(os_rev, 5, "%c%c%c%c", data[10], data[11], data[12], data[13]);

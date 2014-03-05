@@ -59,7 +59,7 @@ public:
 	 */
 	~MIDI();
 	/// allows for switching the device ID on the fly
-	void set_device_id(int id);
+	void set_device_id(unsigned char id);
 	/// sets the incoming channel filter for the control port
 	void set_control_channel_filter(int channel) const;
 	/// sets the incoming channel filter

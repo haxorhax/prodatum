@@ -73,7 +73,7 @@ void Fl_Scope::draw(int xx, int yy, int ww, int hh)
 {
  //unsigned char *Ptr,*Ptr2;
  int *Ptr,*Ptr2;
- int count,x;
+ int count;
  int Yval,Yval2;
 
  /* Push clip for drawing */

@@ -440,7 +440,7 @@ void Browser::apply_filter()
 		return;
 	int val = value();
 	static char f[19];
-	unsigned int i;
+	int i;
 	int l = snprintf(f, 19, "*%s*", filter);
 	if (l > 2)
 	{
@@ -3099,6 +3099,7 @@ void Envelope_Editor::draw()
 	fl_color(FL_BACKGROUND2_COLOR);
 	for (i = 0; i < 6; i++)
 		if (i != mode && i != mode + 3)
+		{
 			if (button_push && button_hover == VOLUME_SELECTED + i)
 			{
 				draw_box(FL_BORDER_BOX, copy_button[i], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
@@ -3109,6 +3110,7 @@ void Envelope_Editor::draw()
 				draw_box(FL_BORDER_BOX, copy_button[i], ee_y0 + ee_h - 21, 17, 17, FL_BACKGROUND2_COLOR);
 				draw_b_label(VOLUME_SELECTED + i, fl_contrast(FL_FOREGROUND_COLOR, FL_BACKGROUND2_COLOR));
 			}
+		}
 	draw_box(FL_BORDER_BOX, copy_button[mode], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
 	draw_b_label(VOLUME_SELECTED + mode, fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR));
 	// shapes
@@ -3173,10 +3175,12 @@ void Envelope_Editor::draw()
 	for (char j = -9; j <= 9; j++)
 	{
 		if (j == 0)
+		{
 			if (mode == VOLUME)
 				break;
 			else
 				continue;
+		}
 		fl_line(x0 + 1, y0 + y_step * j, x0 + ee_w - 11, y0 + y_step * j);
 	}
 	// nulllinie

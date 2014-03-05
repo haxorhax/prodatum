@@ -136,7 +136,7 @@ public:
 	 * preset specific
 	 */
 private:
-	unsigned int mute_volume[4]; // volume of muted voices
+	int mute_volume[4]; // volume of muted voices
 	bool is_solo[4];
 	int test_checksum(const unsigned char*, int, int);
 	bool randomizing;

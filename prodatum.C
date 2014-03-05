@@ -799,7 +799,6 @@ void PD_UI::Reset(char user_data, char rom_data)
 	pmesg("reset(%d, %d)\n", user_data, rom_data);
 	char config_dir[PATH_MAX];
 	snprintf(config_dir, PATH_MAX, "%s", cfg->get_config_dir());
-	char cfg_name = cfg->get_cfg_option(CFG_DEVICE_ID);
 	delete pxk;
 	pxk = 0;
 	// delete files
