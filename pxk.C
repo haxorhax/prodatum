@@ -709,7 +709,7 @@ bool PXK::Synchronize()
 	timed_out = false;
 	name_set_incomplete = false;
 	Fl::add_timeout(0, sync_bro, (void*) &synchronized);
-	Fl::add_timeout(.3, sync_police, (void*) &synchronized);
+	Fl::add_timeout(.2 + roms / 10., sync_police, (void*) &synchronized);
 	return true;
 }
 

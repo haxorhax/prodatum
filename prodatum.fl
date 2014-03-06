@@ -774,7 +774,7 @@ widget_class PD_Layer_Patchcords {
   }
 } 
 
-widget_class PD_Layer_Strip {open
+widget_class PD_Layer_Strip {
   xywh {600 250 100 540} type Double hide position_relative
 } {
   decl {void init(int layer);} {public
@@ -850,7 +850,7 @@ coarse->do_callback();
     xywh {7 203 87 55}
   } {
     Fl_Dial cutoff {
-      label {Freq.} selected
+      label {Freq.}
       private tooltip {Control various elements of the filter depending on the type of filter used} xywh {7 218 40 40} color 7 labelsize 10 align 1 maximum 255 step 1
       class Fl_Knob
     }
@@ -886,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
+    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2633,16 +2633,16 @@ Fl::visual(FL_DOUBLE|FL_RGB);
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
 delete this;} open
-      xywh {407 158 845 620} type Double hide resizable
+      xywh {650 210 845 620} type Double resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
-      class Double_Window xclass prodatum size_range {674 492 845 620}
+      class Double_Window xclass prodatum size_range {674 492 845 620} visible
     } {
       Fl_Group supergroup {open
         xywh {0 0 846 620} resizable
       } {
         Fl_Group {} {
-          label main
+          label main open
           xywh {0 19 843 596} labeltype NO_LABEL
         } {
           Fl_Button {} {
@@ -2651,7 +2651,7 @@ delete this;} open
 piano_w->hide();
 else
 piano_w->showup();}
-            tooltip Master xywh {9 25 46 19} down_box DOWN_BOX color 8 selection_color 15 labelsize 10 labelcolor 7
+            tooltip Master xywh {9 25 46 19} down_box DOWN_BOX selection_color 7 labelsize 10
           }
           Fl_Group selector {
             callback {for (char i = 0; i < o->children(); i++)
@@ -2659,44 +2659,44 @@ if (((Fl_Button*) o->array()[i])->value())
 {
 	select(i);
 	break;
-}}
+}} open
             xywh {56 25 754 19} when 0
           } {
             Fl_Button {} {
               label {M&ain}
               callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-              xywh {57 25 101 19} type Radio down_box DOWN_BOX color 8 selection_color 15 labelsize 10 labelcolor 7 when 6
+              xywh {57 25 101 19} type Radio down_box DOWN_BOX selection_color 7 labelsize 10 when 6
             }
             Fl_Button {} {
               label {Voice &1}
               callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-              xywh {233 25 60 19} type Radio down_box DOWN_BOX color 8 selection_color 15 labelsize 10 labelcolor 7 when 6
+              xywh {233 25 60 19} type Radio down_box DOWN_BOX selection_color 7 labelsize 10 when 6
             }
             Fl_Button {} {
               label {Voice &2}
               callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-              xywh {339 25 60 19} type Radio down_box DOWN_BOX color 8 selection_color 15 labelsize 10 labelcolor 7 when 6
+              xywh {339 25 60 19} type Radio down_box DOWN_BOX selection_color 7 labelsize 10 when 6
             }
             Fl_Button {} {
               label {Voice &3}
               callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-              xywh {445 25 60 19} type Radio down_box DOWN_BOX color 8 selection_color 15 labelsize 10 labelcolor 7 when 6
+              xywh {445 25 60 19} type Radio down_box DOWN_BOX selection_color 7 labelsize 10 when 6
             }
             Fl_Button {} {
               label {Voice &4}
               callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-              xywh {551 25 60 19} type Radio down_box DOWN_BOX color 8 selection_color 15 labelsize 10 labelcolor 7 when 6
+              xywh {551 25 60 19} type Radio down_box DOWN_BOX selection_color 7 labelsize 10 when 6
             }
             Fl_Button b_program {
               label {Pro&gram}
               callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-              xywh {686 25 102 19} type Radio down_box DOWN_BOX color 8 selection_color 15 labelsize 10 labelcolor 7 when 6
+              xywh {686 25 102 19} type Radio down_box DOWN_BOX selection_color 7 labelsize 10 when 6
             }
             Fl_Button {} {
               label M
@@ -2783,7 +2783,7 @@ g_multisetups->hide();
 main->controller->show();
 main->controller_assign->hide();
 }}
-            tooltip Master xywh {159 25 46 19} type Toggle down_box DOWN_BOX color 8 selection_color 15 labelsize 10 labelcolor 7
+            tooltip Master xywh {159 25 46 19} type Toggle down_box DOWN_BOX selection_color 7 labelsize 10
           }
           Fl_Button b_pfx {
             label {P/&FX}
@@ -2796,8 +2796,8 @@ else
 {
 g_preset->hide();
 g_effects->show();
-}}
-            tooltip {Toggle Preset/FX display} xywh {639 25 46 19} down_box DOWN_BOX color 8 selection_color 15 labelsize 10 labelcolor 7
+}} selected
+            tooltip {Toggle Preset/FX display} xywh {639 25 46 19} down_box DOWN_BOX selection_color 7 labelsize 10
           }
           Fl_Button b_links {
             label {&Links}
@@ -2819,7 +2819,7 @@ if (get_selected() != 5)
 preset_editor->program->show();
 preset_editor->links->hide();
 }}
-            tooltip Links xywh {789 25 46 19} type Toggle down_box DOWN_BOX color 8 selection_color 15 labelsize 10 labelcolor 7
+            tooltip Links xywh {789 25 46 19} type Toggle down_box DOWN_BOX selection_color 7 labelsize 10
           }
           Fl_Box scope_i {
             xywh {10 44 44 20} box FLAT_BOX when 0 deactivate

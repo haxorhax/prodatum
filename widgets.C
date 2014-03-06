@@ -2334,8 +2334,8 @@ void Button::set_value(int v)
 	if (id_layer[0] == 258) // fx bypass
 	{
 		v ? ui->m_bypass->set() : ui->m_bypass->clear();
-		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_INACTIVE_COLOR, .6)) : ui->b_pfx->color(
-						FL_INACTIVE_COLOR);
+		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_BACKGROUND_COLOR, .6)) : ui->b_pfx->color(
+						FL_BACKGROUND_COLOR);
 		ui->b_pfx->redraw();
 	}
 	else if (id_layer[0] == 1025) // arp preset
@@ -2373,8 +2373,8 @@ int Button::get_value() const
 	if (id_layer[0] == 258) // fx bypass
 	{
 		v ? ui->m_bypass->set() : ui->m_bypass->clear();
-		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_INACTIVE_COLOR, .6)) : ui->b_pfx->color(
-						FL_INACTIVE_COLOR);
+		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_BACKGROUND_COLOR, .6)) : ui->b_pfx->color(
+				FL_BACKGROUND_COLOR);
 		ui->b_pfx->redraw();
 	}
 	if (id_layer[0] == 258 || id_layer[0] == 1669 || id_layer[0] == 1674 || id_layer[0] == 1033 || id_layer[0] == 649) // fx bypass / lfo syncs / arp syncs
