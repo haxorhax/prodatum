@@ -731,7 +731,7 @@ void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned c
 		n = snprintf(buf, 16, "\nO.%u::", ++count_o);
 	for (unsigned int i = 0; i < len; i++)
 	{
-		sprintf(n + buf + 2 * i, "%02X", sysex[i]);
+		sprintf(n + buf + 2 * i, "%02hhX", sysex[i]);
 		if (io == 1)
 			ui->scope_i->Add(sysex[i]);
 		else

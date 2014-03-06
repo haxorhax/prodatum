@@ -387,7 +387,7 @@ static void process_midi_in(void*)
 						ui->init_log->append("\nprocess_midi_in: Received unrecognized e-mu sysex:\n");
 						char* __buffer = (char*) malloc(len * sizeof(char));
 						for (unsigned int i = 0; i < len; i++)
-							snprintf(__buffer + i, 1, "%x", *(sysex + i));
+							snprintf(__buffer + i, 1, "%02hhX", *(sysex + i));
 						ui->init_log->append(__buffer);
 						ui->init_log->append("\n");
 						free(__buffer);
@@ -416,7 +416,7 @@ static void process_midi_in(void*)
 				ui->init_log->append("\nprocess_midi_in: Received unknown sysex:\n");
 				char* __buffer = (char*) malloc(len * sizeof(char));
 				for (unsigned int i = 0; i < len; i++)
-					snprintf(__buffer + i, 1, "%x", *(sysex + i));
+					snprintf(__buffer + i, 1, "%02hhX", *(sysex + i));
 				ui->init_log->append(__buffer);
 				ui->init_log->append("\n");
 				free(__buffer);

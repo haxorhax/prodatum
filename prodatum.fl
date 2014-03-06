@@ -774,7 +774,7 @@ widget_class PD_Layer_Patchcords {
   }
 } 
 
-widget_class PD_Layer_Strip {open
+widget_class PD_Layer_Strip {
   xywh {556 320 100 540} type Double hide position_relative
 } {
   decl {void init(int layer);} {public
@@ -891,13 +891,13 @@ coarse->do_callback();
   }
   Fl_Button mute_b {
     label M
-    callback {pxk->mute(o->value(), layer);} selected
+    callback {pxk->mute(o->value(), layer);}
     tooltip {Mute Voice} xywh {49 365 19 17} type Toggle box BORDER_BOX down_box BORDER_BOX color 38 selection_color 89 labelsize 10 labelcolor 55 when 1
     class Fixed_Button
   }
   Fl_Button solo_b {
     label S
-    callback {pxk->solo(o->value(), layer);} selected
+    callback {pxk->solo(o->value(), layer);}
     tooltip {Solo Voice} xywh {76 365 19 17} type Toggle box BORDER_BOX down_box BORDER_BOX color 38 selection_color 219 labelsize 10 labelcolor 55 when 1
     class Fixed_Button
   }
@@ -2659,7 +2659,7 @@ if (((Fl_Button*) o->array()[i])->value())
 {
 	select(i);
 	break;
-}} open
+}}
             xywh {56 25 754 19} when 0
           } {
             Fl_Button {} {
@@ -2931,7 +2931,7 @@ if (!eall && pxk->preset)
             }
           }
           Fl_Group g_minipiano {
-            label MINIPIANO open
+            label MINIPIANO
             xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8 hide
           } {
             Fl_Box global_minipiano {
@@ -2939,12 +2939,12 @@ if (!eall && pxk->preset)
               class MiniPiano
             }
           }
-          Fl_Group g_pfx {
-            xywh {639 129 196 324} labeltype NO_LABEL labelcolor 8 align 0
+          Fl_Group g_pfx {open
+            xywh {639 129 196 321} labeltype NO_LABEL labelcolor 8 align 0
           } {
             Fl_Group g_effects {
-              label EFFECTS open
-              tooltip {Effects section (it is disabled when the selected channel and the selected FX channel differ)} xywh {639 146 196 307} box THIN_DOWN_BOX labelfont 1 labelcolor 8 hide
+              label EFFECTS
+              tooltip {Effects section (it is disabled when the selected channel and the selected FX channel differ)} xywh {639 146 196 304} box THIN_DOWN_BOX labelfont 1 labelcolor 8 hide
             } {
               Fl_Choice fx_channel {open
                 tooltip {FX Control Channel. When in multi mode, you can set this to "0" which applies the Master menu effects settings to all 16 MIDI channels. If you want more control, you can choose a channel  which applies the effects settings of the preset on the specified channel to all the other channels. Changing the preset on the specified channel changes the effect. If you are in Omni or Poly modes this parameter is disabled} xywh {649 151 82 21} down_box BORDER_BOX color 7 labeltype NO_LABEL align 0 textsize 13
@@ -3167,7 +3167,7 @@ preset_filter->do_callback();}
             }
           }
           Fl_Group g_multisetups {
-            label MULTISETUP open
+            label MULTISETUP selected
             xywh {639 146 196 304} box THIN_DOWN_BOX labelfont 1 labelcolor 8 hide
           } {
             Fl_Browser multisetups {
