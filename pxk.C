@@ -1043,7 +1043,7 @@ void PXK::incoming_setup_dump(const unsigned char* data, int len)
 	{
 #ifndef NDEBUG
 		char* __buffer = (char*) malloc(48 * sizeof(char));
-		snprintf(__buffer, 128, "\nPXK::incoming_setup_dump(len: %d)\n", len);
+		snprintf(__buffer, 48, "\nPXK::incoming_setup_dump(len: %d)\n", len);
 		ui->init_log->append(__buffer);
 		free(__buffer);
 #endif
