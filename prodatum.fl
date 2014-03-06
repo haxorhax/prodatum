@@ -774,8 +774,8 @@ widget_class PD_Layer_Patchcords {
   }
 } 
 
-widget_class PD_Layer_Strip {
-  xywh {600 250 100 540} type Double hide position_relative
+widget_class PD_Layer_Strip {open
+  xywh {556 320 100 540} type Double hide position_relative
 } {
   decl {void init(int layer);} {public
   }
@@ -891,14 +891,14 @@ coarse->do_callback();
   }
   Fl_Button mute_b {
     label M
-    callback {pxk->mute(o->value(), layer);}
-    tooltip {Mute Voice} xywh {49 365 19 17} type Toggle box BORDER_BOX down_box BORDER_BOX color 35 selection_color 89 labelsize 10 labelcolor 55 when 1
+    callback {pxk->mute(o->value(), layer);} selected
+    tooltip {Mute Voice} xywh {49 365 19 17} type Toggle box BORDER_BOX down_box BORDER_BOX color 38 selection_color 89 labelsize 10 labelcolor 55 when 1
     class Fixed_Button
   }
   Fl_Button solo_b {
     label S
-    callback {pxk->solo(o->value(), layer);}
-    tooltip {Solo Voice} xywh {76 365 19 17} type Toggle box BORDER_BOX down_box BORDER_BOX color 35 selection_color 219 labelsize 10 labelcolor 55 when 1
+    callback {pxk->solo(o->value(), layer);} selected
+    tooltip {Solo Voice} xywh {76 365 19 17} type Toggle box BORDER_BOX down_box BORDER_BOX color 38 selection_color 219 labelsize 10 labelcolor 55 when 1
     class Fixed_Button
   }
   Fl_Button copy {
@@ -1559,7 +1559,7 @@ l2_filter->do_callback();}
   }
 } 
 
-widget_class PD_Main {open
+widget_class PD_Main {
   xywh {822 361 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
@@ -2659,7 +2659,7 @@ if (((Fl_Button*) o->array()[i])->value())
 {
 	select(i);
 	break;
-}}
+}} open
             xywh {56 25 754 19} when 0
           } {
             Fl_Button {} {
@@ -2701,56 +2701,56 @@ if (((Fl_Button*) o->array()[i])->value())
             Fl_Button {} {
               label M
               callback {pxk->mute(o->value(), 0);}
-              tooltip {Mute Voice} xywh {213 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x40031 color 35 selection_color 89 labelsize 10 labelcolor 55 when 1
+              tooltip {Mute Voice} xywh {213 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x40031 color 38 selection_color 89 labelsize 10 labelcolor 55 when 1
               code0 {mute_b[0] = o;}
               class Fixed_Button
             }
             Fl_Button {} {
               label S
               callback {pxk->solo(o->value(), 0);}
-              tooltip {Solo Voice} xywh {294 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x80031 color 35 selection_color 219 labelsize 10 labelcolor 55 when 1
+              tooltip {Solo Voice} xywh {294 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x80031 color 38 selection_color 219 labelsize 10 labelcolor 55 when 1
               code0 {solo_b[0] = o;}
               class Fixed_Button
             }
             Fl_Button {} {
               label M
               callback {pxk->mute(o->value(), 1);}
-              tooltip {Mute Voice} xywh {319 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x40032 color 35 selection_color 89 labelsize 10 labelcolor 55 when 1
+              tooltip {Mute Voice} xywh {319 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x40032 color 38 selection_color 89 labelsize 10 labelcolor 55 when 1
               code0 {mute_b[1] = o;}
               class Fixed_Button
             }
             Fl_Button {} {
               label S
               callback {pxk->solo(o->value(), 1);}
-              tooltip {Solo Voice} xywh {400 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x80032 color 35 selection_color 219 labelsize 10 labelcolor 55 when 1
+              tooltip {Solo Voice} xywh {400 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x80032 color 38 selection_color 219 labelsize 10 labelcolor 55 when 1
               code0 {solo_b[1] = o;}
               class Fixed_Button
             }
             Fl_Button {} {
               label M
               callback {pxk->mute(o->value(), 2);}
-              tooltip {Mute Voice} xywh {425 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x40033 color 35 selection_color 89 labelsize 10 labelcolor 55 when 1
+              tooltip {Mute Voice} xywh {425 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x40033 color 38 selection_color 89 labelsize 10 labelcolor 55 when 1
               code0 {mute_b[2] = o;}
               class Fixed_Button
             }
             Fl_Button {} {
               label S
               callback {pxk->solo(o->value(), 2);}
-              tooltip {Solo Voice} xywh {506 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x80033 color 35 selection_color 219 labelsize 10 labelcolor 55 when 1
+              tooltip {Solo Voice} xywh {506 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x80033 color 38 selection_color 219 labelsize 10 labelcolor 55 when 1
               code0 {solo_b[2] = o;}
               class Fixed_Button
             }
             Fl_Button {} {
               label M
               callback {pxk->mute(o->value(), 3);}
-              tooltip {Mute Voice} xywh {531 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x40034 color 35 selection_color 89 labelsize 10 labelcolor 55 when 1
+              tooltip {Mute Voice} xywh {531 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x40034 color 38 selection_color 89 labelsize 10 labelcolor 55 when 1
               code0 {mute_b[3] = o;}
               class Fixed_Button
             }
             Fl_Button {} {
               label S
               callback {pxk->solo(o->value(), 3);}
-              tooltip {Solo Voice} xywh {612 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x80034 color 35 selection_color 219 labelsize 10 labelcolor 55 when 1
+              tooltip {Solo Voice} xywh {612 25 19 19} type Toggle box BORDER_BOX down_box BORDER_BOX shortcut 0x80034 color 38 selection_color 219 labelsize 10 labelcolor 55 when 1
               code0 {solo_b[3] = o;}
               class Fixed_Button
             }
@@ -2931,15 +2931,15 @@ if (!eall && pxk->preset)
             }
           }
           Fl_Group g_minipiano {
-            label MINIPIANO
+            label MINIPIANO open
             xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8 hide
           } {
             Fl_Box global_minipiano {
-              xywh {640 67 194 54} box FLAT_BOX labeltype NO_LABEL
+              xywh {640 70 194 51} box FLAT_BOX labeltype NO_LABEL
               class MiniPiano
             }
           }
-          Fl_Group g_pfx {selected
+          Fl_Group g_pfx {
             xywh {639 129 196 324} labeltype NO_LABEL labelcolor 8 align 0
           } {
             Fl_Group g_effects {
