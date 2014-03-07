@@ -1491,6 +1491,37 @@ int Slider::handle(int ev)
 {
 	switch (ev)
 	{
+		case FL_ENTER: // 1 = receive FL_LEAVE and FL_MOVE events (widget becomes Fl::belowmouse())
+			if (active_r())
+			{
+				take_focus();
+				redraw();
+				return 1;
+			}
+			return 0;
+		case FL_FOCUS: // 1 = receive FL_KEYDOWN, FL_KEYUP, and FL_UNFOCUS events (widget becomes Fl::focus())
+			// show value in value field and make ourselfes the editing widget
+			if (pwid_editing != this && id_layer[0] != 0)
+			{
+				pwid_editing = this;
+				ui->value_input->minimum((double) minimax[0]);
+				ui->value_input->maximum((double) minimax[1]);
+			}
+			if (id_layer[0] == 1410) // layer volume fader
+			{
+				int v = cbrt(value()) - 96;
+				ui->value_input->value((double) v);
+				ui->forma_out->set_value(id_layer[0], id_layer[1], v);
+			}
+			else
+			{
+				ui->value_input->value((double) value());
+				ui->forma_out->set_value(id_layer[0], id_layer[1], value());
+			}
+			return 1;
+		case FL_UNFOCUS: // received when another widget gets the focus and we had the focus
+			redraw();
+			return 1;
 		case FL_PUSH:
 			if (FL_RIGHT_MOUSE == Fl::event_button())
 				return 1;
@@ -2064,16 +2095,16 @@ void Fl_Knob::draw()
 	fl_rectf(ox, oy, side, side);
 	// scale
 	(active_r()) ?
-			fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_BACKGROUND_COLOR, .8)) :
-			fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_BACKGROUND_COLOR, .6));
+			fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_BACKGROUND_COLOR, .9)) :
+			fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_BACKGROUND_COLOR, .5));
 	fl_pie(ox + 1, oy + 3, side - 2, side - 12, 0, 360);
 	draw_scale(ox, oy, side);
-	fl_color(FL_BACKGROUND_COLOR);
+//	fl_color(FL_BACKGROUND_COLOR);
 	fl_pie(ox + 6, oy + 6, side - 12, side - 12, 0, 360);
 	// shadow
-	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .8));
+	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .9));
 	fl_pie(ox + 8, oy + 12, side - 16, side - 16, 0, 360);
-	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .1));
+	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .7));
 	fl_pie(ox + 9, oy + 12, side - 18, side - 18, 0, 360);
 	// knob edge
 	fl_color(active_r() ? FL_FOREGROUND_COLOR : fl_darker(FL_FOREGROUND_COLOR));
@@ -2271,8 +2302,10 @@ void Fl_Knob::draw_cursor(const int ox, const int oy, const int side)
 	float rds, cur, cx, cy;
 	double angle;
 	// top
-	(active_r()) ? fl_color(FL_FOREGROUND_COLOR) : fl_color(fl_darker(FL_FOREGROUND_COLOR));
-	(this == Fl::focus()) ? fl_color(fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR)) : fl_color(fl_color());
+	if (active_r())
+		(this == Fl::focus()) ? fl_color(fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR)) : fl_color(FL_FOREGROUND_COLOR);
+	else
+		fl_color(fl_darker(FL_FOREGROUND_COLOR));
 	rds = (side - 18) / 2.0;
 	cur = _percent * rds / 2;
 	cx = ox + side / 2;
