@@ -4,6 +4,7 @@ v2.0rc15
   with knob behaviour)
 * slightly changed widget colors here and there so that everything is more
   consistent
+* fixed issue with default config not loading on startup
 
 
 v2.0rc14
