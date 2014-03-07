@@ -1468,21 +1468,20 @@ void Slider::draw(int X, int Y, int W, int H)
 	ysl = Y + xx;
 	hsl = S;
 	xsl = X;
-	wsl = W - 1;
+	wsl = W;
 	fl_push_clip(X, Y, W, H);
-	draw_box();
+	if (Fl::focus() == this)
+		draw_box(FL_THIN_UP_BOX, X, Y, W, H, FL_SELECTION_COLOR);
+	else
+		draw_box(FL_THIN_UP_BOX, X, Y, W, H, FL_BACKGROUND2_COLOR);
 	fl_pop_clip();
 	if (wsl > 0 && hsl > 0)
-		draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, selection_color());
+			draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, FL_BACKGROUND_COLOR);
 	draw_label(xsl, ysl, wsl, hsl);
-	if (Fl::focus() == this)
-		draw_focus(FL_BORDER_BOX, xsl, ysl, wsl, hsl);
 }
 
 void Slider::draw()
 {
-	if (damage() & FL_DAMAGE_ALL)
-		draw_box();
 	draw(x() + Fl::box_dx(box()), y() + Fl::box_dy(box()), w() - Fl::box_dw(box()), h() - Fl::box_dh(box()));
 }
 
@@ -2089,14 +2088,13 @@ void Fl_Knob::draw()
 		oy = oy + (hh - side) / 2;
 	}
 	side = w() > h() ? hh : ww;
-
 	// background
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_rectf(ox, oy, side, side);
 	// scale
 	(active_r()) ?
-			fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_BACKGROUND_COLOR, .9)) :
-			fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_BACKGROUND_COLOR, .5));
+			fl_color(fl_color_average(FL_FOREGROUND_COLOR, FL_BACKGROUND_COLOR, .6)) :
+			fl_color(fl_color_average(FL_FOREGROUND_COLOR, FL_BACKGROUND_COLOR, .3));
 	fl_pie(ox + 1, oy + 3, side - 2, side - 12, 0, 360);
 	draw_scale(ox, oy, side);
 //	fl_color(FL_BACKGROUND_COLOR);
@@ -3182,16 +3180,15 @@ void Envelope_Editor::draw()
 	fl_line_style(FL_SOLID, 1);
 	int x0 = ee_x0 + 5;
 	float y0 = (float) ee_y0 + 25. + ((float) ee_h - 50.) / 2.;
-	fl_color(FL_BACKGROUND2_COLOR);
-	draw_box(FL_THIN_UP_BOX, x0 - 1, ee_y0 + 22., ee_w - 8, ee_h - 46, FL_INACTIVE_COLOR);
+	draw_box(FL_THIN_UP_BOX, x0 - 1, ee_y0 + 22., ee_w - 8, ee_h - 46, FL_BACKGROUND_COLOR);
 	fl_push_clip(x0 + 1, (float) ee_y0 + 24., ee_w - 12, ee_h - 50);
 	unsigned char r, g, b;
-	Fl::get_color(FL_INACTIVE_COLOR, r, g, b);
+	Fl::get_color(FL_BACKGROUND_COLOR, r, g, b);
 	int luma = (r + r + b + g + g + g) / 6;
 	if (luma > 128)
-		fl_color(fl_lighter(FL_INACTIVE_COLOR));
+		fl_color(fl_lighter(FL_BACKGROUND_COLOR));
 	else
-		fl_color(fl_darker(FL_INACTIVE_COLOR));
+		fl_color(fl_darker(FL_BACKGROUND_COLOR));
 	// vertikale
 	float x_step = ((float) (ee_w - 10) / 384.) * (float) zoomlevel; // 3*128 = 384
 	float x_val = (float) x0 + 8. * x_step;
@@ -3218,9 +3215,9 @@ void Envelope_Editor::draw()
 	}
 	// nulllinie
 	if (luma > 128)
-		fl_color(fl_darker(FL_INACTIVE_COLOR));
+		fl_color(fl_darker(FL_BACKGROUND_COLOR));
 	else
-		fl_color(fl_lighter(FL_INACTIVE_COLOR));
+		fl_color(fl_lighter(FL_BACKGROUND_COLOR));
 	Fl_Color null = fl_color();
 	fl_line(x0 + 1, y0, x0 + ee_w - 11, y0);
 	fl_line_style(0);
@@ -3247,10 +3244,7 @@ void Envelope_Editor::draw()
 	if (!active_r())
 		return;
 	// value fields
-	if (luma > 128)
-		fl_color(fl_darker(FL_INACTIVE_COLOR));
-	else
-		fl_color(fl_lighter(FL_INACTIVE_COLOR));
+	fl_color(FL_FOREGROUND_COLOR);
 	// calc number of hovers
 	int hovers = 0;
 	for (i = 0; i < 6; i++)
@@ -3411,21 +3405,16 @@ void Envelope_Editor::draw_envelope(unsigned char type, int x0, int y0, int luma
 	dragbox[RLS_2][0] = dragbox[RLS_1][0] + env[type].stage[RLS_2][0] * x_scale;
 	dragbox[RLS_2][1] = y0 - env[type].stage[RLS_2][1] * y_scale;
 	// lines between dragboxes
-	float blend = .0;
-	if (luma > 128)
-		blend = .8;
-	else
-		blend = .6;
 	switch (type)
 	{
 		case VOLUME:
-			fl_color(fl_color_average(fl_rgb_color(231, 122, 122), FL_INACTIVE_COLOR, blend));
+			fl_color(fl_color_average(fl_rgb_color(255, 124, 96), FL_BACKGROUND_COLOR, .7));
 			break;
 		case FILTER:
-			fl_color(fl_color_average(fl_rgb_color(111, 111, 239), FL_INACTIVE_COLOR, blend));
+			fl_color(fl_color_average(fl_rgb_color(93, 155, 229), FL_BACKGROUND_COLOR, .7));
 			break;
 		case AUXILIARY:
-			fl_color(fl_color_average(fl_rgb_color(76, 189, 76), FL_INACTIVE_COLOR, blend));
+			fl_color(fl_color_average(fl_rgb_color(72, 241, 94), FL_BACKGROUND_COLOR, .7));
 	}
 	if (type != mode)
 	{
@@ -5600,6 +5589,19 @@ int Step_Offset::handle(int ev)
 {
 	switch (ev)
 	{
+		case FL_ENTER: // 1 = receive FL_LEAVE and FL_MOVE events (widget becomes Fl::belowmouse())
+			if (active_r())
+			{
+				take_focus();
+				redraw();
+				return 1;
+			}
+			return 0;
+		case FL_FOCUS: // 1 = receive FL_KEYDOWN, FL_KEYUP, and FL_UNFOCUS events (widget becomes Fl::focus())
+			return 1;
+		case FL_UNFOCUS: // received when another widget gets the focus and we had the focus
+			redraw();
+			return 1;
 		case FL_PUSH:
 			if (FL_RIGHT_MOUSE == Fl::event_button())
 				return 1;
@@ -5662,15 +5664,16 @@ void Step_Offset::draw(int X, int Y, int W, int H)
 	ysl = Y + xx;
 	hsl = S;
 	xsl = X;
-	wsl = W - 1;
+	wsl = W;
 	fl_push_clip(X, Y, W, H);
-	draw_box();
+	if (Fl::focus() == this)
+		draw_box(FL_THIN_UP_BOX, X, Y, W, H, FL_SELECTION_COLOR);
+	else
+		draw_box(FL_THIN_UP_BOX, X, Y, W, H, FL_BACKGROUND2_COLOR);
 	fl_pop_clip();
 	if (wsl > 0 && hsl > 0)
-		draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, selection_color());
+		draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, FL_BACKGROUND_COLOR);
 	draw_label(xsl, ysl, wsl, hsl);
-	if (Fl::focus() == this)
-		draw_focus(FL_BORDER_BOX, xsl, ysl, wsl, hsl);
 }
 
 void Step_Offset::draw()
@@ -5681,10 +5684,8 @@ void Step_Offset::draw()
 	syy += 18; // height of value output
 	bhh = 18;
 	shh -= 18;
-	if (damage() & FL_DAMAGE_ALL)
-		draw_box(box(), sxx, syy, sww, shh, color());
 	draw(sxx + Fl::box_dx(box()), syy + Fl::box_dy(box()), sww - Fl::box_dw(box()), shh - Fl::box_dh(box()));
-	draw_box(box(), bxx, byy, bww, bhh, FL_BACKGROUND_COLOR);
+	draw_box(FL_FLAT_BOX, bxx, byy, bww, bhh, FL_BACKGROUND_COLOR); // value box
 	const char* transpose_values[] =
 	{ "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#", "B " };
 	int v = (int) value();

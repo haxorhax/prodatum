@@ -138,7 +138,7 @@ edit_value(784, val - 52);}
   }
   Fl_Value_Slider offset {
     callback {if (key->value()) edit_value(784, (int) o->value());}
-    tooltip {Key Offset: Offset from the original note played (semitones).} xywh {0 148 40 131} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 80 when 4 minimum 48 maximum -48 step 1 textfont 4 textsize 12
+    tooltip {Key Offset: Offset from the original note played (semitones).} xywh {0 148 40 131} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 80 when 4 minimum 48 maximum -48 step 1 textfont 4 textsize 12
     class Step_Offset
   }
 } 
@@ -775,7 +775,7 @@ widget_class PD_Layer_Patchcords {
 } 
 
 widget_class PD_Layer_Strip {
-  xywh {1049 391 100 540} type Double visible position_relative
+  xywh {1049 391 116 540} type Double hide position_relative
 } {
   decl {void init(int layer);} {public
   }
@@ -885,8 +885,8 @@ coarse->do_callback();
     xywh {11 394 31 19} box FLAT_BOX color 7 labeltype NO_LABEL
   }
   Fl_Slider volume {
-    label dB selected
-    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX selection_color 7 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
+    label dB
+    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -957,7 +957,7 @@ coarse->do_callback();
   } {}
 } 
 
-widget_class PD_Layer_Editor {open
+widget_class PD_Layer_Editor {
   xywh {795 293 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {void init(int l);} {public
@@ -1831,73 +1831,73 @@ else // initial controller amounts
         } {
           Fl_Slider {} {
             label A
-            xywh {10 278 25 141} box THIN_UP_BOX selection_color 7 labelsize 10 align 64 minimum 127 maximum -1 step 1
+            xywh {10 278 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(915);}
             class Slider
           }
           Fl_Slider {} {
             label B
-            xywh {42 278 25 141} box THIN_UP_BOX selection_color 7 labelsize 10 align 64 minimum 127 maximum -1 step 1
+            xywh {42 278 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(916);}
             class Slider
           }
           Fl_Slider {} {
             label C
-            xywh {74 278 25 141} box THIN_UP_BOX selection_color 7 labelsize 10 align 64 minimum 127 maximum -1 step 1
+            xywh {74 278 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(917);}
             class Slider
           }
           Fl_Slider {} {
             label D
-            xywh {105 278 25 141} box THIN_UP_BOX selection_color 7 labelsize 10 align 64 minimum 127 maximum -1 step 1
+            xywh {105 278 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(918);}
             class Slider
           }
           Fl_Slider {} {
             label E
-            xywh {137 278 25 141} box THIN_UP_BOX selection_color 7 labelsize 10 align 64 minimum 127 maximum -1 step 1
+            xywh {137 278 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(919);}
             class Slider
           }
           Fl_Slider {} {
             label F
-            xywh {169 278 25 141} box THIN_UP_BOX selection_color 7 labelsize 10 align 64 minimum 127 maximum -1 step 1
+            xywh {169 278 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(920);}
             class Slider
           }
           Fl_Slider {} {
             label G
-            xywh {10 421 25 141} box THIN_UP_BOX selection_color 7 labelsize 10 align 64 minimum 127 maximum -1 step 1
+            xywh {10 421 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(921);}
             class Slider
           }
           Fl_Slider {} {
             label H
-            xywh {42 421 25 141} box THIN_UP_BOX selection_color 7 labelsize 10 align 64 minimum 127 maximum -1 step 1
+            xywh {42 421 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(922);}
             class Slider
           }
           Fl_Slider {} {
             label I
-            xywh {74 421 25 141} box THIN_UP_BOX selection_color 7 labelsize 10 align 64 minimum 127 maximum -1 step 1
+            xywh {74 421 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(924);}
             class Slider
           }
           Fl_Slider {} {
             label J
-            xywh {105 421 25 141} box THIN_UP_BOX selection_color 7 labelsize 10 align 64 minimum 127 maximum -1 step 1
+            xywh {105 421 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(925);}
             class Slider
           }
           Fl_Slider {} {
             label K
-            xywh {137 421 25 141} box THIN_UP_BOX selection_color 7 labelsize 10 align 64 minimum 127 maximum -1 step 1
+            xywh {137 421 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(926);}
             class Slider
           }
           Fl_Slider {} {
             label L
-            xywh {169 421 25 141} box THIN_UP_BOX selection_color 7 labelsize 10 align 64 minimum 127 maximum -1 step 1
+            xywh {169 421 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(927);}
             class Slider
           }
@@ -1908,84 +1908,84 @@ else // initial controller amounts
           Fl_Slider {} {
             label A
             callback {pxk->cc_callback(1, (int) o->value());}
-            xywh {10 278 25 141} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            xywh {10 278 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[1] = o;}
             class Slider
           }
           Fl_Slider {} {
             label B
             callback {pxk->cc_callback(2, (int) o->value());}
-            xywh {42 278 25 141} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            xywh {42 278 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[2] = o;}
             class Slider
           }
           Fl_Slider {} {
             label C
             callback {pxk->cc_callback(3, (int) o->value());}
-            xywh {74 278 25 141} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            xywh {74 278 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[3] = o;}
             class Slider
           }
           Fl_Slider {} {
             label D
             callback {pxk->cc_callback(4, (int) o->value());}
-            xywh {105 278 25 141} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            xywh {105 278 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[4] = o;}
             class Slider
           }
           Fl_Slider {} {
             label E
             callback {pxk->cc_callback(5, (int) o->value());}
-            xywh {137 278 25 141} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            xywh {137 278 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[5] = o;}
             class Slider
           }
           Fl_Slider {} {
             label F
             callback {pxk->cc_callback(6, (int) o->value());}
-            xywh {169 278 25 141} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            xywh {169 278 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[6] = o;}
             class Slider
           }
           Fl_Slider {} {
             label G
             callback {pxk->cc_callback(7, (int) o->value());}
-            xywh {10 421 25 141} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            xywh {10 421 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[7] = o;}
             class Slider
           }
           Fl_Slider {} {
             label H
             callback {pxk->cc_callback(8, (int) o->value());}
-            xywh {42 421 25 141} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            xywh {42 421 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[8] = o;}
             class Slider
           }
           Fl_Slider {} {
             label I
             callback {pxk->cc_callback(9, (int) o->value());}
-            xywh {74 421 25 141} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            xywh {74 421 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[9] = o;}
             class Slider
           }
           Fl_Slider {} {
             label J
             callback {pxk->cc_callback(10, (int) o->value());}
-            xywh {105 421 25 141} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            xywh {105 421 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[10] = o;}
             class Slider
           }
           Fl_Slider {} {
             label K
             callback {pxk->cc_callback(11, (int) o->value());}
-            xywh {137 421 25 141} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            xywh {137 421 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[11] = o;}
             class Slider
           }
           Fl_Slider {} {
             label L
             callback {pxk->cc_callback(12, (int) o->value());}
-            xywh {169 421 25 141} box THIN_UP_BOX color 8 selection_color 7 labelsize 10 align 64 minimum 127 maximum 0 step 1
+            xywh {169 421 25 141} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[12] = o;}
             class Slider
           }
@@ -4157,6 +4157,55 @@ b_set->deactivate();}
       xywh {503 628 930 205} type Double box BORDER_BOX hide
       class Double_Window xclass prodatum
     } {
+      Fl_Slider pitchwheel {
+        label Pitch
+        callback {int val = (int) o->value();
+midi->write_event(0xe0, val & 0x007f, val >> 7);}
+        tooltip {Pitch "Wheel": Use right mouse button to enable hold, left for common behaviour} xywh {42 7 256 20} type Horizontal box THIN_UP_BOX color 7 selection_color 8 labelsize 11 align 4 maximum 16383 step 1 value 8192
+        code0 {o->clear_visible_focus();}
+        class Pitch_Slider
+      }
+      Fl_Slider modwheel {
+        label Mod
+        callback {midi->write_event(0xb0, 1, (int) o->value());} selected
+        tooltip {Modulation "Wheel"} xywh {332 7 127 20} type Horizontal box THIN_UP_BOX color 7 selection_color 8 labelsize 11 align 4 maximum 127 step 1
+        code0 {o->clear_visible_focus();}
+      }
+      Fl_Group g_transpose_layer {
+        label T
+        callback {for (int i = 0; i < o->children(); i++)
+if (((Fl_Button*) o->array()[i])->value())
+{
+	piano->select_transpose_layer(i);
+	break;
+}}
+        tooltip {Transpose Layer: Choose the layer to transpose then "Middle-Click" the key that shall be middle-C} xywh {476 7 61 20} labelsize 11 align 4 when 0
+      } {
+        Fl_Button {} {
+          label 1
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();}
+          xywh {477 7 15 20} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15 labelsize 11 when 1
+        }
+        Fl_Button {} {
+          label 2
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();}
+          xywh {492 7 15 20} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 11 when 1
+        }
+        Fl_Button {} {
+          label 3
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();}
+          xywh {507 7 15 20} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 11 when 1
+        }
+        Fl_Button {} {
+          label 4
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();}
+          xywh {522 7 15 20} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 11 when 1
+        }
+      }
       Fl_Group pi_mode {
         label M
         callback {for (int i = 0; i < o->children(); i++)
@@ -4164,7 +4213,7 @@ if (((Fl_Button*) o->array()[i])->value())
 {
 	piano->set_mode(i);
 	break;
-}} open
+}}
         tooltip {Switch Modes} xywh {556 7 46 20} labelsize 11 align 4 when 0
       } {
         Fl_Button {} {
@@ -4210,55 +4259,9 @@ if (((Fl_Button*) o->array()[i])->value())
 piano->reset_active_keys();}
         tooltip {Turns off all notes (Ignored/Disabled in omni mode)} xywh {826 7 96 20} down_box DOWN_BOX color 7 selection_color 15 labelsize 11 align 16 when 3
       }
-      Fl_Slider pitchwheel {
-        label {Pitch.}
-        callback {int val = (int) o->value();
-midi->write_event(0xe0, val & 0x007f, val >> 7);}
-        tooltip {Pitch "Wheel": Use right mouse button to enable hold, left for common behaviour} xywh {42 7 256 20} type Horizontal box THIN_UP_BOX color 8 selection_color 15 labelsize 11 align 4 maximum 16383 step 1 value 8192
-        class Pitch_Slider
-      }
-      Fl_Group g_transpose_layer {
-        label T
-        callback {for (int i = 0; i < o->children(); i++)
-if (((Fl_Button*) o->array()[i])->value())
-{
-	piano->select_transpose_layer(i);
-	break;
-}} open
-        tooltip {Transpose Layer: Choose the layer to transpose then "Middle-Click" the key that shall be middle-C} xywh {476 7 61 20} labelsize 11 align 4 when 0
-      } {
-        Fl_Button {} {
-          label 1
-          callback {o->setonly();
-((Group*)o->parent())->do_callback();}
-          xywh {477 7 15 20} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15 labelsize 11 when 1
-        }
-        Fl_Button {} {
-          label 2
-          callback {o->setonly();
-((Group*)o->parent())->do_callback();}
-          xywh {492 7 15 20} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 11 when 1
-        }
-        Fl_Button {} {
-          label 3
-          callback {o->setonly();
-((Group*)o->parent())->do_callback();}
-          xywh {507 7 15 20} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 11 when 1
-        }
-        Fl_Button {} {
-          label 4
-          callback {o->setonly();
-((Group*)o->parent())->do_callback();}
-          xywh {522 7 15 20} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 11 when 1
-        }
-      }
-      Fl_Slider modwheel {
-        label {Mod.}
-        callback {midi->write_event(0xb0, 1, (int) o->value());}
-        tooltip {Modulation "Wheel"} xywh {332 7 127 20} type Horizontal box THIN_UP_BOX color 8 selection_color 15 labelsize 11 align 4 maximum 127 step 1
-      }
       Fl_Box piano {
         xywh {5 36 921 162} labeltype NO_LABEL
+        code0 {o->clear_visible_focus();}
         class Piano
       }
     }

@@ -101,24 +101,26 @@ Cfg::Cfg(int device_id)
 	}
 	// load config
 	char _fname[PATH_MAX];
-	if (device_id == -1)
+	int sysex_id = device_id;
+	std::ifstream file;
+	if (sysex_id == -1)
 	{
-		snprintf(_fname, 64, "%s/default.cfg", config_dir); // read default.cfg
-		std::ifstream file(_fname);
+		snprintf(_fname, PATH_MAX, "%s/default.cfg", config_dir); // read default.cfg
+		file.open(_fname);
 		if (file.is_open())
 		{
-			file >> device_id;
+			file >> sysex_id;
 			file.close();
 		}
 	}
-	snprintf(_fname, 64, "%s/%d.cfg", config_dir, device_id); // load actual config
-	std::ifstream file(_fname);
+	snprintf(_fname, PATH_MAX, "%s/%d.cfg", config_dir, sysex_id); // load actual config
+	file.open(_fname);
 	unsigned char i;
 	if (!file.is_open()) // new config
 	{
 		for (i = 0; i < NOOPTION; i++)
 			option[i] = defaults[i];
-		if (device_id == -1)
+		if (sysex_id == -1)
 			option[CFG_DEVICE_ID] = 127;
 		return;
 	}
@@ -159,8 +161,9 @@ Cfg::~Cfg()
 	// save default
 	char _file[PATH_MAX];
 	snprintf(_file, PATH_MAX, "%s/default.cfg", config_dir);
-	std::ofstream defaults(_file, std::ios::trunc);
-	if (!defaults.is_open())
+	std::ofstream file;
+	file.open(_file, std::ios::trunc);
+	if (!file.is_open())
 	{
 		fl_alert("Warning:\nCould not write the config file.");
 		fprintf(stderr, "Warning:\nCould not write the config file.");
@@ -169,12 +172,12 @@ Cfg::~Cfg()
 #endif
 		return;
 	}
-	defaults << option[CFG_DEVICE_ID] << " ";
-	defaults.close();
+	file << option[CFG_DEVICE_ID] << " ";
+	file.close();
 	// save actual config
 	snprintf(_file, PATH_MAX, "%s/%d.cfg", config_dir, option[CFG_DEVICE_ID]);
-	std::ofstream config(_file, std::ios::trunc);
-	if (!config.is_open())
+	file.open(_file, std::ios::trunc);
+	if (!file.is_open())
 	{
 		fl_alert("Warning:\nCould not write the config file.");
 		fprintf(stderr, "Warning:\nCould not write the config file.");
@@ -187,12 +190,12 @@ Cfg::~Cfg()
 	int check = 1;
 	for (unsigned char i = 0; i < NOOPTION; i++)
 	{
-		config << option[i] << " ";
+		file << option[i] << " ";
 		check += option[i] * ((i % 5) + 1);
 	}
-	config << check << std::endl;
-	config << export_dir << std::endl;
-	config.close();
+	file << check << std::endl;
+	file << export_dir << std::endl;
+	file.close();
 }
 
 void Cfg::set_cfg_option(int opt, int value)

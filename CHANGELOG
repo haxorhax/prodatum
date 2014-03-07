@@ -1,3 +1,11 @@
+v2.0rc15
+
+* sliders also autofocus now (not really needed but feels more consistent
+  with knob behaviour)
+* slightly changed widget colors here and there so that everything is more
+  consistent
+
+
 v2.0rc14
 
 * changed a few things so that more color combinations will play nice
