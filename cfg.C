@@ -38,38 +38,14 @@ extern PXK* pxk;
 Cfg::Cfg(int device_id)
 {
 	pmesg("Cfg::Cfg(%d)  \n", device_id);
-	// check for portable export dir
-	struct stat sbuf;
-	export_dir[0] = 0;
-	if (stat("./export", &sbuf) == 0)
-	{
-		// check write permissions
-		FILE *fp = fopen("./export/.___prdtmchck", "w");
-		if (fp == NULL)
-		{
-			if (errno == EACCES)
-				fl_alert("You don't have write permission at ./export/.");
-		}
-		else
-		{
-			fclose(fp);
+	// default export dir
 #ifdef WIN32
-			_unlink("./export/.___prdtmchck");
+	set_export_dir(getenv("USERPROFILE"));
 #else
-			unlink("./export/.___prdtmchck");
+	set_export_dir(getenv("HOME"));
 #endif
-			snprintf(export_dir, PATH_MAX, "./export");
-		}
-	}
-	if (export_dir[0] == 0)
-	{
-#ifdef WIN32
-		set_export_dir(getenv("USERPROFILE"));
-#else
-		set_export_dir(getenv("HOME"));
-#endif
-	}
 	// check for portable config dir
+	struct stat sbuf;
 	config_dir[0] = 0;
 	if (stat("./prodatum-config", &sbuf) == 0)
 	{
@@ -99,7 +75,7 @@ Cfg::Cfg(int device_id)
 		snprintf(config_dir, PATH_MAX, "%s/.prodatum", export_dir);
 #endif
 	}
-
+	// defaults
 	defaults.resize(NOOPTION, 0);
 	option.resize(NOOPTION, 0);
 	defaults[CFG_MIDI_OUT] = -1;
@@ -251,9 +227,11 @@ int Cfg::get_cfg_option(int opt) const
 {
 	//pmesg("Cfg::get_cfg_option(%d)  \n", opt);
 	if (opt < NOOPTION && opt >= 0)
+	{
 		if (opt == CFG_SPEED)
 			return option[CFG_SPEED] * option[CFG_SPEED] * 10;
-	return option[opt];
+		return option[opt];
+	}
 	return 0;
 }
 

@@ -5696,7 +5696,7 @@ void Step_Offset::draw()
 {
 
 	int sxx = x(), syy = y(), sww = w(), shh = h();
-	int bxx = x(), byy = y(), bww = w(), bhh = h();
+	int bxx = x(), byy = y(), bww = w(), bhh;
 	syy += 18; // height of value output
 	bhh = 18;
 	shh -= 18;

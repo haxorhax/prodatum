@@ -357,6 +357,11 @@ PXK::~PXK()
 		delete setup;
 	if (setup_copy)
 		delete setup_copy;
+	if (setup_init)
+	{
+		setup_init->upload();
+		delete setup_init;
+	}
 	if (setup_names)
 		delete[] setup_names;
 	if (cfg)
@@ -684,7 +689,7 @@ static void sync_bro(void* p)
 		Club:
 #ifndef NDEBUG
 		snprintf(logbuffer, 128,
-				"\nmin. read buffer space: %d (max. pkt len %d)\nmin. write buffer space: %d (max. pkt len %d)\n", read_space,
+				"\nmin. read buffer space: %u (max. pkt len %u)\nmin. write buffer space: %u (max. pkt len %u)\n", read_space,
 				max_read, write_space, max_write);
 		ui->init_log->append(logbuffer);
 		read_space = RINGBUFFER_READ;
