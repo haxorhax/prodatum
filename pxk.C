@@ -108,7 +108,11 @@ void PXK::widget_callback(int id, int value, int layer)
 		// multimode channel specific (update channel controls (pan etc))
 		for (int i = 131; i < 138; i++)
 			if (pwid[i][0])
+			{
+				if (midi_mode != MULTI && i == 135) // MIDI enable
+					continue;
 				pwid[i][0]->set_value(setup->get_value(i, selected_channel));
+			}
 		ui->global_minipiano->reset_active_keys();
 		ui->main->minipiano->reset_active_keys();
 		ui->piano->reset_active_keys();
@@ -317,29 +321,29 @@ PXK::~PXK()
 	// clear browsers and rom choices
 	for (unsigned char i = 0; i < 4; i++)
 	{
-		ui->layer_editor[i]->instrument->clear();
+		ui->layer_editor[i]->instrument->reset();
 		ui->layer_editor[i]->instrument_rom->menu(0);
 		ui->layer_editor[i]->patchcords->uninitialize_sources();
 	}
 	ui->preset_editor->patchcords->uninitialize_sources();
-	ui->preset->clear();
+	ui->preset->reset();
 	ui->preset_rom->menu(0);
-	ui->preset_editor->riff->clear();
+	ui->preset_editor->riff->reset();
 	ui->preset_editor->riff_rom->menu(0);
-	ui->preset_editor->arp->clear();
+	ui->preset_editor->arp->reset();
 	ui->preset_editor->arp_rom->menu(0);
-	ui->preset_editor->l1->clear();
+	ui->preset_editor->l1->reset();
 	ui->preset_editor->l1_rom->menu(0);
-	ui->preset_editor->l2->clear();
+	ui->preset_editor->l2->reset();
 	ui->preset_editor->l2_rom->menu(0);
-	ui->main->riff->clear();
+	ui->main->riff->reset();
 	ui->main->riff_rom->menu(0);
-	ui->main->arp->clear();
+	ui->main->arp->reset();
 	ui->main->arp_rom->menu(0);
 	ui->multisetups->clear();
-	ui->copy_browser->clear();
+	ui->copy_browser->reset();
 	ui->copy_arp_rom->menu(0);
-	ui->copy_arp_pattern_browser->clear();
+	ui->copy_arp_pattern_browser->reset();
 	for (unsigned char i = 0; i <= roms; i++)
 		if (rom[i])
 		{

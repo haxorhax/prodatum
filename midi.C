@@ -392,6 +392,7 @@ static void process_midi_in(void*)
 						ui->init_log->append("\n");
 						free(__buffer);
 #endif
+						break;
 				}
 				if (cfg->get_cfg_option(CFG_LOG_SYSEX_IN))
 					pxk->log_add(sysex, len, 1);

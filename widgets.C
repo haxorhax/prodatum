@@ -360,7 +360,7 @@ void Browser::set_value(int v)
 		}
 	}
 }
-void Browser::clear()
+void Browser::reset()
 {
 	Fl_Browser::clear();
 	selected_rom = -1;

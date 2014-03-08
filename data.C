@@ -256,7 +256,7 @@ void Preset_Dump::show() const
 	while (strlen(buf) > 3 || buf[strlen(buf) - 1] == ' ')
 		buf[strlen(buf) - 1] = '\0';
 	ui->n_cat_m->value((const char*) buf);
-	// first we wanna load the names into the browsers
+	// load the names into the browsers first,
 	// so they are available for selection
 	for (unsigned char j = 0; j < 4; j++)
 		if (pwid[1439][j]) // instruments
@@ -269,7 +269,6 @@ void Preset_Dump::show() const
 		pwid[1299][0]->set_value(get_value(1299));
 	if (pwid[1300][0]) // link 2
 		pwid[1300][0]->set_value(get_value(1300));
-	Fl::wait(.1);
 	for (int i = 915; i <= 1300; i++) // preset params
 	{
 		if ((i > 1152 && i < 1169) || i == 929) // skip fx & riff rom
@@ -279,8 +278,8 @@ void Preset_Dump::show() const
 	}
 	for (int i = 1409; i <= 1992; i++) // layer params
 	{
-		// skip roms
-		if (i == 1439 || i == 1042 || i == 1299 || i == 1300)
+		// skip instrument rom
+		if (i == 1439)
 			continue;
 		for (int j = 0; j < 4; j++)
 			if (pwid[i][j])
