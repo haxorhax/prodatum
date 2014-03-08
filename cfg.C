@@ -38,14 +38,68 @@ extern PXK* pxk;
 Cfg::Cfg(int device_id)
 {
 	pmesg("Cfg::Cfg(%d)  \n", device_id);
-	// defaults
+	// check for portable export dir
+	struct stat sbuf;
+	export_dir[0] = 0;
+	if (stat("./export", &sbuf) == 0)
+	{
+		// check write permissions
+		FILE *fp = fopen("./export/.___prdtmchck", "w");
+		if (fp == NULL)
+		{
+			if (errno == EACCES)
+				fl_alert("You don't have write permission at ./export/.");
+		}
+		else
+		{
+			fclose(fp);
 #ifdef WIN32
-	set_export_dir(getenv("USERPROFILE"));
-	snprintf(config_dir, PATH_MAX, "%s/prodatum", getenv("APPDATA"));
+			_unlink("./export/.___prdtmchck");
 #else
-	set_export_dir(getenv("HOME"));
-	snprintf(config_dir, PATH_MAX, "%s/.prodatum", export_dir);
+			unlink("./export/.___prdtmchck");
 #endif
+			snprintf(export_dir, PATH_MAX, "./export");
+		}
+	}
+	if (export_dir[0] == 0)
+	{
+#ifdef WIN32
+		set_export_dir(getenv("USERPROFILE"));
+#else
+		set_export_dir(getenv("HOME"));
+#endif
+	}
+	// check for portable config dir
+	config_dir[0] = 0;
+	if (stat("./prodatum-config", &sbuf) == 0)
+	{
+		// check write permissions
+		FILE *fp = fopen("./prodatum-config/.___prdtmchck", "w");
+		if (fp == NULL)
+		{
+			if (errno == EACCES)
+				fl_alert("You don't have write permission at ./prodatum-config/.");
+		}
+		else
+		{
+			fclose(fp);
+#ifdef WIN32
+			_unlink("./prodatum-config/.___prdtmchck");
+#else
+			unlink("./prodatum-config/.___prdtmchck");
+#endif
+			snprintf(config_dir, PATH_MAX, "./prodatum-config");
+		}
+	}
+	if (config_dir[0] == 0)
+	{
+#ifdef WIN32
+		snprintf(config_dir, PATH_MAX, "%s/prodatum", getenv("APPDATA"));
+#else
+		snprintf(config_dir, PATH_MAX, "%s/.prodatum", export_dir);
+#endif
+	}
+
 	defaults.resize(NOOPTION, 0);
 	option.resize(NOOPTION, 0);
 	defaults[CFG_MIDI_OUT] = -1;
@@ -86,19 +140,7 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_INR] = 175;
 	defaults[CFG_ING] = 175;
 	defaults[CFG_INB] = 170;
-	// check/create cfg dir
-	struct stat sbuf;
-	if (stat(config_dir, &sbuf) == -1)
-	{
-		if (mkdir(config_dir, S_IRWXU| S_IRWXG | S_IROTH | S_IXOTH) == -1)
-		{
-			fl_alert("Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
-			fprintf(stderr, "Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
-#ifdef WIN32
-			fflush(stderr);
-#endif
-		}
-	}
+
 	// load config
 	char _fname[PATH_MAX];
 	int sysex_id = device_id;
@@ -144,9 +186,9 @@ Cfg::Cfg(int device_id)
 		fl_message("Configuration format changed, using default values.\n"
 				"Sorry for the inconvenience.");
 #ifdef WIN32
-				_unlink(_fname);
+		_unlink(_fname);
 #else
-				unlink(_fname);
+		unlink(_fname);
 #endif
 		for (i = 0; i < NOOPTION; i++)
 			option[i] = defaults[i];
