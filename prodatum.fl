@@ -886,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
+    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -1084,12 +1084,13 @@ instrument_filter->do_callback();}
   }
 } 
 
-widget_class PD_Preset_Editor {
+widget_class PD_Preset_Editor {open
   xywh {923 386 830 565} type Double box BORDER_BOX hide position_relative
 } {
   Fl_Group g_riff {
-    label RIFF
-    xywh {4 23 196 384} box THIN_DOWN_BOX labelfont 1 labelcolor 8
+    label RIFF open
+    tooltip {This function allows you to assign a Riff to a Preset to be played when the Audition button is pressed. A Riff is a short pre-recorded musical phrase designed to demonstrate the presets. A Riff can also be a single note. The Riffs themselves cannot be modified.
+(not available on Audity 2000)} xywh {4 23 196 384} box THIN_DOWN_BOX labelfont 1 labelcolor 8
   } {
     Fl_Choice riff_rom {open
       xywh {14 29 176 21} down_box BORDER_BOX color 7 labeltype NO_LABEL align 0 textsize 13
@@ -1559,19 +1560,19 @@ l2_filter->do_callback();}
   }
 } 
 
-widget_class PD_Main {
-  xywh {822 361 830 565} type Double box BORDER_BOX hide position_relative
+widget_class PD_Main {open
+  xywh {885 353 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
   }
   decl {Fl_Widget* ctrl_x[16];} {public
   }
   Fl_Group {} {
-    label main
+    label main open
     xywh {0 0 834 574} labeltype NO_LABEL align 0
   } {
     Fl_Group {} {
-      label CHANNEL
+      label CHANNEL open
       xywh {4 23 196 225} box THIN_DOWN_BOX labelfont 1 labelcolor 8
     } {
       Fl_Button preset_name {
@@ -1579,7 +1580,7 @@ widget_class PD_Main {
         tooltip {Program name} xywh {5 24 194 20} box FLAT_BOX down_box FLAT_BOX color 7 selection_color 15 labelfont 4 labelsize 12 align 84
         code0 {o->clear_visible_focus();}
       }
-      Fl_Group channel_select {open
+      Fl_Group channel_select {
         tooltip {Select preset by channel or activate channel in omni and poly-mode.} xywh {4 23 196 73} labeltype NO_LABEL labelfont 1 labelcolor 15 when 0
         code0 {o->set_id(129);}
         class Group
@@ -1694,26 +1695,27 @@ widget_class PD_Main {
         class Fl_Knob
       }
       Fl_Button b_audit {
-        label {A&udition}
+        label {A&UDITION}
         callback {if (o->value())
 ui->m_audit->set();
 else
 ui->m_audit->clear();
 
 midi->audit();}
-        tooltip {Toggle audition} xywh {56 103 65 20} type Toggle down_box DOWN_BOX selection_color 72 labelsize 10 align 80 when 1
+        tooltip {The Audition button allows you to hear any preset without hooking up a MIDI keyboard. When the Audition button is pressed, a short "Riff" (programmed as part of the preset) will play. The Riff is latched on and plays continuously until the button is pressed again. Presets can be changed while Audition is latched on.
+(not available on Audity 2000)} xywh {56 103 65 20} type Toggle down_box DOWN_BOX selection_color 72 labelsize 10 align 80 when 1
         code0 {o->clear_visible_focus();}
       }
       Fl_Button channel_enable {
-        label {C&hannel Enable}
-        tooltip {Multimode channel enable} xywh {56 129 65 30} type Toggle down_box DOWN_BOX shortcut 0x68 selection_color 67 labelsize 10 align 208 when 1
+        label {MIDI E&nable}
+        tooltip {MIDI Enable lets you turn each MIDI channel on and off independently when in Multi mode. This feature is helpful when you have other devices connected to the same MIDI line and do not want the PXK unit to respond to the MIDI channels reserved for the other devices.} xywh {56 129 65 30} type Toggle down_box DOWN_BOX shortcut 0x6e selection_color 67 labelsize 10 align 208 when 1
         code0 {o->set_id(135);}
         code1 {o->clear_visible_focus();}
         class Button
       }
       Fl_Button {} {
-        label {Program &Change}
-        tooltip {Receive Program Change} xywh {56 165 65 30} type Toggle down_box DOWN_BOX shortcut 0x63 selection_color 67 labelsize 10 align 208 when 1
+        label {PROGRAM &Change}
+        tooltip {Use this function to instruct the PXK to utilize or ignore incoming MIDI preset changes or Bank Select commands for each channel.} xywh {56 165 65 30} type Toggle down_box DOWN_BOX shortcut 0x63 selection_color 67 labelsize 10 align 208 when 1
         code0 {o->set_id(137);}
         code1 {o->clear_visible_focus();}
         class Button
@@ -1797,7 +1799,7 @@ midi->audit();}
         class MiniPiano
       }
     }
-    Fl_Group controller {open
+    Fl_Group controller {
       xywh {4 257 196 308}
     } {
       Fl_Button {} {
@@ -2129,7 +2131,7 @@ else // initial controller amounts
         class PD_Layer_Strip
       }
     }
-    Fl_Group master {
+    Fl_Group master {open
       xywh {204 0 425 569} hide
     } {
       Fl_Group {} {
@@ -2383,8 +2385,10 @@ arp_filter->do_callback();}
         }
       }
       Fl_Group g_riff {
-        label {MASTER RIFF}
-        xywh {208 350 196 215} box THIN_DOWN_BOX labelfont 1 labelcolor 8
+        label {MASTER RIFF} open
+        tooltip {Riff used when Superbeats mode is set to Master
+(not available on Audity 2000
+(If deactivated, check SUPERBEATS Mode)} xywh {208 350 196 215} box THIN_DOWN_BOX labelfont 1 labelcolor 8
       } {
         Fl_Choice riff_rom {open
           xywh {218 356 176 21} down_box BORDER_BOX color 7 labeltype NO_LABEL align 0 textsize 13
@@ -2439,13 +2443,18 @@ riff_filter->do_callback();}
           class Choice
         } {}
       }
-      Fl_Group {} {
-        label SUPERBEATS
-        xywh {415 425 210 41} box THIN_DOWN_BOX labelfont 1 labelcolor 8
+      Fl_Group g_superbeats {
+        label SUPERBEATS open selected
+        tooltip {SuperBEATS is a 16-track play-only sequencer that is optimized for live performance and groove creation.
+(not available on Audity 2000)} xywh {415 425 210 41} box THIN_DOWN_BOX labelfont 1 labelcolor 8
       } {
         Fl_Choice {} {
           label Mode open
-          tooltip {BEATS Mode. Off: BEATS mode off --- On: BEATS mode on. The Riff assigned in the preset is used --- Preset: BEATS mode is turned on ONLY if the Riff assigned in the preset is a "BTS" riff --- Master: BEATS mode on. The Master Riff is used} xywh {425 441 60 20} down_box BORDER_BOX color 7 labelsize 10 align 1 textsize 13
+          tooltip {BEATS Mode.
+Off: BEATS mode off
+On: BEATS mode on. The Riff assigned in the preset is used
+Preset: BEATS mode is turned on ONLY if the Riff assigned in the preset is a "BTS" riff
+Master: BEATS mode on. The Master Riff is used} xywh {425 441 60 20} down_box BORDER_BOX color 7 labelsize 10 align 1 textsize 13
           code0 {o->set_id(271);}
           code1 {o->add("Off");o->add("On");o->add("Preset");o->add("Master");}
           class Choice
@@ -2489,7 +2498,7 @@ riff_filter->do_callback();}
       }
     }
     Fl_Group {} {
-      label MASTER
+      label MASTER open
       xywh {634 433 196 132} box THIN_DOWN_BOX labelfont 1 labelcolor 8
     } {
       Fl_Counter {} {
@@ -2516,7 +2525,7 @@ riff_filter->do_callback();}
         label Volume
         callback {midi->master_volume((int) o->value());
 cfg->set_cfg_option(CFG_MASTER_VOLUME, (int) o->value());}
-        tooltip {Master Volume} xywh {640 522 40 40} color 7 selection_color 39 labelsize 10 align 1 maximum 127 step 1 value 80
+        tooltip {Master Volume (has the same effect as the Volume knob on the frontpanel. Value is saved and restored by prodatum)} xywh {640 522 40 40} color 7 selection_color 39 labelsize 10 align 1 maximum 127 step 1 value 80
         class Fl_Knob
       }
       Fl_Dial {} {
@@ -2632,17 +2641,17 @@ Fl::visual(FL_DOUBLE|FL_RGB);
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
+delete this;} open
       xywh {871 389 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
-      Fl_Group supergroup {
+      Fl_Group supergroup {open
         xywh {0 0 846 620} resizable
       } {
         Fl_Group {} {
-          label main
+          label main open
           xywh {0 19 843 596} labeltype NO_LABEL
         } {
           Fl_Button {} {
@@ -3059,7 +3068,7 @@ if (!eall && pxk->preset)
                 }
               }
             }
-            Fl_Group g_preset {
+            Fl_Group g_preset {open
               xywh {639 129 196 321} labeltype NO_LABEL align 0 deactivate
             } {
               Fl_Button b_copy_p {
@@ -3137,7 +3146,8 @@ preset->take_focus();
               }
               Fl_Group g_program {
                 label PROGRAM open
-                xywh {639 146 196 304} box THIN_DOWN_BOX labelfont 1 labelcolor 8
+                tooltip {Select a program to load for editing or, if either "COPY" or "SAVE" is active, double-click/Enter/Space target to copy/save (hold SHIFT to copy/save and return to preset selection mode).
+(If deactivated, check CHANNEL PROGRAM Change)} xywh {639 146 196 304} box THIN_DOWN_BOX labelfont 1 labelcolor 8
               } {
                 Fl_Choice preset_rom {open
                   xywh {649 152 176 21} down_box BORDER_BOX color 7 labeltype NO_LABEL align 0 textsize 13
@@ -3145,7 +3155,7 @@ preset->take_focus();
                   class ROM_Choice
                 } {}
                 Fl_Browser preset {
-                  tooltip {Select a program to load for editing or, if either "COPY" or "SAVE" is active, double-click/Enter/Space target to copy/save (hold SHIFT to copy/save and return to preset selection mode).} xywh {649 178 176 241} type Hold when 1 textfont 4 textsize 12
+                  xywh {649 178 176 241} type Hold when 1 textfont 4 textsize 12
                   code0 {o->set_id(897);}
                   class Browser
                 }
@@ -3562,7 +3572,7 @@ b_fs3->clear();}
               }
             }
             Submenu {} {
-              label Help
+              label Help open
               xywh {10 10 70 21} labelsize 12
             } {
               MenuItem tooltips {
@@ -3582,8 +3592,8 @@ pxk->display_status("Tooltips disabled.");
                 xywh {10 10 36 21} type Toggle shortcut 0x69 labelsize 12 labelcolor 49
               }
               MenuItem {} {
-                label {Hints...}
-                callback {fl_open_uri("http://prodatum.sf.net/doc/hints.html");}
+                label {Online manual...}
+                callback {fl_open_uri("http://prodatum.sf.net/doc/manual.html");}
                 xywh {10 10 36 21} shortcut 0xffbe labelsize 12
               }
               MenuItem {} {
@@ -3741,9 +3751,9 @@ arp_step[i]->offset->set_root(o->value());} open
           class Input
         }
         Fl_Button {} {
-          label Reset
+          label RESET
           callback {if (pxk->arp) pxk->arp->reset_pattern();}
-          tooltip {Reset pattern to it's original state} xywh {693 290 60 20} down_box DOWN_BOX selection_color 72 labelsize 10 align 16
+          tooltip {Undo all changes made to this pattern.} xywh {693 290 60 20} down_box DOWN_BOX selection_color 72 labelsize 10 align 16
           code0 {o->clear_visible_focus();}
         }
         Fl_Box {} {
@@ -3907,7 +3917,9 @@ init_log_w->show();}
           callback {connect->deactivate();
 device_info->label(0);
 r_user_id->value(o->value());
-pxk->LoadConfig(true, o->value());}
+delete pxk;
+pxk = new PXK(true, o->value());
+//pxk->LoadConfig(true, o->value());}
           tooltip {ID: Must be unique for every device you intend to use prodatum with (you can set the ID in the Master Menu of your device)!} xywh {20 174 90 25} color 7 selection_color 15 labelsize 12 align 8 when 1 minimum 0 maximum 126 value 127 textfont 4 textsize 13
         }
         Fl_Button {} {
@@ -3918,10 +3930,10 @@ pxk->Inquire(device_id->value());}
           tooltip {Request device information.} xywh {175 176 60 20} down_box DOWN_BOX selection_color 7 labelsize 11 align 16
         }
         Fl_Choice speed {
-          label {Sysex packet delay}
+          label {Sysex packet delay [ms]}
           callback {cfg->set_cfg_option(CFG_SPEED, o->value());} open
           tooltip {Delay: Change the response delay for preset dump requests. Also used when synchronizing (try higher values when you see garbage in the name browsers).} xywh {20 210 90 20} down_box BORDER_BOX color 7 labelsize 12 align 72 textsize 13
-          code0 {o->add("0 [ms]");o->add("10 [ms]");o->add("40 [ms]");o->add("90 [ms]");o->add("160 [ms]");}
+          code0 {o->add("0");o->add("10");o->add("40");o->add("90");o->add("160");}
           code1 {o->value(1);}
         } {}
       }
@@ -4153,7 +4165,7 @@ b_set->deactivate();}
       }
     }
     Fl_Window piano_w {
-      label {Keyboard / Ranges} open
+      label {Keyboard / Ranges}
       xywh {503 628 930 205} type Double box BORDER_BOX hide
       class Double_Window xclass prodatum
     } {
@@ -4167,7 +4179,7 @@ midi->write_event(0xe0, val & 0x007f, val >> 7);}
       }
       Fl_Slider modwheel {
         label Mod
-        callback {midi->write_event(0xb0, 1, (int) o->value());} selected
+        callback {midi->write_event(0xb0, 1, (int) o->value());}
         tooltip {Modulation "Wheel"} xywh {332 7 127 20} type Horizontal box THIN_UP_BOX color 7 selection_color 8 labelsize 11 align 4 maximum 127 step 1
         code0 {o->clear_visible_focus();}
       }

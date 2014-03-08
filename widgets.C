@@ -61,6 +61,8 @@ int dismiss(char exit)
 // ###################
 void PWid::cb(PWid*, void* p)
 {
+	if (!pxk->Synchronized())
+		return;
 	//pmesg("cb: id: %d, layer: %d\n", ((int*) p)[0], ((int*) p)[1]);
 	if (((int*) p)[0] == 897 && (ui->b_save_p->value() || ui->b_copy_p->value())) // saving in the preset browser
 		goto SKIP_DISMISS;
@@ -357,6 +359,11 @@ void Browser::set_value(int v)
 				ui->main->layer_strip[id_layer[1]]->deactivate();
 		}
 	}
+}
+void Browser::clear()
+{
+	Fl_Browser::clear();
+	selected_rom = -1;
 }
 
 void Browser::load_n(int type, int rom_id, int preset)
@@ -2553,7 +2560,7 @@ void Choice::set_value(int v)
 		v += 1;
 		value((double) v);
 	}
-	else if (id_layer[0] == 1153 || id_layer[0] == 1160 || id_layer[0] == 385)
+	else if (id_layer[0] == 1153 || id_layer[0] == 1160 || id_layer[0] == 385 || id_layer[0] == 271)
 	{
 		value(v);
 		dependency(v);
@@ -2614,7 +2621,7 @@ int Choice::get_value() const
 		return val;
 	}
 	int val = value();
-	if (id_layer[0] == 1153 || id_layer[0] == 1160 || id_layer[0] == 385)
+	if (id_layer[0] == 1153 || id_layer[0] == 1160 || id_layer[0] == 385 || id_layer[0] == 271)
 		dependency(val);
 	if (id_layer[0] == 513 || id_layer[0] == 520) // master fx
 	{
@@ -2888,6 +2895,13 @@ void Choice::dependency(int v) const
 			ui->fxb_send4->set_id(528);
 		}
 	}
+	else if (id_layer[0] == 271) // superbeats mode
+	{
+		if (v == 3) // master mode
+			ui->main->g_riff->activate();
+		else
+			ui->main->g_riff->deactivate();
+	}
 	else if (id_layer[0] == 513) // Master fxa
 		ui->g_fxa->activate();
 	else if (id_layer[0] == 520) // Master fxb
@@ -2924,12 +2938,14 @@ void Choice::dependency(int v) const
 		if (v != MULTI) // not multimode
 		{
 			ui->fx_channel->deactivate();
+			ui->main->channel_enable->set();
 			ui->main->channel_enable->deactivate();
 		}
 		else
 		{
 			ui->fx_channel->activate();
 			ui->main->channel_enable->activate();
+			ui->main->channel_enable->value(pxk->setup->get_value(135, pxk->selected_channel));
 		}
 		if (v == OMNI)
 			ui->all_notes_off->deactivate();

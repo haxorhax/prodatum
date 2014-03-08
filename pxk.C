@@ -47,7 +47,7 @@ volatile static int init_progress;
 void PXK::widget_callback(int id, int value, int layer)
 {
 	//pmesg("PXK::widget_callback(%d, %d, %d) \n", id, value, layer);
-	if (!setup)
+	if (!synchronized)
 		return;
 	// browser returns -1 when user clicked on empty space
 	if (value == -1 && (id == 278 || id == 643 || id == 897 || id == 928 || id == 1027 || id == 1409))
@@ -261,6 +261,7 @@ PXK::PXK(bool autoconnect, int __id)
 	inquired = false;
 	device_code = -1;
 	synchronized = false;
+	completed_type = 0;
 	roms = 0;
 	preset = 0;
 	preset_copy = 0;
@@ -286,8 +287,22 @@ PXK::PXK(bool autoconnect, int __id)
 		rom_index[i] = -1;
 	}
 	ui->device_info->label(0);
-	display_status("New PXK editor loaded.");
-	LoadConfig(autoconnect, __id);
+	cfg = new Cfg(__id);
+	cfg->apply();
+	if (cfg->get_cfg_option(CFG_MIDI_IN) != -1 && cfg->get_cfg_option(CFG_MIDI_OUT) != -1)
+	{
+		if (autoconnect)
+		{
+			ConnectPorts();
+			Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
+		}
+		else
+			ui->open_device->showup();
+	}
+	else if (midi->in() && midi->out())
+		Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
+	else
+		ui->open_device->showup();
 }
 
 PXK::~PXK()
@@ -299,6 +314,32 @@ PXK::~PXK()
 	mute(0, 1);
 	mute(0, 2);
 	mute(0, 3);
+	// clear browsers and rom choices
+	for (unsigned char i = 0; i < 4; i++)
+	{
+		ui->layer_editor[i]->instrument->clear();
+		ui->layer_editor[i]->instrument_rom->menu(0);
+		ui->layer_editor[i]->patchcords->uninitialize_sources();
+	}
+	ui->preset_editor->patchcords->uninitialize_sources();
+	ui->preset->clear();
+	ui->preset_rom->menu(0);
+	ui->preset_editor->riff->clear();
+	ui->preset_editor->riff_rom->menu(0);
+	ui->preset_editor->arp->clear();
+	ui->preset_editor->arp_rom->menu(0);
+	ui->preset_editor->l1->clear();
+	ui->preset_editor->l1_rom->menu(0);
+	ui->preset_editor->l2->clear();
+	ui->preset_editor->l2_rom->menu(0);
+	ui->main->riff->clear();
+	ui->main->riff_rom->menu(0);
+	ui->main->arp->clear();
+	ui->main->arp_rom->menu(0);
+	ui->multisetups->clear();
+	ui->copy_browser->clear();
+	ui->copy_arp_rom->menu(0);
+	ui->copy_arp_pattern_browser->clear();
 	for (unsigned char i = 0; i <= roms; i++)
 		if (rom[i])
 		{
@@ -323,29 +364,6 @@ PXK::~PXK()
 	setup_copy = 0;
 	setup_names = 0;
 	cfg = 0;
-}
-
-void PXK::LoadConfig(bool autoconnect, int id)
-{
-	pmesg("PXK::LoadConfig(%d)\n", id);
-	if (cfg)
-		delete cfg;
-	cfg = new Cfg(id);
-	cfg->apply();
-	if (cfg->get_cfg_option(CFG_MIDI_IN) != -1 && cfg->get_cfg_option(CFG_MIDI_OUT) != -1)
-	{
-		if (autoconnect)
-		{
-			ConnectPorts();
-			Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
-		}
-		else
-			ui->open_device->showup();
-	}
-	else if (midi->in() && midi->out())
-		Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
-	else
-		ui->open_device->showup();
 }
 
 void PXK::ConnectPorts()
@@ -638,6 +656,7 @@ static void sync_bro(void* p)
 			{
 				names = 0; // next type
 				type++;
+				pxk->completed_type = 0;
 				goto Exit;
 			}
 		} // if (type <= RIFF) // for every type
@@ -800,6 +819,7 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 				ui->main->b_audit->deactivate();
 				ui->m_audit->hide();
 				ui->main->g_riff->deactivate();
+				ui->main->g_superbeats->deactivate();
 				ui->preset_editor->g_riff->deactivate();
 				ui->main->post_d->hide();
 				ui->main->pre_d->label("Delay");
@@ -810,6 +830,7 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 				ui->main->b_audit->activate();
 				ui->m_audit->show();
 				ui->main->g_riff->activate();
+				ui->main->g_superbeats->activate();
 				ui->preset_editor->g_riff->activate();
 				ui->main->post_d->show();
 				ui->main->pre_d->label("Pre D");
@@ -1144,12 +1165,25 @@ void PXK::incoming_generic_name(const unsigned char* data)
 	// to the port
 	if (rom[0] == 0)
 		return;
+	if (data[11] < 0x20 || data[11] > 0x7E) // garbage
+	{
+		if (completed_type != 1)
+		{
+			name_set_incomplete = false;
+			completed_type = 1;
+		}
+		return;
+	}
 	unsigned char type = data[6] % 0xF;
 	if (type < PRESET || type > RIFF)
 	{
 		pmesg("*** unknown name type %d\n", type);
 		display_status("*** Received unknown name type.");
-		name_set_incomplete = false;
+		if (completed_type != 2)
+		{
+			name_set_incomplete = false;
+			completed_type = 2;
+		}
 		return;
 	}
 	int rom_id = data[9] + 128 * data[10];
@@ -1157,22 +1191,36 @@ void PXK::incoming_generic_name(const unsigned char* data)
 	{
 		pmesg("*** ROM %d does not exist\n", data[9] + 128 * data[10]);
 		display_status("*** Received unknown name type.");
-		name_set_incomplete = false;
+		if (completed_type != 3)
+		{
+			name_set_incomplete = false;
+			completed_type = 3;
+		}
 		return;
 	}
 	int number = data[7] + 128 * data[8];
 	//pmesg("PXK::incoming_generic_name(data) (#:%d-%d, type:%d)\n", number, data[9] + 128 * data[10], type);
 	// number of riffs unknown
 	if (type == RIFF)
-		if (number > MAX_RIFFS || (data[11] == 'f' && data[12] == 'f') || data[11] < 32)
+		if (number > MAX_RIFFS || (data[11] == 'f' && data[12] == 'f'))
 		{
-			name_set_incomplete = false;
+			if (completed_type != 4)
+			{
+				name_set_incomplete = false;
+				completed_type = 4;
+			}
 			return;
 		}
 	if (type == SETUP)
 		set_setup_name(number, data + 11);
 	else if (0 == rom[get_rom_index(rom_id)]->set_name(type, number, data + 11))
-		name_set_incomplete = false;
+	{
+		if (completed_type != 5)
+		{
+			name_set_incomplete = false;
+			completed_type = 5;
+		}
+	}
 	++init_progress;
 }
 
@@ -1441,11 +1489,11 @@ void PXK::load_export(const char* filename)
 #ifdef __linux
 	int offset = 0;
 	while (strncmp(filename + offset, "/", 1) != 0)
-	++offset;
+		++offset;
 	char n[PATH_MAX];
 	snprintf(n, PATH_MAX, "%s", filename + offset);
 	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
-	n[strlen(n) - 1] = '\0';
+		n[strlen(n) - 1] = '\0';
 	std::ifstream file(n, std::ifstream::binary);
 #else
 	std::ifstream file(filename, std::ifstream::binary);

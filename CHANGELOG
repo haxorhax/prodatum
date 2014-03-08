@@ -1,3 +1,15 @@
+v2.0rc16
+
+* fixed problem with sync code: make sure garbage replies from previous
+  type requests do not interfere with the next type
+* make sure to really reset when switching devices OR when
+  re-syncing (previously the browsers wouldn't update it's contents
+  when doing a re-sync for example)
+* disable master riff selection if superbeats mode is not set to master
+* disable SUPERBEATS group for Audity 2000 devices (feature was introduced
+  with XL-1)
+
+
 v2.0rc15
 
 * sliders also autofocus now (not really needed but feels more consistent

@@ -55,9 +55,9 @@ private:
 	char device_id;
 	volatile bool synchronized;
 public:
-	void LoadConfig(bool, int id = -1);
 	void ConnectPorts();
 	bool Synchronize();
+	char completed_type;
 	void Loading(bool upload = false);
 	void log_add(const unsigned char*, const unsigned int, unsigned char) const;
 	bool Synchronized() const;

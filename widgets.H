@@ -187,6 +187,7 @@ public:
 	int get_value() const;
 	void set_filter(const char* filter_string);
 	void apply_filter();
+	void clear();
 	void load_n(int type, int rom_id, int preset = -1);
 	int* get_minimax()
 	{

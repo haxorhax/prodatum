@@ -1260,20 +1260,6 @@ ROM::ROM(int i, int pr, int in)
 ROM::~ROM()
 {
 	pmesg("ROM::~ROM()  \n");
-	// clear rom choices once
-	if (id == 0)
-	{
-		for (unsigned char i = 0; i < 4; i++)
-			ui->layer_editor[i]->instrument_rom->clear();
-		ui->preset_rom->clear();
-		ui->preset_editor->arp_rom->clear();
-		ui->preset_editor->riff_rom->clear();
-		ui->preset_editor->l1_rom->clear();
-		ui->preset_editor->l2_rom->clear();
-		ui->main->riff_rom->clear();
-		ui->main->arp_rom->clear();
-		ui->copy_arp_rom->clear();
-	}
 	if (pxk->Synchronized())
 	{
 		const char* path = cfg->get_config_dir();
