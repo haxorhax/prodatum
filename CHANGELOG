@@ -1,9 +1,9 @@
 v2.0rc16
 
-* fixed problem with sync code: make sure garbage replies from previous
+* fixed sync code bug: make sure garbage replies from previous
   type requests do not interfere with the next type
-* make sure to really reset when switching devices OR when
-  re-syncing (previously the browsers wouldn't update it's contents
+* make sure to clean up when switching devices OR when
+  re-syncing (previously the browsers wouldn't update it's contents even
   when doing a re-sync for example)
 * disable master riff selection if superbeats mode is not set to master
 * disable SUPERBEATS group for Audity 2000 devices
@@ -12,7 +12,8 @@ v2.0rc16
   will load and save it's configuration files from/to that directory.
 * portable export directory option: if there is a directory called "export"
   in the same directory where prodatum is launched from, prodatum will
-  export into that directory by default.
+  export into that directory by default. the export directory can always
+  be changed and overriden in the preferences.
 
 
 v2.0rc15

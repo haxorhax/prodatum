@@ -57,7 +57,6 @@ private:
 public:
 	void ConnectPorts();
 	bool Synchronize();
-	char completed_type;
 	void Loading(bool upload = false);
 	void log_add(const unsigned char*, const unsigned int, unsigned char) const;
 	bool Synchronized() const;

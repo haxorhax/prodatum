@@ -886,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
+    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -1084,7 +1084,7 @@ instrument_filter->do_callback();}
   }
 } 
 
-widget_class PD_Preset_Editor {open
+widget_class PD_Preset_Editor {
   xywh {923 386 830 565} type Double box BORDER_BOX hide position_relative
 } {
   Fl_Group g_riff {
@@ -1560,7 +1560,7 @@ l2_filter->do_callback();}
   }
 } 
 
-widget_class PD_Main {open
+widget_class PD_Main {
   xywh {885 353 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
@@ -2444,7 +2444,7 @@ riff_filter->do_callback();}
         } {}
       }
       Fl_Group g_superbeats {
-        label SUPERBEATS open selected
+        label SUPERBEATS open
         tooltip {SuperBEATS is a 16-track play-only sequencer that is optimized for live performance and groove creation.
 (not available on Audity 2000)} xywh {415 425 210 41} box THIN_DOWN_BOX labelfont 1 labelcolor 8
       } {
@@ -2641,7 +2641,7 @@ Fl::visual(FL_DOUBLE|FL_RGB);
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open
+delete this;}
       xywh {871 389 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
@@ -4006,7 +4006,7 @@ open_device->hide();}
     }
     Fl_Window preferences {
       label Preferences
-      callback {b_close_prefs->do_callback();}
+      callback {b_close_prefs->do_callback();} open
       xywh {1095 471 305 470} type Double box UP_BOX labelsize 11 hide
       class Double_Window xclass prodatum
     } {
@@ -4071,8 +4071,9 @@ cfg->set_cfg_option(CFG_KNOBMODE, i);}
         xywh {10 165 290 35} labelfont 1 labelcolor 8 align 133
       }
       Fl_Input export_dir {
-        callback {b_set->activate();}
-        tooltip {Export files will be written here} xywh {20 172 205 20} box UP_BOX labeltype NO_LABEL labelsize 10 align 0 when 1 textfont 4 textsize 12
+        callback {b_set->activate();} selected
+        tooltip {Export files will be written here
+(to use a directory relative to where prodatum was launched from, use ./ as prefix. Eg: ./export)} xywh {20 172 205 20} box UP_BOX labeltype NO_LABEL labelsize 10 align 0 when 1 textfont 4 textsize 12
         code0 {o->maximum_size(PATH_MAX);}
       }
       Fl_Button b_set {

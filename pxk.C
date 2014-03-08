@@ -265,7 +265,6 @@ PXK::PXK(bool autoconnect, int __id)
 	inquired = false;
 	device_code = -1;
 	synchronized = false;
-	completed_type = 0;
 	roms = 0;
 	preset = 0;
 	preset_copy = 0;
@@ -658,9 +657,10 @@ static void sync_bro(void* p)
 			} // if (name_set_incomplete)
 			else
 			{
-				names = 0; // next type
 				type++;
-				pxk->completed_type = 0;
+				names = 0; // next type
+				if (name != 0)
+					goto Wait;
 				goto Exit;
 			}
 		} // if (type <= RIFF) // for every type
@@ -701,6 +701,8 @@ static void sync_bro(void* p)
 		setups_to_load = -1;
 		requested = false;
 	}
+	return;
+	Wait: Fl::repeat_timeout(.5, sync_bro, p);
 }
 
 void PXK::Join()
@@ -1171,11 +1173,7 @@ void PXK::incoming_generic_name(const unsigned char* data)
 		return;
 	if (data[11] < 0x20 || data[11] > 0x7E) // garbage
 	{
-		if (completed_type != 1)
-		{
-			name_set_incomplete = false;
-			completed_type = 1;
-		}
+		name_set_incomplete = false;
 		return;
 	}
 	unsigned char type = data[6] % 0xF;
@@ -1183,11 +1181,7 @@ void PXK::incoming_generic_name(const unsigned char* data)
 	{
 		pmesg("*** unknown name type %d\n", type);
 		display_status("*** Received unknown name type.");
-		if (completed_type != 2)
-		{
-			name_set_incomplete = false;
-			completed_type = 2;
-		}
+		name_set_incomplete = false;
 		return;
 	}
 	int rom_id = data[9] + 128 * data[10];
@@ -1195,36 +1189,15 @@ void PXK::incoming_generic_name(const unsigned char* data)
 	{
 		pmesg("*** ROM %d does not exist\n", data[9] + 128 * data[10]);
 		display_status("*** Received unknown name type.");
-		if (completed_type != 3)
-		{
-			name_set_incomplete = false;
-			completed_type = 3;
-		}
+		name_set_incomplete = false;
 		return;
 	}
 	int number = data[7] + 128 * data[8];
 	//pmesg("PXK::incoming_generic_name(data) (#:%d-%d, type:%d)\n", number, data[9] + 128 * data[10], type);
-	// number of riffs unknown
-	if (type == RIFF)
-		if (number > MAX_RIFFS || (data[11] == 'f' && data[12] == 'f'))
-		{
-			if (completed_type != 4)
-			{
-				name_set_incomplete = false;
-				completed_type = 4;
-			}
-			return;
-		}
 	if (type == SETUP)
 		set_setup_name(number, data + 11);
 	else if (0 == rom[get_rom_index(rom_id)]->set_name(type, number, data + 11))
-	{
-		if (completed_type != 5)
-		{
-			name_set_incomplete = false;
-			completed_type = 5;
-		}
-	}
+		name_set_incomplete = false;
 	++init_progress;
 }
 
@@ -1249,7 +1222,7 @@ void PXK::incoming_arp_dump(const unsigned char* data, int len)
 		// to the port
 		if (rom[0] == 0)
 			return;
-		if (data[14] < 32) // not ascii, not a "real" arp dump
+		if (data[14] < 0x20 || data[14] > 0x7E) // garbage // not ascii, not a "real" arp dump
 		{
 			name_set_incomplete = false;
 			return;
@@ -1261,15 +1234,6 @@ void PXK::incoming_arp_dump(const unsigned char* data, int len)
 			return;
 		}
 		int number = data[6] + 128 * data[7];
-		if (number > MAX_ARPS)
-		{
-			fprintf(stderr, "PXK::incoming_arp_dump(len: %d) *** returning: MAX_ARPS reached\n", len);
-#ifdef WIN32
-			fflush(stderr);
-#endif
-			name_set_incomplete = false;
-			return;
-		}
 		int rom_id = data[len - 3] + 128 * data[len - 2];
 		if (get_rom_index(rom_id) != 5)
 		{
@@ -1493,11 +1457,11 @@ void PXK::load_export(const char* filename)
 #ifdef __linux
 	int offset = 0;
 	while (strncmp(filename + offset, "/", 1) != 0)
-		++offset;
+	++offset;
 	char n[PATH_MAX];
 	snprintf(n, PATH_MAX, "%s", filename + offset);
 	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
-		n[strlen(n) - 1] = '\0';
+	n[strlen(n) - 1] = '\0';
 	std::ifstream file(n, std::ifstream::binary);
 #else
 	std::ifstream file(filename, std::ifstream::binary);
