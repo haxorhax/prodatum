@@ -705,6 +705,13 @@ static void sync_bro(void* p)
 		names = 0;
 		setups_to_load = -1;
 		requested = false;
+		if (join_bro)
+		{
+			ui->init->hide();
+			delete pxk;
+			pxk = new PXK(false);
+			pxk->Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
+		}
 	}
 	return;
 	Wait: Fl::repeat_timeout(.5, sync_bro, p);

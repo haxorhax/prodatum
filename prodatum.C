@@ -881,8 +881,8 @@ void PD_UI::Cancel()
 {
 	pmesg("PD_UI::Cancel() \n");
 	pxk->Join();
-	init->hide();
-	delete pxk;
-	pxk = new PXK(false);
-	pxk->Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
+//	init->hide();
+//	delete pxk;
+//	pxk = new PXK(false);
+//	pxk->Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
 }
