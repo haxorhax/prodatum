@@ -1,15 +1,17 @@
 v2.0rc16
 
-* fixed sync code bug: make sure garbage replies from previous
-  type requests do not interfere with the next type
-* make sure to clean up when switching devices OR when
-  re-syncing (previously the browsers wouldn't update it's contents even
-  when doing a re-sync for example)
-* disable master riff selection if superbeats mode is not set to master
-* disable SUPERBEATS group for Audity 2000 devices
 * portable configuration option: if there is a directory called "prodatum-
   config" in the same directory where prodatum is launched from, prodatum
   will load and save it's configuration files from/to that directory.
+* fixed sync code bug: make sure replies from name type requests do not
+  interfere with the next name type requests and, vice versa :o timewarp
+  (adds 2s/ROM to sync time)
+* make sure to clean up when switching devices and when re-syncing
+  (previously the browsers wouldn't update their contents when doing a
+  re-sync for example)
+* disable master riff selection if superbeats mode is not set to master
+* disable SUPERBEATS group for Audity 2000 devices
+* upload user multisetup when sync got cancelled by user
 
 
 v2.0rc15
