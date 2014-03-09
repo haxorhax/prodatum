@@ -886,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
+    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2948,7 +2948,7 @@ if (!eall && pxk->preset)
               class MiniPiano
             }
           }
-          Fl_Group g_pfx {open
+          Fl_Group g_pfx {
             xywh {639 129 196 321} labeltype NO_LABEL labelcolor 8 align 0
           } {
             Fl_Group g_effects {
@@ -3068,7 +3068,7 @@ if (!eall && pxk->preset)
                 }
               }
             }
-            Fl_Group g_preset {open
+            Fl_Group g_preset {
               xywh {639 129 196 321} labeltype NO_LABEL align 0 deactivate
             } {
               Fl_Button b_copy_p {
@@ -3255,7 +3255,7 @@ pxk->preset->set_name(o->value(), 1, o->position());}
           }
         }
         Fl_Group {} {
-          label menu
+          label menu open
           xywh {0 0 231 21} labeltype NO_LABEL align 0
         } {
           Fl_Box {} {
@@ -3597,8 +3597,8 @@ pxk->display_status("Tooltips disabled.");
                 xywh {10 10 36 21} shortcut 0xffbe labelsize 12
               }
               MenuItem {} {
-                label {Visit website...}
-                callback {fl_open_uri("http://prodatum.sf.net/");}
+                label {Bugs and feature requests...}
+                callback {fl_open_uri("http://sourceforge.net/p/prodatum/tickets/");}
                 xywh {10 10 36 21} shortcut 0xffbf labelsize 12
               }
               MenuItem {} {
@@ -3889,8 +3889,8 @@ init_log_w->show();}
       }
     }
     Fl_Window open_device {
-      label {Open Device}
-      xywh {1060 324 280 385} type Double box BORDER_BOX labelcolor 15 hide
+      label {Open Device} open
+      xywh {387 122 280 390} type Double box BORDER_BOX labelcolor 15 hide
       class Double_Window modal xclass prodatum
     } {
       Fl_Box {} {
@@ -3981,9 +3981,18 @@ o->label("Select...");
         }
       }
       Fl_Button {} {
-        label {?}
-        callback {device_info->label("A device is identified by it's ID. prodatum keeps a configuration for every ID. To load a different configuration, use the ID selector below. prodatum will load the last used ID on startup.");}
-        xywh {20 351 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
+        label 1
+        callback {device_info->label("Select the MIDI ports your PXK is connected to. "
+"prodatum will automatically detect the device. Push Open to synchronize prodatum.\\n"
+"prodatum will automatically connect to your device on its next start.");}
+        tooltip {Show help file one} xywh {20 351 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
+      }
+      Fl_Button {} {
+        label {2+}
+        callback {device_info->label("Using multiple PXK's make sure each of your devices is assigned a unique Sysex Device ID. "
+"To select a device to synchronize prodatum to, use the ID selector below. "
+"prodatum keeps a configuration for every ID it was synchronized to.");} selected
+        tooltip {Show help file two plus} xywh {55 351 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
       }
       Fl_Button connect {
         label {Open @returnarrow}
@@ -4006,7 +4015,7 @@ open_device->hide();}
     }
     Fl_Window preferences {
       label Preferences
-      callback {b_close_prefs->do_callback();} open
+      callback {b_close_prefs->do_callback();}
       xywh {1095 471 305 470} type Double box UP_BOX labelsize 11 hide
       class Double_Window xclass prodatum
     } {
@@ -4071,7 +4080,7 @@ cfg->set_cfg_option(CFG_KNOBMODE, i);}
         xywh {10 165 290 35} labelfont 1 labelcolor 8 align 133
       }
       Fl_Input export_dir {
-        callback {b_set->activate();} selected
+        callback {b_set->activate();}
         tooltip {Export files will be written here
 (to use a directory relative to where prodatum was launched from, use ./ as prefix. Eg: ./export)} xywh {20 172 205 20} box UP_BOX labeltype NO_LABEL labelsize 10 align 0 when 1 textfont 4 textsize 12
         code0 {o->maximum_size(PATH_MAX);}
