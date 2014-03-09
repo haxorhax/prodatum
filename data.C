@@ -923,20 +923,15 @@ void Arp_Dump::show() const
 	//pmesg("Arp_Dump::show()\n");
 	// fill name field
 	update_name(name);
-	int offset;
-	int velocity;
-	int duration;
-	int repeat;
-	int tmp;
 	unsigned char* dat = data + 26;
 	// load step values
 	for (unsigned char i = 0; i < 32; i++)
 	{
-		tmp = i * 8;
-		offset = unibble(dat + tmp, dat + tmp + 1);
-		velocity = unibble(dat + tmp + 2, dat + tmp + 3);
-		duration = unibble(dat + tmp + 4, dat + tmp + 5);
-		repeat = unibble(dat + tmp + 6, dat + tmp + 7);
+		int tmp = i * 8;
+		int offset = unibble(dat + tmp, dat + tmp + 1);
+		int velocity = unibble(dat + tmp + 2, dat + tmp + 3);
+		int duration = unibble(dat + tmp + 4, dat + tmp + 5);
+		int repeat = unibble(dat + tmp + 6, dat + tmp + 7);
 		arp_step[i]->set_values(offset, velocity, duration, repeat);
 	}
 	update_sequence_length_information();

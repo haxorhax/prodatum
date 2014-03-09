@@ -95,7 +95,8 @@ public:
 	/*
 	 * setup specific
 	 */
-public: // these are used by lot's of widgets
+public:
+	// these are used by lot's of widgets
 	Setup_Dump* setup;
 	const Setup_Dump* setup_copy;
 	char selected_channel;
@@ -159,7 +160,6 @@ private:
 public:
 	Arp_Dump* arp;
 	void incoming_arp_dump(const unsigned char*, int);
-
 
 public:
 	/// CTOR

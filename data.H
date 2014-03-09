@@ -279,10 +279,10 @@ public:
  * Program change map Dump class.
  * holds data and informations of a program change map dump
  */
-class PC_Dump
-{
-
-};
+//class PC_Dump
+//{
+//
+//};
 
 /**
  * ROM class.
@@ -312,7 +312,6 @@ class ROM
 	unsigned char* arp_names;
 	/// storage pointer to the array of riff names
 	unsigned char* riff_names;
-
 
 public:
 	/**

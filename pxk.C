@@ -758,14 +758,18 @@ bool PXK::Synchronized() const
 void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned char io) const
 {
 	//pmesg("PXK::log_add(sysex, %d, %d)\n", len, io);
-	static unsigned int count_i = 0;
-	static unsigned int count_o = 0;
 	char* buf = new char[2 * len + 18];
 	unsigned char n;
 	if (io == 1)
+	{
+		static unsigned int count_i = 0;
 		n = snprintf(buf, 16, "\nI.%u::", ++count_i);
+	}
 	else
+	{
+		static unsigned int count_o = 0;
 		n = snprintf(buf, 16, "\nO.%u::", ++count_o);
+	}
 	for (unsigned int i = 0; i < len; i++)
 	{
 		sprintf(n + buf + 2 * i, "%02hhX", sysex[i]);
@@ -1469,11 +1473,11 @@ void PXK::load_export(const char* filename)
 #ifdef __linux
 	int offset = 0;
 	while (strncmp(filename + offset, "/", 1) != 0)
-	++offset;
+		++offset;
 	char n[PATH_MAX];
 	snprintf(n, PATH_MAX, "%s", filename + offset);
 	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
-	n[strlen(n) - 1] = '\0';
+		n[strlen(n) - 1] = '\0';
 	std::ifstream file(n, std::ifstream::binary);
 #else
 	std::ifstream file(filename, std::ifstream::binary);

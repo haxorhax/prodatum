@@ -1483,7 +1483,7 @@ void Slider::draw(int X, int Y, int W, int H)
 		draw_box(FL_THIN_UP_BOX, X, Y, W, H, FL_BACKGROUND2_COLOR);
 	fl_pop_clip();
 	if (wsl > 0 && hsl > 0)
-			draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, FL_BACKGROUND_COLOR);
+		draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, FL_BACKGROUND_COLOR);
 	draw_label(xsl, ysl, wsl, hsl);
 }
 
@@ -2308,7 +2308,8 @@ void Fl_Knob::draw_cursor(const int ox, const int oy, const int side)
 	double angle;
 	// top
 	if (active_r())
-		(this == Fl::focus()) ? fl_color(fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR)) : fl_color(FL_FOREGROUND_COLOR);
+		(this == Fl::focus()) ?
+				fl_color(fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR)) : fl_color(FL_FOREGROUND_COLOR);
 	else
 		fl_color(fl_darker(FL_FOREGROUND_COLOR));
 	rds = (side - 18) / 2.0;
@@ -2412,7 +2413,7 @@ int Button::get_value() const
 	{
 		v ? ui->m_bypass->set() : ui->m_bypass->clear();
 		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_BACKGROUND_COLOR, .6)) : ui->b_pfx->color(
-				FL_BACKGROUND_COLOR);
+						FL_BACKGROUND_COLOR);
 		ui->b_pfx->redraw();
 	}
 	if (id_layer[0] == 258 || id_layer[0] == 1669 || id_layer[0] == 1674 || id_layer[0] == 1033 || id_layer[0] == 649) // fx bypass / lfo syncs / arp syncs

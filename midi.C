@@ -955,7 +955,6 @@ void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 void MIDI::write_event(int status, int value1, int value2, int channel) const
 {
 	//pmesg("MIDI::write_event(%X, %X, %X, %d)\n", status, value1, value2, channel);
-	static unsigned long count = 0;
 	if (!midi_active)
 		return;
 	if (channel == -1)
@@ -971,6 +970,7 @@ void MIDI::write_event(int status, int value1, int value2, int channel) const
 	// log midi events
 	if (cfg->get_cfg_option(CFG_LOG_EVENTS_OUT))
 	{
+		static unsigned long count = 0;
 		char buf[30];
 		snprintf(buf, 30, "\nOE.%lu::%02x%02x%02x", ++count, stat, v1, v2);
 		ui->logbuf->append(buf);
