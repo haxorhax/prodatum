@@ -886,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
+    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2668,7 +2668,7 @@ if (((Fl_Button*) o->array()[i])->value())
 {
 	select(i);
 	break;
-}}
+}} open
             xywh {56 25 754 19} when 0
           } {
             Fl_Button {} {
@@ -3983,16 +3983,24 @@ o->label("Select...");
       Fl_Button {} {
         label 1
         callback {device_info->label("Select the MIDI ports your PXK is connected to. "
-"prodatum will automatically detect the device. Push Open to synchronize prodatum.\\n"
+"prodatum will automatically detect the device. Push Open to synchronize prodatum. "
 "prodatum will automatically connect to your device on its next start.");}
-        tooltip {Show help file one} xywh {20 351 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
+        tooltip {Show help file one} xywh {10 351 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
       }
       Fl_Button {} {
         label {2+}
-        callback {device_info->label("Using multiple PXK's make sure each of your devices is assigned a unique Sysex Device ID. "
+        callback {device_info->label("With multiple PXK's each must have assigned a unique Sysex Device ID. "
 "To select a device to synchronize prodatum to, use the ID selector below. "
-"prodatum keeps a configuration for every ID it was synchronized to.");} selected
-        tooltip {Show help file two plus} xywh {55 351 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
+"prodatum keeps a configuration for every ID it synchronizes to.");} selected
+        tooltip {Show help file two plus} xywh {45 351 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
+      }
+      Fl_Button {} {
+        label A
+        callback {open_device->hide();
+about->position(main_window->x() + (main_window->w() / 2) - (about->w() / 2),
+		main_window->y() + 80);
+about->show();}
+        xywh {80 351 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
       }
       Fl_Button connect {
         label {Open @returnarrow}
@@ -4016,7 +4024,7 @@ open_device->hide();}
     Fl_Window preferences {
       label Preferences
       callback {b_close_prefs->do_callback();}
-      xywh {1095 471 305 470} type Double box UP_BOX labelsize 11 hide
+      xywh {705 441 305 470} type Double box UP_BOX labelsize 11 hide
       class Double_Window xclass prodatum
     } {
       Fl_Box {} {
@@ -4364,7 +4372,10 @@ piano->reset_active_keys();}
     }
     Fl_Window about {
       label {About prodatum}
-      xywh {893 383 272 355} type Double box BORDER_BOX hide xclass prodatum
+      callback {about->hide();
+if (!pxk->Synchronized())
+open_device->showup();}
+      xywh {563 235 272 334} type Double box BORDER_BOX hide xclass prodatum
     } {
       Fl_Box {} {
         xywh {1 1 60 50} deactivate
@@ -4379,17 +4390,23 @@ piano->reset_active_keys();}
       }
       Fl_Box {} {
         label {Copyright 2008-2014 Jan Eidtmann
-http://prodatum.sf.net}
-        xywh {15 226 242 50} labelsize 12 align 144
+http://prodatum.sf.net
+
+Support free software and my independency}
+        xywh {3 226 265 59} labelsize 12 align 144
+      }
+      Fl_Output o_ppal {
+        label {paypal:}
+        callback {Fl::copy(o->value(), 16, 1);}
+        xywh {72 296 127 24} selection_color 7
+        code0 {o->value("rdxesy@gmail.com");}
+        code1 {o->clear_visible_focus();}
       }
       Fl_Button {} {
-        label Close
-        callback {about->hide();}
-        xywh {187 321 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
-      }
-      Fl_Box {} {
-        label {Support & paypal: rdxesy@@gmail.com}
-        xywh {15 278 242 23} box DOWN_BOX color 7 selection_color 15 labelsize 12 align 144
+        label {Click to copy email}
+        callback {Fl::copy(o_ppal->value(), 16, 1);}
+        xywh {205 296 55 24} box FLAT_BOX down_box FLAT_BOX selection_color 72 labelsize 9 align 144
+        code0 {o->clear_visible_focus();}
       }
     }
     Fl_Window copy_layer {
