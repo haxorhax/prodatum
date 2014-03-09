@@ -397,6 +397,8 @@ static void sync_police(void* synced)
 {
 	if (timed_out) // init timeout
 	{
+		if (pxk->setup_init)
+			pxk->setup_init->upload();
 		ui->init->hide();
 #ifndef NDEBUG
 		fl_alert("Sync failed. Please send the init log to rdxesy@@yahoo.de and check your cables & MIDI drivers etc.");
@@ -603,8 +605,6 @@ static void sync_bro(void* p)
 						ui->init_progress->value((float) init_progress);
 						while (name < names)
 						{
-							if (join_bro)
-								goto Club;
 							pxk->rom[rom_nr]->load_name(type, name++);
 							if (name % 12 == 0)
 							{
@@ -662,6 +662,8 @@ static void sync_bro(void* p)
 			} // if (name_set_incomplete)
 			else
 			{
+				if (name != 0)
+					pxk->rom[rom_nr]->save(type);
 				type++;
 				names = 0; // next type
 				if (name != 0)
@@ -707,6 +709,8 @@ static void sync_bro(void* p)
 		requested = false;
 		if (join_bro)
 		{
+			if (pxk->setup_init)
+				pxk->setup_init->upload();
 			ui->init->hide();
 			delete pxk;
 			pxk = new PXK(false);
@@ -947,6 +951,7 @@ unsigned char PXK::load_setup_names(unsigned char start)
 	else // last setup name
 	{
 		set_setup_name(63, (unsigned char*) "Factory Setup   ");
+		save_setup_names(true);
 		ui->multisetups->clear();
 		char buf[21];
 		for (int i = 0; i < 64; i++)
@@ -1302,10 +1307,10 @@ void PXK::set_setup_name(unsigned char number, const unsigned char* name)
 	memcpy(setup_names + 16 * number, name, 16);
 }
 
-void PXK::save_setup_names() const
+void PXK::save_setup_names(bool force) const
 {
 	pmesg("PXK::save_setup_names() \n");
-	if (synchronized)
+	if (synchronized || force)
 	{
 		char filename[PATH_MAX];
 		snprintf(filename, PATH_MAX, "%s/n_set_0_%d", cfg->get_config_dir(), device_id);

@@ -1,3 +1,15 @@
+v2.0rc17
+
+* save sync files right away so that, if later ROM's time-out
+  we have at least the flash and previous ROM data (related:
+  ticket #11)
+* also make sure to re-up users multisetup when sync times out
+  (ticket #9)
+* added some more help buttons to the open dialog
+* added a "Bugs and feature requests..." menu entry to the help menu
+* (updated the online manual, check help menu if you're interested)
+
+
 v2.0rc16
 
 * portable configuration option: if there is a directory called "prodatum-

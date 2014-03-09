@@ -110,7 +110,7 @@ private:
 	void update_cc_sliders();
 	void update_control_map();
 	void set_setup_name(unsigned char, const unsigned char*);
-	void save_setup_names() const;
+	void save_setup_names(bool force = false) const;
 public:
 	char midi_mode;
 	char selected_fx_channel;

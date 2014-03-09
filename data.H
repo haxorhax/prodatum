@@ -346,6 +346,7 @@ public:
 	 * @param name the name
 	 */
 	int set_name(int type, int number, const unsigned char* name);
+	void save(unsigned char);
 	/// returns an attribute like ROM ID ...
 	int get_attribute(int type) const;
 	/// returns the name of this ROM

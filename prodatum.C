@@ -31,7 +31,7 @@
 
 static void load_data();
 
-const char* VERSION = "2.0rc16";
+const char* VERSION = "2.0rc17";
 PD_UI* ui = 0;
 MIDI* midi = 0;
 PXK* pxk = 0;
@@ -875,14 +875,4 @@ void PD_UI::Reset(char user_data, char rom_data)
 	b_reset->activate();
 	fl_message("OK. Deleted %d files from\n%s.\nWill reload missing data now.", deleted, config_dir);
 	pxk = new PXK(true);
-}
-
-void PD_UI::Cancel()
-{
-	pmesg("PD_UI::Cancel() \n");
-	pxk->Join();
-//	init->hide();
-//	delete pxk;
-//	pxk = new PXK(false);
-//	pxk->Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
 }

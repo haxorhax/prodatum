@@ -1303,6 +1303,48 @@ ROM::~ROM()
 	delete[] riff_names;
 }
 
+void ROM::save(unsigned char type)
+{
+	pmesg("ROM::save(%d)  \n", type);
+	const char* __p = cfg->get_config_dir();
+	char __f[PATH_MAX];
+	std::fstream file;
+	switch (type)
+	{
+		case PRESET:
+			if (id == 0)
+				snprintf(__f, PATH_MAX, "%s/n_prs_%d_%d", __p, id, device_id);
+			else
+				snprintf(__f, PATH_MAX, "%s/n_prs_%d", __p, id);
+			file.open(__f, std::ios::out | std::ios::binary | std::ios::trunc);
+			file.write((char*) preset_names, presets * 16);
+			file.close();
+			break;
+		case INSTRUMENT:
+			snprintf(__f, PATH_MAX, "%s/n_ins_%d", __p, id);
+			file.open(__f, std::ios::out | std::ios::binary | std::ios::trunc);
+			file.write((char*) instrument_names, instruments * 16);
+			file.close();
+			break;
+		case ARP:
+			if (id == 0)
+				snprintf(__f, PATH_MAX, "%s/n_arp_%d_%d", __p, id, device_id);
+			else
+				snprintf(__f, PATH_MAX, "%s/n_arp_%d", __p, id);
+			file.open(__f, std::ios::out | std::ios::binary | std::ios::trunc);
+			file.write((char*) arp_names, arps * 16);
+			file.close();
+			break;
+		case RIFF:
+			snprintf(__f, PATH_MAX, "%s/n_rff_%d", __p, id);
+			file.open(__f, std::ios::out | std::ios::binary | std::ios::trunc);
+			file.write((char*) riff_names, riffs * 16);
+			file.close();
+	}
+	if (id != 0)
+		on_disk[type] = true;
+}
+
 void ROM::load_name(unsigned char type, int number)
 {
 	//pmesg("ROM(%d)::load_name(type %d, number %d) \n", id, type, number);

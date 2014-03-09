@@ -881,7 +881,7 @@ coarse->do_callback();
     class Fl_Knob
   }
   Fl_Box {} {
-    label 0dB selected
+    label 0dB
     xywh {11 397 31 13} box FLAT_BOX color 7 labeltype NO_LABEL
   }
   Fl_Slider volume {
@@ -2590,7 +2590,6 @@ delete this;} public
   decl {int copy_type;} {}
   decl {int copy_src;} {}
   decl {char* filter_tmp;} {}
-  decl {void Cancel();} {}
   decl {void Reset(char, char);} {}
   decl {void set_color(Fl_Color);} {}
   decl {void set_default_colors();} {}
@@ -3877,7 +3876,7 @@ This may take a few minutes.}
       }
       Fl_Button {} {
         label Cancel
-        callback {Cancel();}
+        callback {pxk->Join();}
         xywh {210 95 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
       }
       Fl_Button init_log_b {
@@ -3889,7 +3888,7 @@ init_log_w->show();}
       }
     }
     Fl_Window open_device {
-      label {Open Device} open
+      label {Open Device}
       xywh {387 122 280 390} type Double box BORDER_BOX labelcolor 15 hide
       class Double_Window modal xclass prodatum
     } {
@@ -4374,8 +4373,8 @@ piano->reset_active_keys();}
       label {About prodatum}
       callback {about->hide();
 if (!pxk->Synchronized())
-open_device->showup();}
-      xywh {563 235 272 334} type Double box BORDER_BOX hide xclass prodatum
+open_device->showup();} open
+      xywh {476 62 272 334} type Double box BORDER_BOX hide xclass prodatum
     } {
       Fl_Box {} {
         xywh {1 1 60 50} deactivate
@@ -4392,8 +4391,9 @@ open_device->showup();}
         label {Copyright 2008-2014 Jan Eidtmann
 http://prodatum.sf.net
 
-Support free software and my independency}
-        xywh {3 226 265 59} labelsize 12 align 144
+Please support free software and
+my autonomy with a donation.} selected
+        xywh {3 226 265 70} labelsize 12 align 144
       }
       Fl_Output o_ppal {
         label {paypal:}
