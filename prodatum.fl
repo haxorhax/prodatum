@@ -775,7 +775,7 @@ widget_class PD_Layer_Patchcords {
 } 
 
 widget_class PD_Layer_Strip {
-  xywh {1049 391 116 540} type Double hide position_relative
+  xywh {1049 391 100 540} type Double hide position_relative
 } {
   decl {void init(int layer);} {public
   }
@@ -881,12 +881,12 @@ coarse->do_callback();
     class Fl_Knob
   }
   Fl_Box {} {
-    label 0dB
-    xywh {11 394 31 19} box FLAT_BOX color 7 labeltype NO_LABEL
+    label 0dB selected
+    xywh {11 397 31 13} box FLAT_BOX color 7 labeltype NO_LABEL
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
+    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -3991,7 +3991,7 @@ o->label("Select...");
         label {2+}
         callback {device_info->label("With multiple PXK's each must have assigned a unique Sysex Device ID. "
 "To select a device to synchronize prodatum to, use the ID selector below. "
-"prodatum keeps a configuration for every ID it synchronizes to.");} selected
+"prodatum keeps a configuration for every ID it synchronizes to.");}
         tooltip {Show help file two plus} xywh {45 351 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
       }
       Fl_Button {} {
