@@ -1,3 +1,10 @@
+v2.0rc18
+
+* some nonfunctional improvements
+* first try to deal with devices becoming mute for unknown reasons
+  when synchronizing RIFF names
+
+
 v2.0rc17
 
 * save sync files right away so that, if later ROM's time-out
