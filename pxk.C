@@ -693,10 +693,7 @@ static void sync_bro(void* p)
 		ui->init->hide();
 		ui->main_window->showup(); // make main active (important!)
 		if (pxk->setup_init)
-		{
-			pxk->display_status("Uploading user multisetup...");
 			pxk->setup_init->upload();
-		}
 		if (timed_out)
 		{
 			timed_out = false;
@@ -805,6 +802,7 @@ void PXK::Inquire(unsigned char id)
 		device_id = id;
 		unsigned char s[] =
 		{ 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
+		midi->write_sysex(s, 6);
 		midi->write_sysex(s, 6);
 		inquired = true;
 		device_code = -1;

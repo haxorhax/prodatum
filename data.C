@@ -1140,6 +1140,8 @@ void Setup_Dump::show_fx() const
 void Setup_Dump::upload() const
 {
 	pmesg("Setup_Dump::upload()\n");
+	pxk->display_status("Uploading user multisetup...");
+	Fl::flush();
 	midi->write_sysex(data, size);
 	// let it eat
 	mysleep(500 + cfg->get_cfg_option(CFG_SPEED));
