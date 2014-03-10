@@ -81,8 +81,8 @@ public:
 	 */
 public:
 	int device_code; // PXK device code
-private:
 	int member_code; // 2 = AUDITY
+private:
 	char os_rev[5]; // OS revision
 	int user_presets; // available user presets
 	void create_device_info();

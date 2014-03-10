@@ -504,16 +504,17 @@ static void sync_bro(void* p)
 	{
 		if (type <= RIFF) // for every type
 		{
-			if (type == SETUP || type == DEMO)
+			if (type == SETUP || type == DEMO || (rom_nr == 0 && (type == INSTRUMENT || type == RIFF)))
 			{
 				names = 0;
 				type++;
 				goto Exit;
 			}
-			if (rom_nr == 0 && (type == INSTRUMENT || type == RIFF))
+			if (type == RIFF && pxk->member_code == 2) // audity has no riffs
 			{
 				names = 0;
-				type++;
+				type = PRESET; // next rom
+				rom_nr++;
 				goto Exit;
 			}
 			if (names == 0)
@@ -647,7 +648,7 @@ static void sync_bro(void* p)
 		else
 		{
 			names = 0;
-			type = 1; // next rom
+			type = PRESET; // next rom
 			rom_nr++;
 			goto Exit;
 		}
@@ -793,7 +794,7 @@ void PXK::Inquire(unsigned char id)
 		{ 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
 		// send this twice, fixes ticket #4
 		midi->write_sysex(s, 6);
-		midi->write_sysex(s, 6);
+//		midi->write_sysex(s, 6);
 		inquired = true;
 		device_code = -1;
 		Fl::add_timeout(.3, check_connection, (void*) &device_code);
@@ -802,13 +803,13 @@ void PXK::Inquire(unsigned char id)
 
 void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 {
-	if (!inquired)
-		return;
-	inquired = false;
 	pmesg("PXK::incoming_inquiry_data(data, %d)\n", len);
-	Fl::remove_timeout(check_connection);
-	if (!synchronized && data[7] * 128 + data[6] == 516 && (data[2] == device_id || device_id == 127)) // talking to our PXK!
+	if (!inquired || synchronized)
+		return;
+	device_code = data[7] * 128 + data[6];
+	if (device_code == 516 && (data[2] == device_id || device_id == 127)) // talking to our PXK!
 	{
+		inquired = false;
 		if (device_id == 127)
 		{
 			device_id = data[2];
@@ -818,7 +819,6 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 			cfg = new Cfg(device_id);
 			cfg->apply();
 		}
-		device_code = 516;
 		midi->set_device_id((unsigned char) device_id); // so further sysex comes through
 		mysleep(33 + cfg->get_cfg_option(CFG_SPEED));
 		midi->request_hardware_config();
@@ -849,6 +849,8 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 				ui->preset_editor->pre_d->label("Pre D");
 		}
 	}
+	else
+		device_code = -1;
 }
 
 unsigned char PXK::get_rom_index(char id) const
