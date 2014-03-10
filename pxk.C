@@ -289,27 +289,30 @@ PXK::PXK()
 		rom[i] = 0;
 		rom_index[i] = -1;
 	}
-	ui->device_info->label(0);
 }
 
 void PXK::Boot(bool autoconnect, int __id)
 {
-	cfg = new Cfg(__id);
-	cfg->apply();
+	if (!cfg)
+	{
+		cfg = new Cfg(__id);
+		cfg->apply();
+	}
+	else if (__id != cfg->get_cfg_option(CFG_DEVICE_ID))
+	{
+		delete cfg;
+		cfg = new Cfg(__id);
+		cfg->apply();
+	}
 	if (cfg->get_cfg_option(CFG_MIDI_IN) != -1 && cfg->get_cfg_option(CFG_MIDI_OUT) != -1)
 	{
 		if (autoconnect)
 		{
 			ConnectPorts();
-			while (!ui->main_window->shown())
-				Fl::wait(.1);
 			Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
 		}
 		else
-		{
 			ui->open_device->showup();
-			Fl::flush();
-		}
 	}
 	else if (midi->in() && midi->out())
 		Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
@@ -326,6 +329,7 @@ PXK::~PXK()
 	mute(0, 1);
 	mute(0, 2);
 	mute(0, 3);
+	ui->device_info->label(0);
 	// clear browsers and rom choices
 	for (unsigned char i = 0; i < 4; i++)
 	{
@@ -726,9 +730,11 @@ static void sync_bro(void* p)
 
 void PXK::Join()
 {
+	ui->init->hide();
+	ui->device_info->label(0);
+	ui->open_device->showup();
 	join_bro = true;
-	while (!ui->open_device->shown())
-		Fl::wait(.1);
+	Fl::flush();
 }
 
 bool PXK::Synchronize()
@@ -793,15 +799,18 @@ static void check_connection(void* p)
 	}
 }
 
-void PXK::Inquire(unsigned char id)
+void PXK::Inquire(int id)
 {
 	pmesg("PXK::Inquire(%d)\n", id);
 	if (!synchronized)
 	{
 		join_bro = false;
-		device_id = id;
+		if (id == -1)
+			device_id = 0x7f;
+		else
+			device_id = id & 0xff;
 		unsigned char s[] =
-		{ 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
+		{ 0xf0, 0x7e, device_id, 0x06, 0x01, 0xf7 };
 		midi->write_sysex(s, 6);
 		midi->write_sysex(s, 6);
 		inquired = true;
@@ -1312,7 +1321,7 @@ void PXK::set_setup_name(unsigned char number, const unsigned char* name)
 
 void PXK::save_setup_names(bool force) const
 {
-	pmesg("PXK::save_setup_names() \n");
+//	pmesg("PXK::save_setup_names() \n");
 	if ((synchronized && setup_names_changed) || force)
 	{
 		char filename[PATH_MAX];

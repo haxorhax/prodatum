@@ -88,7 +88,7 @@ private:
 	void create_device_info();
 public:
 	bool inquired;
-	void Inquire(unsigned char);
+	void Inquire(int);
 	void incoming_inquiry_data(const unsigned char*, int);
 	void incoming_hardware_config(const unsigned char*, int);
 

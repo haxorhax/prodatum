@@ -74,6 +74,18 @@ Cfg::Cfg(int device_id)
 #else
 		snprintf(config_dir, PATH_MAX, "%s/.prodatum", export_dir);
 #endif
+		// check/create cfg dir
+		if (stat(config_dir, &sbuf) == -1)
+		{
+			if (mkdir(config_dir, S_IRWXU| S_IRWXG | S_IROTH | S_IXOTH) == -1)
+			{
+				fl_alert("Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
+				fprintf(stderr, "Could not create configuration directory:\n%s - %s\n", config_dir, strerror(errno));
+#ifdef WIN32
+				fflush(stderr);
+#endif
+			}
+		}
 	}
 	// defaults
 	defaults.resize(NOOPTION, 0);
@@ -138,8 +150,6 @@ Cfg::Cfg(int device_id)
 	{
 		for (i = 0; i < NOOPTION; i++)
 			option[i] = defaults[i];
-		if (sysex_id == -1)
-			option[CFG_DEVICE_ID] = 127;
 		return;
 	}
 	int check_file, check = 1;

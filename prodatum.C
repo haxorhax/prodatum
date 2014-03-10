@@ -86,9 +86,10 @@ int main(int argc, char *argv[])
 	ui = new PD_UI();
 	if (!ui)
 		return 1;
-	midi = new MIDI();
-	if (!midi)
+	cfg = new Cfg(__device);
+	if (!cfg)
 		return 2;
+	cfg->apply();
 #ifdef NDEBUG
 	ui->init_log_b->hide();
 	ui->init_log_m->hide();
@@ -98,10 +99,14 @@ int main(int argc, char *argv[])
 	ui->main_window->label(label);
 	ui->main_window->free_position();
 	ui->main_window->show();
+	Fl::wait(.1);
 	pxk = new PXK();
 	if (!pxk)
 		return 3;
-	pxk->Boot(__auto_connect, __device);
+	midi = new MIDI();
+	if (!midi)
+		return 4;
+	pxk->Boot(__auto_connect, cfg->get_cfg_option(CFG_DEVICE_ID));
 	return Fl::run();
 }
 

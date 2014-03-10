@@ -576,6 +576,7 @@ MIDI::MIDI()
 #endif
 	// populate ports
 	pxk->display_status("Populating MIDI ports...");
+	Fl::flush();
 	for (unsigned char i = 0; i < Pm_CountDevices(); i++)
 	{
 		const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
@@ -594,6 +595,8 @@ MIDI::MIDI()
 			ports_in.push_back(i);
 		}
 	}
+	pxk->display_status(0);
+	Fl::flush();
 }
 
 MIDI::~MIDI()
@@ -602,12 +605,6 @@ MIDI::~MIDI()
 	stop_timer();
 	jack_ringbuffer_free(read_buffer);
 	jack_ringbuffer_free(write_buffer);
-//	ui->midi_outs->clear();
-//	ui->midi_outs->copy_label("Select...");
-//	ui->midi_ins->clear();
-//	ui->midi_ins->copy_label("Select...");
-//	ui->midi_ctrl->clear();
-//	ui->midi_ctrl->copy_label("Select... (optional)");
 }
 
 bool MIDI::in()
