@@ -31,7 +31,7 @@
 
 static void load_data();
 
-const char* VERSION = "2.0rc17";
+const char* VERSION = "2.0rc18";
 PD_UI* ui = 0;
 MIDI* midi = 0;
 PXK* pxk = 0;

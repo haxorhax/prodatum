@@ -586,7 +586,7 @@ void Preset_Dump::copy(int type, int src, int dst)
 			{
 				midi->copy(C_ARP, dst, pxk->preset_copy->get_number(), 0, 0, ui->copy_arp_rom->get_value());
 				// wait a bit for the device to update the edit buffer
-				mysleep(100);
+				mysleep(100 + cfg->get_cfg_option(CFG_SPEED));
 				midi->request_preset_dump(-1, 0);
 			}
 			pxk->display_status("Copied arp paramaters.");
@@ -1142,7 +1142,7 @@ void Setup_Dump::upload() const
 	pmesg("Setup_Dump::upload()\n");
 	midi->write_sysex(data, size);
 	// let it eat
-	mysleep(800);
+	mysleep(500 + cfg->get_cfg_option(CFG_SPEED));
 }
 
 // maps Parameter IDs from the device to data position in preset dump

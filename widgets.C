@@ -337,9 +337,13 @@ void Browser::set_value(int v)
 					ui->preset_editor->g_link2->activate();
 			}
 			select(v + 2);
+			Fl::flush();
 		}
 		else if (v >= 0)
+		{
 			select(v + 1);
+			Fl::flush();
+		}
 		else
 			return;
 		apply_filter();

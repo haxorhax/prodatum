@@ -3881,9 +3881,7 @@ This may take a few minutes.}
       }
       Fl_Button init_log_b {
         label {Show log}
-        callback {init_log_w->position(main_window->x() + (main_window->w() / 2) - (init_log_w->w() / 2),
-		main_window->y() + 80);
-init_log_w->show();}
+        callback {init_log_w->showup();}
         xywh {130 95 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
       }
     }
@@ -4295,15 +4293,15 @@ piano->reset_active_keys();}
       }
     }
     Fl_Window log_w {
-      label {Message Log}
+      label {Message Log} open
       xywh {942 184 490 570} type Double box BORDER_BOX hide resizable
       class Double_Window xclass prodatum size_range {320 108 0 0}
     } {
-      Fl_Text_Display log {
-        xywh {1 1 489 530} box DOWN_BOX labelcolor 15 align 0 resizable
+      Fl_Text_Display log {selected
+        xywh {0 0 490 530} box DOWN_BOX labelcolor 15 align 0 resizable
         class Text_Display
       }
-      Fl_Group {} {open
+      Fl_Group {} {
         xywh {1 533 489 37}
       } {
         Fl_Button {} {
@@ -4347,33 +4345,20 @@ piano->reset_active_keys();}
       }
     }
     Fl_Window init_log_w {
-      label {Sync log}
-      xywh {711 297 490 625} type Double box BORDER_BOX hide resizable
+      label {Sync log} open
+      xywh {939 275 490 625} type Double box BORDER_BOX hide resizable
       class Double_Window xclass prodatum size_range {320 108 0 0}
     } {
       Fl_Text_Display i_log {
-        xywh {1 1 489 586} box DOWN_BOX labelcolor 15 align 0 resizable
+        xywh {0 0 490 625} box DOWN_BOX labelcolor 15 align 0 resizable
         class Text_Display
-      }
-      Fl_Group {} {open
-        xywh {0 588 489 37}
-      } {
-        Fl_Button {} {
-          label Close
-          callback {init_log_w->hide();}
-          xywh {414 593 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
-        }
-        Fl_Box {} {
-          label label
-          xywh {2 621 1 1} labeltype NO_LABEL resizable
-        }
       }
     }
     Fl_Window about {
       label {About prodatum}
       callback {about->hide();
 if (!pxk->Synchronized())
-open_device->showup();} open
+open_device->showup();}
       xywh {476 62 272 334} type Double box BORDER_BOX hide xclass prodatum
     } {
       Fl_Box {} {
@@ -4392,7 +4377,7 @@ open_device->showup();} open
 http://prodatum.sf.net
 
 Please support free software and
-my autonomy with a donation.} selected
+my autonomy with a donation.}
         xywh {3 226 265 70} labelsize 12 align 144
       }
       Fl_Output o_ppal {

@@ -40,7 +40,6 @@ extern MIDI* midi;
 Cfg* cfg = 0;
 
 volatile static bool join_bro = false;
-volatile static bool timed_out = false;
 volatile static bool name_set_incomplete;
 volatile static int init_progress;
 
@@ -100,7 +99,7 @@ void PXK::widget_callback(int id, int value, int layer)
 		selected_preset = setup->get_value(130, selected_channel);
 		ui->preset_rom->set_value(selected_preset_rom);
 		ui->preset->set_value(selected_preset);
-		mysleep(33);
+		mysleep(33 + cfg->get_cfg_option(CFG_SPEED));
 		midi->request_preset_dump(-1, 0);
 		// FX channel
 		if (midi_mode != MULTI)
@@ -129,7 +128,7 @@ void PXK::widget_callback(int id, int value, int layer)
 			midi->write_event(0xb0, 32, selected_preset / 128, selected_channel);
 			midi->write_event(0xc0, selected_preset % 128, 0, selected_channel);
 			// wait a bit to let it sink...
-			mysleep(33);
+			mysleep(33 + cfg->get_cfg_option(CFG_SPEED));
 			midi->request_preset_dump(-1, 0);
 		}
 		return;
@@ -185,7 +184,7 @@ void PXK::widget_callback(int id, int value, int layer)
 			midi->write_event(0xb0, 32, selected_preset / 128, selected_channel);
 			midi->write_event(0xc0, selected_preset % 128, 0, selected_channel);
 			// wait a bit to let it sink...
-			mysleep(33);
+			mysleep(33 + cfg->get_cfg_option(CFG_SPEED));
 			midi->request_preset_dump(-1, 0);
 			return;
 		case 140: // FX channel
@@ -393,48 +392,12 @@ void PXK::ConnectPorts()
 		ui->open_device->showup();
 }
 
-static void sync_police(void* synced)
-{
-	if (timed_out) // init timeout
-	{
-		if (pxk->setup_init)
-			pxk->setup_init->upload();
-		ui->init->hide();
-#ifndef NDEBUG
-		fl_alert("Sync failed. Please send the init log to rdxesy@@yahoo.de and check your cables & MIDI drivers etc.");
-		ui->init_log_w->showup();
-#endif
-		return;
-	}
-	if (!(*(bool*) synced))
-	{
-		if (!ui->init->shown())
-		{
-			ui->init->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->init->w() / 2),
-					ui->main_window->y() + 80);
-			ui->init->show();
-		}
-		Fl::repeat_timeout(.2, sync_police, synced);
-	}
-	else
-	{
-		ui->init->hide();
-		ui->main_window->showup(); // make main active (important!)
-		midi->filter_loose();
-		if (pxk->setup_init)
-			pxk->load_setup();
-		else
-			midi->request_setup_dump();
-		// set master volume
-		midi->master_volume(cfg->get_cfg_option(CFG_MASTER_VOLUME));
-	}
-}
-
 static void sync_bro(void* p)
 {
 	if (join_bro)
 		goto Club;
 	// general variables
+	static bool timed_out = false;
 	static int name = 0;
 	static char _label[64];
 	static unsigned char countdown;
@@ -456,15 +419,19 @@ static void sync_bro(void* p)
 		{
 			if (!requested)
 			{
+				ui->init_progress->label("Syncing multisetup names...");
+				ui->init_progress->maximum((float) 64);
+				ui->init_progress->value(.0);
+				init_progress = 0;
+				ui->init->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->init->w() / 2),
+						ui->main_window->y() + 80);
+				ui->init->show();
 #ifndef NDEBUG
 				ui->init_log->append("sync_bro: Requesting initial setup dump\n");
 #endif
 				midi->request_setup_dump();
 				requested = true;
-				ui->init_progress->label("Syncing multisetup names...");
-				ui->init_progress->maximum((float) 64);
-				init_progress = 0;
-				ui->init_progress->value(.0);
+
 				countdown = 50; // ~ 1/2 s.
 				goto Exit;
 			}
@@ -585,8 +552,14 @@ static void sync_bro(void* p)
 						snprintf(_label, 64, "Syncing %s %s names...", pxk->rom[rom_nr]->name(), _type);
 					ui->init_progress->label(_label);
 					ui->init_progress->maximum((float) names);
-					init_progress = 0;
 					ui->init_progress->value(.0);
+					init_progress = 0;
+					if (!ui->init->shown())
+					{
+						ui->init->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->init->w() / 2),
+								ui->main_window->y() + 80);
+						ui->init->show();
+					}
 #ifndef NDEBUG
 					// init log
 					snprintf(logbuffer, 128, "\nsync_bro: Loading %s\n", _label);
@@ -682,9 +655,7 @@ static void sync_bro(void* p)
 	else
 		*(bool*) p = true;
 
-	Exit:
-
-	if (!*(bool*) p)
+	Exit: if (!*(bool*) p)
 		Fl::repeat_timeout(.01, sync_bro, p);
 	else
 	{
@@ -707,30 +678,46 @@ static void sync_bro(void* p)
 		names = 0;
 		setups_to_load = -1;
 		requested = false;
-		if (join_bro)
+		ui->init->hide();
+		ui->main_window->showup(); // make main active (important!)
+		if (pxk->setup_init)
 		{
-			if (pxk->setup_init)
-				pxk->setup_init->upload();
-			ui->init->hide();
+			pxk->display_status("Uploading user multisetup...");
+			pxk->setup_init->upload();
+		}
+		if (timed_out)
+		{
+			timed_out = false;
+			fl_alert("Sync failed. Please send the init log to rdxesy@@yahoo.de and check your cables & MIDI drivers etc.");
+#ifndef NDEBUG
+			ui->init_log_w->showup();
+#endif
+		}
+		else if (join_bro)
+		{
 			delete pxk;
 			pxk = new PXK(false);
 			pxk->Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
 		}
+		else
+		{
+			midi->filter_loose();
+			if (pxk->setup_init)
+				pxk->load_setup();
+			else
+				midi->request_setup_dump();
+			midi->master_volume(cfg->get_cfg_option(CFG_MASTER_VOLUME));
+		}
 	}
 	return;
-	Wait: Fl::repeat_timeout(.5, sync_bro, p);
+	Wait: Fl::repeat_timeout(.5 + (double) (cfg->get_cfg_option(CFG_SPEED) / 1000.), sync_bro, p);
 }
 
 void PXK::Join()
 {
-	if (!synchronized)
-	{
-		Fl::remove_timeout(sync_police);
-		join_bro = true;
-#ifndef NDEBUG
-		ui->init_log_w->showup();
-#endif
-	}
+	join_bro = true;
+	while (!ui->open_device->shown())
+		Fl::wait(.1);
 }
 
 bool PXK::Synchronize()
@@ -745,12 +732,10 @@ bool PXK::Synchronize()
 	ui->init_log->append(buf);
 #endif
 	midi->filter_strict(); // filter everything but sysex for sync
-	init_progress = 0;
+	init_progress = 0.;
 	join_bro = false;
-	timed_out = false;
 	name_set_incomplete = false;
 	Fl::add_timeout(0, sync_bro, (void*) &synchronized);
-	Fl::add_timeout(.2 + roms / 10., sync_police, (void*) &synchronized);
 	return true;
 }
 
@@ -835,7 +820,7 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 		}
 		device_code = 516;
 		midi->set_device_id((unsigned char) device_id); // so further sysex comes through
-		mysleep(50);
+		mysleep(33 + cfg->get_cfg_option(CFG_SPEED));
 		midi->request_hardware_config();
 		snprintf(os_rev, 5, "%c%c%c%c", data[10], data[11], data[12], data[13]);
 		member_code = data[9] * 128 + data[8];
@@ -1138,9 +1123,9 @@ void PXK::Loading(bool upload)
 void PXK::load_setup()
 {
 	pmesg("PXK::load_setup() \n");
+	display_status("Loading multisetup...");
 	if (setup_init)
 	{
-		setup_init->upload();
 		setup = new Setup_Dump(setup_init->get_dump_size(), setup_init->get_data());
 		setup_copy = new Setup_Dump(setup_init->get_dump_size(), setup_init->get_data());
 		delete setup_init;
@@ -1210,6 +1195,11 @@ void PXK::incoming_generic_name(const unsigned char* data)
 	{
 		pmesg("*** ROM %d does not exist\n", data[9] + 128 * data[10]);
 		display_status("*** Received unknown name type.");
+		name_set_incomplete = false;
+		return;
+	}
+	if (type == RIFF && data[11] == 0x66 && data[12] == 0x66) // "ff"
+	{
 		name_set_incomplete = false;
 		return;
 	}
@@ -2055,7 +2045,7 @@ void PXK::start_over()
 	// select a different basic channel (erases edit buffer)
 	midi->edit_parameter_value(139, (selected_channel + 1) % 15);
 	// let it think..
-	mysleep(53);
+	mysleep(33 + cfg->get_cfg_option(CFG_SPEED));
 	midi->edit_parameter_value(139, selected_channel);
 	delete preset;
 	preset = preset_copy->clone();
