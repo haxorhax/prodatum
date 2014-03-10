@@ -28,7 +28,7 @@ endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	ADD_DEFINITIONS(-DUSE_MLOCK -D__linux -Wall -W -Wno-char-subscripts -Wno-write-strings)
 	set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
-  set(ADDITIONAL_LIBRARIES X11 Xft fontconfig Xinerama asound pthread)
+  set(ADDITIONAL_LIBRARIES X11 Xinerama Xft fontconfig asound pthread)
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 target_link_libraries (prodatum fltk.a portmidi_s.a ${ADDITIONAL_LIBRARIES} )

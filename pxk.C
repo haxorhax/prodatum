@@ -306,7 +306,10 @@ void PXK::Boot(bool autoconnect, int __id)
 			Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
 		}
 		else
+		{
 			ui->open_device->showup();
+			Fl::flush();
+		}
 	}
 	else if (midi->in() && midi->out())
 		Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));

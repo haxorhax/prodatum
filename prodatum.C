@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 void PD_UI::select(int l)
 {
 	//pmesg("PD_UI::select(%d)\n", l);
-	static int prev;
+	static int prev = 0;
 	if (l == selected)
 	{
 		if (l == 5 && b_links->value())
