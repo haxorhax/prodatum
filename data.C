@@ -1474,6 +1474,7 @@ int ROM::set_name(int type, int number, const unsigned char* name)
 			pxk->display_status("ROM::set_name() Unknown ROM.");
 			return 0;
 	}
+	return 1;
 }
 
 const unsigned char* ROM::get_name(int type, int number) const

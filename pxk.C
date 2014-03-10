@@ -301,6 +301,8 @@ void PXK::Boot(bool autoconnect, int __id)
 		if (autoconnect)
 		{
 			ConnectPorts();
+			while (!ui->main_window->shown())
+				Fl::wait(.1);
 			Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
 		}
 		else
