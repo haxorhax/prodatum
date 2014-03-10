@@ -94,6 +94,7 @@ static void show_error(void)
 	free(__buffer);
 }
 
+static bool __midi_wait = false;
 static void process_midi(PtTimestamp, void*)
 {
 	PmEvent ev;
@@ -106,7 +107,6 @@ static void process_midi(PtTimestamp, void*)
 	static unsigned int position = 3;
 	static bool receiving_sysex = false;
 	static bool result_out = false;
-	static bool __midi_wait = false;
 	static unsigned char poll = 0;
 	if (!midi_active)
 	{
@@ -619,6 +619,16 @@ bool MIDI::out()
 	if (selected_port_out != -1)
 		return true;
 	return false;
+}
+
+bool MIDI::Wait()
+{
+	return __midi_wait;
+}
+
+void MIDI::Wait(bool wait)
+{
+	__midi_wait = wait;
 }
 
 void MIDI::set_device_id(unsigned char id)

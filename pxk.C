@@ -592,6 +592,13 @@ static void sync_bro(void* p)
 						pxk->rom[rom_nr]->load_name(type, name++);
 					else // turbo
 					{
+						if (name == 0)
+							got_answer = true;
+						if (!got_answer)
+						{
+							name_set_incomplete = false;
+							goto Exit;
+						}
 						ui->init_progress->value((float) init_progress);
 						while (name < names)
 						{
@@ -602,6 +609,7 @@ static void sync_bro(void* p)
 								ui->init_log->append("R12");
 #endif
 								Fl::repeat_timeout(.12 + (double) (cfg->get_cfg_option(CFG_SPEED) / 1000.), sync_bro, p);
+								got_answer = false;
 								return;
 							}
 						}
@@ -657,7 +665,16 @@ static void sync_bro(void* p)
 				type++;
 				names = 0; // next type
 				if (name != 0)
+				{
+					if (midi->Wait())
+					{
+#ifndef NDEBUG
+						ui->init_log->append("\n Device sent WAIT command. Unlocking.\n");
+#endif
+						midi->Wait(false);
+					}
 					goto Wait;
+				}
 				goto Exit;
 			}
 		} // if (type <= RIFF) // for every type
@@ -1491,11 +1508,11 @@ void PXK::load_export(const char* filename)
 #ifdef __linux
 	int offset = 0;
 	while (strncmp(filename + offset, "/", 1) != 0)
-		++offset;
+	++offset;
 	char n[PATH_MAX];
 	snprintf(n, PATH_MAX, "%s", filename + offset);
 	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
-		n[strlen(n) - 1] = '\0';
+	n[strlen(n) - 1] = '\0';
 	std::ifstream file(n, std::ifstream::binary);
 #else
 	std::ifstream file(filename, std::ifstream::binary);
