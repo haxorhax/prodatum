@@ -39,7 +39,7 @@ extern FilterMap FM[51];
 extern MIDI* midi;
 Cfg* cfg = 0;
 
-volatile static bool join_bro = false;
+volatile bool join_bro = false;
 volatile static bool name_set_incomplete;
 volatile static int init_progress;
 
@@ -379,6 +379,7 @@ PXK::~PXK()
 	preset_copy = 0;
 	setup = 0;
 	setup_copy = 0;
+	setup_init = 0;
 	setup_names = 0;
 	cfg = 0;
 }
@@ -745,8 +746,7 @@ bool PXK::Synchronize()
 	ui->init_log->append(buf);
 #endif
 	midi->filter_strict(); // filter everything but sysex for sync
-	init_progress = 0.;
-	join_bro = false;
+	init_progress = 0;
 	name_set_incomplete = false;
 	Fl::add_timeout(0, sync_bro, (void*) &synchronized);
 	return true;
@@ -801,11 +801,10 @@ void PXK::Inquire(unsigned char id)
 	pmesg("PXK::Inquire(%d)\n", id);
 	if (!synchronized)
 	{
+		join_bro = false;
 		device_id = id;
 		unsigned char s[] =
 		{ 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
-		// send this twice, fixes ticket #4
-//		midi->write_sysex(s, 6);
 		midi->write_sysex(s, 6);
 		inquired = true;
 		device_code = -1;

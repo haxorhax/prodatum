@@ -30,6 +30,7 @@ extern Cfg* cfg;
 extern PXK* pxk;
 
 volatile bool got_answer;
+extern volatile bool join_bro;
 
 static bool timer_running = false;
 static bool midi_active = false;
@@ -297,6 +298,8 @@ static void process_midi_in(void*)
 			jack_ringbuffer_read(read_buffer, sysex, 3); // read header
 			len = sysex[1] * 128 + sysex[2];
 			jack_ringbuffer_read(read_buffer, sysex, len);
+			if (join_bro)
+				break;
 			// e-mu sysex
 			if (sysex[1] == 0x18)
 			{
@@ -1050,6 +1053,8 @@ void MIDI::request_setup_dump() const
 void MIDI::request_arp_dump(int number, int rom_id) const
 {
 	//pmesg("MIDI::request_arp_dump(#: %d, rom: %d)\n", number, rom_id);
+	if (join_bro)
+		return;
 	if (number < 0)
 		number += 16384;
 	unsigned char nl = number % 128;
@@ -1065,6 +1070,8 @@ void MIDI::request_arp_dump(int number, int rom_id) const
 void MIDI::request_name(int type, int number, int rom_id) const
 {
 	//pmesg("MIDI::request_name(type: %d, #: %d, rom_id: %d)\n", type, number, rom_id);
+	if (join_bro)
+		return;
 	unsigned char nl = number % 128;
 	unsigned char nm = number / 128;
 	unsigned char rl = rom_id % 128;
