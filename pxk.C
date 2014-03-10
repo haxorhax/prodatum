@@ -696,9 +696,10 @@ static void sync_bro(void* p)
 		}
 		else if (join_bro)
 		{
+			int id = cfg->get_cfg_option(CFG_DEVICE_ID);
 			delete pxk;
-			pxk = new PXK(false);
-			pxk->Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
+			pxk = new PXK(false, id);
+			pxk->Inquire(id);
 		}
 		else
 		{
@@ -794,10 +795,10 @@ void PXK::Inquire(unsigned char id)
 		{ 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
 		// send this twice, fixes ticket #4
 		midi->write_sysex(s, 6);
-//		midi->write_sysex(s, 6);
+		midi->write_sysex(s, 6);
 		inquired = true;
 		device_code = -1;
-		Fl::add_timeout(.3, check_connection, (void*) &device_code);
+		Fl::add_timeout(.8, check_connection, (void*) &device_code);
 	}
 }
 
