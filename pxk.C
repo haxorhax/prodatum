@@ -336,6 +336,7 @@ PXK::~PXK()
 		ui->layer_editor[i]->instrument->reset();
 		ui->layer_editor[i]->instrument_rom->menu(0);
 		ui->layer_editor[i]->patchcords->uninitialize_sources();
+		ui->main->layer_strip[i]->instrument->label(0);
 	}
 	ui->preset_editor->patchcords->uninitialize_sources();
 	ui->preset->reset();
@@ -734,7 +735,6 @@ void PXK::Join()
 	ui->device_info->label(0);
 	ui->open_device->showup();
 	join_bro = true;
-	Fl::flush();
 }
 
 bool PXK::Synchronize()
@@ -808,9 +808,10 @@ void PXK::Inquire(int id)
 		if (id == -1)
 			device_id = 0x7f;
 		else
-			device_id = id & 0xff;
+			device_id = id;
+		unsigned char sid = id & 0xff;
 		unsigned char s[] =
-		{ 0xf0, 0x7e, device_id, 0x06, 0x01, 0xf7 };
+		{ 0xf0, 0x7e, sid, 0x06, 0x01, 0xf7 };
 		midi->write_sysex(s, 6);
 		midi->write_sysex(s, 6);
 		inquired = true;

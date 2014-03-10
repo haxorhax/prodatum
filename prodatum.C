@@ -879,7 +879,7 @@ void PD_UI::Reset(char user_data, char rom_data)
 	// reload
 	reset_w->hide();
 	b_reset->activate();
-	fl_message("OK. Deleted %d files from\n%s.\nWill reload missing data now.", deleted, config_dir);
+	fl_message("OK. Deleted %d files from\n%s.\nPress OK to synchronize missing data.", deleted, config_dir);
 	pxk = new PXK();
 	pxk->Boot(true);
 }
