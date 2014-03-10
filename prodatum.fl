@@ -886,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
+    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2640,17 +2640,17 @@ Fl::visual(FL_DOUBLE|FL_RGB);
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
+delete this;} open
       xywh {871 389 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
-      Fl_Group supergroup {open
+      Fl_Group supergroup {
         xywh {0 0 846 620} resizable
       } {
         Fl_Group {} {
-          label main open
+          label main
           xywh {0 19 843 596} labeltype NO_LABEL
         } {
           Fl_Button {} {
@@ -3254,7 +3254,7 @@ pxk->preset->set_name(o->value(), 1, o->position());}
           }
         }
         Fl_Group {} {
-          label menu open
+          label menu
           xywh {0 0 231 21} labeltype NO_LABEL align 0
         } {
           Fl_Box {} {
@@ -3277,7 +3277,8 @@ pxk->preset->set_name(o->value(), 1, o->position());}
 	return;
 }
 delete pxk;
-pxk = new PXK(false);
+pxk = new PXK();
+pxk->Boot(false);
 pxk->Inquire(device_id->value());}
                 xywh {15 15 36 21} shortcut 0x6f labelsize 12
               }
@@ -3886,7 +3887,7 @@ This may take a few minutes.}
       }
     }
     Fl_Window open_device {
-      label {Open Device}
+      label {Open Device} open
       xywh {387 122 280 390} type Double box BORDER_BOX labelcolor 15 hide
       class Double_Window modal xclass prodatum
     } {
@@ -3915,8 +3916,8 @@ This may take a few minutes.}
 device_info->label(0);
 r_user_id->value(o->value());
 delete pxk;
-pxk = new PXK(true, o->value());
-//pxk->LoadConfig(true, o->value());}
+pxk = new PXK();
+pxk->Boot(true, o->value());} selected
           tooltip {ID: Must be unique for every device you intend to use prodatum with (you can set the ID in the Master Menu of your device)!} xywh {20 174 90 25} color 7 selection_color 15 labelsize 12 align 8 when 1 minimum 0 maximum 126 value 127 textfont 4 textsize 13
         }
         Fl_Button {} {
@@ -4297,7 +4298,7 @@ piano->reset_active_keys();}
       xywh {942 184 490 570} type Double box BORDER_BOX hide resizable
       class Double_Window xclass prodatum size_range {320 108 0 0}
     } {
-      Fl_Text_Display log {selected
+      Fl_Text_Display log {
         xywh {0 0 490 530} box DOWN_BOX labelcolor 15 align 0 resizable
         class Text_Display
       }

@@ -256,7 +256,7 @@ void PXK::cc_callback(int controller, int value)
 
 // to open another device:
 // delete PXK, new PXK :)
-PXK::PXK(bool autoconnect, int __id)
+PXK::PXK()
 {
 	pmesg("PXK::PXK()\n");
 	// initialize
@@ -274,6 +274,7 @@ PXK::PXK(bool autoconnect, int __id)
 	selected_fx_channel = -1;
 	midi_mode = -1;
 	setup_names = 0;
+	setup_names_changed = false;
 	arp = 0;
 	nak_count = 0;
 	cc_changed = false;
@@ -289,6 +290,10 @@ PXK::PXK(bool autoconnect, int __id)
 		rom_index[i] = -1;
 	}
 	ui->device_info->label(0);
+}
+
+void PXK::Boot(bool autoconnect, int __id)
+{
 	cfg = new Cfg(__id);
 	cfg->apply();
 	if (cfg->get_cfg_option(CFG_MIDI_IN) != -1 && cfg->get_cfg_option(CFG_MIDI_OUT) != -1)
@@ -698,7 +703,8 @@ static void sync_bro(void* p)
 		{
 			int id = cfg->get_cfg_option(CFG_DEVICE_ID);
 			delete pxk;
-			pxk = new PXK(false, id);
+			pxk = new PXK();
+			pxk->Boot(false, id);
 			pxk->Inquire(id);
 		}
 		else
@@ -794,11 +800,11 @@ void PXK::Inquire(unsigned char id)
 		unsigned char s[] =
 		{ 0xf0, 0x7e, id, 0x06, 0x01, 0xf7 };
 		// send this twice, fixes ticket #4
-		midi->write_sysex(s, 6);
+//		midi->write_sysex(s, 6);
 		midi->write_sysex(s, 6);
 		inquired = true;
 		device_code = -1;
-		Fl::add_timeout(.8, check_connection, (void*) &device_code);
+		Fl::add_timeout(.6, check_connection, (void*) &device_code);
 	}
 }
 
@@ -1298,12 +1304,14 @@ void PXK::set_setup_name(unsigned char number, const unsigned char* name)
 	if (!setup_names)
 		setup_names = new unsigned char[1024];
 	memcpy(setup_names + 16 * number, name, 16);
+	if (synchronized) // user changed setup name
+		setup_names_changed = true;
 }
 
 void PXK::save_setup_names(bool force) const
 {
 	pmesg("PXK::save_setup_names() \n");
-	if (synchronized || force)
+	if ((synchronized && setup_names_changed) || force)
 	{
 		char filename[PATH_MAX];
 		snprintf(filename, PATH_MAX, "%s/n_set_0_%d", cfg->get_config_dir(), device_id);

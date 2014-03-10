@@ -105,6 +105,7 @@ public:
 private:
 	char selected_multisetup;
 	unsigned char* setup_names;
+	bool setup_names_changed;
 	bool cc_changed;
 	void update_fx_values(int, int) const;
 	void update_cc_sliders();
@@ -163,7 +164,8 @@ public:
 
 public:
 	/// CTOR
-	PXK(bool, int __id = -1);
+	PXK();
+	void Boot(bool, int __id = -1);
 	/// DTOR
 	~PXK();
 };

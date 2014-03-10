@@ -1215,9 +1215,8 @@ ROM::ROM(int i, int pr, int in)
 	instrument_names = 0;
 	preset_names = 0;
 	arp_names = 0;
+	arp_names_changed = false;
 	riff_names = 0;
-	for (unsigned char i = 0; i < 7; i++)
-		on_disk[i] = false;
 	const char* rom_name = name();
 	ui->preset_rom->add(rom_name);
 	ui->preset_editor->l1_rom->add(rom_name);
@@ -1254,44 +1253,22 @@ ROM::ROM(int i, int pr, int in)
 ROM::~ROM()
 {
 	pmesg("ROM::~ROM()  \n");
-	if (pxk->Synchronized())
+	if (id == 0 && pxk->Synchronized())
 	{
-		const char* path = cfg->get_config_dir();
-		char filename[PATH_MAX];
-		// instruments
-		if (id != 0 && instrument_names && !on_disk[INSTRUMENT])
+		if (preset_names)
 		{
-			snprintf(filename, PATH_MAX, "%s/n_ins_%d", path, id);
-			std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
-			file.write((char*) instrument_names, instruments * 16);
-			file.close();
-		}
-		// riffs
-		if (id != 0 && riff_names && !on_disk[RIFF])
-		{
-			snprintf(filename, PATH_MAX, "%s/n_rff_%d", path, id);
-			std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
-			file.write((char*) riff_names, riffs * 16);
-			file.close();
-		}
-		// presets
-		if (preset_names && !on_disk[PRESET])
-		{
-			if (id == 0)
-				snprintf(filename, PATH_MAX, "%s/n_prs_%d_%d", path, id, device_id);
-			else
-				snprintf(filename, PATH_MAX, "%s/n_prs_%d", path, id);
+			const char* path = cfg->get_config_dir();
+			char filename[PATH_MAX];
+			snprintf(filename, PATH_MAX, "%s/n_prs_%d_%d", path, id, device_id);
 			std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
 			file.write((char*) preset_names, presets * 16);
 			file.close();
 		}
-		// arps
-		if (arp_names && !on_disk[ARP])
+		if (arp_names && arp_names_changed)
 		{
-			if (id == 0)
-				snprintf(filename, PATH_MAX, "%s/n_arp_%d_%d", path, id, device_id);
-			else
-				snprintf(filename, PATH_MAX, "%s/n_arp_%d", path, id);
+			const char* path = cfg->get_config_dir();
+			char filename[PATH_MAX];
+			snprintf(filename, PATH_MAX, "%s/n_arp_%d_%d", path, id, device_id);
 			std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
 			file.write((char*) arp_names, arps * 16);
 			file.close();
@@ -1341,8 +1318,6 @@ void ROM::save(unsigned char type)
 			file.write((char*) riff_names, riffs * 16);
 			file.close();
 	}
-	if (id != 0)
-		on_disk[type] = true;
 }
 
 void ROM::load_name(unsigned char type, int number)
@@ -1407,8 +1382,6 @@ int ROM::disk_load_names(unsigned char type)
 		file.seekg(0, std::ios::beg);
 		file.read((char*) *data, size);
 		file.close();
-		if (id != 0 || *number == 1)
-			on_disk[type] = true;
 		// show this rom in arp selections
 		if (type == ARP && id != 0)
 		{
@@ -1482,6 +1455,8 @@ int ROM::set_name(int type, int number, const unsigned char* name)
 				}
 			}
 			memcpy(arp_names + 16 * number, name, 12);
+			if (id == 0 && pxk->Synchronized()) // user changed a name
+					arp_names_changed = true;
 			break;
 		case RIFF:
 			if (!riff_names)
@@ -1499,7 +1474,6 @@ int ROM::set_name(int type, int number, const unsigned char* name)
 			pxk->display_status("ROM::set_name() Unknown ROM.");
 			return 0;
 	}
-	return 1;
 }
 
 const unsigned char* ROM::get_name(int type, int number) const

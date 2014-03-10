@@ -98,9 +98,10 @@ int main(int argc, char *argv[])
 	ui->main_window->label(label);
 	ui->main_window->free_position();
 	ui->main_window->show();
-	pxk = new PXK(__auto_connect, __device);
+	pxk = new PXK();
 	if (!pxk)
 		return 3;
+	pxk->Boot(__auto_connect, __device);
 	return Fl::run();
 }
 
@@ -874,5 +875,6 @@ void PD_UI::Reset(char user_data, char rom_data)
 	reset_w->hide();
 	b_reset->activate();
 	fl_message("OK. Deleted %d files from\n%s.\nWill reload missing data now.", deleted, config_dir);
-	pxk = new PXK(true);
+	pxk = new PXK();
+	pxk->Boot(true);
 }

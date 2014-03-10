@@ -294,8 +294,6 @@ class ROM
 	int id;
 	/// for user data (programs, arps) we need to know which device we belong to
 	char device_id;
-	/// if data (PROGRAM, INSTRUMENT,..) is on disk already, this gets true
-	bool on_disk[7];
 	/// number of available instruments in this ROM
 	int instruments;
 	/// number of available presets in this ROM
@@ -310,6 +308,7 @@ class ROM
 	unsigned char* preset_names;
 	/// storage pointer to the array of arp names
 	unsigned char* arp_names;
+	bool arp_names_changed;
 	/// storage pointer to the array of riff names
 	unsigned char* riff_names;
 
