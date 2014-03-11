@@ -1560,7 +1560,7 @@ l2_filter->do_callback();}
   }
 } 
 
-widget_class PD_Main {open
+widget_class PD_Main {
   xywh {616 374 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
@@ -1572,7 +1572,7 @@ widget_class PD_Main {open
     xywh {0 0 834 574} labeltype NO_LABEL align 0
   } {
     Fl_Group {} {
-      label CHANNEL
+      label CHANNEL open
       xywh {4 23 196 225} box THIN_DOWN_BOX labelfont 1 labelcolor 8
     } {
       Fl_Button preset_name {
@@ -1795,7 +1795,7 @@ midi->audit();}
         }
       }
       Fl_Box minipiano {
-        xywh {5 203 194 44} box FLAT_BOX labeltype NO_LABEL
+        xywh {5 205 194 42} box FLAT_BOX labeltype NO_LABEL
         class MiniPiano
       }
     }
@@ -2641,10 +2641,10 @@ Fl::visual(FL_DOUBLE|FL_RGB);
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
 delete this;} open
-      xywh {871 389 845 620} type Double hide resizable
+      xywh {871 389 845 620} type Double resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
-      class Double_Window xclass prodatum size_range {674 492 845 620}
+      class Double_Window xclass prodatum size_range {674 492 845 620} visible
     } {
       Fl_Group supergroup {open
         xywh {0 0 846 620} resizable
@@ -2667,7 +2667,7 @@ if (((Fl_Button*) o->array()[i])->value())
 {
 	select(i);
 	break;
-}} open
+}}
             xywh {56 25 754 19} when 0
           } {
             Fl_Button {} {
@@ -2887,7 +2887,7 @@ else
             code0 {o->clear_visible_focus();}
           }
           Fl_Group g_value {
-            label VALUE open
+            label VALUE
             xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8
           } {
             Fl_Value_Output forma_out {
@@ -2939,11 +2939,11 @@ if (!eall && pxk->preset)
             }
           }
           Fl_Group g_minipiano {
-            label MINIPIANO
+            label MINIPIANO open
             xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8 hide
           } {
-            Fl_Box global_minipiano {
-              xywh {640 70 194 51} box FLAT_BOX labeltype NO_LABEL
+            Fl_Box global_minipiano {selected
+              xywh {640 71 194 50} box FLAT_BOX labeltype NO_LABEL
               class MiniPiano
             }
           }
@@ -3211,7 +3211,7 @@ pxk->save_setup(multisetups->value() - 1, s_name->value());}
           }
         }
         Fl_Group {} {
-          label name open
+          label name
           xywh {112 0 734 21} labeltype NO_LABEL
         } {
           Fl_Box {} {
@@ -3241,14 +3241,14 @@ pxk->preset->set_name(o->value(), 1, o->position());}
           }
         }
         Fl_Group {} {
-          label status open
+          label status
           xywh {280 0 283 19} labeltype NO_LABEL
         } {
           Fl_Box {} {
             label resizeable
             xywh {421 18 1 1} labeltype NO_LABEL resizable
           }
-          Fl_Box status {selected
+          Fl_Box status {
             xywh {281 0 281 17} box FLAT_BOX color 7 labelfont 4 labelsize 12 align 18
           }
         }
