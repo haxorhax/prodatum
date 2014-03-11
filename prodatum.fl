@@ -2640,11 +2640,11 @@ Fl::visual(FL_DOUBLE|FL_RGB);
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open
-      xywh {871 389 845 620} type Double resizable
+delete this;} selected
+      xywh {871 389 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
-      class Double_Window xclass prodatum size_range {674 492 845 620} visible
+      class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
       Fl_Group supergroup {open
         xywh {0 0 846 620} resizable
@@ -2942,7 +2942,7 @@ if (!eall && pxk->preset)
             label MINIPIANO open
             xywh {639 66 196 56} box THIN_DOWN_BOX labelfont 1 labelcolor 8 hide
           } {
-            Fl_Box global_minipiano {selected
+            Fl_Box global_minipiano {
               xywh {640 71 194 50} box FLAT_BOX labeltype NO_LABEL
               class MiniPiano
             }
@@ -3886,7 +3886,7 @@ This may take a few minutes.}
       }
     }
     Fl_Window open_device {
-      label {Open Device} open
+      label {Open Device}
       xywh {554 385 280 390} type Double box BORDER_BOX labelcolor 15 hide
       class Double_Window modal xclass prodatum
     } {
@@ -4024,8 +4024,10 @@ open_device->hide();}
     }
     Fl_Window preferences {
       label Preferences
-      callback {b_close_prefs->do_callback();} open
-      xywh {1049 373 305 470} type Double box UP_BOX labelsize 11 hide
+      callback {preferences->hide();
+export_dir->value(cfg->get_export_dir());
+b_set->deactivate();}
+      xywh {838 217 305 435} type Double box UP_BOX labelsize 11 hide
       class Double_Window xclass prodatum
     } {
       Fl_Box {} {
@@ -4179,13 +4181,6 @@ o->label("Select... (optional)");
         callback {PD_UI::set_color(FL_INACTIVE_COLOR);}
         xywh {270 396 25 20} down_box DOWN_BOX color 8 selection_color 8
       }
-      Fl_Button b_close_prefs {
-        label Close
-        callback {preferences->hide();
-export_dir->value(cfg->get_export_dir());
-b_set->deactivate();}
-        xywh {225 435 70 25} down_box DOWN_BOX shortcut 0x70 selection_color 7 labelsize 12 align 20
-      }
     }
     Fl_Window piano_w {
       label {Keyboard / Ranges}
@@ -4302,49 +4297,44 @@ piano->reset_active_keys();}
     }
     Fl_Window log_w {
       label {Message Log}
-      xywh {942 184 490 570} type Double box BORDER_BOX hide resizable
+      xywh {887 143 490 570} type Double box BORDER_BOX hide resizable
       class Double_Window xclass prodatum size_range {320 108 0 0}
     } {
       Fl_Text_Display log {
         xywh {0 0 490 530} box DOWN_BOX labelcolor 15 align 0 resizable
         class Text_Display
       }
-      Fl_Group {} {
+      Fl_Group {} {open
         xywh {1 533 489 37}
       } {
         Fl_Button {} {
           label CLEAR
           callback {logbuf->remove(0, logbuf->length());}
-          tooltip {Clear Buffer} xywh {265 538 70 25} down_box DOWN_BOX selection_color 7 labelsize 10 align 80
+          tooltip {Clear Buffer} xywh {335 538 70 25} down_box DOWN_BOX selection_color 7 labelsize 10 align 80
         }
         Fl_Check_Button log_sysex_in {
           label IS
           callback {cfg->set_cfg_option(CFG_LOG_SYSEX_IN, o->value());}
-          tooltip {Log Incoming SysEx} xywh {195 533 20 20} down_box DOWN_BOX value 1 color 7 selection_color 15 labelfont 4 align 4
+          tooltip {Log Incoming SysEx} xywh {265 533 20 20} down_box DOWN_BOX value 1 color 7 selection_color 15 labelfont 4 align 4
         }
         Fl_Check_Button log_sysex_out {
           label OS
           callback {cfg->set_cfg_option(CFG_LOG_SYSEX_OUT, o->value());}
-          tooltip {Log Outgoing SysEx} xywh {235 533 20 20} down_box DOWN_BOX value 1 color 7 selection_color 15 labelfont 4 align 4
+          tooltip {Log Outgoing SysEx} xywh {305 533 20 20} down_box DOWN_BOX value 1 color 7 selection_color 15 labelfont 4 align 4
         }
         Fl_Check_Button log_events_in {
           label IE
           callback {cfg->set_cfg_option(CFG_LOG_EVENTS_IN, o->value());}
-          tooltip {Log Incoming Events} xywh {195 548 20 20} down_box DOWN_BOX color 7 selection_color 15 labelfont 4 align 4
+          tooltip {Log Incoming Events} xywh {265 548 20 20} down_box DOWN_BOX color 7 selection_color 15 labelfont 4 align 4
         }
         Fl_Check_Button log_events_out {
           label OE
           callback {cfg->set_cfg_option(CFG_LOG_EVENTS_OUT, o->value());}
-          tooltip {Log Outgoing Events} xywh {235 548 20 20} down_box DOWN_BOX color 7 selection_color 15 labelfont 4 align 4
+          tooltip {Log Outgoing Events} xywh {305 548 20 20} down_box DOWN_BOX color 7 selection_color 15 labelfont 4 align 4
         }
         Fl_Button scroll_lock {
           label {SCRL LCK}
-          xywh {340 538 70 25} type Toggle down_box DOWN_BOX selection_color 7 labelsize 10 align 80
-        }
-        Fl_Button {} {
-          label Close
-          callback {log_w->hide();}
-          xywh {415 538 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
+          xywh {410 538 70 25} type Toggle down_box DOWN_BOX selection_color 7 labelsize 10 align 80
         }
         Fl_Box {} {
           label label
@@ -4404,12 +4394,12 @@ my autonomy with a donation.}
     }
     Fl_Window copy_layer {
       label Copy
-      xywh {699 509 314 105} type Double box BORDER_BOX hide
-      class Double_Window modal xclass prodatum
+      xywh {543 354 325 90} type Double box BORDER_BOX hide
+      class Double_Window xclass prodatum
     } {
       Fl_Group layer_dst {
-        label TARGET open
-        tooltip {Target layer. Double-click target to copy (hold SHIFT to copy and close window).. (Hint: ESC closes windows)} xywh {10 32 295 28} labelfont 1 labelcolor 8
+        label Target open
+        tooltip {Target layer. Double-click layer(s) to copy to (hold SHIFT to copy and close window).} xywh {10 35 313 32} labelfont 1 labelcolor 8 align 5
       } {
         Fl_Button {} {
           label {VOICE 1}
@@ -4422,7 +4412,7 @@ copy_layer->hide();
 else
 o->deactivate();
 }}
-          xywh {10 35 70 25} type Radio down_box DOWN_BOX selection_color 72 labelsize 12 align 20 when 6
+          xywh {20 42 70 25} type Radio down_box DOWN_BOX selection_color 72 labelsize 12 align 20 when 6
         }
         Fl_Button {} {
           label {VOICE 2}
@@ -4435,7 +4425,7 @@ copy_layer->hide();
 else
 o->deactivate();
 }}
-          xywh {85 35 70 25} type Radio down_box DOWN_BOX selection_color 72 labelsize 12 align 20 when 6
+          xywh {95 42 70 25} type Radio down_box DOWN_BOX selection_color 72 labelsize 12 align 20 when 6
         }
         Fl_Button {} {
           label {VOICE 3}
@@ -4448,7 +4438,7 @@ copy_layer->hide();
 else
 o->deactivate();
 }}
-          xywh {160 35 70 25} type Radio down_box DOWN_BOX selection_color 72 labelsize 12 align 20 when 6
+          xywh {170 42 70 25} type Radio down_box DOWN_BOX selection_color 72 labelsize 12 align 20 when 6
         }
         Fl_Button {} {
           label {VOICE 4}
@@ -4461,18 +4451,13 @@ copy_layer->hide();
 else
 o->deactivate();
 }}
-          xywh {235 35 70 25} type Radio down_box DOWN_BOX selection_color 72 labelsize 12 align 20 when 6
+          xywh {245 42 70 25} type Radio down_box DOWN_BOX selection_color 72 labelsize 12 align 20 when 6
         }
-      }
-      Fl_Button {} {
-        label Close
-        callback {copy_layer->hide();}
-        xywh {235 70 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
       }
     }
     Fl_Window copy_preset {
       label Copy
-      xywh {1019 269 215 370} type Double box BORDER_BOX hide
+      xywh {808 212 215 335} type Double box BORDER_BOX hide
       class Double_Window xclass prodatum
     } {
       Fl_Group g_copy_preset {
@@ -4526,16 +4511,10 @@ copy_arp_pattern_browser_filter->do_callback();}
           xywh {170 300 26 20} box THIN_UP_BOX color 7 selection_color 15 labelsize 12 labelcolor 49
         }
       }
-      Fl_Button {} {
-        label Close
-        callback {copy_preset->hide();}
-        xywh {135 335 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
-      }
     }
     Fl_Window reset_w {
       label Synchronize
-      callback {;}
-      xywh {911 283 285 172} type Double box BORDER_BOX hide modal xclass prodatum
+      xywh {746 372 285 190} type Double box BORDER_BOX hide xclass prodatum
     } {
       Fl_Box {} {
         label Synchronize
@@ -4551,11 +4530,11 @@ copy_arp_pattern_browser_filter->do_callback();}
 g_r_user->activate();
 else
 g_r_user->deactivate();}
-        tooltip {Delete Program- and Arp-Name data!} xywh {20 67 70 15} down_box DOWN_BOX color 7 selection_color 15
+        tooltip {Delete Program- and Arp-Name data!} xywh {20 75 70 15} down_box DOWN_BOX color 7 selection_color 15
         code0 {o->clear_visible_focus();}
       }
       Fl_Group g_r_user {open
-        xywh {82 60 190 28} labeltype NO_LABEL labelcolor 15 align 0 deactivate
+        xywh {82 68 190 28} labeltype NO_LABEL labelcolor 15 align 0 deactivate
       } {
         Fl_Check_Button r_user_all {
           label All
@@ -4563,12 +4542,12 @@ g_r_user->deactivate();}
 r_user_id->deactivate();
 else
 r_user_id->activate();}
-          tooltip {Delete all User data!} xywh {95 67 42 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+          tooltip {Delete all User data!} xywh {95 75 42 15} down_box DOWN_BOX value 1 color 7 selection_color 15
           code0 {o->clear_visible_focus();}
         }
         Fl_Spinner r_user_id {
           label ID
-          tooltip {Delete User data for the device configured using this ID only!} xywh {156 62 70 25} color 7 selection_color 15 align 8 when 1 minimum 0 maximum 126 value 0 textfont 4 textsize 13 deactivate
+          tooltip {Delete User data for the device configured using this ID only!} xywh {156 70 70 25} color 7 selection_color 15 align 8 when 1 minimum 0 maximum 126 value 0 textfont 4 textsize 13 deactivate
           code0 {o->clear_visible_focus();}
         }
       }
@@ -4578,11 +4557,11 @@ r_user_id->activate();}
 g_r_rom->activate();
 else
 g_r_rom->deactivate();}
-        tooltip {Delete ROM data (once downloaded they never change so this is only useful if initialization went wrong)!} xywh {20 97 70 15} down_box DOWN_BOX color 7 selection_color 15
+        tooltip {Delete ROM data (once downloaded they never change so this is only useful if initialization went wrong)!} xywh {20 109 70 15} down_box DOWN_BOX color 7 selection_color 15
         code0 {o->clear_visible_focus();}
       }
       Fl_Group g_r_rom {open
-        xywh {82 85 200 29} labeltype NO_LABEL align 0 deactivate
+        xywh {82 87 200 39} labeltype NO_LABEL align 0 deactivate
       } {
         Fl_Check_Button r_rom_all {
           label All
@@ -4590,12 +4569,12 @@ g_r_rom->deactivate();}
 r_rom_rom->deactivate();
 else
 r_rom_rom->activate();}
-          tooltip {Delete all ROM data!} xywh {95 97 42 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+          tooltip {Delete all ROM data!} xywh {95 109 42 15} down_box DOWN_BOX value 1 color 7 selection_color 15
           code0 {o->clear_visible_focus();}
         }
         Fl_Choice r_rom_rom {
           label {ROM } open
-          tooltip {Delete  ROM data of this ROM only!} xywh {156 93 70 21} down_box BORDER_BOX color 7 align 8 textsize 13 deactivate
+          tooltip {Delete  ROM data of this ROM only!} xywh {156 105 70 21} down_box BORDER_BOX color 7 align 8 textsize 13 deactivate
           code0 {o->clear_visible_focus();}
           class ROM_Choice
         } {}
@@ -4620,12 +4599,7 @@ else
 	romdata = pxk->rom[r_rom_rom->value() + 1]->get_attribute(ID);
 }
 Reset(userdata, romdata);}
-        tooltip {Delete chosen data and synchronize again} xywh {124 139 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
-      }
-      Fl_Button {} {
-        label Cancel
-        callback {reset_w->hide();}
-        tooltip {Don't delete anything!} xywh {204 139 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
+        tooltip {Delete and synchronize chosen data.} xywh {200 150 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
       }
     }
     code {// midi log

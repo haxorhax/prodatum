@@ -1052,7 +1052,7 @@ public:
 		// height is about 162
 		// calculate our position and key koordinates
 		keyboard_x0 = this->x() + 10;
-		keyboard_y0 = this->y() + 10;
+		keyboard_y0 = this->y() + 11;
 		keyboard_w = 75 * (w_white - 1);
 		keyboard_h = h_white;
 		int offset = 0;
