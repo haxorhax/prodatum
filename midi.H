@@ -19,7 +19,7 @@
 #	define mysleep(x) Sleep(x)
 #else
 #	include <unistd.h>
-#	define mysleep(x) usleep(x * 1000)
+#	define mysleep(x) usleep((x) * 1000)
 #endif
 
 /**

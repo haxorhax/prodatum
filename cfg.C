@@ -65,10 +65,14 @@ Cfg::Cfg(int device_id)
 			unlink("./prodatum-config/.___prdtmchck");
 #endif
 			snprintf(config_dir, PATH_MAX, "./prodatum-config");
+			ui->pref_info_portable->show();
+			ui->open_info_portable->show();
 		}
 	}
 	if (config_dir[0] == 0)
 	{
+		ui->pref_info_portable->hide();
+		ui->open_info_portable->hide();
 #ifdef WIN32
 		snprintf(config_dir, PATH_MAX, "%s/prodatum", getenv("APPDATA"));
 #else

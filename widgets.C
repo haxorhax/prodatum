@@ -2108,7 +2108,6 @@ void Fl_Knob::draw()
 			fl_color(fl_color_average(FL_FOREGROUND_COLOR, FL_BACKGROUND_COLOR, .3));
 	fl_pie(ox + 1, oy + 3, side - 2, side - 12, 0, 360);
 	draw_scale(ox, oy, side);
-//	fl_color(FL_BACKGROUND_COLOR);
 	fl_pie(ox + 6, oy + 6, side - 12, side - 12, 0, 360);
 	// shadow
 	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .9));
@@ -2116,13 +2115,16 @@ void Fl_Knob::draw()
 	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .7));
 	fl_pie(ox + 9, oy + 12, side - 18, side - 18, 0, 360);
 	// knob edge
-	fl_color(active_r() ? FL_FOREGROUND_COLOR : fl_darker(FL_FOREGROUND_COLOR));
+	fl_color(
+			active_r() ?
+					fl_color_average(FL_FOREGROUND_COLOR, FL_BACKGROUND_COLOR, .5) :
+					fl_color_average(FL_FOREGROUND_COLOR, FL_BACKGROUND_COLOR, .8));
 	fl_pie(ox + 9, oy + 9, side - 18, side - 18, 0, 360);
 	// top
 	if (active_r())
-		(this == Fl::focus()) ? fl_color(FL_SELECTION_COLOR) : fl_color(FL_BACKGROUND2_COLOR);
+		(this == Fl::focus()) ? fl_color(FL_SELECTION_COLOR) : fl_color(FL_FOREGROUND_COLOR);
 	else
-		fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .8));
+		fl_color(fl_color_average(FL_FOREGROUND_COLOR, FL_BACKGROUND_COLOR, .8));
 	fl_pie(ox + 10, oy + 10, side - 20, side - 20, 0, 360);
 	draw_cursor(ox, oy, side);
 	fl_pop_clip();
@@ -2313,7 +2315,7 @@ void Fl_Knob::draw_cursor(const int ox, const int oy, const int side)
 	// top
 	if (active_r())
 		(this == Fl::focus()) ?
-				fl_color(fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR)) : fl_color(FL_FOREGROUND_COLOR);
+				fl_color(fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR)) : fl_color(FL_BACKGROUND2_COLOR);
 	else
 		fl_color(fl_darker(FL_FOREGROUND_COLOR));
 	rds = (side - 18) / 2.0;
@@ -4617,7 +4619,7 @@ void Piano::draw_piano()
 	fl_rectf(keyboard_x0, keyboard_y0, keyboard_w + 1, h_white);
 	unsigned char tmp;
 	// white keys
-	fl_color(FL_INACTIVE_COLOR);
+	fl_color(FL_BACKGROUND2_COLOR);
 	unsigned char i;
 	for (i = 0; i < 11; i++)
 	{
@@ -4669,7 +4671,7 @@ void Piano::draw_highlights()
 						else if (active_keys[key] < 0)
 							fl_color(FL_BACKGROUND_COLOR);
 						else
-							fl_color(fl_color_average(FL_SELECTION_COLOR, FL_INACTIVE_COLOR, .5));
+							fl_color(fl_color_average(FL_SELECTION_COLOR, FL_BACKGROUND_COLOR, .5));
 					}
 				}
 				fl_rectf(taste_x0[key][0], keyboard_y0, w_black, h_black);
@@ -4677,19 +4679,19 @@ void Piano::draw_highlights()
 			else // white keys
 			{
 				if (key == 72 - transpose[selected_transpose_layer] && active_keys[key] == -1)
-					fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_GREEN, .8));
+					fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_GREEN, .8));
 				else
 				{
 					if (active_keys[key] == 2)
-						fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_MAGENTA, .7));
+						fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_MAGENTA, .7));
 					else
 					{
 						if (pushed == PIANO && key == hovered_key)
 							fl_color(FL_SELECTION_COLOR);
 						else if (active_keys[key] < 0) // deactivate key
-							fl_color(FL_INACTIVE_COLOR);
+							fl_color(FL_BACKGROUND2_COLOR);
 						else
-							fl_color(fl_color_average(FL_SELECTION_COLOR, FL_INACTIVE_COLOR, .5));
+							fl_color(fl_color_average(FL_SELECTION_COLOR, FL_BACKGROUND2_COLOR, .5));
 					}
 				}
 				fl_rectf(taste_x0[key][0] + 1, keyboard_y0, w_white - 2, h_white);
@@ -4726,9 +4728,9 @@ void Piano::draw_highlights()
 							if (pushed == PIANO)
 								fl_color(FL_SELECTION_COLOR);
 							else
-								fl_color(fl_color_average(FL_SELECTION_COLOR, FL_INACTIVE_COLOR, .5));
+								fl_color(fl_color_average(FL_SELECTION_COLOR, FL_BACKGROUND2_COLOR, .5));
 						else if (key - 1 == 72 - transpose[selected_transpose_layer] && active_keys[key - 1] != 2)
-							fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_GREEN, .8));
+							fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_GREEN, .8));
 						else
 						{
 							if (active_keys[key - 1] > 0)
@@ -4736,7 +4738,7 @@ void Piano::draw_highlights()
 								if (active_keys[key - 1] == 2)
 									fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_MAGENTA, .7));
 								else
-									fl_color(fl_color_average(FL_SELECTION_COLOR, FL_INACTIVE_COLOR, .5));
+									fl_color(fl_color_average(FL_SELECTION_COLOR, FL_BACKGROUND2_COLOR, .5));
 							}
 							else
 								fl_color(FL_BACKGROUND_COLOR);
@@ -4752,44 +4754,42 @@ void Piano::draw_highlights()
 
 void Piano::draw_case()
 {
-	fl_push_clip(keyboard_x0, keyboard_y0 - 12, keyboard_w + 1, 12);
-	fl_color(FL_BACKGROUND2_COLOR);
-	fl_rectf(keyboard_x0, keyboard_y0 - 12, keyboard_w + 1, 12);
+	fl_push_clip(keyboard_x0, keyboard_y0 - 10, keyboard_w + 1, 10);
 	fl_color(FL_FOREGROUND_COLOR);
+	fl_rectf(keyboard_x0, keyboard_y0 - 10, keyboard_w + 1, 10);
+	fl_color(FL_BACKGROUND2_COLOR);
 	fl_font(FL_HELVETICA, 10);
 	unsigned char offset = 7 * (w_white - 1); // octave
 	char buf[9];
 	for (unsigned char i = 0; i < 11; i++)
 	{
 		snprintf(buf, 9, "C%d", i - 2);
-		fl_draw(buf, keyboard_x0 + i * offset, keyboard_y0 - 3);
+		fl_draw(buf, keyboard_x0 + i * offset, keyboard_y0 - 2);
 	}
-//	fl_color(FL_BACKGROUND2_COLOR);
 	snprintf(buf, 9, "pd");
-	fl_draw(buf, keyboard_x0 + keyboard_w - 15, keyboard_y0 - 3);
+	fl_draw(buf, keyboard_x0 + keyboard_w - 15, keyboard_y0 - 2);
 	// velocity
 	snprintf(buf, 9, "Velo %3d", key_velocity);
-	fl_draw(buf, keyboard_x0 + 30, keyboard_y0 - 3);
+	fl_draw(buf, keyboard_x0 + 30, keyboard_y0 - 2);
 	fl_pop_clip();
 }
 
 void Piano::draw_curve(int type)
 {
-	fl_push_clip(keyboard_x0, keyboard_y0 - 12, keyboard_w + 1, 12 + h_white);
+	fl_push_clip(keyboard_x0, keyboard_y0 - 10, keyboard_w + 1, 10 + h_white);
 	fl_color(FL_BACKGROUND_COLOR);
-	fl_rectf(keyboard_x0, keyboard_y0 - 12, keyboard_w + 1, 12 + h_white);
-	fl_color(FL_INACTIVE_COLOR);
-	fl_polygon(keyboard_x0 + 110, keyboard_h + keyboard_y0, keyboard_w + keyboard_x0 - 3, keyboard_h + keyboard_y0,
-			keyboard_w + keyboard_x0 - 3, keyboard_y0);
+	fl_rectf(keyboard_x0, keyboard_y0 - 10, keyboard_w + 1, 10 + h_white);
 	fl_color(FL_FOREGROUND_COLOR);
+	fl_polygon(keyboard_x0 + 110, keyboard_h + keyboard_y0, keyboard_w + keyboard_x0 - 3, keyboard_h + keyboard_y0,
+			keyboard_w + keyboard_x0 - 3, keyboard_y0 - 10);
 	fl_font(FL_HELVETICA, 10);
 	switch (type)
 	{
 		case VELOCITY:
-			fl_draw("VELOCITY CROSSFADE RANGE", keyboard_x0, keyboard_y0 - 3);
+			fl_draw("VELOCITY CROSSFADE RANGE", keyboard_x0, keyboard_y0 - 2);
 			break;
 		case REALTIME:
-			fl_draw("REALTIME CROSSFADE RANGE", keyboard_x0, keyboard_y0 - 3);
+			fl_draw("REALTIME CROSSFADE RANGE", keyboard_x0, keyboard_y0 - 2);
 			break;
 	}
 	// values
@@ -5056,21 +5056,22 @@ void MiniPiano::draw()
 
 void MiniPiano::draw_case()
 {
-	fl_color(FL_BACKGROUND2_COLOR);
-	fl_rectf(key_x, keyboard_y0, key_w, 12);
 	fl_color(FL_FOREGROUND_COLOR);
+	fl_rectf(key_x, keyboard_y0, key_w, 10);
+	fl_color(FL_BACKGROUND2_COLOR);
 	fl_font(FL_HELVETICA, 10);
 	// velocity
 	char buf[9];
 	snprintf(buf, 9, "Velo %3d", key_velocity);
-	fl_draw(buf, key_x + 3, key_y - 3);
+	fl_draw(buf, key_x + 3, keyboard_y0 + 8);
 	// position
 	snprintf(buf, 4, "C%d", octave - 1);
-	fl_draw(buf, key_x + key_w / 2 - 8, key_y - 3);
+	fl_draw(buf, key_x + key_w / 2 - 8, keyboard_y0 + 8);
 	// octave shift
-//	fl_color(FL_BACKGROUND_COLOR);
-	fl_polygon(key_x + key_w / 2 - 15, key_y - 3, key_x + key_w / 2 - 15, key_y - 10, key_x + key_w / 2 - 30, key_y - 6);
-	fl_polygon(key_x + key_w / 2 + 15, key_y - 3, key_x + key_w / 2 + 15, key_y - 10, key_x + key_w / 2 + 30, key_y - 6);
+	fl_polygon(key_x + key_w / 2 - 15, keyboard_y0 + 2, key_x + key_w / 2 - 15, keyboard_y0 + 6, key_x + key_w / 2 - 30,
+			keyboard_y0 + 4);
+	fl_polygon(key_x + key_w / 2 + 15, keyboard_y0 + 2, key_x + key_w / 2 + 15, keyboard_y0 + 6, key_x + key_w / 2 + 30,
+			keyboard_y0 + 4);
 }
 
 void MiniPiano::draw_highlights()
@@ -5090,22 +5091,22 @@ void MiniPiano::draw_highlights()
 					else if (active_keys[key] < 0)
 						fl_color(FL_BACKGROUND_COLOR);
 					else
-						fl_color(fl_color_average(FL_SELECTION_COLOR, FL_INACTIVE_COLOR, .5));
+						fl_color(fl_color_average(FL_SELECTION_COLOR, FL_BACKGROUND_COLOR, .5));
 				}
 				fl_rectf(taste_x0[mapped_key][0], key_y, w_black, h_black);
 			}
 			else
 			{
 				if (active_keys[key] == 2)
-					fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_MAGENTA, .7));
+					fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_MAGENTA, .7));
 				else
 				{
 					if (pushed == PIANO && key == hovered_key)
 						fl_color(FL_SELECTION_COLOR);
 					else if (active_keys[key] < 0) // deactivate key
-						fl_color(FL_INACTIVE_COLOR);
+						fl_color(FL_BACKGROUND2_COLOR);
 					else
-						fl_color(fl_color_average(FL_SELECTION_COLOR, FL_INACTIVE_COLOR, .5));
+						fl_color(fl_color_average(FL_SELECTION_COLOR, FL_BACKGROUND2_COLOR, .5));
 				}
 				fl_rectf(taste_x0[mapped_key][0], key_y, w_white - 2, h_white);
 				// repaint black keys if a white key is hovered
@@ -5138,13 +5139,13 @@ void MiniPiano::draw_highlights()
 							if (pushed == PIANO)
 								fl_color(FL_SELECTION_COLOR);
 							else
-								fl_color(fl_color_average(FL_SELECTION_COLOR, FL_INACTIVE_COLOR, .5));
+								fl_color(fl_color_average(FL_SELECTION_COLOR, FL_BACKGROUND2_COLOR, .5));
 						else if (active_keys[key - 1] > 0)
 						{
 							if (active_keys[key - 1] == 2)
 								fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_MAGENTA, .7));
 							else
-								fl_color(fl_color_average(FL_SELECTION_COLOR, FL_INACTIVE_COLOR, .5));
+								fl_color(fl_color_average(FL_SELECTION_COLOR, FL_BACKGROUND2_COLOR, .5));
 						}
 						else
 							fl_color(FL_BACKGROUND_COLOR);
@@ -5169,14 +5170,14 @@ void MiniPiano::draw_piano()
 	key_x = keyboard_x0 + 3;
 	key_w = keyboard_w - 6;
 	// tasten- hoehen/-breiten
-	h_white = (float) keyboard_h - 15.;
+	h_white = (float) keyboard_h - 12.;
 	w_white = (float) (key_w + 14.) / 15.;
 	h_black = h_white * 5. / 8.;
 	w_black = w_white * 7. / 13.;
 	// spalten
 	float s = 14. / 15.;
 	// start of keys (y-axis)
-	key_y = (float) keyboard_y0 + 12;
+	key_y = (float) keyboard_y0 + 10;
 	fl_push_clip(key_x, key_y, key_w, h_white);
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_rectf(key_x, key_y, key_w, h_white);
@@ -5218,7 +5219,7 @@ void MiniPiano::draw_piano()
 	// keys
 	int octa;
 	// white keys
-	fl_color(FL_INACTIVE_COLOR);
+	fl_color(FL_BACKGROUND2_COLOR);
 	for (i = 0; i < 3; i++)
 	{
 		octa = 12 * i;

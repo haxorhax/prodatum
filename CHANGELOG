@@ -1,3 +1,11 @@
+v2.0rc19
+
+* fixed sleep macro (linux/osx)
+* added visual feedback wether using portable configuration
+* Back to old style of labels for drag release and edit all
+* Piano drawing tweaks
+
+
 v2.0rc18
 
 * some nonfunctional improvements

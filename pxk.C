@@ -99,7 +99,7 @@ void PXK::widget_callback(int id, int value, int layer)
 		selected_preset = setup->get_value(130, selected_channel);
 		ui->preset_rom->set_value(selected_preset_rom);
 		ui->preset->set_value(selected_preset);
-		mysleep(33 + cfg->get_cfg_option(CFG_SPEED));
+		mysleep(20 + cfg->get_cfg_option(CFG_SPEED));
 		midi->request_preset_dump(-1, 0);
 		// FX channel
 		if (midi_mode != MULTI)
@@ -128,7 +128,7 @@ void PXK::widget_callback(int id, int value, int layer)
 			midi->write_event(0xb0, 32, selected_preset / 128, selected_channel);
 			midi->write_event(0xc0, selected_preset % 128, 0, selected_channel);
 			// wait a bit to let it sink...
-			mysleep(33 + cfg->get_cfg_option(CFG_SPEED));
+			mysleep(20 + cfg->get_cfg_option(CFG_SPEED));
 			midi->request_preset_dump(-1, 0);
 		}
 		return;
@@ -184,7 +184,7 @@ void PXK::widget_callback(int id, int value, int layer)
 			midi->write_event(0xb0, 32, selected_preset / 128, selected_channel);
 			midi->write_event(0xc0, selected_preset % 128, 0, selected_channel);
 			// wait a bit to let it sink...
-			mysleep(33 + cfg->get_cfg_option(CFG_SPEED));
+			mysleep(20 + cfg->get_cfg_option(CFG_SPEED));
 			midi->request_preset_dump(-1, 0);
 			return;
 		case 140: // FX channel
@@ -856,7 +856,7 @@ void PXK::incoming_inquiry_data(const unsigned char* data, int len)
 			cfg->apply();
 		}
 		midi->set_device_id((unsigned char) device_id); // so further sysex comes through
-		mysleep(33 + cfg->get_cfg_option(CFG_SPEED));
+		mysleep(20 + cfg->get_cfg_option(CFG_SPEED));
 		midi->request_hardware_config();
 		snprintf(os_rev, 5, "%c%c%c%c", data[10], data[11], data[12], data[13]);
 		member_code = data[9] * 128 + data[8];
@@ -2085,7 +2085,7 @@ void PXK::start_over()
 	// select a different basic channel (erases edit buffer)
 	midi->edit_parameter_value(139, (selected_channel + 1) % 15);
 	// let it think..
-	mysleep(33 + cfg->get_cfg_option(CFG_SPEED));
+	mysleep(40 + cfg->get_cfg_option(CFG_SPEED));
 	midi->edit_parameter_value(139, selected_channel);
 	delete preset;
 	preset = preset_copy->clone();
