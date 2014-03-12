@@ -1953,7 +1953,6 @@ Fl_Knob::Fl_Knob(int xx, int yy, int ww, int hh, const char *l) :
 	id_layer[1] = 0;
 	a1 = 35;
 	a2 = 325;
-	_type = LINELIN;
 	_percent = 0.7;
 	_scaleticks = 12;
 }
@@ -2108,14 +2107,15 @@ void Fl_Knob::draw()
 			fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .2));
 	fl_pie(ox + 1, oy + 3, side - 2, side - 12, 0, 360);
 	draw_scale(ox, oy, side);
-	fl_pie(ox + 6, oy + 6, side - 12, side - 12, 0, 360);
+	fl_pie(ox + 7, oy + 7, side - 14, side - 14, 0, 360);
 	// shadow
 	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .9));
 	fl_pie(ox + 8, oy + 12, side - 16, side - 16, 0, 360);
 	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_BLACK, .7));
 	fl_pie(ox + 9, oy + 12, side - 18, side - 18, 0, 360);
 	// knob edge
-	fl_color(active_r() ? FL_BACKGROUND2_COLOR : fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .5));
+//	fl_color(active_r() ? FL_BACKGROUND2_COLOR : fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .5));
+	fl_color(active_r() ? FL_RED : fl_color_average(FL_RED, FL_BACKGROUND_COLOR, .5));
 	fl_pie(ox + 9, oy + 9, side - 18, side - 18, 0, 360);
 	// top
 	if (active_r())
@@ -2124,8 +2124,37 @@ void Fl_Knob::draw()
 	else
 		fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .5));
 	fl_pie(ox + 10, oy + 10, side - 20, side - 20, 0, 360);
+//	if (active_r())
+	{
+		unsigned char rr, gg, bb;
+		Fl::get_color((Fl_Color) fl_color(), rr, gg, bb);
+		shadow(10, rr, gg, bb);
+		fl_pie(ox + 10, oy + 10, side - 20, side - 20, 110, 150);
+		fl_pie(ox + 10, oy + 10, side - 20, side - 20, 290, 330);
+		shadow(17, rr, gg, bb);
+		fl_pie(ox + 10, oy + 10, side - 20, side - 20, 120, 140);
+		fl_pie(ox + 10, oy + 10, side - 20, side - 20, 300, 320);
+		shadow(25, rr, gg, bb);
+		fl_pie(ox + 10, oy + 10, side - 20, side - 20, 127, 133);
+		fl_pie(ox + 10, oy + 10, side - 20, side - 20, 307, 313);
+	}
 	draw_cursor(ox, oy, side);
 	fl_pop_clip();
+}
+
+void Fl_Knob::shadow(const int offs, const uchar r, uchar g, uchar b)
+{
+	int rr, gg, bb;
+	rr = r + offs;
+	rr = rr > 255 ? 255 : rr;
+	rr = rr < 0 ? 0 : rr;
+	gg = g + offs;
+	gg = gg > 255 ? 255 : gg;
+	gg = gg < 0 ? 0 : gg;
+	bb = b + offs;
+	bb = bb > 255 ? 255 : bb;
+	bb = bb < 0 ? 0 : bb;
+	fl_color((uchar) rr, (uchar) gg, (uchar) bb);
 }
 
 int Fl_Knob::handle(int ev)
@@ -2277,11 +2306,6 @@ int Fl_Knob::handle(int ev)
 	return Fl_Valuator::handle(ev);
 }
 
-void Fl_Knob::type(int ty)
-{
-	_type = ty;
-}
-
 void Fl_Knob::draw_scale(const int ox, const int oy, const int side)
 {
 	float x1, y1, x2, y2, rds, cx, cy, ca, sa;
@@ -2314,7 +2338,7 @@ void Fl_Knob::draw_cursor(const int ox, const int oy, const int side)
 	if (active_r())
 		(this == Fl::focus()) ?
 				fl_color(fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR)) :
-				fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_FOREGROUND_COLOR, .2));
+				fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_FOREGROUND_COLOR, .3));
 	else
 		fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_FOREGROUND_COLOR, .4));
 	rds = (side - 18) / 2.0;
@@ -4473,7 +4497,7 @@ void Piano::draw_ranges()
 		fl_draw(buf, keyboard_x0 - 9, dragbox[0][7][0][1] + 7);
 	}
 	// draw grid
-	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_FOREGROUND_COLOR, .8));
+	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_FOREGROUND_COLOR, .95));
 	if (mode == KEYRANGE)
 	{
 		for (i = 0; i < 128; i++)

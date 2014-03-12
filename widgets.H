@@ -379,17 +379,12 @@ class Fl_Knob: public Fl_Valuator, public PWid
 	int handle(int event);
 	void draw_scale(const int ox, const int oy, const int side);
 	void draw_cursor(const int ox, const int oy, const int side);
+	void shadow(const int offs, const uchar r, uchar g, uchar b);
 	void dependency(int v) const;
 public:
-	enum Fl_Knobtype
-	{
-		DOTLIN = 0, DOTLOG_1, DOTLOG_2, DOTLOG_3, LINELIN, LINELOG_1, LINELOG_2, LINELOG_3
-	};
 	Fl_Knob(int xx, int yy, int ww, int hh, const char *l = 0);
-	void type(int ty);
 	void cursor(const int pc);
 	void scaleticks(const int tck);
-
 	void set_id(int v, int l = 0);
 	void set_value(int);
 	int get_value() const;
