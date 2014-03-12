@@ -59,11 +59,21 @@
  */
 struct FilterMap
 {
-	int value;
+	int id;
 	const char* name;
 	const char* info;
 	int _index;
 };
+
+struct Patchcord
+{
+	int id;
+	const char* name;
+};
+
+extern Patchcord PatchS[78];
+extern Patchcord PatchD[68];
+extern Patchcord PresetPatchD[28];
 
 /**
  * shows confirmation dialog on various occasions
@@ -125,6 +135,11 @@ public:
 
 extern PWid* pwid[2000][4];
 extern PWid* pwid_editing;
+// some often used toltips
+static const char* _ms = "Modulation Source";
+static const char* _md = "Modulation Destination";
+static const char* _ma = "Modulation Amount (double click to toggle between 0 and current value)";
+
 
 /**
  * Double_Window class
@@ -281,6 +296,7 @@ public:
 			Fl_Value_Output(x, y, w, h, label)
 	{
 		double_click_value = 0;
+		tooltip(_ma);
 	}
 	void set_id(int v, int l = 0);
 	void set_value(int v);
@@ -445,191 +461,22 @@ public:
  */
 class PCS_Choice: public Choice
 {
-	struct ParaMap
-	{
-		int value;
-		const char* name;
-		int _index;
-	} src[78];
+	int index[78];
 	bool initialized;
 	void init(int ec)
 	{
 		clear();
-		for (int i = 0; i < 74 + ec; i++)
-			src[i]._index = add(src[i].name);
+		for (char i = 0; i < 74 + ec; i++)
+			index[i] = add(PatchS[i].name);
 		initialized = true;
 	}
 public:
 	PCS_Choice(int x, int y, int w, int h, char* const label = 0) :
 			Choice(x, y, w, h, label)
 	{
-		src[0].value = 0;
-		src[0].name = "Off";
-
-		src[1].value = 8;
-		src[1].name = "Key/Key+";
-		src[2].value = 9;
-		src[2].name = "Key/Key~";
-		src[3].value = 10;
-		src[3].name = "Key/Vel+";
-		src[4].value = 11;
-		src[4].name = "Key/Vel~";
-		src[5].value = 12;
-		src[5].name = "Key/Vel<";
-		src[6].value = 13;
-		src[6].name = "Key/RlsVel";
-		src[7].value = 14;
-		src[7].name = "Key/Gate";
-		src[8].value = 48;
-		src[8].name = "Key/Glide";
-		src[9].value = 4;
-		src[9].name = "Key/XfdRand";
-		src[10].value = 100;
-		src[10].name = "Key/KeyRand 1";
-		src[11].value = 101;
-		src[11].name = "Key/KeyRand 2";
-
-		src[12].value = 16;
-		src[12].name = "Controller/PitchWhl";
-		src[13].value = 17;
-		src[13].name = "Controller/ModWhl";
-		src[14].value = 18;
-		src[14].name = "Controller/Pressure";
-		src[15].value = 19;
-		src[15].name = "Controller/Pedal";
-		src[16].value = 22;
-		src[16].name = "Controller/FootSw 1";
-		src[17].value = 23;
-		src[17].name = "Controller/FootSw 2";
-		src[18].value = 38;
-		src[18].name = "Controller/FootSw 3";
-		src[19].value = 24;
-		src[19].name = "Controller/FootSw 1FF";
-		src[20].value = 25;
-		src[20].name = "Controller/FootSw 2FF";
-		src[21].value = 39;
-		src[21].name = "Controller/FootSw 3FF";
-
-		src[22].value = 72;
-		src[22].name = "Envelope/VolEnv+";
-		src[23].value = 73;
-		src[23].name = "Envelope/VolEnv~";
-		src[24].value = 74;
-		src[24].name = "Envelope/VolEnv<";
-		src[25].value = 80;
-		src[25].name = "Envelope/FilEnv+";
-		src[26].value = 81;
-		src[26].name = "Envelope/FilEnv~";
-		src[27].value = 82;
-		src[27].name = "Envelope/FilEnv<";
-		src[28].value = 88;
-		src[28].name = "Envelope/AuxEnv+";
-		src[29].value = 89;
-		src[29].name = "Envelope/AuxEnv~";
-		src[30].value = 90;
-		src[30].name = "Envelope/AuxEnv<";
-
-		src[31].value = 96;
-		src[31].name = "LFO/LFO 1~";
-		src[32].value = 97;
-		src[32].name = "LFO/LFO 1+";
-		src[33].value = 104;
-		src[33].name = "LFO/LFO 2~";
-		src[34].value = 105;
-		src[34].name = "LFO/LFO 2+";
-
-		src[35].value = 98;
-		src[35].name = "Noise/White";
-		src[36].value = 99;
-		src[36].name = "Noise/Pink";
-
-		src[37].value = 106;
-		src[37].name = "Processor/Log0sum";
-		src[38].value = 107;
-		src[38].name = "Processor/Lag0";
-		src[39].value = 108;
-		src[39].name = "Processor/Log1sum";
-		src[40].value = 109;
-		src[40].name = "Processor/Lag1";
-		src[41].value = 128;
-		src[41].name = "Processor/PLagOut";
-		src[42].value = 129;
-		src[42].name = "Processor/PRampOut";
-		src[43].value = 160;
-		src[43].name = "Processor/DC";
-		src[44].value = 161;
-		src[44].name = "Processor/Sum";
-		src[45].value = 162;
-		src[45].name = "Processor/Switch";
-		src[46].value = 163;
-		src[46].name = "Processor/Abs";
-		src[47].value = 164;
-		src[47].name = "Processor/Diode";
-		src[48].value = 165;
-		src[48].name = "Processor/FlipFlop";
-		src[49].value = 166;
-		src[49].name = "Processor/Quantizer";
-		src[50].value = 167;
-		src[50].name = "Processor/Gain x 4";
-
-		src[51].value = 144;
-		src[51].name = "Clock Divisor/Double Whole";
-		src[52].value = 145;
-		src[52].name = "Clock Divisor/Whole";
-		src[53].value = 146;
-		src[53].name = "Clock Divisor/Half";
-		src[54].value = 147;
-		src[54].name = "Clock Divisor/Quarter";
-		src[55].value = 148;
-		src[55].name = "Clock Divisor/8th";
-		src[56].value = 149;
-		src[56].name = "Clock Divisor/16th";
-		src[57].value = 150;
-		src[57].name = "Clock Divisor/Octal";
-		src[58].value = 151;
-		src[58].name = "Clock Divisor/Quad";
-
-		src[59].value = 26;
-		src[59].name = "MIDI/MIDI Vol";
-		src[60].value = 27;
-		src[60].name = "MIDI/MIDI Pan";
-		src[61].value = 28;
-		src[61].name = "MIDI/MIDI Expr";
-		src[62].value = 20;
-		src[62].name = "MIDI/MIDI A";
-		src[63].value = 21;
-		src[63].name = "MIDI/MIDI B";
-		src[64].value = 32;
-		src[64].name = "MIDI/MIDI C";
-		src[65].value = 33;
-		src[65].name = "MIDI/MIDI D";
-		src[66].value = 34;
-		src[66].name = "MIDI/MIDI E";
-		src[67].value = 35;
-		src[67].name = "MIDI/MIDI F";
-		src[68].value = 36;
-		src[68].name = "MIDI/MIDI G";
-		src[69].value = 37;
-		src[69].name = "MIDI/MIDI H";
-		src[70].value = 40;
-		src[70].name = "MIDI/MIDI I";
-		src[71].value = 41;
-		src[71].name = "MIDI/MIDI J";
-		src[72].value = 42;
-		src[72].name = "MIDI/MIDI K";
-		src[73].value = 43;
-		src[73].name = "MIDI/MIDI L";
-		// xtra controllers
-		src[74].value = 44;
-		src[74].name = "MIDI/MIDI M";
-		src[75].value = 45;
-		src[75].name = "MIDI/MIDI N";
-		src[76].value = 46;
-		src[76].name = "MIDI/MIDI O";
-		src[77].value = 47;
-		src[77].name = "MIDI/MIDI P";
 		minimax[1] = 167;
 		initialized = false;
+		tooltip(_ms);
 	}
 	void set_value(int v);
 	int get_value() const;
@@ -645,159 +492,15 @@ public:
  */
 class PCD_Choice: public Choice
 {
-	struct ParaMap
-	{
-		int value;
-		const char* name;
-		int _index;
-	} dst[68];
+	int index[68];
 public:
 	PCD_Choice(int x, int y, int w, int h, char* const label = 0) :
 			Choice(x, y, w, h, label)
 	{
-		dst[0].value = 0;
-		dst[0].name = "Off";
-		dst[1].value = 8;
-		dst[1].name = "Voice/KeySust";
-		dst[2].value = 47;
-		dst[2].name = "Voice/FinePitch";
-		dst[3].value = 48;
-		dst[3].name = "Voice/Pitch";
-		dst[4].value = 49;
-		dst[4].name = "Voice/Glide";
-		dst[5].value = 50;
-		dst[5].name = "Voice/ChorusAmt";
-		dst[6].value = 52;
-		dst[6].name = "Voice/'SStart";
-		dst[7].value = 53;
-		dst[7].name = "Voice/SLoop";
-		dst[8].value = 54;
-		dst[8].name = "Voice/SRetrig";
-		dst[9].value = 66;
-		dst[9].name = "Voice/RT X-fade";
-		dst[10].value = 56;
-		dst[10].name = "Voice/FFrequency";
-		dst[11].value = 57;
-		dst[11].name = "Voice/F'Resonance";
-		dst[12].value = 64;
-		dst[12].name = "Voice/Amp Vol";
-		dst[13].value = 65;
-		dst[13].name = "Voice/Amp Pan";
-
-		dst[14].value = 72;
-		dst[14].name = "Envelope/VolEnvRts";
-		dst[15].value = 73;
-		dst[15].name = "Envelope/VolEnvAtk";
-		dst[16].value = 74;
-		dst[16].name = "Envelope/VolEnvDcy";
-		dst[17].value = 75;
-		dst[17].name = "Envelope/VolEnvRls";
-		dst[18].value = 76;
-		dst[18].name = "Envelope/VolEnvSus";
-		dst[19].value = 80;
-		dst[19].name = "Envelope/FilEnvRts";
-		dst[20].value = 81;
-		dst[20].name = "Envelope/FilEnvAtk";
-		dst[21].value = 82;
-		dst[21].name = "Envelope/FilEnvDcy";
-		dst[22].value = 83;
-		dst[22].name = "Envelope/FilEnvRls";
-		dst[23].value = 84;
-		dst[23].name = "Envelope/FilEnvSus";
-		dst[24].value = 86;
-		dst[24].name = "Envelope/FilEnvTrig";
-		dst[25].value = 88;
-		dst[25].name = "Envelope/AuxEnvRts";
-		dst[26].value = 89;
-		dst[26].name = "Envelope/AuxEnvAtk";
-		dst[27].value = 90;
-		dst[27].name = "Envelope/AuxEnvDcy";
-		dst[28].value = 91;
-		dst[28].name = "Envelope/AuxEnvRls";
-		dst[29].value = 92;
-		dst[29].name = "Envelope/AuxEnvSus";
-		dst[30].value = 94;
-		dst[30].name = "Envelope/AuxEnvTrig";
-
-		dst[31].value = 96;
-		dst[31].name = "LFO/LFO 1 Rate";
-		dst[32].value = 97;
-		dst[32].name = "LFO/LFO 1 Trig";
-		dst[33].value = 104;
-		dst[33].name = "LFO/LFO 2 Rate";
-		dst[34].value = 105;
-		dst[34].name = "LFO/LFO 2 Trig";
-
-		dst[35].value = 106;
-		dst[35].name = "Processor/Lag 0 in";
-		dst[36].value = 108;
-		dst[36].name = "Processor/Lag 1 in";
-		dst[37].value = 161;
-		dst[37].name = "Processor/Sum";
-		dst[38].value = 162;
-		dst[38].name = "Processor/Switch";
-		dst[39].value = 163;
-		dst[39].name = "Processor/Abs";
-		dst[40].value = 164;
-		dst[40].name = "Processor/Diode";
-		dst[41].value = 165;
-		dst[41].name = "Processor/FlipFlop";
-		dst[42].value = 166;
-		dst[42].name = "Processor/Quantize";
-		dst[43].value = 167;
-		dst[43].name = "Processor/Gain x 4";
-
-		dst[44].value = 168;
-		dst[44].name = "Attenuator/C 01 Amt";
-		dst[45].value = 169;
-		dst[45].name = "Attenuator/C 02 Amt";
-		dst[46].value = 170;
-		dst[46].name = "Attenuator/C 03 Amt";
-		dst[47].value = 171;
-		dst[47].name = "Attenuator/C 04 Amt";
-		dst[48].value = 172;
-		dst[48].name = "Attenuator/C 05 Amt";
-		dst[49].value = 173;
-		dst[49].name = "Attenuator/C 06 Amt";
-		dst[50].value = 174;
-		dst[50].name = "Attenuator/C 07 Amt";
-		dst[51].value = 175;
-		dst[51].name = "Attenuator/C 08 Amt";
-		dst[52].value = 176;
-		dst[52].name = "Attenuator/C 09 Amt";
-		dst[53].value = 177;
-		dst[53].name = "Attenuator/C 10 Amt";
-		dst[54].value = 178;
-		dst[54].name = "Attenuator/C 11 Amt";
-		dst[55].value = 179;
-		dst[55].name = "Attenuator/C 12 Amt";
-		dst[56].value = 180;
-		dst[56].name = "Attenuator/C 13 Amt";
-		dst[57].value = 181;
-		dst[57].name = "Attenuator/C 14 Amt";
-		dst[58].value = 182;
-		dst[58].name = "Attenuator/C 15 Amt";
-		dst[59].value = 183;
-		dst[59].name = "Attenuator/C 16 Amt";
-		dst[60].value = 184;
-		dst[60].name = "Attenuator/C 17 Amt";
-		dst[61].value = 185;
-		dst[61].name = "Attenuator/C 18 Amt";
-		dst[62].value = 186;
-		dst[62].name = "Attenuator/C 19 Amt";
-		dst[63].value = 187;
-		dst[63].name = "Attenuator/C 20 Amt";
-		dst[64].value = 188;
-		dst[64].name = "Attenuator/C 21 Amt";
-		dst[65].value = 189;
-		dst[65].name = "Attenuator/C 22 Amt";
-		dst[66].value = 190;
-		dst[66].name = "Attenuator/C 23 Amt";
-		dst[67].value = 191;
-		dst[67].name = "Attenuator/C 24 Amt";
-		for (int i = 0; i < 68; i++)
-			dst[i]._index = add(dst[i].name);
+		for (char i = 0; i < 68; i++)
+			index[i] = add(PatchD[i].name);
 		minimax[1] = 191;
+		tooltip(_md);
 	}
 	void set_value(int v);
 	int get_value() const;
@@ -809,79 +512,15 @@ public:
  */
 class PPCD_Choice: public Choice
 {
-	struct ParaMap
-	{
-		int value;
-		const char* name;
-		int _index;
-	} dst[28];
+	int index[28];
 public:
 	PPCD_Choice(int x, int y, int w, int h, char* const label = 0) :
 			Choice(x, y, w, h, label)
 	{
-		dst[0].value = 0;
-		dst[0].name = "Off";
-
-		dst[1].value = 1;
-		dst[1].name = "Effects/FX A Send 1";
-		dst[2].value = 2;
-		dst[2].name = "Effects/FX A Send 2";
-		dst[3].value = 3;
-		dst[3].name = "Effects/FX A Send 3";
-		dst[4].value = 4;
-		dst[4].name = "Effects/FX A Send 4";
-		dst[5].value = 5;
-		dst[5].name = "Effects/FX B Send 1";
-		dst[6].value = 6;
-		dst[6].name = "Effects/FX B Send 2";
-		dst[7].value = 7;
-		dst[7].name = "Effects/FX B Send 3";
-		dst[8].value = 8;
-		dst[8].name = "Effects/FX B Send 4";
-
-		dst[9].value = 96;
-		dst[9].name = "Arpeggiator/Arp Rate";
-		dst[10].value = 97;
-		dst[10].name = "Arpeggiator/Arp Ext.";
-		dst[11].value = 98;
-		dst[11].name = "Arpeggiator/Arp Vel";
-		dst[12].value = 99;
-		dst[12].name = "Arpeggiator/Arp Gate";
-		dst[13].value = 100;
-		dst[13].name = "Arpeggiator/Arp Intvl";
-
-		dst[14].value = 112;
-		dst[14].name = "Beats/BeatsVelG1";
-		dst[15].value = 113;
-		dst[15].name = "Beats/BeatsVelG2";
-		dst[16].value = 114;
-		dst[16].name = "Beats/BeatsVelG3";
-		dst[17].value = 115;
-		dst[17].name = "Beats/BeatsVelG4";
-		dst[18].value = 116;
-		dst[18].name = "Beats/BeatsXpsG1";
-		dst[19].value = 117;
-		dst[19].name = "Beats/BeatsXpsG2";
-		dst[20].value = 118;
-		dst[20].name = "Beats/BeatsXpsG3";
-		dst[21].value = 119;
-		dst[21].name = "Beats/BeatsXpsG4";
-		dst[22].value = 120;
-		dst[22].name = "Beats/BeatsBusy";
-		dst[23].value = 121;
-		dst[23].name = "Beats/BeatsVari";
-
-		dst[24].value = 128;
-		dst[24].name = "Preset/PLag In";
-		dst[25].value = 129;
-		dst[25].name = "Preset/PLag Amt";
-		dst[26].value = 130;
-		dst[26].name = "Preset/PRamp In";
-		dst[27].value = 131;
-		dst[27].name = "Preset/PRamp Rt";
-		for (int i = 0; i < 28; i++)
-			dst[i]._index = add(dst[i].name);
+		for (char i = 0; i < 28; i++)
+			index[i] = add(PresetPatchD[i].name);
 		minimax[1] = 131;
+		tooltip(_md);
 	}
 	void set_value(int v);
 	int get_value() const;

@@ -1,9 +1,17 @@
 v2.0rc19
 
 * fixed sleep macro (linux/osx)
-* added visual feedback wether using portable configuration
-* Back to old style of labels for drag release and edit all
+* added visual feedback when using portable configuration
 * Piano drawing tweaks
+* fixed color of some menu entries
+* new knobs (made of steel)
+* right mouse button on minipiano would also change shortcut
+  note. fixed.
+* fix weird double click behaviour for patchcord amount values
+* fix potentially weird double click behaviour in browsers
+* disable "all notes off" menu entries when in omni mode
+* save a lot of memory through de-duplicating patchcord/arp-step
+  tooltips and name strings
 
 
 v2.0rc18

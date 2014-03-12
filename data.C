@@ -945,10 +945,10 @@ void Arp_Dump::update_sequence_length_information() const
 	{ 6, 8, 9, 12, 16, 18, 24, 32, 36, 48, 64, 72, 96, 128, 144, 192, 256, 288, 384 };
 	unsigned char i = 0;
 	int total = 0;
-	while (i < 32 && !arp_step[i]->End->value())
+	while (i < 32 && !arp_step[i]->step_end->value())
 	{
-		if (!arp_step[i]->skip->value())
-			total += tick[(int) arp_step[i]->duration->value() - 1] * (int) arp_step[i]->repeat->value();
+		if (!arp_step[i]->step_skip->value())
+			total += tick[(int) arp_step[i]->step_duration->value() - 1] * (int) arp_step[i]->step_repeat->value();
 		++i;
 	}
 	int beat = total / 48;
@@ -979,9 +979,9 @@ void Arp_Dump::reset_step(int step) const
 	int repeat = unibble(dat + tmp + 6, dat + tmp + 7);
 	arp_step[step]->set_values(offset, velocity, duration, repeat);
 	arp_step[step]->op->do_callback();
-	arp_step[step]->velocity->do_callback();
-	arp_step[step]->duration->do_callback();
-	arp_step[step]->repeat->do_callback();
+	arp_step[step]->step_velocity->do_callback();
+	arp_step[step]->step_duration->do_callback();
+	arp_step[step]->step_repeat->do_callback();
 }
 
 void Arp_Dump::rename(const char* newname) const

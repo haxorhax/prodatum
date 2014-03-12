@@ -30,9 +30,9 @@ PWid* pwid[2000][4];
 /// pointer to widgets that is currently being edited
 PWid* pwid_editing;
 /// contains informations for all 51 filter types
-FilterMap FM[51];
+extern FilterMap FM[51];
 /// contains strings for some tempo related parameters
-const char* rates[25];
+extern const char* rates[25];
 
 extern PD_UI* ui;
 extern PXK* pxk;
@@ -487,7 +487,7 @@ int Browser::handle(int ev)
 		case FL_PUSH: // 1 = receive FL_DRAG and the matching (Fl::event_button()) FL_RELEASE event (becomes Fl::pushed())
 			if (ev == Fl::event_clicks() && pxk->preset) // double click
 			{
-				Fl::event_clicks(0);
+				Fl::event_clicks(-1);
 				if (id_layer[0] == 643 && ui->main->arp_rom->value() == 0) //master arp browser
 				{
 					ui->main->edit_arp->do_callback();
@@ -1362,19 +1362,22 @@ int Value_Output::handle(int ev)
 		case FL_PUSH: // 1 = receive FL_DRAG and the matching (Fl::event_button()) FL_RELEASE event (becomes Fl::pushed())
 			if (FL_RIGHT_MOUSE == Fl::event_button())
 				return 1;
-			if (Fl::event_clicks()
-					&& ((id_layer[0] >= 1921 && id_layer[0] <= 1992) || (id_layer[0] >= 933 && id_layer[0] <= 966))) // double click on patchcord amounts
+			if (Fl::event_clicks())
 			{
-				Fl::event_clicks(0);
-				if (value())
+				Fl::event_clicks(-1);
+				if ((id_layer[0] >= 1921 && id_layer[0] <= 1992) || (id_layer[0] >= 933 && id_layer[0] <= 966)) // double click on patchcord amounts
 				{
-					double_click_value = (int) value();
-					value(0);
+
+					if (value())
+					{
+						double_click_value = (int) value();
+						value(0);
+					}
+					else
+						value((double) double_click_value);
+					do_callback();
+					return 1;
 				}
-				else
-					value((double) double_click_value);
-				do_callback();
-				return 1;
 			}
 			break;
 		case FL_RELEASE:
@@ -2115,7 +2118,7 @@ void Fl_Knob::draw()
 	fl_pie(ox + 9, oy + 12, side - 18, side - 18, 0, 360);
 	// knob edge
 //	fl_color(active_r() ? FL_BACKGROUND2_COLOR : fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .5));
-	fl_color(active_r() ? FL_RED : fl_color_average(FL_RED, FL_BACKGROUND_COLOR, .5));
+	fl_color(active_r() ? FL_BLACK : fl_color_average(FL_BLACK, FL_BACKGROUND_COLOR, .5));
 	fl_pie(ox + 9, oy + 9, side - 18, side - 18, 0, 360);
 	// top
 	if (active_r())
@@ -2174,6 +2177,8 @@ int Fl_Knob::handle(int ev)
 			}
 			return 0;
 		case FL_PUSH: // 1 = receive FL_DRAG and the matching (Fl::event_button()) FL_RELEASE event (becomes Fl::pushed())
+			if (this != Fl::belowmouse())
+				return 0;
 			handle_push();
 			if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->setup_copy && pxk->preset_copy)
 			{
@@ -2602,8 +2607,8 @@ void Choice::set_value(int v)
 	}
 	else if (id_layer[0] == 1537) // filter type
 	{
-		for (int i = 0; i <= 50; i++)
-			if (FM[i].value == v)
+		for (char i = 0; i <= 50; i++)
+			if (FM[i].id == v)
 			{
 				value(FM[i]._index);
 				tooltip(FM[i].info);
@@ -2643,7 +2648,7 @@ int Choice::get_value() const
 		for (i = 0; i <= 50; i++)
 			if (FM[i]._index == v)
 				break;
-		int val = FM[i].value;
+		int val = FM[i].id;
 		if (val == 127)
 			ui->main->layer_strip[id_layer[1]]->filter_knobs->deactivate();
 		else
@@ -2978,9 +2983,17 @@ void Choice::dependency(int v) const
 			ui->main->channel_enable->value(pxk->setup->get_value(135, pxk->selected_channel));
 		}
 		if (v == OMNI)
+		{
 			ui->all_notes_off->deactivate();
+			ui->m_all_notes_off->deactivate();
+			ui->m_all_notes_off_all->deactivate();
+		}
 		else
+		{
 			ui->all_notes_off->activate();
+			ui->m_all_notes_off->activate();
+			ui->m_all_notes_off_all->activate();
+		}
 	}
 }
 
@@ -2991,21 +3004,20 @@ void PCS_Choice::set_value(int v)
 {
 	if (!initialized && pxk->preset)
 		init(pxk->preset->get_extra_controller());
-	int i;
-	for (i = 0; i < 78; i++)
-		if (src[i].value == v)
-			break;
-	value(src[i]._index);
+	for (char i = 0; i < 78; i++)
+		if (PatchS[i].id == v)
+		{
+			value(index[i]);
+			return;
+		}
 }
 
 int PCS_Choice::get_value() const
 {
-	int v = value();
-	int i;
-	for (i = 0; i < 78; i++)
-		if (src[i]._index == v)
-			break;
-	return (int) src[i].value;
+	for (char i = 0; i < 78; i++)
+		if (index[i] == value())
+			return PatchS[i].id;
+	return 0;
 }
 
 // ###################
@@ -3013,22 +3025,20 @@ int PCS_Choice::get_value() const
 // ###################
 void PCD_Choice::set_value(int v)
 {
-	//pmesg("PCD_Choice::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
-	int i;
-	for (i = 0; i < 68; i++)
-		if (dst[i].value == v)
-			break;
-	value(dst[i]._index);
+	for (char i = 0; i < 68; i++)
+		if (PatchD[i].id == v)
+		{
+			value(index[i]);
+			return;
+		}
 }
 
 int PCD_Choice::get_value() const
 {
-	int v = value();
-	int i;
-	for (i = 0; i < 68; i++)
-		if (dst[i]._index == v)
-			break;
-	return (int) dst[i].value;
+	for (char i = 0; i < 68; i++)
+		if (index[i] == value())
+			return PatchD[i].id;
+	return 0;
 }
 
 // ###################
@@ -3036,22 +3046,20 @@ int PCD_Choice::get_value() const
 // ###################
 void PPCD_Choice::set_value(int v)
 {
-	//pmesg("PPCD_Choice::set_value(%d) (id:%d layer:%d)\n", v, id_layer[0], id_layer[1]);
-	int i;
-	for (i = 0; i < 28; i++)
-		if (dst[i].value == v)
-			break;
-	value(dst[i]._index);
+	for (char i = 0; i < 28; i++)
+		if (PresetPatchD[i].id == v)
+		{
+			value(index[i]);
+			return;
+		}
 }
 
 int PPCD_Choice::get_value() const
 {
-	int v = value();
-	int i;
-	for (i = 0; i < 28; i++)
-		if (dst[i]._index == v)
-			break;
-	return (int) dst[i].value;
+	for (char i = 0; i < 28; i++)
+		if (index[i] == value())
+			return PresetPatchD[i].id;
+	return 0;
 }
 
 // ###################
@@ -4191,6 +4199,8 @@ int Piano::handle(int ev)
 			return 1;
 
 		case FL_PUSH:
+			if (this != Fl::belowmouse())
+				return 0;
 			push_x = 0;
 			pushed = NONE;
 			pushed_range = NONE;
@@ -5296,6 +5306,8 @@ int MiniPiano::handle(int ev)
 				Fl_Tooltip::enter_area(this, keyboard_x0, keyboard_y0, keyboard_w, keyboard_h, mp_tt);
 			return 1;
 		case FL_PUSH:
+			if (this != Fl::belowmouse())
+				return 0;
 			push_x = 0;
 			pushed = NONE;
 			switch (Fl::event_button())
@@ -5349,6 +5361,7 @@ int MiniPiano::handle(int ev)
 						}
 						damage(D_HIGHLIGHT);
 					}
+					break;
 					// set note and velocity for 'B' shortcut
 					// see Double_Window handler
 				case FL_MIDDLE_MOUSE:

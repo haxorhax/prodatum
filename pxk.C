@@ -195,6 +195,9 @@ void PXK::widget_callback(int id, int value, int layer)
 				setup->show_fx();
 			return;
 		case 385: // MIDI Mode
+			ui->piano->reset_active_keys();
+			ui->global_minipiano->reset_active_keys();
+			ui->main->minipiano->reset_active_keys();
 			if (value != MULTI)
 			{
 				if (midi_mode == MULTI)
@@ -220,8 +223,8 @@ void PXK::widget_callback(int id, int value, int layer)
 			}
 			return;
 		case 1537: // Filter type
-			for (int i = 0; i <= 50; i++)
-				if (FM[i].value == value)
+			for (char i = 0; i <= 50; i++)
+				if (FM[i].id == value)
 				{
 					Fl_Tooltip::exit((Fl_Widget*) pwid[id][layer]);
 					ui->main->layer_strip[layer]->filter->tooltip(FM[i].info);

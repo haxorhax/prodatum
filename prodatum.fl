@@ -66,8 +66,8 @@ ui->i_log->show_insert_position();} {}
 
 decl {char filter_tooltip[512];} {} 
 
-widget_class PD_Arp_Step {
-  xywh {422 60 40 275} type Double hide position_relative
+widget_class PD_Arp_Step {open
+  xywh {504 60 40 275} type Double hide position_relative
 } {
   decl {void init(int s);} {public
   }
@@ -89,56 +89,56 @@ o->c = val;
 
 ((Fl_Button*) o->child(val))->setonly();
 if (val == 4) // note
-edit_value(784, (int) offset->value());
+edit_value(784, (int) step_offset->value());
 else
 edit_value(784, val - 52);}
     xywh {0 0 40 90} labeltype NO_LABEL labelsize 10 labelcolor 7 align 0 when 0
     class Step_Type
   } {
-    Fl_Button End {
+    Fl_Button step_end {
       label End
       callback {((Group*)o->parent())->do_callback();}
-      tooltip {End: This command signals the end of the pattern. Any steps programmed after the step containing the End command are ignored.} xywh {0 0 40 17} type Radio down_box DOWN_BOX color 7 selection_color 72 labelsize 10 align 80 when 6
+      xywh {0 0 40 17} type Radio down_box DOWN_BOX color 7 selection_color 72 labelsize 10 align 80 when 6
     }
-    Fl_Button skip {
+    Fl_Button step_skip {
       label Skip
       callback {((Group*)o->parent())->do_callback();}
-      tooltip {Skip: This command simply removes the step from the pattern. The Skip feature makes it easy to remove an unwanted step without rearranging the entire pattern. You'll be happy to know that the velocity, duration and repeat parameters are remembered if you decide to put the step back later.} xywh {0 18 40 17} type Radio down_box DOWN_BOX color 7 selection_color 137 labelsize 10 align 80 when 6
+      xywh {0 18 40 17} type Radio down_box DOWN_BOX color 7 selection_color 137 labelsize 10 align 80 when 6
     }
-    Fl_Button {} {
+    Fl_Button step_rest {
       label Rest
       callback {((Group*)o->parent())->do_callback();}
-      tooltip {Rest: Instead of playing a note, you can define the step as a Rest. The Duration parameter specifies the length of the rest. Rests can be tied together to form longer rests.} xywh {0 36 40 17} type Radio down_box DOWN_BOX color 7 selection_color 152 labelsize 10 align 80 when 6
+      xywh {0 36 40 17} type Radio down_box DOWN_BOX color 7 selection_color 152 labelsize 10 align 80 when 6
     }
-    Fl_Button {} {
+    Fl_Button step_tie {
       label Tie
       callback {((Group*)o->parent())->do_callback();}
-      tooltip {Tie: This function extends the duration of notes beyond the values given in the duration field by "tying" notes together. You can tie together any number of consecutive steps. IMPORTANT: The Gate function in the arpeggiator MUST be set to 100% when using the tie function, otherwise the tied note is retriggered instead of extended.} xywh {0 54 40 17} type Radio down_box DOWN_BOX color 7 selection_color 179 labelsize 10 align 80 when 6
+      xywh {0 54 40 17} type Radio down_box DOWN_BOX color 7 selection_color 179 labelsize 10 align 80 when 6
     }
-    Fl_Button key {
+    Fl_Button step_key {
       label Key
       callback {((Group*)o->parent())->do_callback();}
-      tooltip {Key: Play a note} xywh {0 72 40 17} type Radio down_box DOWN_BOX color 7 selection_color 67 labelsize 10 align 80 when 6
+      xywh {0 72 40 17} type Radio down_box DOWN_BOX color 7 selection_color 67 labelsize 10 align 80 when 6
     }
   }
-  Fl_Value_Output duration {
+  Fl_Value_Output step_duration {
     callback {edit_value(786, (int) o->value());}
-    tooltip {Duration: Sets the length of time for the current step, defined as a note value, based on the Master Tempo.} xywh {0 91 40 17} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 align 0 when 4 minimum 1 maximum 19 step 1 textfont 4 textsize 12
+    xywh {0 91 40 17} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 align 0 when 4 minimum 1 maximum 19 step 1 textfont 4 textsize 12
     class Step_Value
   }
-  Fl_Value_Output repeat {
+  Fl_Value_Output step_repeat {
     callback {edit_value(787, (int) o->value() - 1);}
-    tooltip {Repeat: Each step can be played from 1 to 32 times.} xywh {0 110 40 17} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 align 0 when 4 minimum 1 maximum 32 step 1 textfont 4 textsize 12
+    xywh {0 110 40 17} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 align 0 when 4 minimum 1 maximum 32 step 1 textfont 4 textsize 12
     class Step_Value
   }
-  Fl_Value_Output velocity {
+  Fl_Value_Output step_velocity {
     callback {edit_value(785, (int) o->value());}
-    tooltip {Velocity: Each note in the pattern plays using either a preset velocity value (from 1 through 127), or using the actual velocity of the played note (0).} xywh {0 129 40 17} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 align 0 when 4 maximum 127 step 1 textfont 4 textsize 12
+    xywh {0 129 40 17} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 align 0 when 4 maximum 127 step 1 textfont 4 textsize 12
     class Step_Value
   }
-  Fl_Value_Slider offset {
-    callback {if (key->value()) edit_value(784, (int) o->value());}
-    tooltip {Key Offset: Offset from the original note played (semitones).} xywh {0 148 40 131} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 80 when 4 minimum 48 maximum -48 step 1 textfont 4 textsize 12
+  Fl_Value_Slider step_offset {
+    callback {if (step_key->value()) edit_value(784, (int) o->value());} selected
+    xywh {0 148 40 131} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 80 when 4 minimum 48 maximum -48 step 1 textfont 4 textsize 12
     class Step_Offset
   }
 } 
@@ -174,182 +174,182 @@ widget_class PD_Preset_Patchcords {
     xywh {551 5 274 20} selection_color 15 labelfont 1 labelcolor 8 align 22
   }
   Fl_Choice s1 {open
-    tooltip {Patch Source} xywh {2 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {2 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(931);}
     class PCS_Choice
   } {}
   Fl_Choice {} {open
-    tooltip {Patch Destination} xywh {118 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {118 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(932);}
     class PPCD_Choice
   } {}
   Fl_Value_Output {} {
-    tooltip {Modulation Amount} xywh {234 28 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {234 28 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     code0 {o->set_id(933);}
     class Value_Output
   }
   Fl_Choice s2 {open
-    tooltip {Patch Source} xywh {2 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {2 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(934);}
     class PCS_Choice
   } {}
   Fl_Choice {} {open
-    tooltip {Patch Destination} xywh {118 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {118 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(935);}
     class PPCD_Choice
   } {}
   Fl_Value_Output {} {
-    tooltip {Modulation Amount} xywh {234 53 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {234 53 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     code0 {o->set_id(936);}
     class Value_Output
   }
   Fl_Choice s3 {open
-    tooltip {Patch Source} xywh {2 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {2 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(937);}
     class PCS_Choice
   } {}
   Fl_Choice {} {open
-    tooltip {Patch Destination} xywh {118 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {118 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(938);}
     class PPCD_Choice
   } {}
   Fl_Value_Output {} {
-    tooltip {Modulation Amount} xywh {234 78 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {234 78 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     code0 {o->set_id(939);}
     class Value_Output
   }
   Fl_Choice s4 {open
-    tooltip {Patch Source} xywh {2 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {2 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(940);}
     class PCS_Choice
   } {}
   Fl_Choice {} {open
-    tooltip {Patch Destination} xywh {118 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {118 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(941);}
     class PPCD_Choice
   } {}
   Fl_Value_Output {} {
-    tooltip {Modulation Amount} xywh {234 103 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {234 103 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     code0 {o->set_id(942);}
     class Value_Output
   }
   Fl_Choice s5 {open
-    tooltip {Patch Source} xywh {277 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {277 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(943);}
     class PCS_Choice
   } {}
   Fl_Choice {} {open
-    tooltip {Patch Destination} xywh {393 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {393 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(944);}
     class PPCD_Choice
   } {}
   Fl_Value_Output {} {
-    tooltip {Modulation Amount} xywh {509 28 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {509 28 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     code0 {o->set_id(945);}
     class Value_Output
   }
   Fl_Choice s6 {open
-    tooltip {Patch Source} xywh {277 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {277 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(946);}
     class PCS_Choice
   } {}
   Fl_Choice {} {open
-    tooltip {Patch Destination} xywh {393 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {393 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(947);}
     class PPCD_Choice
   } {}
   Fl_Value_Output {} {
-    tooltip {Modulation Amount} xywh {509 53 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {509 53 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     code0 {o->set_id(948);}
     class Value_Output
   }
   Fl_Choice s7 {open
-    tooltip {Patch Source} xywh {277 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {277 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(949);}
     class PCS_Choice
   } {}
   Fl_Choice {} {open
-    tooltip {Patch Destination} xywh {393 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {393 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(950);}
     class PPCD_Choice
   } {}
   Fl_Value_Output {} {
-    tooltip {Modulation Amount} xywh {509 78 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {509 78 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     code0 {o->set_id(951);}
     class Value_Output
   }
   Fl_Choice s8 {open
-    tooltip {Patch Source} xywh {277 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {277 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(952);}
     class PCS_Choice
   } {}
   Fl_Choice {} {open
-    tooltip {Patch Destination} xywh {393 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {393 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(953);}
     class PPCD_Choice
   } {}
   Fl_Value_Output {} {
-    tooltip {Modulation Amount} xywh {509 103 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {509 103 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     code0 {o->set_id(954);}
     class Value_Output
   }
   Fl_Choice s9 {open
-    tooltip {Patch Source} xywh {552 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {552 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(955);}
     class PCS_Choice
   } {}
   Fl_Choice {} {open
-    tooltip {Patch Destination} xywh {668 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {668 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(956);}
     class PPCD_Choice
   } {}
   Fl_Value_Output {} {
-    tooltip {Modulation Amount} xywh {784 28 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {784 28 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     code0 {o->set_id(957);}
     class Value_Output
   }
   Fl_Choice s10 {open
-    tooltip {Patch Source} xywh {552 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {552 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(958);}
     class PCS_Choice
   } {}
   Fl_Choice {} {open
-    tooltip {Patch Destination} xywh {668 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {668 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(959);}
     class PPCD_Choice
   } {}
   Fl_Value_Output {} {
-    tooltip {Modulation Amount} xywh {784 53 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {784 53 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     code0 {o->set_id(960);}
     class Value_Output
   }
   Fl_Choice s11 {open
-    tooltip {Patch Source} xywh {552 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {552 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(961);}
     class PCS_Choice
   } {}
   Fl_Choice {} {open
-    tooltip {Patch Destination} xywh {668 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {668 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(962);}
     class PPCD_Choice
   } {}
   Fl_Value_Output {} {
-    tooltip {Modulation Amount} xywh {784 78 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {784 78 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     code0 {o->set_id(963);}
     class Value_Output
   }
   Fl_Choice s12 {open
-    tooltip {Patch Source} xywh {552 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {552 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(964);}
     class PCS_Choice
   } {}
   Fl_Choice {} {open
-    tooltip {Patch Destination} xywh {668 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {668 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     code0 {o->set_id(965);}
     class PPCD_Choice
   } {}
   Fl_Value_Output {} {
-    tooltip {Modulation Amount} xywh {784 103 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {784 103 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     code0 {o->set_id(966);}
     class Value_Output
   }
@@ -461,291 +461,291 @@ widget_class PD_Layer_Patchcords {
 	s24->uninitialize();} {}
   }
   Fl_Choice s1 {open
-    tooltip {Patch Source} xywh {2 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {2 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d1 {open
-    tooltip {Patch Destination} xywh {118 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {118 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a1 {
-    tooltip {Modulation Amount} xywh {234 28 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {234 28 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s2 {open
-    tooltip {Patch Source} xywh {2 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {2 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d2 {open
-    tooltip {Patch Destination} xywh {118 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {118 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a2 {
-    tooltip {Modulation Amount} xywh {234 53 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {234 53 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s3 {open
-    tooltip {Patch Source} xywh {2 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {2 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d3 {open
-    tooltip {Patch Destination} xywh {118 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {118 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a3 {
-    tooltip {Modulation Amount} xywh {234 78 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {234 78 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s4 {open
-    tooltip {Patch Source} xywh {2 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {2 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d4 {open
-    tooltip {Patch Destination} xywh {118 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {118 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a4 {
-    tooltip {Modulation Amount} xywh {234 103 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {234 103 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s5 {open
-    tooltip {Patch Source} xywh {277 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {277 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d5 {open
-    tooltip {Patch Destination} xywh {393 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {393 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a5 {
-    tooltip {Modulation Amount} xywh {509 28 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {509 28 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s6 {open
-    tooltip {Patch Source} xywh {277 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {277 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d6 {open
-    tooltip {Patch Destination} xywh {393 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {393 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a6 {
-    tooltip {Modulation Amount} xywh {509 53 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {509 53 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s7 {open
-    tooltip {Patch Source} xywh {277 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {277 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d7 {open
-    tooltip {Patch Destination} xywh {393 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {393 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a7 {
-    tooltip {Modulation Amount} xywh {509 78 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {509 78 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s8 {open
-    tooltip {Patch Source} xywh {277 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {277 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d8 {open
-    tooltip {Patch Destination} xywh {393 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {393 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a8 {
-    tooltip {Modulation Amount} xywh {509 103 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {509 103 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s9 {open
-    tooltip {Patch Source} xywh {552 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {552 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d9 {open
-    tooltip {Patch Destination} xywh {668 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {668 28 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a9 {
-    tooltip {Modulation Amount} xywh {784 28 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {784 28 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s10 {open
-    tooltip {Patch Source} xywh {552 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {552 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d10 {open
-    tooltip {Patch Destination} xywh {668 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {668 53 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a10 {
-    tooltip {Modulation Amount} xywh {784 53 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {784 53 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s11 {open
-    tooltip {Patch Source} xywh {552 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {552 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d11 {open
-    tooltip {Patch Destination} xywh {668 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {668 78 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a11 {
-    tooltip {Modulation Amount} xywh {784 78 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {784 78 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s12 {open
-    tooltip {Patch Source} xywh {552 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {552 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d12 {open
-    tooltip {Patch Destination} xywh {668 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {668 103 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a12 {
-    tooltip {Modulation Amount} xywh {784 103 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {784 103 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s13 {open
-    tooltip {Patch Source} xywh {2 160 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {2 160 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d13 {open
-    tooltip {Patch Destination} xywh {118 160 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {118 160 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a13 {
-    tooltip {Modulation Amount} xywh {234 160 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {234 160 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s14 {open
-    tooltip {Patch Source} xywh {2 185 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {2 185 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d14 {open
-    tooltip {Patch Destination} xywh {118 185 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {118 185 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a14 {
-    tooltip {Modulation Amount} xywh {234 185 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {234 185 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s15 {open
-    tooltip {Patch Source} xywh {2 210 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {2 210 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d15 {open
-    tooltip {Patch Destination} xywh {118 210 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {118 210 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a15 {
-    tooltip {Modulation Amount} xywh {234 210 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {234 210 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s16 {open
-    tooltip {Patch Source} xywh {2 235 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {2 235 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d16 {open
-    tooltip {Patch Destination} xywh {118 235 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {118 235 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a16 {
-    tooltip {Modulation Amount} xywh {234 235 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {234 235 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s17 {open
-    tooltip {Patch Source} xywh {277 160 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {277 160 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d17 {open
-    tooltip {Patch Destination} xywh {393 160 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {393 160 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a17 {
-    tooltip {Modulation Amount} xywh {509 160 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {509 160 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s18 {open
-    tooltip {Patch Source} xywh {277 185 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {277 185 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d18 {open
-    tooltip {Patch Destination} xywh {393 185 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {393 185 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a18 {
-    tooltip {Modulation Amount} xywh {509 185 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {509 185 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s19 {open
-    tooltip {Patch Source} xywh {277 210 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {277 210 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d19 {open
-    tooltip {Patch Destination} xywh {393 210 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {393 210 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a19 {
-    tooltip {Modulation Amount} xywh {509 210 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {509 210 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s20 {open
-    tooltip {Patch Source} xywh {277 235 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {277 235 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d20 {open
-    tooltip {Patch Destination} xywh {393 235 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {393 235 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a20 {
-    tooltip {Modulation Amount} xywh {509 235 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {509 235 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s21 {open
-    tooltip {Patch Source} xywh {552 160 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {552 160 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d21 {open
-    tooltip {Patch Destination} xywh {668 160 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {668 160 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a21 {
-    tooltip {Modulation Amount} xywh {784 160 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {784 160 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s22 {open
-    tooltip {Patch Source} xywh {552 185 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {552 185 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d22 {open
-    tooltip {Patch Destination} xywh {668 185 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {668 185 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a22 {
-    tooltip {Modulation Amount} xywh {784 185 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {784 185 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s23 {open
-    tooltip {Patch Source} xywh {552 210 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {552 210 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d23 {open
-    tooltip {Patch Destination} xywh {668 210 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {668 210 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a23 {
-    tooltip {Modulation Amount} xywh {784 210 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {784 210 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Choice s24 {open
-    tooltip {Patch Source} xywh {552 235 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {552 235 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCS_Choice
   } {}
   Fl_Choice d24 {open
-    tooltip {Patch Destination} xywh {668 235 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
+    xywh {668 235 115 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13
     class PCD_Choice
   } {}
   Fl_Value_Output a24 {
-    tooltip {Modulation Amount} xywh {784 235 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
+    xywh {784 235 38 21} box THIN_UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textsize 13
     class Value_Output
   }
   Fl_Box {} {
@@ -1568,7 +1568,7 @@ widget_class PD_Main {
   decl {Fl_Widget* ctrl_x[16];} {public
   }
   Fl_Group {} {
-    label main open
+    label main
     xywh {0 0 834 574} labeltype NO_LABEL align 0
   } {
     Fl_Group {} {
@@ -2509,7 +2509,10 @@ riff_filter->do_callback();}
       }
       Fl_Choice {} {
         label {MIDI Mode} open
-        tooltip {MIDI Mode. Omni: Responds to note information on all MIDI channels and plays the preset currently displayed in the main screen - Poly: Responds only to note information received on the currently selected MIDI channel and plays that channel's associated preset - Multi: Responds to data on any combination of MIDI channels and plays the specific preset associated with each of the MIDI channels. You must select multi mode for multitimbral operation} xywh {640 484 85 21} down_box BORDER_BOX color 7 labelsize 10 align 65 textsize 13
+        tooltip {MIDI Mode.
+Omni: Responds to note information on all MIDI channels and plays the preset currently displayed in the main screen.
+Poly: Responds only to note information received on the currently selected MIDI channel and plays that channel's associated preset.
+Multi: Responds to data on any combination of MIDI channels and plays the specific preset associated with each of the MIDI channels. You must select multi mode for multitimbral operation.} xywh {640 484 85 21} down_box BORDER_BOX color 7 labelsize 10 align 65 textsize 13
         code0 {o->add("Omni");o->add("Poly");o->add("Multi");}
         code1 {o->set_id(385);}
         class Choice
@@ -2617,7 +2620,7 @@ delete this;} public
     callback {if (dismiss(1) == 2)
 return;
 if (!(confirm->value() && !fl_choice("Exit prodatum?", "Cancel", "Exit", 0)))
-delete this;} open
+delete this;}
   } {
     code {pmesg("PD_UI::PD_UI()\\n");
 Fl::visual(FL_DOUBLE|FL_RGB);
@@ -2640,7 +2643,7 @@ Fl::visual(FL_DOUBLE|FL_RGB);
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} selected
+delete this;}
       xywh {871 389 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
@@ -2650,7 +2653,7 @@ delete this;} selected
         xywh {0 0 846 620} resizable
       } {
         Fl_Group {} {
-          label main open
+          label main
           xywh {0 19 843 596} labeltype NO_LABEL
         } {
           Fl_Button {} {
@@ -3253,7 +3256,7 @@ pxk->preset->set_name(o->value(), 1, o->position());}
           }
         }
         Fl_Group {} {
-          label menu
+          label menu open
           xywh {0 0 231 21} labeltype NO_LABEL align 0
         } {
           Fl_Box {} {
@@ -3318,7 +3321,7 @@ reset_w->show();}
               }
             }
             Submenu {} {
-              label Edit
+              label Edit open
               xywh {10 10 70 21} labelsize 12
             } {
               MenuItem {} {
@@ -3362,7 +3365,7 @@ ui->main->b_audit->value(0);
 ui->main->b_audit->do_callback();
 pxk->display_status("Audit: OFF");
 }}
-                xywh {10 10 30 20} type Toggle shortcut 0x75 labelsize 12 labelcolor 49
+                xywh {10 10 30 20} type Toggle shortcut 0x75 labelsize 12
               }
               MenuItem m_eall {
                 label {&Edit All}
@@ -3373,7 +3376,7 @@ if (!eall && pxk->preset)
 	if (piano_w->shown())
 		piano->redraw();
 }}
-                xywh {10 10 36 21} type Toggle shortcut 0x65 labelsize 12 labelcolor 49
+                xywh {10 10 36 21} type Toggle shortcut 0x65 labelsize 12
               }
               MenuItem m_bypass {
                 label {F&X Bypass}
@@ -3389,7 +3392,7 @@ ui->b_bypass->value(0);
 ui->b_bypass->do_callback();
 pxk->display_status("FX bypass: OFF");
 }}
-                xywh {10 10 30 20} type Toggle shortcut 0x78 labelsize 12 labelcolor 49
+                xywh {10 10 30 20} type Toggle shortcut 0x78 labelsize 12
               }
               MenuItem {} {
                 label {&Preferences...}
@@ -3493,10 +3496,10 @@ log_w->showup();}
               }
             }
             Submenu {} {
-              label MIDI
+              label MIDI open
               xywh {10 10 70 21} labelsize 12
             } {
-              MenuItem {} {
+              MenuItem m_all_notes_off {
                 label {All notes off}
                 callback {midi->write_event(0xb0, 0x7b, 0);
 
@@ -3505,7 +3508,7 @@ main->minipiano->reset_active_keys();
 piano->reset_active_keys();}
                 xywh {5 5 29 19} labelsize 12
               }
-              MenuItem {} {
+              MenuItem m_all_notes_off_all {
                 label {All notes off (all channels)}
                 callback {for (int i = 0; i < 16; i++)
 midi->write_event(0xb0, 0x7b, 0, i);
@@ -3571,7 +3574,7 @@ b_fs3->clear();}
               }
             }
             Submenu {} {
-              label Help open
+              label Help
               xywh {10 10 70 21} labelsize 12
             } {
               MenuItem tooltips {
@@ -3588,7 +3591,7 @@ Fl_Tooltip::disable();
 cfg->set_cfg_option(CFG_TOOLTIPS, 0);
 pxk->display_status("Tooltips disabled.");
 }}
-                xywh {10 10 36 21} type Toggle shortcut 0x69 labelsize 12 labelcolor 49
+                xywh {10 10 36 21} type Toggle shortcut 0x69 labelsize 12
               }
               MenuItem {} {
                 label {Online manual...}
@@ -3622,7 +3625,7 @@ about->show();
       }
     }
     Fl_Window arp_editor_w {
-      label {Arpeggio editor}
+      label {Arpeggio editor} open
       xywh {557 135 760 600} type Double align 0 hide resizable
       class Double_Window xclass prodatum size_range {640 480 760 600}
     } {
@@ -3732,7 +3735,7 @@ about->show();
         }
         Fl_Choice arp_root {
           callback {for (char i = 0; i < 32; i++)
-arp_step[i]->offset->set_root(o->value());} open
+arp_step[i]->step_offset->set_root(o->value());} open
           tooltip {Show offsets relative to the selected root note} xywh {5 290 83 20} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 10 align 0 textsize 12
           code0 {o->add("C");o->add("C\#");o->add("D");}
           code1 {o->add("D\#");o->add("E");o->add("F");}
