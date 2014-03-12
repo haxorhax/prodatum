@@ -315,7 +315,10 @@ void PXK::Boot(bool autoconnect, int __id)
 			Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
 		}
 		else
+		{
 			ui->open_device->showup();
+			Fl::check();
+		}
 	}
 	else if (midi->in() && midi->out())
 		Inquire(cfg->get_cfg_option(CFG_DEVICE_ID));
@@ -668,16 +671,7 @@ static void sync_bro(void* p)
 				type++;
 				names = 0; // next type
 				if (name != 0)
-				{
-					if (midi->Wait())
-					{
-#ifndef NDEBUG
-						ui->init_log->append("\n Device sent WAIT command. Unlocking.\n");
-#endif
-						midi->Wait(false);
-					}
 					goto Wait;
-				}
 				goto Exit;
 			}
 		} // if (type <= RIFF) // for every type
@@ -717,6 +711,7 @@ static void sync_bro(void* p)
 		requested = false;
 		ui->init->hide();
 		ui->main_window->showup(); // make main active (important!)
+		Fl::check();
 		if (pxk->setup_init)
 			pxk->setup_init->upload();
 		if (timed_out)
@@ -733,6 +728,7 @@ static void sync_bro(void* p)
 			delete pxk;
 			pxk = new PXK();
 			pxk->Boot(false, id);
+			Fl::check();
 			pxk->Inquire(id);
 		}
 		else
