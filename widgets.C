@@ -158,7 +158,7 @@ void Double_Window::resize(int x, int y, int w, int h)
 			ui->scope_o->show();
 		}
 	}
-	Fl_Window::resize(x, y, w, h);
+	Fl_Double_Window::resize(x, y, w, h);
 }
 
 static char scut_b_key = 57; // last played note in minipianos
@@ -219,6 +219,7 @@ int Double_Window::handle(int ev)
 
 void Double_Window::showup()
 {
+	supposed_to_be_shown = true;
 	if (shown())
 	{
 		Fl_Window::show();
@@ -230,6 +231,17 @@ void Double_Window::showup()
 		w__shown = true;
 	}
 	Fl_Window::show();
+}
+
+void Double_Window::hide()
+{
+	supposed_to_be_shown = false;
+	Fl_Window::hide();
+}
+
+bool Double_Window::shown_called()
+{
+	return supposed_to_be_shown;
 }
 
 static void dndcback(void *v)
@@ -4944,9 +4956,11 @@ void Piano::activate_key(char value, unsigned char key)
 		active_keys[key] = 3;
 	else if (active_keys[key] < 1)
 		active_keys[key] = -1;
-	if (!visible_r() || mode != KEYRANGE)
-		return;
-	damage(D_HIGHLIGHT);
+	if (visible_r() && mode == KEYRANGE)
+	{
+		damage(D_HIGHLIGHT);
+		redraw();
+	}
 }
 
 void Piano::reset_active_keys()
@@ -4954,8 +4968,11 @@ void Piano::reset_active_keys()
 	for (int i = 0; i < 128; i++)
 		if (active_keys[i] > 0)
 			active_keys[i] = -1;
-	if (mode == KEYRANGE)
+	if (visible_r() && mode == KEYRANGE)
+	{
 		damage(D_HIGHLIGHT);
+		redraw();
+	}
 }
 
 // map keys to 2-d space

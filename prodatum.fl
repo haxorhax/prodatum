@@ -137,7 +137,7 @@ edit_value(784, val - 52);}
     class Step_Value
   }
   Fl_Value_Slider step_offset {
-    callback {if (step_key->value()) edit_value(784, (int) o->value());} selected
+    callback {if (step_key->value()) edit_value(784, (int) o->value());}
     xywh {0 148 40 131} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 80 when 4 minimum 48 maximum -48 step 1 textfont 4 textsize 12
     class Step_Offset
   }
@@ -886,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
+    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2620,7 +2620,7 @@ delete this;} public
     callback {if (dismiss(1) == 2)
 return;
 if (!(confirm->value() && !fl_choice("Exit prodatum?", "Cancel", "Exit", 0)))
-delete this;}
+delete this;} open
   } {
     code {pmesg("PD_UI::PD_UI()\\n");
 Fl::visual(FL_DOUBLE|FL_RGB);
@@ -2643,13 +2643,13 @@ Fl::visual(FL_DOUBLE|FL_RGB);
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
+delete this;} open
       xywh {871 389 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
-      Fl_Group supergroup {open
+      Fl_Group supergroup {
         xywh {0 0 846 620} resizable
       } {
         Fl_Group {} {
@@ -3309,9 +3309,7 @@ pxk->preset->save_file();}
               }
               MenuItem {} {
                 label {Synchronize...}
-                callback {reset_w->position(main_window->x() + (main_window->w() / 2) - (reset_w->w() / 2),
-		main_window->y() + 80);
-reset_w->show();}
+                callback {reset_w->showup();}
                 xywh {10 10 29 19} labelsize 12
               }
               MenuItem {} {
@@ -3404,7 +3402,7 @@ preferences->showup();}
               }
             }
             Submenu {} {
-              label Window
+              label Window open
               xywh {10 10 70 21} labelsize 12
             } {
               MenuItem {} {
@@ -3625,7 +3623,7 @@ about->show();
       }
     }
     Fl_Window arp_editor_w {
-      label {Arpeggio editor} open
+      label {Arpeggio editor}
       xywh {557 135 760 600} type Double align 0 hide resizable
       class Double_Window xclass prodatum size_range {640 480 760 600}
     } {
@@ -3889,7 +3887,7 @@ This may take a few minutes.}
       }
     }
     Fl_Window open_device {
-      label {Open Device}
+      label {Open Device} selected
       xywh {554 385 280 390} type Double box BORDER_BOX labelcolor 15 hide
       class Double_Window modal xclass prodatum
     } {
@@ -4517,7 +4515,8 @@ copy_arp_pattern_browser_filter->do_callback();}
     }
     Fl_Window reset_w {
       label Synchronize
-      xywh {746 372 285 190} type Double box BORDER_BOX hide xclass prodatum
+      xywh {746 372 285 190} type Double box BORDER_BOX hide
+      class Double_Window xclass prodatum
     } {
       Fl_Box {} {
         label Synchronize

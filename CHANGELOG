@@ -1,3 +1,8 @@
+v2.0rc20
+
+* fix message/sync log not resizing properly (linux/windows)
+
+
 v2.0rc19
 
 * fixed sleep macro (linux/osx)

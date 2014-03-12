@@ -724,7 +724,6 @@ static void sync_bro(void* p)
 			delete pxk;
 			pxk = new PXK();
 			pxk->Boot(false, id);
-			Fl::check();
 			pxk->Inquire(id);
 		}
 		else
@@ -916,7 +915,7 @@ void PXK::incoming_hardware_config(const unsigned char* data, int len)
 	create_device_info();
 	if (roms != 0)
 	{
-		if (!ui->open_device->shown())
+		if (!ui->open_device->shown_called())
 			Synchronize();
 		else
 			ui->connect->activate();
@@ -951,7 +950,7 @@ unsigned char PXK::load_setup_names(unsigned char start)
 			file.close();
 			ui->multisetups->clear();
 			char buf[21];
-			for (int i = 0; i < 64; i++)
+			for (char i = 0; i < 64; i++)
 			{
 				snprintf(buf, 21, "%02d: %s", i, setup_names + i * 16);
 				ui->multisetups->add(buf);
@@ -972,7 +971,7 @@ unsigned char PXK::load_setup_names(unsigned char start)
 		save_setup_names(true);
 		ui->multisetups->clear();
 		char buf[21];
-		for (int i = 0; i < 64; i++)
+		for (char i = 0; i < 64; i++)
 		{
 			snprintf(buf, 21, "%02d: %s", i, setup_names + i * 16);
 			ui->multisetups->add(buf);

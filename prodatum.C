@@ -31,7 +31,7 @@
 
 static void load_data();
 
-const char* VERSION = "2.0rc19";
+const char* VERSION = "2.0rc20";
 PD_UI* ui = 0;
 MIDI* midi = 0;
 PXK* pxk = 0;
@@ -95,8 +95,8 @@ int main(int argc, char *argv[])
 	snprintf(label, 17, "prodatum %s", VERSION);
 	ui->main_window->label(label);
 	ui->main_window->free_position();
-	ui->main_window->show();
-	Fl::wait(.1);
+	ui->main_window->showup();
+	Fl::check();
 	pxk = new PXK();
 	if (!pxk)
 		return 3;

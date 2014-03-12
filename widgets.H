@@ -150,8 +150,11 @@ class Double_Window: public Fl_Double_Window
 {
 	int handle(int event);
 	bool w__shown;
+	bool supposed_to_be_shown;
 public:
 	void showup();
+	virtual void hide();
+	bool shown_called();
 	void resize(int, int, int, int);
 	bool __main;
 	Double_Window(int w, int h, char* const label = 0) :
@@ -159,6 +162,7 @@ public:
 	{
 		w__shown = false;
 		__main = false;
+		supposed_to_be_shown = false;
 	}
 };
 
