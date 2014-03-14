@@ -66,7 +66,7 @@ ui->i_log->show_insert_position();} {}
 
 decl {char filter_tooltip[512];} {} 
 
-widget_class PD_Arp_Step {open
+widget_class PD_Arp_Step {
   xywh {504 60 40 275} type Double hide position_relative
 } {
   decl {void init(int s);} {public
@@ -886,7 +886,7 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+006 maximum 0 step 1
+    tooltip {Voice volume} xywh {14 365 25 129} box THIN_UP_BOX color 7 selection_color 15 labelsize 10 align 64 minimum 1.19102e+06 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
@@ -2643,13 +2643,13 @@ Fl::visual(FL_DOUBLE|FL_RGB);
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open
+delete this;}
       xywh {871 389 845 620} type Double hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
-      Fl_Group supergroup {
+      Fl_Group supergroup {open
         xywh {0 0 846 620} resizable
       } {
         Fl_Group {} {
@@ -3263,12 +3263,12 @@ pxk->preset->set_name(o->value(), 1, o->position());}
             label resizeable
             xywh {0 20 1 1} labeltype NO_LABEL resizable
           }
-          Fl_Menu_Bar {} {open
+          Fl_Menu_Bar {} {
             xywh {0 0 231 19} box FLAT_BOX color 7 labelsize 10 textsize 10
             code0 {o->global();}
           } {
             Submenu {} {
-              label File open
+              label File open selected
               xywh {10 10 70 21} labelsize 12
             } {
               MenuItem {} {
@@ -3281,12 +3281,12 @@ pxk->preset->set_name(o->value(), 1, o->position());}
 delete pxk;
 pxk = new PXK();
 pxk->Boot(false);
-pxk->Inquire(device_id->value());}
+pxk->Inquire(device_id->value());} selected
                 xywh {15 15 36 21} shortcut 0x6f labelsize 12
               }
               MenuItem {} {
                 label {&Save...}
-                callback {show_copy_preset(SAVE_PRESET);}
+                callback {show_copy_preset(SAVE_PRESET);} selected
                 tooltip {Save the edit buffer} xywh {10 10 36 21} shortcut 0x40073 labelsize 12
               }
               MenuItem {} {
@@ -3294,7 +3294,7 @@ pxk->Inquire(device_id->value());}
                 callback {if (pxk->preset)
 pxk->preset->copy(SAVE_PRESET, -1, pxk->selected_preset);
 else
-pxk->display_status("*** Nothing to save.");}
+pxk->display_status("*** Nothing to save.");} selected
                 tooltip {Save the edit buffer to the current selected preset slot} xywh {10 10 36 21} shortcut 0x50073 labelsize 12
               }
               MenuItem {} {
@@ -3304,49 +3304,49 @@ pxk->display_status("*** Nothing to save.");}
 	pxk->display_status("*** Nothing to export.");
 	return;
 }
-pxk->preset->save_file();}
-                tooltip {Saves the edit buffer to a file into the export directory (the preset name is used as file name)} xywh {10 10 29 19} shortcut 0x40078 labelsize 12
+pxk->preset->save_file();} selected
+                tooltip {Saves the edit buffer to a file into the export directory (the preset name is used as file name)} xywh {10 10 29 21} shortcut 0x40078 labelsize 12
               }
               MenuItem {} {
                 label {Synchronize...}
-                callback {reset_w->showup();}
-                xywh {10 10 29 19} labelsize 12
+                callback {reset_w->showup();} selected
+                xywh {10 10 29 21} labelsize 12
               }
               MenuItem {} {
                 label Exit
-                callback {main_window->do_callback();}
+                callback {main_window->do_callback();} selected
                 xywh {10 10 36 21} labelsize 12
               }
             }
             Submenu {} {
-              label Edit open
+              label Edit open selected
               xywh {10 10 70 21} labelsize 12
             } {
               MenuItem {} {
                 label Undo
                 callback {if (pxk->preset) pxk->preset->undo();
-else pxk->display_status("*** Nothing to Undo.");}
+else pxk->display_status("*** Nothing to Undo.");} selected
                 xywh {10 10 36 21} shortcut 0x4007a labelsize 12
               }
               MenuItem {} {
                 label Redo
                 callback {if (pxk->preset) pxk->preset->redo();
-else pxk->display_status("*** Nothing to Redo.");}
+else pxk->display_status("*** Nothing to Redo.");} selected
                 xywh {20 20 36 21} shortcut 0x5007a labelsize 12
               }
               MenuItem {} {
                 label {Start over}
-                callback {pxk->start_over();}
+                callback {pxk->start_over();} selected
                 tooltip {Clear the edit buffer, start from the beginning} xywh {20 20 36 21} shortcut 0x40075 labelsize 12
               }
               MenuItem {} {
                 label {Copy...}
-                callback {show_copy_preset(C_PRESET);}
+                callback {show_copy_preset(C_PRESET);} selected
                 xywh {20 20 36 21} shortcut 0x40063 labelsize 12
               }
               MenuItem rand_m {
                 label {&Randomize}
-                callback {pxk->randomize();}
+                callback {pxk->randomize();} selected
                 xywh {10 10 36 21} shortcut 0x40072 labelsize 12
               }
               MenuItem m_audit {
@@ -3362,8 +3362,8 @@ else
 ui->main->b_audit->value(0);
 ui->main->b_audit->do_callback();
 pxk->display_status("Audit: OFF");
-}}
-                xywh {10 10 30 20} type Toggle shortcut 0x75 labelsize 12
+}} selected
+                xywh {10 10 30 21} type Toggle shortcut 0x75 labelsize 12
               }
               MenuItem m_eall {
                 label {&Edit All}
@@ -3373,7 +3373,7 @@ if (!eall && pxk->preset)
 	pxk->preset->show();
 	if (piano_w->shown())
 		piano->redraw();
-}}
+}} selected
                 xywh {10 10 36 21} type Toggle shortcut 0x65 labelsize 12
               }
               MenuItem m_bypass {
@@ -3389,27 +3389,27 @@ else
 ui->b_bypass->value(0);
 ui->b_bypass->do_callback();
 pxk->display_status("FX bypass: OFF");
-}}
-                xywh {10 10 30 20} type Toggle shortcut 0x78 labelsize 12
+}} selected
+                xywh {10 10 30 21} type Toggle shortcut 0x78 labelsize 12
               }
               MenuItem {} {
                 label {&Preferences...}
                 callback {if (preferences->shown() && preferences->visible())
 preferences->hide();
 else
-preferences->showup();}
+preferences->showup();} selected
                 xywh {15 15 36 21} shortcut 0x70 labelsize 12
               }
             }
             Submenu {} {
-              label Window open
+              label Window open selected
               xywh {10 10 70 21} labelsize 12
             } {
               MenuItem {} {
                 label {M&ain}
                 callback {((Fl_Button*) selector->child(0))->setonly();
-selector->do_callback();}
-                xywh {20 20 30 20} shortcut 0x61 labelsize 12
+selector->do_callback();} selected
+                xywh {20 20 30 21} shortcut 0x61 labelsize 12
               }
               MenuItem {} {
                 label {Main - Maste&r}
@@ -3418,38 +3418,38 @@ b_master->value(0);
 else
 b_master->value(1);
 
-b_master->do_callback();}
-                xywh {30 30 30 20} shortcut 0x72 labelsize 12
+b_master->do_callback();} selected
+                xywh {30 30 30 21} shortcut 0x72 labelsize 12
               }
               MenuItem {} {
                 label {Voice &1}
                 callback {((Fl_Button*) selector->child(1))->setonly();
-selector->do_callback();}
-                xywh {20 20 30 20} shortcut 0x31 labelsize 12
+selector->do_callback();} selected
+                xywh {20 20 30 21} shortcut 0x31 labelsize 12
               }
               MenuItem m_voice2 {
                 label {Voice &2}
                 callback {((Fl_Button*) selector->child(2))->setonly();
-selector->do_callback();}
-                xywh {30 30 30 20} shortcut 0x32 labelsize 12
+selector->do_callback();} selected
+                xywh {30 30 30 21} shortcut 0x32 labelsize 12
               }
               MenuItem m_voice3 {
                 label {Voice &3}
                 callback {((Fl_Button*) selector->child(3))->setonly();
-selector->do_callback();}
-                xywh {40 40 30 20} shortcut 0x33 labelsize 12
+selector->do_callback();} selected
+                xywh {40 40 30 21} shortcut 0x33 labelsize 12
               }
               MenuItem m_voice4 {
                 label {Voice &4}
                 callback {((Fl_Button*) selector->child(4))->setonly();
-selector->do_callback();}
-                xywh {50 50 30 20} shortcut 0x34 labelsize 12
+selector->do_callback();} selected
+                xywh {50 50 30 21} shortcut 0x34 labelsize 12
               }
               MenuItem {} {
                 label {Pro&gram}
                 callback {((Fl_Button*) selector->child(5))->setonly();
-selector->do_callback();}
-                xywh {10 10 30 20} shortcut 0x67 labelsize 12
+selector->do_callback();} selected
+                xywh {10 10 30 21} shortcut 0x67 labelsize 12
               }
               MenuItem {} {
                 label {Program - &Links}
@@ -3458,8 +3458,8 @@ b_links->value(0);
 else
 b_links->value(1);
 
-b_links->do_callback();}
-                xywh {20 20 30 20} shortcut 0x6c labelsize 12
+b_links->do_callback();} selected
+                xywh {20 20 30 21} shortcut 0x6c labelsize 12
               }
               MenuItem {} {
                 label {&Keyboard}
@@ -3467,7 +3467,7 @@ b_links->do_callback();}
 piano_w->hide();
 else{
 piano_w->showup();
-}}
+}} selected
                 xywh {10 10 36 21} shortcut 0x6b labelsize 12
               }
               MenuItem {} {
@@ -3476,7 +3476,7 @@ piano_w->showup();
 arp_editor_w->hide();
 else{
 arp_editor_w->showup();
-}}
+}} selected
                 xywh {10 10 36 21} shortcut 0x60 labelsize 12
               }
               MenuItem {} {
@@ -3484,17 +3484,17 @@ arp_editor_w->showup();
                 callback {if (log_w->shown() && log_w->visible())
 log_w->hide();
 else
-log_w->showup();}
+log_w->showup();} selected
                 xywh {10 10 36 21} shortcut 0x6d labelsize 12
               }
               MenuItem init_log_m {
                 label {Sync log}
-                callback {init_log_w->showup();}
+                callback {init_log_w->showup();} selected
                 xywh {10 10 36 21} labelsize 12
               }
             }
             Submenu {} {
-              label MIDI open
+              label MIDI open selected
               xywh {10 10 70 21} labelsize 12
             } {
               MenuItem m_all_notes_off {
@@ -3503,8 +3503,8 @@ log_w->showup();}
 
 global_minipiano->reset_active_keys();
 main->minipiano->reset_active_keys();
-piano->reset_active_keys();}
-                xywh {5 5 29 19} labelsize 12
+piano->reset_active_keys();} selected
+                xywh {5 5 29 21} labelsize 12
               }
               MenuItem m_all_notes_off_all {
                 label {All notes off (all channels)}
@@ -3513,8 +3513,8 @@ midi->write_event(0xb0, 0x7b, 0, i);
 
 global_minipiano->reset_active_keys();
 main->minipiano->reset_active_keys();
-piano->reset_active_keys();}
-                xywh {5 5 29 19} labelsize 12
+piano->reset_active_keys();} selected
+                xywh {5 5 29 21} labelsize 12
               }
               MenuItem {} {
                 label {All sound off}
@@ -3522,8 +3522,8 @@ piano->reset_active_keys();}
 
 global_minipiano->reset_active_keys();
 main->minipiano->reset_active_keys();
-piano->reset_active_keys();}
-                xywh {5 5 29 19} labelsize 12
+piano->reset_active_keys();} selected
+                xywh {5 5 29 21} labelsize 12
               }
               MenuItem {} {
                 label {All sound off (all channels)}
@@ -3532,8 +3532,8 @@ midi->write_event(0xb0, 0x78, 0, i);
 
 global_minipiano->reset_active_keys();
 main->minipiano->reset_active_keys();
-piano->reset_active_keys();}
-                xywh {5 5 29 19} labelsize 12
+piano->reset_active_keys();} selected
+                xywh {5 5 29 21} labelsize 12
               }
               MenuItem {} {
                 label {Kill stale sound (last resort)}
@@ -3544,8 +3544,8 @@ midi->write_event(NOTE_OFF, i, 0);
 
 global_minipiano->reset_active_keys();
 main->minipiano->reset_active_keys();
-piano->reset_active_keys();}
-                xywh {5 5 29 19} labelsize 12
+piano->reset_active_keys();} selected
+                xywh {5 5 29 21} labelsize 12
               }
               MenuItem {} {
                 label {Reset all controllers}
@@ -3555,8 +3555,8 @@ pitchwheel->value(8192);
 modwheel->value(0);
 b_fs1->clear();
 b_fs2->clear();
-b_fs3->clear();}
-                xywh {5 5 29 19} labelsize 12
+b_fs3->clear();} selected
+                xywh {5 5 29 21} labelsize 12
               }
               MenuItem {} {
                 label {Reset all controllers (all channels)}
@@ -3567,12 +3567,12 @@ pitchwheel->value(8192);
 modwheel->value(0);
 b_fs1->clear();
 b_fs2->clear();
-b_fs3->clear();}
-                xywh {5 5 29 19} labelsize 12
+b_fs3->clear();} selected
+                xywh {5 5 29 21} labelsize 12
               }
             }
             Submenu {} {
-              label Help
+              label Help open selected
               xywh {10 10 70 21} labelsize 12
             } {
               MenuItem tooltips {
@@ -3588,17 +3588,17 @@ else
 Fl_Tooltip::disable();
 cfg->set_cfg_option(CFG_TOOLTIPS, 0);
 pxk->display_status("Tooltips disabled.");
-}}
+}} selected
                 xywh {10 10 36 21} type Toggle shortcut 0x69 labelsize 12
               }
               MenuItem {} {
                 label {Online manual...}
-                callback {fl_open_uri("http://prodatum.sf.net/doc/manual.html");}
+                callback {fl_open_uri("http://prodatum.sf.net/doc/manual.html");} selected
                 xywh {10 10 36 21} shortcut 0xffbe labelsize 12
               }
               MenuItem {} {
                 label {Bugs and feature requests...}
-                callback {fl_open_uri("http://sourceforge.net/p/prodatum/tickets/");}
+                callback {fl_open_uri("http://sourceforge.net/p/prodatum/tickets/");} selected
                 xywh {10 10 36 21} shortcut 0xffbf labelsize 12
               }
               MenuItem {} {
@@ -3610,7 +3610,7 @@ else
 about->position(main_window->x() + (main_window->w() / 2) - (about->w() / 2),
 		main_window->y() + 80);
 about->show();
-}}
+}} selected
                 xywh {10 10 36 21} shortcut 0xffc0 labelsize 12
               }
             }
@@ -3887,7 +3887,7 @@ This may take a few minutes.}
       }
     }
     Fl_Window open_device {
-      label {Open Device} selected
+      label {Open Device}
       xywh {554 385 280 390} type Double box BORDER_BOX labelcolor 15 hide
       class Double_Window modal xclass prodatum
     } {
