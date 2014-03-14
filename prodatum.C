@@ -570,10 +570,18 @@ const char* rates[25];
 Patchcord PatchS[78];
 Patchcord PatchD[68];
 Patchcord PresetPatchD[28];
+const char* filter_tooltip;
 static void load_data()
 {
 	//pmesg("load_data()\n");
-	// information
+	filter_tooltip = "* matches any sequence of 0 or more characters.\n"
+			"? matches any single character.\n"
+			"[set] matches any character in the set.\n"
+			"[^set] or [!set] matches any character not in the set.\n"
+			"{X|Y|Z} or {X,Y,Z} matches any one of the subexpressions literally.\n"
+			"\\x quotes the character x so it has no special meaning.\n"
+			"x all other characters must be matched exactly.\n"
+			"NOTE: Your query is automatically expanded to '*query*'";
 	rates[0] = "8/1   octal whole";
 	rates[1] = "4/1d  dotted quad whole";
 	rates[2] = "8/1t  octal whole triplet";
