@@ -315,8 +315,6 @@ class Slider: public Fl_Slider, public PWid
 {
 	int handle(int event);
 	mutable int prev_value;
-protected:
-	void draw(int X, int Y, int W, int H);
 public:
 	Slider(int x, int y, int w, int h, char const* label = 0) :
 			Fl_Slider(x, y, w, h, label)

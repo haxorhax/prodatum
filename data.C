@@ -205,7 +205,7 @@ void Preset_Dump::set_name(const char* val, int type, int position)
 	bool updated = false;
 	snprintf(buf, len + 1, "%s              ", val);
 	for (i = 0; i < len; i++)
-		if (buf[i] < (0x20 & 0x7f) || buf[i] > (0x7e & 0x7f))
+		if (buf[i] < 0x20 || buf[i] > 0x7e)
 		{
 			buf[i] = 0x5f;
 			updated = true;
@@ -258,32 +258,34 @@ void Preset_Dump::show() const
 	ui->n_cat_m->value((const char*) buf);
 	// load the names into the browsers first,
 	// so they are available for selection
-	for (unsigned char j = 0; j < 4; j++)
-		if (pwid[1439][j]) // instruments
-			pwid[1439][j]->set_value(get_value(1439, j));
-	if (pwid[929][0]) // riffs
+	// instruments
+	pwid[1439][0]->set_value(get_value(1439, 0));
+	pwid[1439][1]->set_value(get_value(1439, 1));
+	pwid[1439][2]->set_value(get_value(1439, 2));
+	pwid[1439][3]->set_value(get_value(1439, 3));
+	// riffs
+	if (a2k == 0)
 		pwid[929][0]->set_value(get_value(929));
-	if (pwid[1042][0]) // arp
-		pwid[1042][0]->set_value(get_value(1042));
-	if (pwid[1299][0]) // link 1
-		pwid[1299][0]->set_value(get_value(1299));
-	if (pwid[1300][0]) // link 2
-		pwid[1300][0]->set_value(get_value(1300));
+	// arp
+	pwid[1042][0]->set_value(get_value(1042));
+	// link 1
+	pwid[1299][0]->set_value(get_value(1299));
+	// link 2
+	pwid[1300][0]->set_value(get_value(1300));
 	for (int i = 915; i <= 1300; i++) // preset params
 	{
-		if ((i > 1152 && i < 1169) || i == 929) // skip fx & riff rom
+		if (!pwid[i][0] || (i > 1152 && i < 1169) || i == 929) // skip fx & riff rom
 			continue;
-		if (pwid[i][0])
-			pwid[i][0]->set_value(get_value(i));
+		pwid[i][0]->set_value(get_value(i));
 	}
 	for (int i = 1409; i <= 1992; i++) // layer params
 	{
-		// skip instrument rom
-		if (i == 1439)
+		if (!pwid[i][0] || i == 1439) // skip instrument rom
 			continue;
-		for (int j = 0; j < 4; j++)
-			if (pwid[i][j])
-				pwid[i][j]->set_value(get_value(i, j));
+		pwid[i][0]->set_value(get_value(i, 0));
+		pwid[i][1]->set_value(get_value(i, 1));
+		pwid[i][2]->set_value(get_value(i, 2));
+		pwid[i][3]->set_value(get_value(i, 3));
 	}
 	update_piano();
 	update_envelopes();
@@ -1106,16 +1108,15 @@ int Setup_Dump::set_value(int id, int value, int channel)
 void Setup_Dump::show() const
 {
 	pmesg("Setup_Dump::show()\n");
-	int skip = 0;
+	int i = 140;
 	if (pxk->midi_mode != MULTI)
-		skip = 140;
+		i = 141;
 	// first fill the arp browser
-	if (pwid[660][0])
-		pwid[660][0]->set_value(get_value(660));
-	for (int i = 140; i <= 787; i++)
+	pwid[660][0]->set_value(get_value(660));
+	for (; i <= 787; i++)
 	{
 		// skip fx and browsers
-		if (pwid[i][0] && (!((i > 512 && i < 529) || i == skip || i == 660)))
+		if (pwid[i][0] && (!((i > 512 && i < 529) || i == 660)))
 			pwid[i][0]->set_value(get_value(i));
 	}
 	if (pxk->midi_mode == MULTI)
@@ -1131,10 +1132,8 @@ void Setup_Dump::show() const
 void Setup_Dump::show_fx() const
 {
 	pmesg("Setup_Dump::show_fx()\n");
-	//	ui->main->fx->activate();
 	for (int i = 513; i < 529; i++)
-		if (pwid[i][0])
-			pwid[i][0]->set_value(get_value(i));
+		pwid[i][0]->set_value(get_value(i));
 }
 
 void Setup_Dump::upload() const
@@ -1458,7 +1457,7 @@ int ROM::set_name(int type, int number, const unsigned char* name)
 			}
 			memcpy(arp_names + 16 * number, name, 12);
 			if (id == 0 && pxk->Synchronized()) // user changed a name
-					arp_names_changed = true;
+				arp_names_changed = true;
 			break;
 		case RIFF:
 			if (!riff_names)

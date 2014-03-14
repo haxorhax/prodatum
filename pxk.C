@@ -101,17 +101,16 @@ void PXK::widget_callback(int id, int value, int layer)
 		ui->preset->set_value(selected_preset);
 		mysleep(20 + cfg->get_cfg_option(CFG_SPEED));
 		midi->request_preset_dump(-1, 0);
-		// FX channel
-		if (midi_mode != MULTI)
-			pwid[140][0]->set_value(selected_channel);
-		// multimode channel specific (update channel controls (pan etc))
-		for (int i = 131; i < 138; i++)
-			if (pwid[i][0])
-			{
-				if (midi_mode != MULTI && i == 135) // MIDI enable
-					continue;
-				pwid[i][0]->set_value(setup->get_value(i, selected_channel));
-			}
+		// update channel controls (pan etc)
+		if (midi_mode == MULTI)
+			pwid[135][0]->set_value(setup->get_value(135, selected_channel)); // MIDI enable
+		else
+			pwid[140][0]->set_value(selected_channel); // FX channel
+		pwid[131][0]->set_value(setup->get_value(131, selected_channel));
+		pwid[132][0]->set_value(setup->get_value(132, selected_channel));
+		pwid[133][0]->set_value(setup->get_value(133, selected_channel));
+		pwid[134][0]->set_value(setup->get_value(134, selected_channel));
+		pwid[137][0]->set_value(setup->get_value(137, selected_channel));
 		ui->global_minipiano->reset_active_keys();
 		ui->main->minipiano->reset_active_keys();
 		ui->piano->reset_active_keys();
@@ -1502,11 +1501,11 @@ void PXK::load_export(const char* filename)
 #ifdef __linux
 	int offset = 0;
 	while (strncmp(filename + offset, "/", 1) != 0)
-	++offset;
+		++offset;
 	char n[PATH_MAX];
 	snprintf(n, PATH_MAX, "%s", filename + offset);
 	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
-	n[strlen(n) - 1] = '\0';
+		n[strlen(n) - 1] = '\0';
 	std::ifstream file(n, std::ifstream::binary);
 #else
 	std::ifstream file(filename, std::ifstream::binary);

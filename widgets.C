@@ -376,6 +376,7 @@ void Browser::set_value(int v)
 		}
 	}
 }
+
 void Browser::reset()
 {
 	Fl_Browser::clear();
@@ -447,11 +448,7 @@ void Browser::load_n(int type, int rom_id, int preset)
 void Browser::set_filter(const char* fs)
 {
 	pmesg("Browser::set_filter(char*) (id:%d layer:%d)\n", id_layer[0], id_layer[1]);
-	if (filter)
-	{
-		free(filter);
-		filter = 0;
-	}
+	free((void*) filter);
 	filter = strdup(fs);
 	apply_filter();
 }
@@ -1473,8 +1470,12 @@ int Slider::get_value() const
 	return (int) value();
 }
 
-void Slider::draw(int X, int Y, int W, int H)
+void Slider::draw()
 {
+	int X = x() + Fl::box_dx(box());
+	int Y = y() + Fl::box_dy(box());
+	int W = w() - Fl::box_dw(box());
+	int H = h() - Fl::box_dh(box());
 	double val;
 	if (minimum() == maximum())
 		val = 0.5;
@@ -1504,11 +1505,6 @@ void Slider::draw(int X, int Y, int W, int H)
 	if (wsl > 0 && hsl > 0)
 		draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, FL_BACKGROUND_COLOR);
 	draw_label(xsl, ysl, wsl, hsl);
-}
-
-void Slider::draw()
-{
-	draw(x() + Fl::box_dx(box()), y() + Fl::box_dy(box()), w() - Fl::box_dw(box()), h() - Fl::box_dh(box()));
 }
 
 // mousewheel support for slider
@@ -5295,7 +5291,7 @@ void MiniPiano::draw_piano()
 }
 
 const char* mp_tt =
-		"Left: play\nRight: latch\nMousewheel: octave shift\nMiddle on key: set 'B' note & velocity\nMiddle on case: set 'B' velocity\nDrag on 'case': set velocity";
+		"Left: play\nRight: latch\nMousewheel: octave shift\nMiddle on key: set 'B' note & velocity\nMiddle on case: set 'B' velocity\nDrag on case: set velocity";
 
 int MiniPiano::handle(int ev)
 {
