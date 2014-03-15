@@ -194,35 +194,33 @@ void PXK::widget_callback(int id, int value, int layer)
 				setup->show_fx();
 			return;
 		case 385: // MIDI Mode
+		{
 			ui->piano->reset_active_keys();
 			ui->global_minipiano->reset_active_keys();
 			ui->main->minipiano->reset_active_keys();
-			if (value != MULTI)
+			int prev_mode = midi_mode;
+			midi_mode = value;
+			if (midi_mode != MULTI)
 			{
-				ui->main->layer_strip[0]->mix_out->activate();
-				ui->main->layer_strip[1]->mix_out->activate();
-				ui->main->layer_strip[2]->mix_out->activate();
-				ui->main->layer_strip[3]->mix_out->activate();
-				if (midi_mode == MULTI)
+				if (prev_mode == MULTI)
 				{
 					pwid[140][0]->set_value(selected_channel);
 					preset->show_fx();
 					ui->main->mix_out->deactivate();
 				}
-				midi_mode = value;
 			}
 			else // multimode
 			{
-				midi_mode = value;
 				pwid[140][0]->set_value(selected_fx_channel);
 				if (selected_fx_channel != -1)
 					preset->show_fx();
 				else
 					setup->show_fx();
-				ui->main->mix_out->get_value();
 				ui->main->mix_out->activate();
 			}
+			ui->main->mix_out->get_value();
 			return;
+		}
 		case 1537: // Filter type
 			for (char i = 0; i <= 50; i++)
 				if (FM[i].id == value)

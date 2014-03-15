@@ -1906,7 +1906,7 @@ void Group::dependency(int v) const
 	}
 	else if (id_layer[0] == 133) // mix out
 	{
-		if (v == -1)
+		if (v == -1 || MULTI != pxk->midi_mode)
 			for (int i = 0; i < 4; i++)
 				ui->main->layer_strip[i]->mix_out->activate();
 		else if (MULTI == pxk->midi_mode)
