@@ -771,28 +771,41 @@ bool PXK::Synchronized() const
 void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned char io) const
 {
 	//pmesg("PXK::log_add(sysex, %d, %d)\n", len, io);
-	char* buf = new char[2 * len + 18];
-	unsigned char n;
-	if (io == 1)
+	bool log = false;
+	char* buf = 0;
+	if ((io == 1 && cfg->get_cfg_option(CFG_LOG_SYSEX_IN)) || (io == 0 && cfg->get_cfg_option(CFG_LOG_SYSEX_OUT)))
 	{
-		static unsigned int count_i = 0;
-		n = snprintf(buf, 16, "\nI.%u::", ++count_i);
+		log = true;
+		buf = new char[2 * len + 18];
 	}
-	else
+	unsigned char n;
+	if (log)
 	{
-		static unsigned int count_o = 0;
-		n = snprintf(buf, 16, "\nO.%u::", ++count_o);
+		if (io == 1)
+		{
+			static unsigned int count_i = 0;
+			n = snprintf(buf, 16, "\nI.%u::", ++count_i);
+		}
+		else
+		{
+			static unsigned int count_o = 0;
+			n = snprintf(buf, 16, "\nO.%u::", ++count_o);
+		}
 	}
 	for (unsigned int i = 0; i < len; i++)
 	{
-		sprintf(n + buf + 2 * i, "%02hhX", sysex[i]);
+		if (log)
+			sprintf(n + buf + 2 * i, "%02hhX", sysex[i]);
 		if (io == 1)
 			ui->scope_i->Add(sysex[i]);
 		else
 			ui->scope_o->Add(sysex[i]);
 	}
-	ui->logbuf->append(buf);
-	delete[] buf;
+	if (buf)
+	{
+		ui->logbuf->append(buf);
+		delete[] buf;
+	}
 }
 
 /* if autoconnection is enabled but the device is not powered

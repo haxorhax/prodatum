@@ -397,8 +397,7 @@ static void process_midi_in(void*)
 #endif
 						break;
 				}
-				if (cfg->get_cfg_option(CFG_LOG_SYSEX_IN))
-					pxk->log_add(sysex, len, 1);
+				pxk->log_add(sysex, len, 1);
 			}
 			// universal sysex
 			else if (sysex[1] == 0x7e)
@@ -411,8 +410,7 @@ static void process_midi_in(void*)
 					if (!pxk->Synchronized())
 						pxk->incoming_inquiry_data(sysex);
 				}
-				if (cfg->get_cfg_option(CFG_LOG_SYSEX_IN))
-					pxk->log_add(sysex, len, 1);
+				pxk->log_add(sysex, len, 1);
 			}
 #ifdef SYNCLOG
 			else
@@ -958,8 +956,7 @@ void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 //	while (jack_ringbuffer_write_space(write_buffer) < len + 3)
 //		Fl::wait(.1);
 	jack_ringbuffer_write(write_buffer, data, len + 3);
-	if (cfg->get_cfg_option(CFG_LOG_SYSEX_OUT))
-		pxk->log_add(sysex, len, 0);
+	pxk->log_add(sysex, len, 0);
 }
 
 void MIDI::write_event(int status, int value1, int value2, int channel) const
