@@ -778,7 +778,7 @@ void PXK::log_add(const unsigned char* sysex, const unsigned int len, unsigned c
 		log = true;
 		buf = new char[2 * len + 18];
 	}
-	unsigned char n;
+	unsigned char n = 0;
 	if (log)
 	{
 		if (io == 1)
