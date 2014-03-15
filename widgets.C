@@ -169,6 +169,10 @@ int Double_Window::handle(int ev)
 	static char playing = -1;
 	switch (ev)
 	{
+		case FL_ENTER:
+		case FL_LEAVE:
+			fl_cursor(FL_CURSOR_DEFAULT);
+			break;
 		case FL_KEYDOWN:
 			if (playing == -1 && Fl::event_key() == 'b')
 			{
