@@ -27,7 +27,7 @@ extern PD_UI* ui;
 extern PXK* pxk;
 
 // buffer spaces
-#ifndef NDEBUG
+#ifdef SYNCLOG
 extern unsigned int write_space;
 extern unsigned int read_space;
 extern unsigned int max_write;
@@ -417,7 +417,7 @@ static void sync_bro(void* p)
 	static int name = 0;
 	static char _label[64];
 	static unsigned char countdown;
-#ifndef NDEBUG
+#ifdef SYNCLOG
 	char logbuffer[128];
 #endif
 	// preset name variables
@@ -442,7 +442,7 @@ static void sync_bro(void* p)
 				ui->init->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->init->w() / 2),
 						ui->main_window->y() + 80);
 				ui->init->show();
-#ifndef NDEBUG
+#ifdef SYNCLOG
 				ui->init_log->append("sync_bro: Requesting initial setup dump\n");
 #endif
 				midi->request_setup_dump();
@@ -451,12 +451,12 @@ static void sync_bro(void* p)
 				countdown = 50; // ~ 1/2 s.
 				goto Exit;
 			}
-#ifndef NDEBUG
+#ifdef SYNCLOG
 			ui->init_log->append("*");
 #endif
 			if (--countdown == 0) // timeout
 			{
-#ifndef NDEBUG
+#ifdef SYNCLOG
 				ui->init_log->append("\nsync_bro: request for initial setup timed out. Giving up.\n");
 #endif
 				timed_out = true;
@@ -466,7 +466,7 @@ static void sync_bro(void* p)
 		} // got init setup
 		if (name == 0)
 		{
-#ifndef NDEBUG
+#ifdef SYNCLOG
 			ui->init_log->append("# OK\n\nsync_bro: Loading setup names\n");
 #endif
 			requested = false;
@@ -483,12 +483,12 @@ static void sync_bro(void* p)
 			}
 			if (!got_answer)
 			{
-#ifndef NDEBUG
+#ifdef SYNCLOG
 				ui->init_log->append("*");
 #endif
 				if (--countdown == 0) // timeout
 				{
-#ifndef NDEBUG
+#ifdef SYNCLOG
 					ui->init_log->append("\nsync_bro: timeout syncing setup name. Giving up.\n");
 #endif
 					timed_out = true;
@@ -498,12 +498,12 @@ static void sync_bro(void* p)
 			}
 			else
 			{
-#ifndef NDEBUG
+#ifdef SYNCLOG
 				ui->init_log->append("#");
 #endif
 				if (name == 63)
 				{
-#ifndef NDEBUG
+#ifdef SYNCLOG
 					ui->init_log->append(" OK\n");
 #endif
 					pxk->load_setup_names(63);
@@ -577,7 +577,7 @@ static void sync_bro(void* p)
 								ui->main_window->y() + 80);
 						ui->init->show();
 					}
-#ifndef NDEBUG
+#ifdef SYNCLOG
 					// init log
 					snprintf(logbuffer, 128, "\nsync_bro: Loading %s\n", _label);
 					ui->init_log->append(logbuffer);
@@ -605,7 +605,7 @@ static void sync_bro(void* p)
 							pxk->rom[rom_nr]->load_name(type, name++);
 							if (name % 12 == 0)
 							{
-#ifndef NDEBUG
+#ifdef SYNCLOG
 								ui->init_log->append("R12");
 #endif
 								Fl::repeat_timeout(.12 + (double) (cfg->get_cfg_option(CFG_SPEED) / 1000.), sync_bro, p);
@@ -621,20 +621,20 @@ static void sync_bro(void* p)
 				}
 				if (!got_answer)
 				{
-#ifndef NDEBUG
+#ifdef SYNCLOG
 					ui->init_log->append("*");
 #endif
 					if (--countdown == 0) // timeout
 					{
 						if (type != ARP && type != RIFF) // ok for ARPs and RIFFs
 						{
-#ifndef NDEBUG
+#ifdef SYNCLOG
 							ui->init_log->append("\nsync_bro: timed out syncing ROM name. Giving up.\n");
 #endif
 							timed_out = true;
 							goto Club;
 						}
-#ifndef NDEBUG
+#ifdef SYNCLOG
 						ui->init_log->append("\nsync_bro: timed out syncing RIFF/ARP name. Skipping.\n");
 #endif
 						name_set_incomplete = false; // stop requesting arp/riff names
@@ -643,12 +643,12 @@ static void sync_bro(void* p)
 				}
 				else
 				{
-#ifndef NDEBUG
+#ifdef SYNCLOG
 					ui->init_log->append("#");
 #endif
 					if (name == names)
 					{
-#ifndef NDEBUG
+#ifdef SYNCLOG
 						ui->init_log->append(" OK\n");
 #endif
 						name_set_incomplete = false;
@@ -685,7 +685,7 @@ static void sync_bro(void* p)
 	else
 	{
 		Club:
-#ifndef NDEBUG
+#ifdef SYNCLOG
 		snprintf(logbuffer, 128,
 				"\nmin. read buffer space: %u (max. pkt len %u)\nmin. write buffer space: %u (max. pkt len %u)\n", read_space,
 				max_read, write_space, max_write);
@@ -711,7 +711,7 @@ static void sync_bro(void* p)
 		{
 			timed_out = false;
 			fl_alert("Sync failed. Please send the init log to rdxesy@@yahoo.de and check your cables & MIDI drivers etc.");
-#ifndef NDEBUG
+#ifdef SYNCLOG
 			ui->init_log_w->showup();
 #endif
 		}
@@ -751,7 +751,7 @@ bool PXK::Synchronize()
 		return false;
 	pmesg("PXK::Synchronize()\n");
 	display_status("Synchronizing...");
-#ifndef NDEBUG
+#ifdef SYNCLOG
 	char buf[64];
 	snprintf(buf, 64, "PXK::Synchronize() %d[ms]\n\n", cfg->get_cfg_option(CFG_SPEED));
 	ui->init_log->append(buf);
@@ -828,9 +828,9 @@ void PXK::Inquire(int id)
 	}
 }
 
-void PXK::incoming_inquiry_data(const unsigned char* data, int len)
+void PXK::incoming_inquiry_data(const unsigned char* data)
 {
-	pmesg("PXK::incoming_inquiry_data(data, %d)\n", len);
+	pmesg("PXK::incoming_inquiry_data(data)\n");
 	if (!inquired || synchronized)
 		return;
 	device_code = data[7] * 128 + data[6];
@@ -895,9 +895,9 @@ unsigned char PXK::get_rom_index(char id) const
 	return 5;
 }
 
-void PXK::incoming_hardware_config(const unsigned char* data, int len)
+void PXK::incoming_hardware_config(const unsigned char* data)
 {
-	pmesg("PXK::incoming_hardware_config(data, %d)\n", len);
+	pmesg("PXK::incoming_hardware_config(data)\n");
 	user_presets = data[8] * 128 + data[7];
 	roms = data[9];
 	rom_index[0] = 0;
@@ -1103,7 +1103,7 @@ void PXK::incoming_setup_dump(const unsigned char* data, int len)
 	selected_multisetup = data[0x4A]; // needed to select it in the multisetup choice
 	if (!synchronized)
 	{
-#ifndef NDEBUG
+#ifdef SYNCLOG
 		char* __buffer = (char*) malloc(48 * sizeof(char));
 		snprintf(__buffer, 48, "\nPXK::incoming_setup_dump(len: %d)\n", len);
 		ui->init_log->append(__buffer);
@@ -1187,7 +1187,7 @@ void PXK::load_setup()
 
 void PXK::incoming_generic_name(const unsigned char* data)
 {
-#ifndef NDEBUG
+#ifdef SYNCLOG
 	if (!synchronized && ((data[6] % 0xF) <= RIFF))
 	{
 		char* __name = (char*) malloc(17 * sizeof(char));
@@ -1246,7 +1246,7 @@ void PXK::incoming_arp_dump(const unsigned char* data, int len)
 	//pmesg("PXK::incoming_arp_dump(data, %d)\n", len);
 	if (!synchronized || ui->init->shown()) // init
 	{
-#ifndef NDEBUG
+#ifdef SYNCLOG
 		char* __name = (char*) malloc(13 * sizeof(char));
 		snprintf(__name, 13, "%s", data + 14);
 		char* __buffer = (char*) malloc(128 * sizeof(char));
@@ -1589,7 +1589,7 @@ void PXK::create_device_info()
 		}
 	}
 	ui->device_info->copy_label(info.data());
-#ifndef NDEBUG
+#ifdef SYNCLOG
 	ui->init_log->remove(0, ui->init_log->length());
 	const char* OS;
 #if defined(OSX)

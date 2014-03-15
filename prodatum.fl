@@ -4598,7 +4598,7 @@ logbuf = new Fl_Text_Buffer(LOG_BUFFER_SIZE);
 logbuf->add_modify_callback((Fl_Text_Modify_Cb) logbuffer_cb, 0);
 log->buffer(logbuf);
 // init log
-\#ifndef NDEBUG
+\#ifdef SYNCLOG
 init_log = new Fl_Text_Buffer(LOG_BUFFER_SIZE);
 init_log->add_modify_callback((Fl_Text_Modify_Cb) initlog_cb, 0);
 i_log->buffer(init_log);

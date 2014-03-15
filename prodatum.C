@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 	if (!cfg)
 		return 2;
 	cfg->apply();
-#ifdef NDEBUG
+#ifndef SYNCLOG
 	ui->init_log_b->hide();
 	ui->init_log_m->hide();
 #endif

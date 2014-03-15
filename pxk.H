@@ -89,8 +89,8 @@ private:
 public:
 	bool inquired;
 	void Inquire(int);
-	void incoming_inquiry_data(const unsigned char*, int);
-	void incoming_hardware_config(const unsigned char*, int);
+	void incoming_inquiry_data(const unsigned char*);
+	void incoming_hardware_config(const unsigned char*);
 
 	/*
 	 * setup specific

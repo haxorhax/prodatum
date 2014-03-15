@@ -39,7 +39,7 @@ static bool process_midi_exit_flag = false;
 static bool automap = true;
 
 // check buffer spaces
-#ifndef NDEBUG
+#ifdef SYNCLOG
 unsigned int write_space = RINGBUFFER_WRITE;
 unsigned int read_space = RINGBUFFER_READ;
 unsigned int max_write = 0;
@@ -173,7 +173,7 @@ static void process_midi(PtTimestamp, void*)
 							// check if it's an ack command
 							else if (__midi_wait == true && local_read_buffer[4] == 0x55 && local_read_buffer[5] == 0x7f)
 								__midi_wait = false;
-#ifndef NDEBUG
+#ifdef SYNCLOG
 							if (read_space > (jack_ringbuffer_write_space(read_buffer) - position))
 								read_space = jack_ringbuffer_write_space(read_buffer) - position;
 							if (max_read < position + 3)
@@ -371,7 +371,7 @@ static void process_midi_in(void*)
 						if (!pxk->Synchronized() && requested)
 						{
 							requested = false;
-							pxk->incoming_hardware_config(sysex, len);
+							pxk->incoming_hardware_config(sysex);
 						}
 						break;
 
@@ -386,7 +386,7 @@ static void process_midi_in(void*)
 						break;
 
 					default:
-#ifndef NDEBUG
+#ifdef SYNCLOG
 						ui->init_log->append("\nprocess_midi_in: Received unrecognized e-mu sysex:\n");
 						char* __buffer = (char*) malloc(len * sizeof(char));
 						for (unsigned int i = 0; i < len; i++)
@@ -409,12 +409,12 @@ static void process_midi_in(void*)
 				{
 					//pmesg("device inquiry response\n");
 					if (!pxk->Synchronized())
-						pxk->incoming_inquiry_data(sysex, len);
+						pxk->incoming_inquiry_data(sysex);
 				}
 				if (cfg->get_cfg_option(CFG_LOG_SYSEX_IN))
 					pxk->log_add(sysex, len, 1);
 			}
-#ifndef NDEBUG
+#ifdef SYNCLOG
 			else
 			{
 				ui->init_log->append("\nprocess_midi_in: Received unknown sysex:\n");
@@ -949,7 +949,7 @@ void MIDI::write_sysex(const unsigned char* sysex, unsigned int len) const
 	data[1] = len / 128;
 	data[2] = len % 128;
 	memcpy(data + 3, sysex, len);
-#ifndef NDEBUG
+#ifdef SYNCLOG
 	if (write_space > jack_ringbuffer_write_space(write_buffer) - len - 3)
 		write_space = jack_ringbuffer_write_space(write_buffer) - len - 3;
 	if (max_write < len + 3)

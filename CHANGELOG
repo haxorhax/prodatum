@@ -1,7 +1,11 @@
 v2.0rc20
 
 * fix message/sync log not resizing properly (linux/windows)
-
+* mix-out buttons could be disabled everywhere (in layer strips
+  and in the channel setup area). fixed.
+* added preprocessor definition for sync log (use -DSYNCLOG to
+  compile with synchronization logging)
+  
 
 v2.0rc19
 
