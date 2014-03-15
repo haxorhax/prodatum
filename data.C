@@ -1119,14 +1119,8 @@ void Setup_Dump::show() const
 		if (pwid[i][0] && (!((i > 512 && i < 529) || i == 660)))
 			pwid[i][0]->set_value(get_value(i));
 	}
-	if (pxk->midi_mode == MULTI)
-	{
-		if (pxk->selected_fx_channel == -1)
-			show_fx();
-		ui->main->mix_out->activate();
-	}
-	else
-		ui->main->mix_out->deactivate();
+	if (pxk->midi_mode == MULTI && pxk->selected_fx_channel == -1)
+		show_fx();
 }
 
 void Setup_Dump::show_fx() const

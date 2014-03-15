@@ -2983,12 +2983,14 @@ void Choice::dependency(int v) const
 			ui->fx_channel->deactivate();
 			ui->main->channel_enable->set();
 			ui->main->channel_enable->deactivate();
+			ui->main->mix_out->deactivate();
 		}
 		else
 		{
 			ui->fx_channel->activate();
 			ui->main->channel_enable->activate();
 			ui->main->channel_enable->value(pxk->setup->get_value(135, pxk->selected_channel));
+			ui->main->mix_out->activate();
 		}
 		if (v == OMNI)
 		{

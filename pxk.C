@@ -206,7 +206,6 @@ void PXK::widget_callback(int id, int value, int layer)
 				{
 					pwid[140][0]->set_value(selected_channel);
 					preset->show_fx();
-					ui->main->mix_out->deactivate();
 				}
 			}
 			else // multimode
@@ -216,7 +215,6 @@ void PXK::widget_callback(int id, int value, int layer)
 					preset->show_fx();
 				else
 					setup->show_fx();
-				ui->main->mix_out->activate();
 			}
 			ui->main->mix_out->get_value();
 			return;
