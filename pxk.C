@@ -199,13 +199,15 @@ void PXK::widget_callback(int id, int value, int layer)
 			ui->main->minipiano->reset_active_keys();
 			if (value != MULTI)
 			{
+				ui->main->layer_strip[0]->mix_out->activate();
+				ui->main->layer_strip[1]->mix_out->activate();
+				ui->main->layer_strip[2]->mix_out->activate();
+				ui->main->layer_strip[3]->mix_out->activate();
 				if (midi_mode == MULTI)
 				{
 					pwid[140][0]->set_value(selected_channel);
 					preset->show_fx();
 					ui->main->mix_out->deactivate();
-					for (int i = 0; i < 4; i++)
-						ui->main->layer_strip[i]->mix_out->activate();
 				}
 				midi_mode = value;
 			}

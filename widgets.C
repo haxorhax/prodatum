@@ -1909,7 +1909,7 @@ void Group::dependency(int v) const
 		if (v == -1)
 			for (int i = 0; i < 4; i++)
 				ui->main->layer_strip[i]->mix_out->activate();
-		else
+		else if (MULTI == pxk->midi_mode)
 			for (int i = 0; i < 4; i++)
 				ui->main->layer_strip[i]->mix_out->deactivate();
 	}
