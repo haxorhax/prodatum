@@ -99,8 +99,10 @@ void PXK::widget_callback(int id, int value, int layer)
 		selected_preset = setup->get_value(130, selected_channel);
 		ui->preset_rom->set_value(selected_preset_rom);
 		ui->preset->set_value(selected_preset);
-		mysleep(20 + cfg->get_cfg_option(CFG_SPEED));
-		midi->request_preset_dump(-1, 0);
+		if (cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD))
+			midi->request_preset_dump();
+		else
+			midi->request_preset_dump(50 + cfg->get_cfg_option(CFG_SPEED));
 		// update channel controls (pan etc)
 		if (midi_mode == MULTI)
 			pwid[135][0]->set_value(setup->get_value(135, selected_channel)); // MIDI enable
@@ -126,9 +128,10 @@ void PXK::widget_callback(int id, int value, int layer)
 			midi->write_event(0xb0, 0, selected_preset_rom, selected_channel);
 			midi->write_event(0xb0, 32, selected_preset / 128, selected_channel);
 			midi->write_event(0xc0, selected_preset % 128, 0, selected_channel);
-			// wait a bit to let it sink...
-			mysleep(20 + cfg->get_cfg_option(CFG_SPEED));
-			midi->request_preset_dump(-1, 0);
+			if (cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD))
+				midi->request_preset_dump();
+			else
+				midi->request_preset_dump(50 + cfg->get_cfg_option(CFG_SPEED));
 		}
 		return;
 	}
@@ -183,8 +186,7 @@ void PXK::widget_callback(int id, int value, int layer)
 			midi->write_event(0xb0, 32, selected_preset / 128, selected_channel);
 			midi->write_event(0xc0, selected_preset % 128, 0, selected_channel);
 			// wait a bit to let it sink...
-			mysleep(20 + cfg->get_cfg_option(CFG_SPEED));
-			midi->request_preset_dump(-1, 0);
+			midi->request_preset_dump(50 + cfg->get_cfg_option(CFG_SPEED));
 			return;
 		case 140: // FX channel
 			selected_fx_channel = value;
@@ -1098,10 +1100,10 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 		show_preset();
 		// only activate preset selection if program
 		// change is enabled for the channel
-		if (setup && setup->get_value(137, selected_channel))
-			ui->g_preset->activate();
-		else
-			ui->g_preset->deactivate();
+//		if (setup && setup->get_value(137, selected_channel))
+//			ui->g_preset->activate();
+//		else
+//			ui->g_preset->deactivate();
 		if (!closed_loop)
 		{
 			ui->supergroup->clear_output();

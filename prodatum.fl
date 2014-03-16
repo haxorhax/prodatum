@@ -1558,15 +1558,15 @@ l2_filter->do_callback();}
   }
 } 
 
-widget_class PD_Main {
-  xywh {616 374 830 565} type Double box BORDER_BOX hide position_relative
+widget_class PD_Main {open selected
+  xywh {962 188 830 565} type Double box BORDER_BOX hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
   }
   decl {Fl_Widget* ctrl_x[16];} {public
   }
   Fl_Group {} {
-    label main
+    label main open
     xywh {0 0 834 574} labeltype NO_LABEL align 0
   } {
     Fl_Group {} {
@@ -1706,20 +1706,20 @@ midi->audit();}
       }
       Fl_Button channel_enable {
         label {MIDI E&nable}
-        tooltip {MIDI Enable lets you turn each MIDI channel on and off independently when in Multi mode. This feature is helpful when you have other devices connected to the same MIDI line and do not want the PXK unit to respond to the MIDI channels reserved for the other devices.} xywh {56 129 65 30} type Toggle down_box DOWN_BOX shortcut 0x6e selection_color 67 labelsize 10 align 208 when 1
+        tooltip {MIDI Enable lets you turn each MIDI channel on and off independently when in Multi mode. This feature is helpful when you have other devices connected to the same MIDI line and do not want the PXK unit to respond to the MIDI channels reserved for the other devices.} xywh {56 129 65 30} type Toggle down_box DOWN_BOX shortcut 0x6e selection_color 67 labelsize 10 align 208 when 1 deactivate
         code0 {o->set_id(135);}
         code1 {o->clear_visible_focus();}
         class Button
       }
-      Fl_Button {} {
+      Fl_Button program_change {
         label {PROGRAM &Change}
-        tooltip {Use this function to instruct the PXK to utilize or ignore incoming MIDI preset changes or Bank Select commands for each channel.} xywh {56 165 65 30} type Toggle down_box DOWN_BOX shortcut 0x63 selection_color 67 labelsize 10 align 208 when 1
+        tooltip {Use this function to instruct the PXK to utilize or ignore incoming MIDI preset changes or Bank Select commands for each channel.} xywh {56 165 65 30} type Toggle down_box DOWN_BOX shortcut 0x63 selection_color 67 labelsize 10 align 208 when 1 deactivate
         code0 {o->set_id(137);}
         code1 {o->clear_visible_focus();}
         class Button
       }
       Fl_Group g_main_arp {
-        label Arp
+        label Arp open
         xywh {126 111 33 71} labelsize 10 when 0
         code0 {o->set_id(134);}
         class Group
@@ -1756,7 +1756,7 @@ midi->audit();}
         class Fixed_Button
       }
       Fl_Group mix_out {
-        label Mix
+        label Mix open
         tooltip {Mix (only effective in Multimode): Effects Sends and Sub-Out setup for selected MIDI channel. "P" means that the Effects Send is programmed for each voice (in the voice strips to the right), all other settings (1,2,3,4) will send all the voices of the preset selected on this channel to that FX send bus. "2" and "3" are also used to route sounds to the Sub 1 and 2 outputs on the back panel.} xywh {163 111 33 89} labelsize 10 when 0
         code0 {o->set_id(133);}
         class Group
@@ -2596,6 +2596,8 @@ delete this;} public
   decl {void set_default_colors();} {}
   decl {void set_color(Fl_Color,unsigned char,unsigned char,unsigned char);} {public
   }
+  decl {void set_knobcolor(char, char);} {public
+  }
   decl {void select(int l);} {public
   }
   decl {int get_selected();} {public
@@ -2621,8 +2623,7 @@ if (!(confirm->value() && !fl_choice("Exit prodatum?", "Cancel", "Exit", 0)))
 delete this;} open
   } {
     code {pmesg("PD_UI::PD_UI()\\n");
-Fl::visual(FL_DOUBLE|FL_RGB);} {selected
-    }
+Fl::visual(FL_DOUBLE|FL_RGB);} {}
     Fl_Window main_window {
       callback {if (pxk->preset && pxk->preset->is_changed())
 {
@@ -2659,7 +2660,7 @@ if (((Fl_Button*) o->array()[i])->value())
 {
 	select(i);
 	break;
-}}
+}} open
             xywh {56 25 754 19} when 0
           } {
             Fl_Button {} {
@@ -4016,8 +4017,8 @@ open_device->hide();}
       label Preferences
       callback {preferences->hide();
 export_dir->value(cfg->get_export_dir());
-b_set->deactivate();}
-      xywh {838 217 305 435} type Double box UP_BOX labelsize 11 hide
+b_set->deactivate();} open
+      xywh {876 223 305 450} type Double box UP_BOX labelsize 11 hide
       class Double_Window xclass prodatum
     } {
       Fl_Box {} {
@@ -4058,7 +4059,7 @@ for (i = 0; i < o->children(); i++)
 if (((Fl_Button*) o->array()[i])->value())
 break;
 ((Fl_Button*) o->child(i))->setonly();
-cfg->set_cfg_option(CFG_KNOBMODE, i);}
+cfg->set_cfg_option(CFG_KNOBMODE, i);} open
         tooltip {Choose how knobs should behave when you drag them} xywh {140 75 124 66} labelfont 1 labelcolor 8 align 5
       } {
         Fl_Check_Button {} {
@@ -4153,23 +4154,96 @@ o->label("Select... (optional)");
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_BACKGROUND_COLOR);}
-        xywh {110 396 25 20} down_box DOWN_BOX
+        xywh {103 396 32 20} down_box DOWN_BOX
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_BACKGROUND2_COLOR);}
-        xywh {150 396 25 20} down_box DOWN_BOX color 7 selection_color 7
+        xywh {143 396 32 20} down_box DOWN_BOX color 7 selection_color 7
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_FOREGROUND_COLOR);}
-        xywh {190 396 25 20} down_box DOWN_BOX color 0 selection_color 0
+        xywh {183 396 32 20} down_box DOWN_BOX color 0 selection_color 0
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_SELECTION_COLOR);}
-        xywh {230 396 25 20} down_box DOWN_BOX color 15 selection_color 15
+        xywh {223 396 32 20} down_box DOWN_BOX color 15 selection_color 15
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_INACTIVE_COLOR);}
-        xywh {270 396 25 20} down_box DOWN_BOX color 8 selection_color 8
+        xywh {263 396 32 20} down_box DOWN_BOX color 8 selection_color 8
+      }
+      Fl_Group knob_color_a {
+        callback {for (char i = 0; i < o->children(); i++)
+if (((Fl_Button*) o->array()[i])->value())
+{
+	cfg->set_cfg_option(CFG_KNOB_COLOR1, i);
+	set_knobcolor(0, i);
+	break;
+}} open
+        xywh {101 422 180 15}
+      } {
+        Fl_Check_Button {} {
+          label {Knob/-scale}
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();}
+          xywh {101 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 align 4
+        }
+        Fl_Check_Button {} {
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();}
+          xywh {141 422 15 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15 labeltype NO_LABEL align 0
+        }
+        Fl_Check_Button {} {
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();}
+          xywh {181 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL align 0
+        }
+        Fl_Check_Button {} {
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();}
+          xywh {221 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL align 0
+        }
+        Fl_Check_Button {} {
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();}
+          xywh {261 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL align 0
+        }
+      }
+      Fl_Group knob_color_b {
+        callback {for (char i = 0; i < o->children(); i++)
+if (((Fl_Button*) o->array()[i])->value())
+{
+	cfg->set_cfg_option(CFG_KNOB_COLOR2, i);
+	set_knobcolor(1, i);
+	break;
+}} open
+        xywh {118 422 180 15}
+      } {
+        Fl_Check_Button {} {
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();}
+          xywh {118 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL align 0
+        }
+        Fl_Check_Button {} {
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();}
+          xywh {158 422 15 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15 labeltype NO_LABEL align 0
+        }
+        Fl_Check_Button {} {
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();}
+          xywh {198 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL align 0
+        }
+        Fl_Check_Button {} {
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();}
+          xywh {238 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL align 0
+        }
+        Fl_Check_Button {} {
+          callback {o->setonly();
+((Group*)o->parent())->do_callback();}
+          xywh {278 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL align 0
+        }
       }
     }
     Fl_Window piano_w {

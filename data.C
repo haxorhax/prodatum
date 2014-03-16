@@ -588,8 +588,7 @@ void Preset_Dump::copy(int type, int src, int dst)
 			{
 				midi->copy(C_ARP, dst, pxk->preset_copy->get_number(), 0, 0, ui->copy_arp_rom->get_value());
 				// wait a bit for the device to update the edit buffer
-				mysleep(100 + cfg->get_cfg_option(CFG_SPEED));
-				midi->request_preset_dump(-1, 0);
+				midi->request_preset_dump(100);
 			}
 			pxk->display_status("Copied arp paramaters.");
 			break;

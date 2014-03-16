@@ -1,3 +1,18 @@
+v2.0rc21
+
+* use timeout instead of sleep for delayed preset requests:
+  makes channel and preset selection feedback instant
+  (feels snappier and makes a huge difference to me)
+* preferences: you can now select the colors used for knob
+  drawing
+* fixed some MIDI mode related issues. for example, it was
+  possible to (apparently) select a different preset even
+  when "MIDI enable" was disabled (which makes preset selection
+  impossible as it's using MIDI CC). (ticket #12 might be
+  related). This seems to be a very old bug (I have tested v1.0
+  which was buggy too). RIP, bitch! :D
+
+
 v2.0rc20
 
 * fix message/sync log not resizing properly (linux/windows)

@@ -31,7 +31,7 @@
 
 static void load_data();
 
-const char* VERSION = "2.0rc20";
+const char* VERSION = "2.0rc21";
 PD_UI* ui = 0;
 MIDI* midi = 0;
 PXK* pxk = 0;
@@ -245,9 +245,52 @@ void PD_UI::set_color(Fl_Color t, unsigned char r, unsigned char g, unsigned cha
 
 void PD_UI::set_default_colors()
 {
-	for (unsigned char i = CFG_BGR; i <= CFG_INB; i++)
+	for (unsigned char i = CFG_BGR; i <= CFG_KNOB_COLOR2; i++)
 		cfg->getset_default(i);
 	cfg->apply(true);
+	Fl::reload_scheme();
+}
+
+extern char c_knob_1;
+extern char c_knob_2;
+void PD_UI::set_knobcolor(char type, char color)
+{
+	char* c = 0;
+	Fl_Group* g = 0;
+	if (type == 0)
+	{
+		g = ui->knob_color_a;
+		c = &c_knob_1;
+	}
+	else
+	{
+		g = ui->knob_color_b;
+		c = &c_knob_2;
+	}
+	switch ((int) color)
+	{
+		case 0:
+			*c = FL_BACKGROUND_COLOR;
+			((Fl_Button*) g->child(0))->setonly();
+			break;
+		default:
+		case 1:
+			*c = FL_BACKGROUND2_COLOR;
+			((Fl_Button*) g->child(1))->setonly();
+			break;
+		case 2:
+			*c = FL_FOREGROUND_COLOR;
+			((Fl_Button*) g->child(2))->setonly();
+			break;
+		case 3:
+			*c = FL_SELECTION_COLOR;
+			((Fl_Button*) g->child(3))->setonly();
+			break;
+		case 4:
+			*c = FL_INACTIVE_COLOR;
+			((Fl_Button*) g->child(4))->setonly();
+			break;
+	}
 	Fl::reload_scheme();
 }
 

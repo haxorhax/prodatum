@@ -2089,6 +2089,8 @@ void Fl_Knob::dependency(int v) const
 	}
 }
 
+char c_knob_1 = FL_BACKGROUND2_COLOR;
+char c_knob_2 = FL_BACKGROUND2_COLOR;
 void Fl_Knob::draw()
 {
 	int ox, oy, ww, hh, side;
@@ -2114,8 +2116,8 @@ void Fl_Knob::draw()
 	fl_rectf(ox, oy, side, side);
 	// scale
 	(active_r()) ?
-			fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .5)) :
-			fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .2));
+			fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .5)) :
+			fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .2));
 	fl_pie(ox + 1, oy + 3, side - 2, side - 12, 0, 360);
 	draw_scale(ox, oy, side);
 	fl_pie(ox + 7, oy + 7, side - 14, side - 14, 0, 360);
@@ -2131,9 +2133,9 @@ void Fl_Knob::draw()
 	// top
 	if (active_r())
 		(this == Fl::focus()) ?
-				fl_color(FL_SELECTION_COLOR) : fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .8));
+				fl_color(FL_SELECTION_COLOR) : fl_color(fl_color_average((Fl_Color) c_knob_1, FL_BACKGROUND_COLOR, .8));
 	else
-		fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .5));
+		fl_color(fl_color_average((Fl_Color) c_knob_1, FL_BACKGROUND_COLOR, .5));
 	fl_pie(ox + 10, oy + 10, side - 20, side - 20, 0, 360);
 //	if (active_r())
 	{
@@ -2350,10 +2352,10 @@ void Fl_Knob::draw_cursor(const int ox, const int oy, const int side)
 	// top
 	if (active_r())
 		(this == Fl::focus()) ?
-				fl_color(fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR)) :
-				fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_FOREGROUND_COLOR, .3));
+				fl_color(fl_color_average(FL_SELECTION_COLOR, fl_contrast(FL_FOREGROUND_COLOR, FL_SELECTION_COLOR), .4)) :
+				fl_color(fl_color_average((Fl_Color) c_knob_1, fl_contrast(FL_FOREGROUND_COLOR, (Fl_Color) c_knob_1), .5));
 	else
-		fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_FOREGROUND_COLOR, .4));
+		fl_color(fl_color_average((Fl_Color) c_knob_1, fl_contrast(FL_FOREGROUND_COLOR, (Fl_Color) c_knob_1), .7));
 	rds = (side - 18) / 2.0;
 	cur = _percent * rds / 2;
 	cx = ox + side / 2;
@@ -2445,6 +2447,20 @@ void Button::set_value(int v)
 		}
 		ui->main->g_main_arp->redraw();
 	}
+	else if (id_layer[0] == 135) // MIDI enable
+	{
+		if (v)
+			ui->main->program_change->activate();
+		else
+			ui->main->program_change->deactivate();
+	}
+	else if (id_layer[0] == 137) // program change
+	{
+		if (this->active() && v)
+			ui->g_preset->activate();
+		else
+			ui->g_preset->deactivate();
+	}
 	value(v);
 }
 
@@ -2460,9 +2476,23 @@ int Button::get_value() const
 	}
 	if (id_layer[0] == 258 || id_layer[0] == 1669 || id_layer[0] == 1674 || id_layer[0] == 1033 || id_layer[0] == 649) // fx bypass / lfo syncs / arp syncs
 		v ? v = 0 : v = 1;
-	if (id_layer[0] == 137)
+	if (id_layer[0] == 135) // MIDI enable
 	{
 		if (v)
+		{
+			ui->main->program_change->activate();
+			if (ui->main->program_change->value())
+				ui->g_preset->activate();
+		}
+		else
+		{
+			ui->main->program_change->deactivate();
+			ui->g_preset->deactivate();
+		}
+	}
+	else if (id_layer[0] == 137) // program change
+	{
+		if (this->active() && v)
 			ui->g_preset->activate();
 		else
 			ui->g_preset->deactivate();
@@ -2983,6 +3013,9 @@ void Choice::dependency(int v) const
 			ui->fx_channel->deactivate();
 			ui->main->channel_enable->set();
 			ui->main->channel_enable->deactivate();
+			ui->main->program_change->activate();
+			if (ui->main->program_change->value())
+				ui->g_preset->activate();
 			ui->main->mix_out->deactivate();
 		}
 		else
@@ -2990,6 +3023,17 @@ void Choice::dependency(int v) const
 			ui->fx_channel->activate();
 			ui->main->channel_enable->activate();
 			ui->main->channel_enable->value(pxk->setup->get_value(135, pxk->selected_channel));
+			if (ui->main->channel_enable->value())
+			{
+				ui->main->program_change->activate();
+				if (ui->main->program_change->value())
+					ui->g_preset->activate();
+			}
+			else
+			{
+				ui->main->program_change->deactivate();
+				ui->g_preset->deactivate();
+			}
 			ui->main->mix_out->activate();
 		}
 		if (v == OMNI)

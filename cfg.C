@@ -117,11 +117,11 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_LOG_EVENTS_IN] = 0;
 	defaults[CFG_WINDOW_WIDTH] = 845;
 	defaults[CFG_WINDOW_HEIGHT] = 620;
-	defaults[CFG_BGR] = 117;
+	defaults[CFG_BGR] = 108;
 	defaults[CFG_BGG] = 118;
 	defaults[CFG_BGB] = 121;
-	defaults[CFG_BG2R] = 43;
-	defaults[CFG_BG2G] = 46;
+	defaults[CFG_BG2R] = 45;
+	defaults[CFG_BG2G] = 50;
 	defaults[CFG_BG2B] = 51;
 	defaults[CFG_FGR] = 204;
 	defaults[CFG_FGG] = 204;
@@ -132,6 +132,8 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_INR] = 204;
 	defaults[CFG_ING] = 204;
 	defaults[CFG_INB] = 194;
+	defaults[CFG_KNOB_COLOR1] = -1;
+	defaults[CFG_KNOB_COLOR2] = -1;
 
 	// load config
 	char _fname[PATH_MAX];
@@ -326,6 +328,8 @@ void Cfg::apply(bool colors_only)
 			(unsigned char) option[CFG_SLB]);
 	ui->set_color(FL_INACTIVE_COLOR, (unsigned char) option[CFG_INR], (unsigned char) option[CFG_ING],
 			(unsigned char) option[CFG_INB]);
+	ui->set_knobcolor(0, (char) option[CFG_KNOB_COLOR1]);
+	ui->set_knobcolor(1, (char) option[CFG_KNOB_COLOR2]);
 	if (colors_only)
 		return;
 	ui->syncview = option[CFG_SYNCVIEW];

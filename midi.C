@@ -1023,20 +1023,23 @@ void MIDI::request_hardware_config() const
 	requested = true;
 }
 
-void MIDI::request_preset_dump(int preset, int rom_id) const
+void request_preset_dump_timeout(void* m)
 {
+	((MIDI*) m)->request_preset_dump();
+}
+
+void MIDI::request_preset_dump(int timeout) const
+{
+	if (timeout > 0)
+	{
+		Fl::add_timeout((double) timeout / 1000, request_preset_dump_timeout, (void*) this);
+		return;
+	}
 	if (requested)
 		return;
-	pmesg("MIDI::request_preset_dump(preset: %d, rom: %d) \n", preset, rom_id);
-	if (preset < 0) // edit buffer
-		preset += 16384;
-	unsigned char pl = preset % 128;
-	unsigned char pm = preset / 128;
-	unsigned char rl = rom_id % 128;
-	unsigned char rm = rom_id / 128;
 	unsigned char loop = cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD) ? 0x02 : 0x04;
 	unsigned char request[] =
-	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x11, loop, pl, pm, rl, rm, 0xf7 };
+	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x11, loop, 0x7f, 0x7f, 0, 0, 0xf7 };
 	write_sysex(request, 12);
 	pxk->Loading();
 	requested = true;
@@ -1200,6 +1203,5 @@ void MIDI::randomize() const
 	unsigned char r[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x71, 0x7f, 0x7f, 0, 0, 0xf7 };
 	write_sysex(r, 11);
-	mysleep(300 + cfg->get_cfg_option(CFG_SPEED));
-	request_preset_dump(-1, 0);
+	request_preset_dump(300);
 }

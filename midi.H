@@ -115,10 +115,9 @@ public:
 //	void request_device_inquiry(int id = -1) const;
 	/**
 	 * sends a preset dump request.
-	 * @param preset the preset number
-	 * @param rom_id the ROM ID of the preset
+	 * @param timeout time to wait in ms before sending the request
 	 */
-	void request_preset_dump(int preset, int rom_id) const;
+	void request_preset_dump(int timeout = 0) const;
 	/// sends a setup dump request
 	void request_setup_dump() const;
 	//	/// sends an FX dump request
