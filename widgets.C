@@ -3020,6 +3020,8 @@ void Choice::dependency(int v) const
 			ui->main->program_change->activate();
 			if (ui->main->program_change->value())
 				ui->g_preset->activate();
+			else
+				ui->g_preset->deactivate();
 			ui->main->mix_out->deactivate();
 		}
 		else
