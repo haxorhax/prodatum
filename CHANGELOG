@@ -1,3 +1,8 @@
+v2.9rc22
+
+* use a different labelcolor for labels drawn on background
+
+
 v2.0rc21
 
 * use timeout instead of sleep for delayed preset requests:

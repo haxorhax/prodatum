@@ -31,7 +31,7 @@
 
 static void load_data();
 
-const char* VERSION = "2.0rc21";
+const char* VERSION = "2.0rc22";
 PD_UI* ui = 0;
 MIDI* midi = 0;
 PXK* pxk = 0;
@@ -273,21 +273,21 @@ void PD_UI::set_knobcolor(char type, char color)
 			*c = FL_BACKGROUND_COLOR;
 			((Fl_Button*) g->child(0))->setonly();
 			break;
-		default:
 		case 1:
-			*c = FL_BACKGROUND2_COLOR;
+			*c = FL_INACTIVE_COLOR;
 			((Fl_Button*) g->child(1))->setonly();
 			break;
+		default:
 		case 2:
-			*c = FL_FOREGROUND_COLOR;
+			*c = FL_BACKGROUND2_COLOR;
 			((Fl_Button*) g->child(2))->setonly();
 			break;
 		case 3:
-			*c = FL_SELECTION_COLOR;
+			*c = FL_FOREGROUND_COLOR;
 			((Fl_Button*) g->child(3))->setonly();
 			break;
 		case 4:
-			*c = FL_INACTIVE_COLOR;
+			*c = FL_SELECTION_COLOR;
 			((Fl_Button*) g->child(4))->setonly();
 			break;
 	}

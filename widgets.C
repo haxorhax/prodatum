@@ -3272,7 +3272,7 @@ void Envelope_Editor::draw()
 			draw_b_label(SHAPE_A + i, FL_FOREGROUND_COLOR);
 		}
 	}
-	fl_color(FL_FOREGROUND_COLOR);
+	fl_color(FL_INACTIVE_COLOR);
 	int ypos = ee_y0 + ee_h - 9;
 	fl_font(FL_COURIER, 10);
 	fl_draw("Copy to", copy_button[2] + 22, ypos);
@@ -4542,7 +4542,7 @@ void Piano::draw_ranges()
 	fl_push_clip(keyboard_x0 - 10, keyboard_y0 + h_white, keyboard_w + 15, 120);
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_rectf(keyboard_x0 - 10, keyboard_y0 + h_white + 1, keyboard_w + 15, 119);
-	fl_color(FL_FOREGROUND_COLOR);
+	fl_color(FL_INACTIVE_COLOR);
 	fl_font(FL_HELVETICA, 10);
 	static unsigned char show_layers;
 	ui->eall ? show_layers = 1 : show_layers = 4;
@@ -4870,7 +4870,7 @@ void Piano::draw_curve(int type)
 	fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .6));
 	fl_polygon(keyboard_x0 + 110, keyboard_h + keyboard_y0, keyboard_w + keyboard_x0 - 3, keyboard_h + keyboard_y0,
 			keyboard_w + keyboard_x0 - 3, keyboard_y0 - 11);
-	fl_color(FL_FOREGROUND_COLOR);
+	fl_color(FL_INACTIVE_COLOR);
 	fl_font(FL_HELVETICA, 10);
 	switch (type)
 	{
