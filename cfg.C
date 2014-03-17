@@ -126,14 +126,14 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_FGR] = 204;
 	defaults[CFG_FGG] = 204;
 	defaults[CFG_FGB] = 194;
-	defaults[CFG_SLR] = 204;
+	defaults[CFG_SLR] = 199;
 	defaults[CFG_SLG] = 204;
-	defaults[CFG_SLB] = 194;
-	defaults[CFG_INR] = 204;
-	defaults[CFG_ING] = 204;
-	defaults[CFG_INB] = 194;
-	defaults[CFG_KNOB_COLOR1] = -1;
-	defaults[CFG_KNOB_COLOR2] = -1;
+	defaults[CFG_SLB] = 56;
+	defaults[CFG_INR] = 103;
+	defaults[CFG_ING] = 177;
+	defaults[CFG_INB] = 235;
+	defaults[CFG_KNOB_COLOR1] = 2;
+	defaults[CFG_KNOB_COLOR2] = 1;
 
 	// load config
 	char _fname[PATH_MAX];
@@ -162,7 +162,7 @@ Cfg::Cfg(int device_id)
 	for (i = 0; i < NOOPTION; i++)
 	{
 		file >> option[i];
-		check += option[i] * ((i % 5) + 1);
+		check += option[i] * ((i % 5) + 3);
 	}
 	// checksum
 	file >> check_file;
@@ -225,7 +225,7 @@ Cfg::~Cfg()
 	for (unsigned char i = 0; i < NOOPTION; i++)
 	{
 		file << option[i] << " ";
-		check += option[i] * ((i % 5) + 1);
+		check += option[i] * ((i % 5) + 3);
 	}
 	file << check << std::endl;
 	file << export_dir << std::endl;

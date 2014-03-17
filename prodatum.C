@@ -198,7 +198,7 @@ void PD_UI::set_color(Fl_Color t)
 	if (!fl_color_chooser("New color:", r, g, b))
 		return;
 	Fl::set_color(t, r, g, b);
-	if (t == FL_FOREGROUND_COLOR)
+	if (t == FL_INACTIVE_COLOR)
 		Fl_Tooltip::textcolor(t);
 	else if (t == FL_BACKGROUND2_COLOR)
 		Fl_Tooltip::color(FL_BACKGROUND2_COLOR);
@@ -236,7 +236,7 @@ void PD_UI::set_color(Fl_Color t)
 void PD_UI::set_color(Fl_Color t, unsigned char r, unsigned char g, unsigned char b)
 {
 	Fl::set_color(t, r, g, b);
-	if (t == FL_FOREGROUND_COLOR)
+	if (t == FL_INACTIVE_COLOR)
 		Fl_Tooltip::textcolor(t);
 	else if (t == FL_BACKGROUND2_COLOR)
 		Fl_Tooltip::color(FL_BACKGROUND2_COLOR);
@@ -274,7 +274,7 @@ void PD_UI::set_knobcolor(char type, char color)
 			((Fl_Button*) g->child(0))->setonly();
 			break;
 		case 1:
-			*c = FL_INACTIVE_COLOR;
+			*c = FL_FOREGROUND_COLOR;
 			((Fl_Button*) g->child(1))->setonly();
 			break;
 		default:
@@ -283,7 +283,7 @@ void PD_UI::set_knobcolor(char type, char color)
 			((Fl_Button*) g->child(2))->setonly();
 			break;
 		case 3:
-			*c = FL_FOREGROUND_COLOR;
+			*c = FL_INACTIVE_COLOR;
 			((Fl_Button*) g->child(3))->setonly();
 			break;
 		case 4:

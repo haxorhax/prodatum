@@ -1,6 +1,7 @@
 v2.9rc22
 
-* use a different labelcolor for labels drawn on background
+* use different labelcolors for labels drawn on background
+  and labels drawn on alternative background color.
 
 
 v2.0rc21
