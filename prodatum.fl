@@ -168,7 +168,7 @@ widget_class PD_Preset_Patchcords {
     xywh {276 5 275 20} color 49 selection_color 15 labelfont 1 labelcolor 0 align 22
   }
   Fl_Box {} {
-    label {9-12} selected
+    label {9-12}
     xywh {551 5 274 20} color 49 selection_color 15 labelfont 1 labelcolor 0 align 22
   }
   Fl_Choice s1 {open
@@ -2640,13 +2640,13 @@ Fl::visual(FL_DOUBLE|FL_RGB);} {}
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open
+delete this;}
       xywh {457 270 845 620} type Double color 49 selection_color 49 labelcolor 8 hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
-      Fl_Group supergroup {open
+      Fl_Group supergroup {
         xywh {0 0 846 620} color 49 selection_color 49 labelcolor 8 resizable
       } {
         Fl_Group {} {
@@ -4030,8 +4030,8 @@ open_device->hide();}
       callback {preferences->hide();
 export_dir->value(cfg->get_export_dir());
 b_set->deactivate();}
-      xywh {273 60 305 450} type Double box UP_BOX color 49 selection_color 49 labelsize 11 labelcolor 8 hide
-      class Double_Window xclass prodatum
+      xywh {273 60 305 450} type Double box UP_BOX color 49 selection_color 49 labelsize 11 labelcolor 8
+      class Double_Window xclass prodatum visible
     } {
       Fl_Box {} {
         xywh {1 1 60 50} color 49 selection_color 49 labelcolor 8 deactivate
@@ -4196,7 +4196,7 @@ if (((Fl_Button*) o->array()[i])->value())
 	cfg->set_cfg_option(CFG_KNOB_COLOR1, i);
 	set_knobcolor(0, i);
 	break;
-}}
+}} open
         xywh {101 422 180 15} color 49 selection_color 49 labelcolor 8
       } {
         Fl_Check_Button {} {
@@ -4222,8 +4222,8 @@ if (((Fl_Button*) o->array()[i])->value())
         }
         Fl_Check_Button {} {
           callback {o->setonly();
-((Group*)o->parent())->do_callback();}
-          xywh {261 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
+((Group*)o->parent())->do_callback();} selected
+          xywh {261 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0 hide deactivate
         }
       }
       Fl_Group knob_color_b {
@@ -4233,13 +4233,13 @@ if (((Fl_Button*) o->array()[i])->value())
 	cfg->set_cfg_option(CFG_KNOB_COLOR2, i);
 	set_knobcolor(1, i);
 	break;
-}}
+}} open
         xywh {118 422 180 15} color 49 selection_color 49 labelcolor 8
       } {
         Fl_Check_Button {} {
           callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-          xywh {118 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
+          xywh {118 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0 hide deactivate
         }
         Fl_Check_Button {} {
           callback {o->setonly();
