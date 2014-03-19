@@ -3579,7 +3579,7 @@ static const char* tt4 = "Keep envelope selection, zoom level and superimpose se
 static const char* bt0 = "Select volume-, filter- or auxillary envelope (shortcut: Mousewheel).";
 static const char* bt1 = "Copy current envelope values to this envelope.";
 static const char* bt2 = "Some common envelope shapes: Plucked, String, Organ and Percussion.";
-static const char* st0 = "Drag: zoom\nMousewheel: cycle envelopes\nMousewheel over overlapping values: cycle selection";
+static const char* st0 = "Drag: zoom\nMousewheel: cycle envelopes\nMousewheel over overlapping values: value selection";
 
 int Envelope_Editor::handle(int ev)
 {
