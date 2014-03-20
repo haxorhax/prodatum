@@ -3132,9 +3132,11 @@ void PPCS_Choice::init(int ec, int mc) // extra controller / member code
 		sources = 21;
 	for (char i = 0; i < sources; i++)
 	{
-		if (mc == 2 && (i == 1 || i == 2))
+		// skip dc, pressure and expr. for audity
+		if (mc == 2 && (i == 1 || i == 2 || i == 8))
 			continue;
-		if (ec == 0 && (i > 20 && i < 25)) // skip extra controllers
+		// skip extra controllers on devices that don't have them
+		if (ec == 0 && (i > 20 && i < 25))
 			continue;
 		index[i] = add(PresetPatchS[i].name);
 	}

@@ -1144,7 +1144,7 @@ static void load_data()
 	PresetPatchS[7].id = 27;
 	PresetPatchS[7].name = "MIDI/MIDI Pan";
 	PresetPatchS[8].id = 28;
-	PresetPatchS[8].name = "MIDI/MIDI Expr";
+	PresetPatchS[8].name = "MIDI/MIDI Expr"; //
 	PresetPatchS[9].id = 20;
 	PresetPatchS[9].name = "MIDI/MIDI A";
 	PresetPatchS[10].id = 21;
