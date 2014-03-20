@@ -24,7 +24,9 @@
 #endif
 
 #include "ui.H"
+#ifdef WIN32
 #include <FL/x.H>
+#endif
 #include <FL/filename.H>
 #include <FL/fl_ask.H>
 #include <FL/Fl_Tooltip.H>
@@ -41,7 +43,6 @@ extern PD_Arp_Step* arp_step[32];
 
 static bool __auto_connect = true;
 static int __device = -1;
-static bool __use_system_colors = false;
 
 /**
  * command line option parser
