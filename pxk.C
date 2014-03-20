@@ -438,7 +438,7 @@ static void sync_bro(void* p)
 			if (!requested)
 			{
 				ui->init_progress->label("Syncing multisetup names...");
-				ui->init_progress->maximum((float) 64);
+				ui->init_progress->maximum((float) setups_to_load);
 				ui->init_progress->value(.0);
 				init_progress = 0;
 				ui->init->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->init->w() / 2),
@@ -473,9 +473,9 @@ static void sync_bro(void* p)
 #endif
 			requested = false;
 		}
-		if (name <= 63)
+		if (name <= setups_to_load)
 		{
-			if (!requested && name < 63)
+			if (!requested && name < setups_to_load)
 			{
 				pxk->load_setup_names(name++);
 				requested = true;
@@ -503,12 +503,12 @@ static void sync_bro(void* p)
 #ifdef SYNCLOG
 				ui->init_log->append("#");
 #endif
-				if (name == 63)
+				if (name == setups_to_load)
 				{
 #ifdef SYNCLOG
 					ui->init_log->append(" OK\n");
 #endif
-					pxk->load_setup_names(63);
+					pxk->load_setup_names(setups_to_load);
 					setups_to_load = 0;
 				}
 				ui->init_progress->value((float) init_progress);
@@ -937,6 +937,9 @@ void PXK::incoming_hardware_config(const unsigned char* data)
 unsigned char PXK::load_setup_names(unsigned char start)
 {
 	//pmesg("PXK::load_setup_names(%d)\n", start);
+	char available_setups = 64;
+	if (member_code == 2)
+		available_setups = 16;
 	// try to load from disk
 	if (start == 99)
 	{
@@ -950,40 +953,40 @@ unsigned char PXK::load_setup_names(unsigned char start)
 		std::fstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
 		if (file.is_open())
 		{
-			unsigned int size = file.tellg();
-			if (size != 1024)
+			int size = file.tellg();
+			if (size != available_setups * 16)
 			{
 				file.close();
-				return 63;
+				return available_setups - 1;
 			}
-			setup_names = new unsigned char[1024];
+			setup_names = new unsigned char[available_setups * 16];
 			file.seekg(0, std::ios::beg);
-			file.read((char*) setup_names, 1024);
+			file.read((char*) setup_names, available_setups * 16);
 			file.close();
 			ui->multisetups->clear();
 			char buf[21];
-			for (char i = 0; i < 64; i++)
+			for (char i = 0; i < available_setups; i++)
 			{
 				snprintf(buf, 21, "%02d: %s", i, setup_names + i * 16);
 				ui->multisetups->add(buf);
 			}
 			return 0;
 		}
-		return 63;
+		return available_setups - 1;
 	}
 	// midi load setup names
-	if (start < 63)
+	if (start < available_setups - 1)
 	{
 		midi->copy(C_SETUP, start, -1);
 		midi->request_name(SETUP, start, 0);
 	}
 	else // last setup name
 	{
-		set_setup_name(63, (unsigned char*) "Factory Setup   ");
+		set_setup_name(available_setups - 1, (unsigned char*) "Factory Setup   ");
 		save_setup_names(true);
 		ui->multisetups->clear();
 		char buf[21];
-		for (char i = 0; i < 64; i++)
+		for (char i = 0; i < available_setups; i++)
 		{
 			snprintf(buf, 21, "%02d: %s", i, setup_names + i * 16);
 			ui->multisetups->add(buf);
@@ -1336,8 +1339,11 @@ void PXK::incoming_NAK(int packet)
 void PXK::set_setup_name(unsigned char number, const unsigned char* name)
 {
 	//pmesg("PXK::set_setup_name(%d, %s) \n", number, name);
+	char available_setups = 64;
+	if (member_code == 2)
+		available_setups = 16;
 	if (!setup_names)
-		setup_names = new unsigned char[1024];
+		setup_names = new unsigned char[available_setups * 16];
 	memcpy(setup_names + 16 * number, name, 16);
 	if (synchronized) // user changed setup name
 		setup_names_changed = true;
@@ -1348,10 +1354,13 @@ void PXK::save_setup_names(bool force) const
 //	pmesg("PXK::save_setup_names() \n");
 	if ((synchronized && setup_names_changed) || force)
 	{
+		char available_setups = 64;
+		if (member_code == 2)
+			available_setups = 16;
 		char filename[PATH_MAX];
 		snprintf(filename, PATH_MAX, "%s/n_set_0_%d", cfg->get_config_dir(), device_id);
 		std::fstream file(filename, std::ios::out | std::ios::binary | std::ios::trunc);
-		file.write((char*) setup_names, 1024);
+		file.write((char*) setup_names, available_setups * 16);
 		file.close();
 	}
 }
@@ -1514,11 +1523,11 @@ void PXK::load_export(const char* filename)
 #ifdef __linux
 	int offset = 0;
 	while (strncmp(filename + offset, "/", 1) != 0)
-		++offset;
+	++offset;
 	char n[PATH_MAX];
 	snprintf(n, PATH_MAX, "%s", filename + offset);
 	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
-		n[strlen(n) - 1] = '\0';
+	n[strlen(n) - 1] = '\0';
 	std::ifstream file(n, std::ifstream::binary);
 #else
 	std::ifstream file(filename, std::ifstream::binary);

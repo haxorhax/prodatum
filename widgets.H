@@ -73,6 +73,7 @@ struct Patchcord
 
 extern Patchcord PatchS[78];
 extern Patchcord PatchD[68];
+extern Patchcord PresetPatchS[31];
 extern Patchcord PresetPatchD[28];
 
 /**
@@ -506,6 +507,41 @@ public:
 	}
 	void set_value(int v);
 	int get_value() const;
+};
+
+/**
+ * PPCS_Choice class.
+ * special class for preset patchcord sources
+ */
+class PPCS_Choice: public Choice
+{
+	int index[31];
+	bool initialized;
+	void init(int ec)
+	{
+		clear();
+		for (char i = 0; i < 31; i++)
+		{
+			if (ec == 0 && (i > 20 && i < 25))
+				continue;
+			index[i] = add(PresetPatchS[i].name);
+		}
+		initialized = true;
+	}
+public:
+	PPCS_Choice(int x, int y, int w, int h, char* const label = 0) :
+			Choice(x, y, w, h, label)
+	{
+		minimax[1] = 160;
+		initialized = false;
+		tooltip(_ms);
+	}
+	void set_value(int v);
+	int get_value() const;
+	void uninitialize()
+	{
+		initialized = false;
+	}
 };
 
 /**

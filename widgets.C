@@ -3104,6 +3104,29 @@ int PCD_Choice::get_value() const
 // ###################
 //
 // ###################
+void PPCS_Choice::set_value(int v)
+{
+	if (!initialized && pxk->preset)
+		init(pxk->preset->get_extra_controller());
+	for (char i = 0; i < 31; i++)
+		if (PresetPatchS[i].id == v)
+		{
+			value(index[i]);
+			return;
+		}
+}
+
+int PPCS_Choice::get_value() const
+{
+	for (char i = 0; i < 31; i++)
+		if (index[i] == value())
+			return PresetPatchS[i].id;
+	return 0;
+}
+
+// ###################
+//
+// ###################
 void PPCD_Choice::set_value(int v)
 {
 	for (char i = 0; i < 28; i++)

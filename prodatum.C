@@ -612,6 +612,7 @@ FilterMap FM[51];
 const char* rates[25];
 Patchcord PatchS[78];
 Patchcord PatchD[68];
+Patchcord PresetPatchS[31];
 Patchcord PresetPatchD[28];
 const char* filter_tooltip;
 static void load_data()
@@ -840,26 +841,26 @@ static void load_data()
 	PatchS[11].id = 101;
 	PatchS[11].name = "Key/Key Rand 2";
 
-	PatchS[12].id = 16;
-	PatchS[12].name = "Controller/PitchWheel";
-	PatchS[13].id = 17;
-	PatchS[13].name = "Controller/ModWheel";
-	PatchS[14].id = 18;
-	PatchS[14].name = "Controller/Pressure";
+	PatchS[12].id = 18;
+	PatchS[12].name = "Pressure";
+	PatchS[13].id = 16;
+	PatchS[13].name = "PitchWheel";
+	PatchS[14].id = 17;
+	PatchS[14].name = "ModWheel";
 	PatchS[15].id = 19;
-	PatchS[15].name = "Controller/Pedal";
+	PatchS[15].name = "Pedal";
 	PatchS[16].id = 22;
-	PatchS[16].name = "Controller/FootSw 1";
+	PatchS[16].name = "Footswitch/FootSw 1";
 	PatchS[17].id = 23;
-	PatchS[17].name = "Controller/FootSw 2";
+	PatchS[17].name = "Footswitch/FootSw 2";
 	PatchS[18].id = 38;
-	PatchS[18].name = "Controller/FootSw 3";
+	PatchS[18].name = "Footswitch/FootSw 3";
 	PatchS[19].id = 24;
-	PatchS[19].name = "Controller/FF FootSw 1";
+	PatchS[19].name = "Footswitch/FF FootSw 1";
 	PatchS[20].id = 25;
-	PatchS[20].name = "Controller/FF FootSw 2";
+	PatchS[20].name = "Footswitch/FF FootSw 2";
 	PatchS[21].id = 39;
-	PatchS[21].name = "Controller/FF FootSw 3";
+	PatchS[21].name = "Footswitch/FF FootSw 3";
 
 	PatchS[22].id = 72;
 	PatchS[22].name = "Envelope/Vol Env+";
@@ -1122,6 +1123,75 @@ static void load_data()
 	PatchD[67].id = 191;
 	PatchD[67].name = "Attenuator/C 24 Amt";
 
+	// Preset patchcord sources
+	PresetPatchS[0].id = 0;
+	PresetPatchS[0].name = "Off";
+
+	PresetPatchS[1].id = 160;
+	PresetPatchS[1].name = "DC"; //
+	PresetPatchS[2].id = 18;
+	PresetPatchS[2].name = "Pressure"; //
+
+	PresetPatchS[3].id = 16;
+	PresetPatchS[3].name = "PitchWheel";
+	PresetPatchS[4].id = 17;
+	PresetPatchS[4].name = "ModWheel";
+	PresetPatchS[5].id = 19;
+	PresetPatchS[5].name = "Pedal";
+
+	PresetPatchS[6].id = 26;
+	PresetPatchS[6].name = "MIDI/MIDI Vol";
+	PresetPatchS[7].id = 27;
+	PresetPatchS[7].name = "MIDI/MIDI Pan";
+	PresetPatchS[8].id = 28;
+	PresetPatchS[8].name = "MIDI/MIDI Expr";
+	PresetPatchS[9].id = 20;
+	PresetPatchS[9].name = "MIDI/MIDI A";
+	PresetPatchS[10].id = 21;
+	PresetPatchS[10].name = "MIDI/MIDI B";
+	PresetPatchS[11].id = 32;
+	PresetPatchS[11].name = "MIDI/MIDI C";
+	PresetPatchS[12].id = 33;
+	PresetPatchS[12].name = "MIDI/MIDI D";
+	PresetPatchS[13].id = 34;
+	PresetPatchS[13].name = "MIDI/MIDI E";
+	PresetPatchS[14].id = 35;
+	PresetPatchS[14].name = "MIDI/MIDI F";
+	PresetPatchS[15].id = 36;
+	PresetPatchS[15].name = "MIDI/MIDI G";
+	PresetPatchS[16].id = 37;
+	PresetPatchS[16].name = "MIDI/MIDI H";
+	PresetPatchS[17].id = 40;
+	PresetPatchS[17].name = "MIDI/MIDI I";
+	PresetPatchS[18].id = 41;
+	PresetPatchS[18].name = "MIDI/MIDI J";
+	PresetPatchS[19].id = 42;
+	PresetPatchS[19].name = "MIDI/MIDI K";
+	PresetPatchS[20].id = 43;
+	PresetPatchS[20].name = "MIDI/MIDI L";
+	// xtra controllers
+	PresetPatchS[21].id = 44;
+	PresetPatchS[21].name = "MIDI/MIDI M";
+	PresetPatchS[22].id = 45;
+	PresetPatchS[22].name = "MIDI/MIDI N";
+	PresetPatchS[23].id = 46;
+	PresetPatchS[23].name = "MIDI/MIDI O";
+	PresetPatchS[24].id = 47;
+	PresetPatchS[24].name = "MIDI/MIDI P";
+
+	PresetPatchS[25].id = 22;
+	PresetPatchS[25].name = "Footswitch/FootSw 1";
+	PresetPatchS[26].id = 23;
+	PresetPatchS[26].name = "Footswitch/FootSw 2";
+	PresetPatchS[27].id = 38;
+	PresetPatchS[27].name = "Footswitch/FootSw 3";
+	PresetPatchS[28].id = 24;
+	PresetPatchS[28].name = "Footswitch/FF FootSw 1";
+	PresetPatchS[29].id = 25;
+	PresetPatchS[29].name = "Footswitch/FF FootSw 2";
+	PresetPatchS[30].id = 39;
+	PresetPatchS[30].name = "Footswitch/FF FootSw 3";
+
 	// preset patchcord destinations
 	PresetPatchD[0].id = 0;
 	PresetPatchD[0].name = "Off";
@@ -1142,7 +1212,7 @@ static void load_data()
 	PresetPatchD[7].name = "Effects/FXB Send 3";
 	PresetPatchD[8].id = 8;
 	PresetPatchD[8].name = "Effects/FXB Send 4";
-
+	// audity ends here
 	PresetPatchD[9].id = 96;
 	PresetPatchD[9].name = "Arpeggiator/Arp Resolution";
 	PresetPatchD[10].id = 97;
