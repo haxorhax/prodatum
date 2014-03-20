@@ -2,8 +2,9 @@ v2.9rc23
 
 * fix some patchcord names
 * give patchcords widgets a bit more space
-* fix preset patchcord sources being too populated
-* request only 15 multisetups on A2K
+* fix preset patchcord sources
+* better support A2K modules
+* increased preset request timeout when randomizing
 
 
 v2.9rc22

@@ -71,11 +71,6 @@ struct Patchcord
 	const char* name;
 };
 
-extern Patchcord PatchS[78];
-extern Patchcord PatchD[68];
-extern Patchcord PresetPatchS[31];
-extern Patchcord PresetPatchD[28];
-
 /**
  * shows confirmation dialog on various occasions
  * @param exit wether to act as an exit dialog
@@ -465,28 +460,16 @@ public:
 class PCS_Choice: public Choice
 {
 	int index[78];
-	bool initialized;
-	void init(int ec)
-	{
-		clear();
-		for (char i = 0; i < 74 + ec; i++)
-			index[i] = add(PatchS[i].name);
-		initialized = true;
-	}
+	void init(int);
 public:
 	PCS_Choice(int x, int y, int w, int h, char* const label = 0) :
 			Choice(x, y, w, h, label)
 	{
 		minimax[1] = 167;
-		initialized = false;
 		tooltip(_ms);
 	}
 	void set_value(int v);
 	int get_value() const;
-	void uninitialize()
-	{
-		initialized = false;
-	}
 };
 
 /**
@@ -496,12 +479,12 @@ public:
 class PCD_Choice: public Choice
 {
 	int index[68];
+	void init();
 public:
 	PCD_Choice(int x, int y, int w, int h, char* const label = 0) :
 			Choice(x, y, w, h, label)
 	{
-		for (char i = 0; i < 68; i++)
-			index[i] = add(PatchD[i].name);
+		init();
 		minimax[1] = 191;
 		tooltip(_md);
 	}
@@ -516,32 +499,18 @@ public:
 class PPCS_Choice: public Choice
 {
 	int index[31];
-	bool initialized;
-	void init(int ec)
-	{
-		clear();
-		for (char i = 0; i < 31; i++)
-		{
-			if (ec == 0 && (i > 20 && i < 25))
-				continue;
-			index[i] = add(PresetPatchS[i].name);
-		}
-		initialized = true;
-	}
+	char sources;
+	void init(int, int);
 public:
 	PPCS_Choice(int x, int y, int w, int h, char* const label = 0) :
 			Choice(x, y, w, h, label)
 	{
 		minimax[1] = 160;
-		initialized = false;
 		tooltip(_ms);
+		sources = 0;
 	}
 	void set_value(int v);
 	int get_value() const;
-	void uninitialize()
-	{
-		initialized = false;
-	}
 };
 
 /**
@@ -551,14 +520,15 @@ public:
 class PPCD_Choice: public Choice
 {
 	int index[28];
+	char destinations;
+	void init(int);
 public:
 	PPCD_Choice(int x, int y, int w, int h, char* const label = 0) :
 			Choice(x, y, w, h, label)
 	{
-		for (char i = 0; i < 28; i++)
-			index[i] = add(PresetPatchD[i].name);
 		minimax[1] = 131;
 		tooltip(_md);
+		destinations = 0;
 	}
 	void set_value(int v);
 	int get_value() const;

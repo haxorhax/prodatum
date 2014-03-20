@@ -141,23 +141,19 @@ edit_value(784, val - 52);}
   }
 } 
 
-widget_class PD_Preset_Patchcords {
-  xywh {588 400 825 132} type Double labelcolor 8 hide position_relative
+widget_class PD_Preset_Patchcords {open
+  xywh {430 391 825 132} type Double labelcolor 8 hide position_relative
 } {
-  Function {uninitialize_sources()} {return_type void
+  Function {reset_sources()} {return_type void
   } {
-    code {s1->uninitialize();
-	s2->uninitialize();
-	s3->uninitialize();
-	s4->uninitialize();
-	s5->uninitialize();
-	s6->uninitialize();
-	s7->uninitialize();
-	s8->uninitialize();
-	s9->uninitialize();
-	s10->uninitialize();
-	s11->uninitialize();
-	s12->uninitialize();} {}
+    code {for (unsigned char i = 0; i < ppc_sources->children(); i++)
+((Fl_Choice*) ppc_sources->array()[i])->clear();} {}
+  }
+  Function {reset_destinations()} {return_type void
+  } {
+    code {for (unsigned char i = 0; i < ppc_destinations->children(); i++)
+((Fl_Choice*) ppc_destinations->array()[i])->clear();} {selected
+    }
   }
   Fl_Box {} {
     label {1-4}
@@ -171,192 +167,204 @@ widget_class PD_Preset_Patchcords {
     label {9-12}
     xywh {551 5 274 20} selection_color 15 labelfont 1 align 22
   }
-  Fl_Choice s1 {open selected
-    xywh {2 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(931);}
-    class PPCS_Choice
-  } {}
-  Fl_Choice {} {open
-    xywh {118 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(932);}
-    class PPCD_Choice
-  } {}
-  Fl_Value_Output {} {
-    xywh {234 28 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    code0 {o->set_id(933);}
-    class Value_Output
+  Fl_Group ppc_sources {
+    xywh {2 28 663 99}
+  } {
+    Fl_Choice s1 {open
+      xywh {2 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(931);}
+      class PPCS_Choice
+    } {}
+    Fl_Choice s2 {open
+      xywh {2 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(934);}
+      class PPCS_Choice
+    } {}
+    Fl_Choice s3 {open
+      xywh {2 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(937);}
+      class PPCS_Choice
+    } {}
+    Fl_Choice s4 {open
+      xywh {2 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(940);}
+      class PPCS_Choice
+    } {}
+    Fl_Choice s5 {open
+      xywh {277 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(943);}
+      class PPCS_Choice
+    } {}
+    Fl_Choice s6 {open
+      xywh {277 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(946);}
+      class PPCS_Choice
+    } {}
+    Fl_Choice s7 {open
+      xywh {277 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(949);}
+      class PPCS_Choice
+    } {}
+    Fl_Choice s8 {open
+      xywh {277 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(952);}
+      class PPCS_Choice
+    } {}
+    Fl_Choice s9 {open
+      xywh {552 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(955);}
+      class PPCS_Choice
+    } {}
+    Fl_Choice s10 {open
+      xywh {552 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(958);}
+      class PPCS_Choice
+    } {}
+    Fl_Choice s11 {open
+      xywh {552 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(961);}
+      class PPCS_Choice
+    } {}
+    Fl_Choice s12 {open
+      xywh {552 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(964);}
+      class PPCS_Choice
+    } {}
   }
-  Fl_Choice s2 {open selected
-    xywh {2 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(934);}
-    class PPCS_Choice
-  } {}
-  Fl_Choice {} {open
-    xywh {118 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(935);}
-    class PPCD_Choice
-  } {}
-  Fl_Value_Output {} {
-    xywh {234 54 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    code0 {o->set_id(936);}
-    class Value_Output
+  Fl_Group ppc_destinations {
+    xywh {118 28 663 99}
+  } {
+    Fl_Choice {} {open
+      xywh {118 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(932);}
+      class PPCD_Choice
+    } {}
+    Fl_Choice {} {open
+      xywh {118 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(935);}
+      class PPCD_Choice
+    } {}
+    Fl_Choice {} {open
+      xywh {118 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(938);}
+      class PPCD_Choice
+    } {}
+    Fl_Choice {} {open
+      xywh {118 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(941);}
+      class PPCD_Choice
+    } {}
+    Fl_Choice {} {open
+      xywh {393 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(944);}
+      class PPCD_Choice
+    } {}
+    Fl_Choice {} {open
+      xywh {393 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(947);}
+      class PPCD_Choice
+    } {}
+    Fl_Choice {} {open
+      xywh {393 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(950);}
+      class PPCD_Choice
+    } {}
+    Fl_Choice {} {open
+      xywh {393 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(953);}
+      class PPCD_Choice
+    } {}
+    Fl_Choice {} {open
+      xywh {668 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(956);}
+      class PPCD_Choice
+    } {}
+    Fl_Choice {} {open
+      xywh {668 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(959);}
+      class PPCD_Choice
+    } {}
+    Fl_Choice {} {open
+      xywh {668 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(962);}
+      class PPCD_Choice
+    } {}
+    Fl_Choice {} {open
+      xywh {668 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      code0 {o->set_id(965);}
+      class PPCD_Choice
+    } {}
   }
-  Fl_Choice s3 {open selected
-    xywh {2 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(937);}
-    class PPCS_Choice
-  } {}
-  Fl_Choice {} {open
-    xywh {118 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(938);}
-    class PPCD_Choice
-  } {}
-  Fl_Value_Output {} {
-    xywh {234 80 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    code0 {o->set_id(939);}
-    class Value_Output
-  }
-  Fl_Choice s4 {open selected
-    xywh {2 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(940);}
-    class PPCS_Choice
-  } {}
-  Fl_Choice {} {open
-    xywh {118 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(941);}
-    class PPCD_Choice
-  } {}
-  Fl_Value_Output {} {
-    xywh {234 106 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    code0 {o->set_id(942);}
-    class Value_Output
-  }
-  Fl_Choice s5 {open selected
-    xywh {277 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(943);}
-    class PPCS_Choice
-  } {}
-  Fl_Choice {} {open
-    xywh {393 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(944);}
-    class PPCD_Choice
-  } {}
-  Fl_Value_Output {} {
-    xywh {509 28 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    code0 {o->set_id(945);}
-    class Value_Output
-  }
-  Fl_Choice s6 {open selected
-    xywh {277 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(946);}
-    class PPCS_Choice
-  } {}
-  Fl_Choice {} {open
-    xywh {393 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(947);}
-    class PPCD_Choice
-  } {}
-  Fl_Value_Output {} {
-    xywh {509 54 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    code0 {o->set_id(948);}
-    class Value_Output
-  }
-  Fl_Choice s7 {open selected
-    xywh {277 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(949);}
-    class PPCS_Choice
-  } {}
-  Fl_Choice {} {open
-    xywh {393 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(950);}
-    class PPCD_Choice
-  } {}
-  Fl_Value_Output {} {
-    xywh {509 80 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    code0 {o->set_id(951);}
-    class Value_Output
-  }
-  Fl_Choice s8 {open selected
-    xywh {277 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(952);}
-    class PPCS_Choice
-  } {}
-  Fl_Choice {} {open
-    xywh {393 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(953);}
-    class PPCD_Choice
-  } {}
-  Fl_Value_Output {} {
-    xywh {509 106 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    code0 {o->set_id(954);}
-    class Value_Output
-  }
-  Fl_Choice s9 {open selected
-    xywh {552 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(955);}
-    class PPCS_Choice
-  } {}
-  Fl_Choice {} {open
-    xywh {668 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(956);}
-    class PPCD_Choice
-  } {}
-  Fl_Value_Output {} {
-    xywh {784 28 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    code0 {o->set_id(957);}
-    class Value_Output
-  }
-  Fl_Choice s10 {open selected
-    xywh {552 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(958);}
-    class PPCS_Choice
-  } {}
-  Fl_Choice {} {open
-    xywh {668 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(959);}
-    class PPCD_Choice
-  } {}
-  Fl_Value_Output {} {
-    xywh {784 54 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    code0 {o->set_id(960);}
-    class Value_Output
-  }
-  Fl_Choice s11 {open selected
-    xywh {552 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(961);}
-    class PPCS_Choice
-  } {}
-  Fl_Choice {} {open
-    xywh {668 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(962);}
-    class PPCD_Choice
-  } {}
-  Fl_Value_Output {} {
-    xywh {784 80 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    code0 {o->set_id(963);}
-    class Value_Output
-  }
-  Fl_Choice s12 {open selected
-    xywh {552 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(964);}
-    class PPCS_Choice
-  } {}
-  Fl_Choice {} {open
-    xywh {668 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    code0 {o->set_id(965);}
-    class PPCD_Choice
-  } {}
-  Fl_Value_Output {} {
-    xywh {784 106 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    code0 {o->set_id(966);}
-    class Value_Output
+  Fl_Group ppc_amounts {
+    xywh {234 28 588 99}
+  } {
+    Fl_Value_Output {} {
+      xywh {234 28 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      code0 {o->set_id(933);}
+      class Value_Output
+    }
+    Fl_Value_Output {} {
+      xywh {234 54 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      code0 {o->set_id(936);}
+      class Value_Output
+    }
+    Fl_Value_Output {} {
+      xywh {234 80 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      code0 {o->set_id(939);}
+      class Value_Output
+    }
+    Fl_Value_Output {} {
+      xywh {234 106 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      code0 {o->set_id(942);}
+      class Value_Output
+    }
+    Fl_Value_Output {} {
+      xywh {509 28 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      code0 {o->set_id(945);}
+      class Value_Output
+    }
+    Fl_Value_Output {} {
+      xywh {509 54 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      code0 {o->set_id(948);}
+      class Value_Output
+    }
+    Fl_Value_Output {} {
+      xywh {509 80 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      code0 {o->set_id(951);}
+      class Value_Output
+    }
+    Fl_Value_Output {} {
+      xywh {509 106 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      code0 {o->set_id(954);}
+      class Value_Output
+    }
+    Fl_Value_Output {} {
+      xywh {784 28 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      code0 {o->set_id(957);}
+      class Value_Output
+    }
+    Fl_Value_Output {} {
+      xywh {784 54 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      code0 {o->set_id(960);}
+      class Value_Output
+    }
+    Fl_Value_Output {} {
+      xywh {784 80 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      code0 {o->set_id(963);}
+      class Value_Output
+    }
+    Fl_Value_Output {} {
+      xywh {784 106 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      code0 {o->set_id(966);}
+      class Value_Output
+    }
   }
 } 
 
-widget_class PD_Layer_Patchcords {
-  xywh {540 176 825 264} type Double labelcolor 7 hide position_relative
+widget_class PD_Layer_Patchcords {open
+  xywh {495 44 825 264} type Double labelcolor 7 hide position_relative
 } {
-  Function {init(int l)} {return_type void
+  Function {init(int l)} {open return_type void
   } {
     code {s1->set_id(1921, l);
 	s2->set_id(1924, l);
@@ -431,320 +439,10 @@ widget_class PD_Layer_Patchcords {
 	a23->set_id(1989, l);
 	a24->set_id(1992, l);} {}
   }
-  Function {uninitialize_sources()} {return_type void
+  Function {reset_sources()} {open return_type void
   } {
-    code {s1->uninitialize();
-	s2->uninitialize();
-	s3->uninitialize();
-	s4->uninitialize();
-	s5->uninitialize();
-	s6->uninitialize();
-	s7->uninitialize();
-	s8->uninitialize();
-	s9->uninitialize();
-	s10->uninitialize();
-	s11->uninitialize();
-	s12->uninitialize();
-	s13->uninitialize();
-	s14->uninitialize();
-	s15->uninitialize();
-	s16->uninitialize();
-	s17->uninitialize();
-	s18->uninitialize();
-	s19->uninitialize();
-	s20->uninitialize();
-	s21->uninitialize();
-	s22->uninitialize();
-	s23->uninitialize();
-	s24->uninitialize();} {}
-  }
-  Fl_Choice s1 {open
-    xywh {2 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d1 {open
-    xywh {118 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a1 {
-    xywh {234 28 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s2 {open
-    xywh {2 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d2 {open
-    xywh {118 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a2 {
-    xywh {234 54 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s3 {open
-    xywh {2 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d3 {open
-    xywh {118 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a3 {
-    xywh {234 80 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s4 {open
-    xywh {2 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d4 {open
-    xywh {118 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a4 {
-    xywh {234 106 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s5 {open
-    xywh {277 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d5 {open
-    xywh {393 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a5 {
-    xywh {509 28 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s6 {open
-    xywh {277 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d6 {open
-    xywh {393 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a6 {
-    xywh {509 54 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s7 {open
-    xywh {277 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d7 {open
-    xywh {393 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a7 {
-    xywh {509 80 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s8 {open
-    xywh {277 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d8 {open
-    xywh {393 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a8 {
-    xywh {509 106 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s9 {open
-    xywh {552 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d9 {open
-    xywh {668 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a9 {
-    xywh {784 28 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s10 {open
-    xywh {552 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d10 {open
-    xywh {668 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a10 {
-    xywh {784 54 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s11 {open
-    xywh {552 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d11 {open
-    xywh {668 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a11 {
-    xywh {784 80 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s12 {open
-    xywh {552 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d12 {open
-    xywh {668 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a12 {
-    xywh {784 106 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s13 {open
-    xywh {2 160 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d13 {open
-    xywh {118 160 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a13 {
-    xywh {234 160 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s14 {open
-    xywh {2 186 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d14 {open
-    xywh {118 186 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a14 {
-    xywh {234 186 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s15 {open
-    xywh {2 212 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d15 {open
-    xywh {118 212 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a15 {
-    xywh {234 212 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s16 {open
-    xywh {2 238 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d16 {open
-    xywh {118 238 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a16 {
-    xywh {234 238 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s17 {open
-    xywh {277 160 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d17 {open
-    xywh {393 160 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a17 {
-    xywh {509 160 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s18 {open
-    xywh {277 186 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d18 {open
-    xywh {393 186 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a18 {
-    xywh {509 186 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s19 {open
-    xywh {277 212 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d19 {open
-    xywh {393 212 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a19 {
-    xywh {509 212 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s20 {open
-    xywh {277 238 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d20 {open
-    xywh {393 238 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a20 {
-    xywh {509 238 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s21 {open
-    xywh {552 160 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d21 {open
-    xywh {668 160 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a21 {
-    xywh {784 160 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s22 {open
-    xywh {552 186 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d22 {open
-    xywh {668 186 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a22 {
-    xywh {784 186 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s23 {open
-    xywh {552 212 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d23 {open
-    xywh {668 212 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a23 {
-    xywh {784 212 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
-  }
-  Fl_Choice s24 {open
-    xywh {552 238 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCS_Choice
-  } {}
-  Fl_Choice d24 {open
-    xywh {668 238 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
-    class PCD_Choice
-  } {}
-  Fl_Value_Output a24 {
-    xywh {784 238 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
-    class Value_Output
+    code {for (unsigned char i = 0; i < lpc_sources->children(); i++)
+((Fl_Choice*) lpc_sources->array()[i])->clear();} {}
   }
   Fl_Box {} {
     label {1-4}
@@ -769,6 +467,306 @@ widget_class PD_Layer_Patchcords {
   Fl_Box {} {
     label {21-24}
     xywh {551 137 274 20} selection_color 15 labelfont 1 align 22
+  }
+  Fl_Group lpc_sources {
+    xywh {2 28 663 231}
+  } {
+    Fl_Choice s1 {open
+      xywh {2 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s2 {open
+      xywh {2 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s3 {open
+      xywh {2 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s4 {open
+      xywh {2 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s5 {open
+      xywh {277 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s6 {open
+      xywh {277 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s7 {open
+      xywh {277 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s8 {open
+      xywh {277 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s9 {open
+      xywh {552 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s10 {open
+      xywh {552 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s11 {open
+      xywh {552 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s12 {open
+      xywh {552 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s13 {open
+      xywh {2 160 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s14 {open
+      xywh {2 186 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s15 {open
+      xywh {2 212 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s16 {open
+      xywh {2 238 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s17 {open
+      xywh {277 160 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s18 {open
+      xywh {277 186 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s19 {open
+      xywh {277 212 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s20 {open
+      xywh {277 238 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s21 {open
+      xywh {552 160 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s22 {open
+      xywh {552 186 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s23 {open
+      xywh {552 212 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+    Fl_Choice s24 {open
+      xywh {552 238 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCS_Choice
+    } {}
+  }
+  Fl_Group lpc_destinations {
+    xywh {118 28 663 231}
+  } {
+    Fl_Choice d1 {open
+      xywh {118 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d2 {open
+      xywh {118 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d3 {open
+      xywh {118 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d4 {open
+      xywh {118 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d5 {open
+      xywh {393 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d6 {open
+      xywh {393 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d7 {open
+      xywh {393 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d8 {open
+      xywh {393 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d9 {open
+      xywh {668 28 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d10 {open
+      xywh {668 54 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d11 {open
+      xywh {668 80 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d12 {open
+      xywh {668 106 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d13 {open
+      xywh {118 160 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d14 {open
+      xywh {118 186 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d15 {open
+      xywh {118 212 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d16 {open
+      xywh {118 238 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d17 {open
+      xywh {393 160 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d18 {open
+      xywh {393 186 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d19 {open
+      xywh {393 212 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d20 {open
+      xywh {393 238 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d21 {open
+      xywh {668 160 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d22 {open
+      xywh {668 186 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d23 {open
+      xywh {668 212 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+    Fl_Choice d24 {open
+      xywh {668 238 113 21} down_box BORDER_BOX color 7 labeltype NO_LABEL labelsize 12 align 0 textsize 13 textcolor 8
+      class PCD_Choice
+    } {}
+  }
+  Fl_Group lpc_amounts {
+    xywh {234 28 588 231}
+  } {
+    Fl_Value_Output a1 {
+      xywh {234 28 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a2 {
+      xywh {234 54 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a3 {
+      xywh {234 80 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a4 {
+      xywh {234 106 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a5 {
+      xywh {509 28 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a6 {
+      xywh {509 54 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a7 {
+      xywh {509 80 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a8 {
+      xywh {509 106 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a9 {
+      xywh {784 28 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a10 {
+      xywh {784 54 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a11 {
+      xywh {784 80 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a12 {
+      xywh {784 106 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a13 {
+      xywh {234 160 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a14 {
+      xywh {234 186 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a15 {
+      xywh {234 212 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a16 {
+      xywh {234 238 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a17 {
+      xywh {509 160 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a18 {
+      xywh {509 186 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a19 {
+      xywh {509 212 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a20 {
+      xywh {509 238 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a21 {
+      xywh {784 160 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a22 {
+      xywh {784 186 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a23 {
+      xywh {784 212 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
+    Fl_Value_Output a24 {
+      xywh {784 238 38 21} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 align 0 minimum -100 maximum 100 step 1 textfont 4 textsize 13 textcolor 8
+      class Value_Output
+    }
   }
 } 
 
@@ -1563,7 +1561,7 @@ l2_filter->do_callback();}
   }
 } 
 
-widget_class PD_Main {
+widget_class PD_Main {open
   xywh {444 188 830 565} type Double box BORDER_BOX labelcolor 8 hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
@@ -1571,11 +1569,11 @@ widget_class PD_Main {
   decl {Fl_Widget* ctrl_x[16];} {public
   }
   Fl_Group {} {
-    label main open
+    label main
     xywh {0 0 834 574} labeltype NO_LABEL labelcolor 8 align 0
   } {
     Fl_Group {} {
-      label CHANNEL open
+      label CHANNEL
       xywh {4 23 196 225} box THIN_DOWN_BOX labelfont 1
     } {
       Fl_Button preset_name {
@@ -1583,7 +1581,7 @@ widget_class PD_Main {
         tooltip {Program name} xywh {5 24 194 20} box FLAT_BOX down_box FLAT_BOX color 7 selection_color 15 labelfont 4 labelsize 12 labelcolor 8 align 84
         code0 {o->clear_visible_focus();}
       }
-      Fl_Group channel_select {open
+      Fl_Group channel_select {
         tooltip {Select preset by channel or activate channel in omni and poly-mode.} xywh {4 23 196 73} labeltype NO_LABEL labelfont 1 labelcolor 15 when 0
         code0 {o->set_id(129);}
         class Group
@@ -2134,11 +2132,11 @@ else // initial controller amounts
         class PD_Layer_Strip
       }
     }
-    Fl_Group master {
+    Fl_Group master {open
       xywh {204 0 425 569} labelcolor 8 hide
     } {
       Fl_Group {} {
-        label {MASTER ARPEGGIATOR}
+        label {MASTER ARPEGGIATOR} open
         xywh {208 23 417 304} box THIN_DOWN_BOX labelfont 1
       } {
         Fl_Button {} {

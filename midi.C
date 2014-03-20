@@ -1203,5 +1203,5 @@ void MIDI::randomize() const
 	unsigned char r[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x71, 0x7f, 0x7f, 0, 0, 0xf7 };
 	write_sysex(r, 11);
-	request_preset_dump(300);
+	request_preset_dump(500);
 }

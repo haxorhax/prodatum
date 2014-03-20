@@ -3060,14 +3060,24 @@ void Choice::dependency(int v) const
 // ###################
 //
 // ###################
+extern Patchcord PatchS[78];
+void PCS_Choice::init(int ec)
+{
+	for (char i = 0; i < 74 + ec; i++)
+		index[i] = add(PatchS[i].name);
+}
+
 void PCS_Choice::set_value(int v)
 {
-	if (!initialized && pxk->preset)
+	if (!size() && pxk->preset)
 		init(pxk->preset->get_extra_controller());
 	for (char i = 0; i < 78; i++)
 		if (PatchS[i].id == v)
 		{
-			value(index[i]);
+			if (index[i] < size())
+				value(index[i]);
+			else
+				value(0);
 			return;
 		}
 }
@@ -3083,12 +3093,22 @@ int PCS_Choice::get_value() const
 // ###################
 //
 // ###################
+extern Patchcord PatchD[68];
+void PCD_Choice::init()
+{
+	for (char i = 0; i < 68; i++)
+		index[i] = add(PatchD[i].name);
+}
+
 void PCD_Choice::set_value(int v)
 {
 	for (char i = 0; i < 68; i++)
 		if (PatchD[i].id == v)
 		{
-			value(index[i]);
+			if (index[i] < size())
+				value(index[i]);
+			else
+				value(0);
 			return;
 		}
 }
@@ -3104,21 +3124,40 @@ int PCD_Choice::get_value() const
 // ###################
 //
 // ###################
+extern Patchcord PresetPatchS[31];
+void PPCS_Choice::init(int ec, int mc) // extra controller / member code
+{
+	sources = 31;
+	if (mc == 2) // audity
+		sources = 21;
+	for (char i = 0; i < sources; i++)
+	{
+		if (mc == 2 && (i == 1 || i == 2))
+			continue;
+		if (ec == 0 && (i > 20 && i < 25)) // skip extra controllers
+			continue;
+		index[i] = add(PresetPatchS[i].name);
+	}
+}
+
 void PPCS_Choice::set_value(int v)
 {
-	if (!initialized && pxk->preset)
-		init(pxk->preset->get_extra_controller());
-	for (char i = 0; i < 31; i++)
+	if (!size() && pxk->preset)
+		init(pxk->preset->get_extra_controller(), pxk->member_code);
+	for (char i = 0; i < sources; i++)
 		if (PresetPatchS[i].id == v)
 		{
-			value(index[i]);
+			if (index[i] < size())
+				value(index[i]);
+			else
+				value(0);
 			return;
 		}
 }
 
 int PPCS_Choice::get_value() const
 {
-	for (char i = 0; i < 31; i++)
+	for (char i = 0; i < sources; i++)
 		if (index[i] == value())
 			return PresetPatchS[i].id;
 	return 0;
@@ -3127,19 +3166,34 @@ int PPCS_Choice::get_value() const
 // ###################
 //
 // ###################
+extern Patchcord PresetPatchD[28];
+void PPCD_Choice::init(int module) //member code
+{
+	destinations = 28;
+	if (module == 2) // audity
+		destinations = 9;
+	for (char i = 0; i < destinations; i++)
+		index[i] = add(PresetPatchD[i].name);
+}
+
 void PPCD_Choice::set_value(int v)
 {
-	for (char i = 0; i < 28; i++)
+	if (!size() && pxk->preset)
+		init(pxk->member_code);
+	for (char i = 0; i < destinations; i++)
 		if (PresetPatchD[i].id == v)
 		{
-			value(index[i]);
+			if (index[i] < size())
+				value(index[i]);
+			else
+				value(0);
 			return;
 		}
 }
 
 int PPCD_Choice::get_value() const
 {
-	for (char i = 0; i < 28; i++)
+	for (char i = 0; i < destinations; i++)
 		if (index[i] == value())
 			return PresetPatchD[i].id;
 	return 0;
@@ -3188,7 +3242,7 @@ void Envelope_Editor::draw_b_label(char butt, Fl_Color col)
 
 void Envelope_Editor::draw()
 {
-	// box
+// box
 	Fl_Box::draw_box();
 	ee_w = this->w() - 2;
 	ee_h = this->h() - 2;
@@ -3209,7 +3263,7 @@ void Envelope_Editor::draw()
 	shape_button[1] = shape_button[0] - 20;
 	shape_button[2] = shape_button[1] - 20;
 	shape_button[3] = shape_button[2] - 20;
-	// title
+// title
 	fl_font(FL_HELVETICA_BOLD, 14);
 	fl_color(FL_FOREGROUND_COLOR);
 	switch (mode)
@@ -3224,7 +3278,7 @@ void Envelope_Editor::draw()
 			fl_draw("AUX", ee_x0 + 5, ee_y0 + 17);
 			break;
 	}
-	// top bar
+// top bar
 	fl_font(FL_COURIER, 10);
 	Fl_Color fg;
 	unsigned char i;
@@ -3262,7 +3316,7 @@ void Envelope_Editor::draw()
 		else if (i == 4)
 			fl_draw("(( Y ))", mode_button[i] + 3, ee_y0 + 14);
 	}
-	// lower bar
+// lower bar
 	fl_font(FL_HELVETICA, 10);
 	fl_color(FL_BACKGROUND2_COLOR);
 	for (i = 0; i < 6; i++)
@@ -3281,7 +3335,7 @@ void Envelope_Editor::draw()
 		}
 	draw_box(FL_BORDER_BOX, copy_button[mode], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
 	draw_b_label(VOLUME_SELECTED + mode, fl_contrast(FL_INACTIVE_COLOR, FL_SELECTION_COLOR));
-	// shapes
+// shapes
 	for (i = 0; i < 4; i++)
 	{
 		if (button_push && button_hover == SHAPE_A + i)
@@ -3312,15 +3366,15 @@ void Envelope_Editor::draw()
 			fl_draw("4x", copy_button[5] + 25, ypos);
 			break;
 	}
-	// center (coordinate system)
-	// 0.0 position of coordinate system
+// center (coordinate system)
+// 0.0 position of coordinate system
 	fl_line_style(FL_SOLID, 1);
 	int x0 = ee_x0 + 5;
 	float y0 = (float) ee_y0 + 25. + ((float) ee_h - 50.) / 2.;
 	draw_box(FL_THIN_UP_BOX, x0 - 1, ee_y0 + 22., ee_w - 8, ee_h - 46, FL_BACKGROUND2_COLOR);
 	fl_push_clip(x0 + 1, (float) ee_y0 + 24., ee_w - 12, ee_h - 50);
 	fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_INACTIVE_COLOR, .8));
-	// vertikale
+// vertikale
 	float x_step = ((float) (ee_w - 10) / 384.) * (float) zoomlevel; // 3*128 = 384
 	float x_val = (float) x0 + 8. * x_step;
 	while ((x_val - x0) / zoomlevel < (ee_w - 10) / zoomlevel - 1)
@@ -3331,7 +3385,7 @@ void Envelope_Editor::draw()
 			fl_line(x_val, ee_y0 + 24, x_val, ee_y0 + ee_h - 24);
 		x_val += 8. * x_step;
 	}
-	// horizontale
+// horizontale
 	float y_step = ((float) ee_h - 50.) / 20.;
 	for (char j = -9; j <= 9; j++)
 	{
@@ -3344,13 +3398,13 @@ void Envelope_Editor::draw()
 		}
 		fl_line(x0 + 1, y0 + y_step * j, x0 + ee_w - 11, y0 + y_step * j);
 	}
-	// nulllinie
+// nulllinie
 	fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_INACTIVE_COLOR, .5));
 	Fl_Color nulll = fl_color();
 	fl_line(x0 + 1, y0, x0 + ee_w - 11, y0);
 	fl_line_style(0);
 	fl_pop_clip();
-	// envelopes
+// envelopes
 	unsigned char r, g, b;
 	Fl::get_color(FL_BACKGROUND2_COLOR, r, g, b);
 	int luma = (r + r + b + g + g + g) / 6;
@@ -3374,9 +3428,9 @@ void Envelope_Editor::draw()
 		draw_envelope(mode, x0, y0, luma);
 	if (!active_r())
 		return;
-	// value fields
+// value fields
 	fl_color(FL_INACTIVE_COLOR);
-	// calc number of hovers
+// calc number of hovers
 	int hovers = 0;
 	for (i = 0; i < 6; i++)
 		if (hover_list & (1 << i))
@@ -3518,11 +3572,11 @@ void Envelope_Editor::draw()
 void Envelope_Editor::draw_envelope(unsigned char type, int x0, int y0, int luma)
 {
 	fl_push_clip(ee_x0 + 1, ee_y0 + 21, ee_w - 2, ee_h - 42);
-	// x-scaling
+// x-scaling
 	float x_scale = (((float) ee_w - 10.) / 768.) * (float) zoomlevel;
-	// y-scaling
+// y-scaling
 	float y_scale = ((float) ee_h - 50.) / 200.;
-	// calculate pixel position for 9x9 dragboxes
+// calculate pixel position for 9x9 dragboxes
 	dragbox[ATK_1][0] = x0 + env[type].stage[ATK_1][0] * x_scale;
 	dragbox[ATK_1][1] = y0 - env[type].stage[ATK_1][1] * y_scale;
 	dragbox[ATK_2][0] = dragbox[ATK_1][0] + env[type].stage[ATK_2][0] * x_scale;
@@ -3535,7 +3589,7 @@ void Envelope_Editor::draw_envelope(unsigned char type, int x0, int y0, int luma
 	dragbox[RLS_1][1] = y0 - env[type].stage[RLS_1][1] * y_scale;
 	dragbox[RLS_2][0] = dragbox[RLS_1][0] + env[type].stage[RLS_2][0] * x_scale;
 	dragbox[RLS_2][1] = y0 - env[type].stage[RLS_2][1] * y_scale;
-	// lines between dragboxes
+// lines between dragboxes
 	switch (type)
 	{
 		case VOLUME:
@@ -3554,19 +3608,19 @@ void Envelope_Editor::draw_envelope(unsigned char type, int x0, int y0, int luma
 		else
 			fl_color(fl_darker(fl_color()));
 	}
-	// draw connections
+// draw connections
 	fl_line_style(FL_SOLID, 2);
 	fl_line(x0 + 1, y0, dragbox[ATK_1][0], dragbox[ATK_1][1]);
 	fl_line(dragbox[ATK_1][0], dragbox[ATK_1][1], dragbox[ATK_2][0], dragbox[ATK_2][1]);
 	fl_line(dragbox[ATK_2][0], dragbox[ATK_2][1], dragbox[DCY_1][0], dragbox[DCY_1][1]);
 	fl_line(dragbox[DCY_1][0], dragbox[DCY_1][1], dragbox[DCY_2][0], dragbox[DCY_2][1]);
-	// vertical line at release
+// vertical line at release
 	fl_line_style(FL_DASH, 1);
 	fl_line(dragbox[DCY_2][0], y0 - 97 * y_scale, dragbox[DCY_2][0], y0 + 97 * y_scale);
 	fl_line_style(FL_SOLID, 2);
 	fl_line(dragbox[DCY_2][0], dragbox[DCY_2][1], dragbox[RLS_1][0], dragbox[RLS_1][1]);
 	fl_line(dragbox[RLS_1][0], dragbox[RLS_1][1], dragbox[RLS_2][0], dragbox[RLS_2][1]);
-	// dragboxes
+// dragboxes
 	if (type == mode)
 	{
 		fl_rectf(dragbox[ATK_1][0] - 4, dragbox[ATK_1][1] - 4, 9, 9);
@@ -4030,7 +4084,7 @@ int Envelope_Editor::handle(int ev)
 
 void Envelope_Editor::set_data(unsigned char type, int* stages, char mode, char repeat)
 {
-	//pmesg("Envelope_Editor::set_data(%d, int*, %d, %d)\n", type, mode, repeat);
+//pmesg("Envelope_Editor::set_data(%d, int*, %d, %d)\n", type, mode, repeat);
 	env[type].mode = mode;
 	env[type].repeat = repeat;
 	for (unsigned char i = 0; i < 6; i++)
@@ -4589,7 +4643,7 @@ void Piano::draw_ranges()
 		snprintf(buf, 4, "2");
 		fl_draw(buf, keyboard_x0 - 9, dragbox[0][7][0][1] + 7);
 	}
-	// draw grid
+// draw grid
 	fl_color(fl_color_average(FL_BACKGROUND_COLOR, FL_FOREGROUND_COLOR, .95));
 	if (mode == KEYRANGE)
 	{
@@ -4614,7 +4668,7 @@ void Piano::draw_ranges()
 	}
 
 	Fl_Color ranges = fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .6);
-	// draw selected ranges
+// draw selected ranges
 	for (i = 0; i < show_layers; i++) // for all 4 layers
 	{
 		// key ranges
@@ -4728,7 +4782,7 @@ void Piano::draw_piano()
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_rectf(keyboard_x0, keyboard_y0, keyboard_w + 1, h_white);
 	unsigned char tmp;
-	// white keys
+// white keys
 	fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .6));
 	unsigned char i;
 	for (i = 0; i < 11; i++)
@@ -4745,7 +4799,7 @@ void Piano::draw_piano()
 		fl_rectf(taste_x0[11 + tmp][0] + 1, keyboard_y0, w_white - 2, h_white);
 	}
 
-	// black keys
+// black keys
 	fl_color(FL_BACKGROUND_COLOR);
 	for (i = 0; i < 11; i++)
 	{
@@ -4879,7 +4933,7 @@ void Piano::draw_case()
 	}
 	snprintf(buf, 9, "pd");
 	fl_draw(buf, keyboard_x0 + keyboard_w - 15, keyboard_y0 - 2);
-	// velocity
+// velocity
 	snprintf(buf, 9, "Velo %3d", key_velocity);
 	fl_draw(buf, keyboard_x0 + 30, keyboard_y0 - 2);
 	fl_pop_clip();
@@ -4904,7 +4958,7 @@ void Piano::draw_curve(int type)
 			fl_draw("REALTIME CROSSFADE RANGE", keyboard_x0, keyboard_y0 - 2);
 			break;
 	}
-	// values
+// values
 	char buf[30];
 	fl_font(FL_COURIER, 8);
 	for (unsigned char i = 0; i < 4; i++)
@@ -5050,7 +5104,7 @@ void Piano::reset_active_keys()
 void Piano::set_range_values(unsigned char md, unsigned char layer, unsigned char low_k, unsigned char low_f,
 		unsigned char high_k, unsigned char high_f)
 {
-	//pmesg("Piano::set_range_values(%d, %d, %d, %d, %d, %d)\n", md, layer, low_k, low_f, high_k, high_f);
+//pmesg("Piano::set_range_values(%d, %d, %d, %d, %d, %d)\n", md, layer, low_k, low_f, high_k, high_f);
 	if (low_f + low_k > 127)
 		low_f = 0;
 	if (high_k - high_f < 0)
@@ -5064,7 +5118,7 @@ void Piano::set_range_values(unsigned char md, unsigned char layer, unsigned cha
 		if ((dragbox[md][layer][i][0] - keyboard_x0) % 12 == 0)
 			dragbox[md][layer][i][0] += 3; // center on white keys
 	}
-	// remember current values
+// remember current values
 	prev_key_value[md][layer][LOW_KEY] = low_k;
 	prev_key_value[md][layer][LOW_FADE] = low_f;
 	prev_key_value[md][layer][HIGH_KEY] = high_k;
@@ -5079,7 +5133,7 @@ void Piano::set_range_values(unsigned char md, unsigned char layer, unsigned cha
 
 void Piano::set_transpose(char l1, char l2, char l3, char l4)
 {
-	//pmesg("Piano::set_transpose(%d, %d, %d, %d)\n", l1, l2, l3, l4);
+//pmesg("Piano::set_transpose(%d, %d, %d, %d)\n", l1, l2, l3, l4);
 	transpose[0] = l1;
 	transpose[1] = l2;
 	transpose[2] = l3;
@@ -5091,7 +5145,7 @@ void Piano::set_transpose(char l1, char l2, char l3, char l4)
 
 void Piano::commit_changes()
 {
-	//pmesg("Piano::commit_changes()\n");
+//pmesg("Piano::commit_changes()\n");
 	if (pushed < PRESET_ARP)
 	{
 		for (unsigned char range = 0; range < 4; range++)
@@ -5177,14 +5231,14 @@ void MiniPiano::draw_case()
 	fl_rectf(key_x, keyboard_y0, key_w, 10);
 	fl_color(FL_INACTIVE_COLOR);
 	fl_font(FL_HELVETICA, 10);
-	// velocity
+// velocity
 	char buf[9];
 	snprintf(buf, 9, "Velo %3d", key_velocity);
 	fl_draw(buf, key_x + 3, keyboard_y0 + 8);
-	// position
+// position
 	snprintf(buf, 4, "C%d", octave - 1);
 	fl_draw(buf, key_x + key_w / 2 - 8, keyboard_y0 + 8);
-	// octave shift
+// octave shift
 	fl_polygon(key_x + key_w / 2 - 15, keyboard_y0 + 2, key_x + key_w / 2 - 15, keyboard_y0 + 6, key_x + key_w / 2 - 30,
 			keyboard_y0 + 4);
 	fl_polygon(key_x + key_w / 2 + 15, keyboard_y0 + 2, key_x + key_w / 2 + 15, keyboard_y0 + 6, key_x + key_w / 2 + 30,
@@ -5278,23 +5332,23 @@ void MiniPiano::draw_highlights()
 
 void MiniPiano::draw_piano()
 {
-	// get our position and key koordinates
+// get our position and key koordinates
 	keyboard_x0 = this->x();
 	keyboard_y0 = this->y();
 	keyboard_w = this->w();
 	keyboard_h = this->h();
 
-	// keys start/end here
+// keys start/end here
 	key_x = keyboard_x0 + 3;
 	key_w = keyboard_w - 6;
-	// tasten- hoehen/-breiten
+// tasten- hoehen/-breiten
 	h_white = (float) keyboard_h - 15.;
 	w_white = (float) (key_w + 14.) / 15.;
 	h_black = h_white * 5. / 8.;
 	w_black = w_white * 7. / 13.;
-	// spalten
+// spalten
 	float s = 14. / 15.;
-	// start of keys (y-axis)
+// start of keys (y-axis)
 	key_y = (float) keyboard_y0 + 11;
 	fl_push_clip(key_x, key_y, key_w, h_white);
 	fl_color(FL_BACKGROUND_COLOR);
@@ -5334,9 +5388,9 @@ void MiniPiano::draw_piano()
 		offset += 7. * (w_white - s);
 	}
 	offset = 1.;
-	// keys
+// keys
 	int octa;
-	// white keys
+// white keys
 	fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .6));
 	for (i = 0; i < 3; i++)
 	{
@@ -5351,7 +5405,7 @@ void MiniPiano::draw_piano()
 		fl_rectf(taste_x0[9 + octa][0], key_y, w_white - 2, h_white);
 		fl_rectf(taste_x0[11 + octa][0], key_y, w_white - 2, h_white);
 	}
-	// black keys
+// black keys
 	fl_color(FL_BACKGROUND_COLOR);
 	for (i = 0; i < 2; i++)
 	{

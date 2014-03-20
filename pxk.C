@@ -337,10 +337,11 @@ PXK::~PXK()
 	{
 		ui->layer_editor[i]->instrument->reset();
 		ui->layer_editor[i]->instrument_rom->menu(0);
-		ui->layer_editor[i]->patchcords->uninitialize_sources();
+		ui->layer_editor[i]->patchcords->reset_sources();
 		ui->main->layer_strip[i]->instrument->label(0);
 	}
-	ui->preset_editor->patchcords->uninitialize_sources();
+	ui->preset_editor->patchcords->reset_sources();
+	ui->preset_editor->patchcords->reset_destinations();
 	ui->preset->reset();
 	ui->preset_rom->menu(0);
 	ui->preset_editor->riff->reset();
