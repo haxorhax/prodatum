@@ -687,7 +687,17 @@ static void sync_bro(void* p)
 		Fl::repeat_timeout(.01, sync_bro, p);
 	else
 	{
-		Club:
+		Club: if (pxk->setup_init)
+		{
+			pxk->setup_init->upload();
+			if (join_bro)
+			{
+				delete pxk->setup_init;
+				pxk->setup_init = 0;
+				goto Wait;
+				// wait for upload
+			}
+		}
 #ifdef SYNCLOG
 		snprintf(logbuffer, 128,
 				"\nmin. read buffer space: %u (max. pkt len %u)\nmin. write buffer space: %u (max. pkt len %u)\n", read_space,
@@ -708,8 +718,6 @@ static void sync_bro(void* p)
 		requested = false;
 		ui->init->hide();
 		ui->main_window->showup(); // make main active (important!)
-		if (pxk->setup_init)
-			pxk->setup_init->upload();
 		if (timed_out)
 		{
 			timed_out = false;
@@ -742,10 +750,11 @@ static void sync_bro(void* p)
 
 void PXK::Join()
 {
-	ui->init->hide();
-	ui->device_info->label(0);
-	ui->open_device->showup();
-	join_bro = true;
+	if (!join_bro)
+	{
+		ui->device_info->label(0);
+		join_bro = true;
+	}
 }
 
 bool PXK::Synchronize()
@@ -844,6 +853,11 @@ void PXK::Inquire(int id)
 	}
 }
 
+void request_hardware_config_timeout(void*)
+{
+	midi->request_hardware_config();
+}
+
 void PXK::incoming_inquiry_data(const unsigned char* data)
 {
 	pmesg("PXK::incoming_inquiry_data(data)\n");
@@ -863,8 +877,7 @@ void PXK::incoming_inquiry_data(const unsigned char* data)
 			cfg->apply();
 		}
 		midi->set_device_id((unsigned char) device_id); // so further sysex comes through
-		mysleep(20 + cfg->get_cfg_option(CFG_SPEED));
-		midi->request_hardware_config();
+		Fl::add_timeout(.1, request_hardware_config_timeout);
 		snprintf(os_rev, 5, "%c%c%c%c", data[10], data[11], data[12], data[13]);
 		member_code = data[9] * 128 + data[8];
 		switch (member_code)
@@ -1524,11 +1537,11 @@ void PXK::load_export(const char* filename)
 #ifdef __linux
 	int offset = 0;
 	while (strncmp(filename + offset, "/", 1) != 0)
-	++offset;
+		++offset;
 	char n[PATH_MAX];
 	snprintf(n, PATH_MAX, "%s", filename + offset);
 	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
-	n[strlen(n) - 1] = '\0';
+		n[strlen(n) - 1] = '\0';
 	std::ifstream file(n, std::ifstream::binary);
 #else
 	std::ifstream file(filename, std::ifstream::binary);
@@ -2093,6 +2106,11 @@ void PXK::solo(int state, int layer)
 	}
 }
 
+void switch_channel_timeout(void*)
+{
+	midi->edit_parameter_value(139, pxk->selected_channel);
+}
+
 void PXK::start_over()
 {
 	pmesg("PXK::start_over() \n");
@@ -2101,8 +2119,7 @@ void PXK::start_over()
 	// select a different basic channel (erases edit buffer)
 	midi->edit_parameter_value(139, (selected_channel + 1) % 15);
 	// let it think..
-	mysleep(40 + cfg->get_cfg_option(CFG_SPEED));
-	midi->edit_parameter_value(139, selected_channel);
+	Fl::add_timeout(.1, switch_channel_timeout);
 	delete preset;
 	preset = preset_copy->clone();
 	show_preset();

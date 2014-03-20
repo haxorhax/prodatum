@@ -1135,8 +1135,6 @@ void Setup_Dump::upload() const
 	pxk->display_status("Uploading user multisetup...");
 	Fl::flush();
 	midi->write_sysex(data, size);
-	// let it eat
-	mysleep(500 + cfg->get_cfg_option(CFG_SPEED));
 }
 
 // maps Parameter IDs from the device to data position in preset dump
