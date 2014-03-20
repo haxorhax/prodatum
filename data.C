@@ -291,6 +291,9 @@ void Preset_Dump::show() const
 	update_envelopes();
 	if (pxk->midi_mode != MULTI || pxk->selected_fx_channel != -1)
 		show_fx();
+	// done, enable user control
+	pxk->display_status("Edit buffer synchronized.");
+	ui->supergroup->clear_output();
 }
 
 void Preset_Dump::show_fx() const
@@ -318,6 +321,9 @@ void Preset_Dump::update_piano() const
 	ui->piano->set_range_values(0, 7, get_value(1295), 0, get_value(1296), 0);
 	// transpose
 	ui->piano->set_transpose(get_value(1429, 0), get_value(1429, 1), get_value(1429, 2), get_value(1429, 3));
+	// redraw if needed
+	if (ui->piano_w->shown())
+		ui->piano->redraw();
 }
 
 void Preset_Dump::update_envelopes() const

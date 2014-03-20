@@ -4,7 +4,8 @@ v2.9rc23
 * give patchcords widgets a bit more space
 * fix preset patchcord sources
 * better support A2K modules
-* increased preset request timeout when randomizing
+* show preset/setup dumps in timeouts
+
 
 
 v2.9rc22

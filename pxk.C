@@ -1113,20 +1113,7 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 		}
 	}
 	if (dump_pos == 0)
-	{
 		show_preset();
-		// only activate preset selection if program
-		// change is enabled for the channel
-//		if (setup && setup->get_value(137, selected_channel))
-//			ui->g_preset->activate();
-//		else
-//			ui->g_preset->deactivate();
-		if (!closed_loop)
-		{
-			ui->supergroup->clear_output();
-			display_status("Edit buffer synchronized.");
-		}
-	}
 }
 
 void PXK::incoming_setup_dump(const unsigned char* data, int len)
@@ -1181,6 +1168,19 @@ void PXK::Loading(bool upload)
 	}
 }
 
+void load_setup_timeout(void* s)
+{
+	// load names into the copy browser
+	ui->copy_arp_rom->set_value(0);
+	ui->copy_arp_pattern_browser->load_n(ARP, 0);
+	// show setup
+	((Setup_Dump*) s)->show();
+	// select basic channel on startup
+	pwid[129][0]->set_value(((Setup_Dump*) s)->get_value(139));
+	((Fl_Button*) ui->main->channel_select->child(((Setup_Dump*) s)->get_value(139)))->take_focus();
+	ui->main->channel_select->do_callback();
+}
+
 void PXK::load_setup()
 {
 	pmesg("PXK::load_setup() \n");
@@ -1196,9 +1196,8 @@ void PXK::load_setup()
 	selected_fx_channel = setup->get_value(140);
 	// select first entry in the reset rom choice
 	ui->r_rom_rom->value(0);
-	// load names into the copy browser
-	ui->copy_arp_rom->set_value(0);
-	ui->copy_arp_pattern_browser->load_n(ARP, 0);
+	// get realtime controller assignments
+	update_control_map();
 	// multisetups
 	ui->multisetups->select(selected_multisetup + 1);
 	ui->multisetups->activate();
@@ -1207,14 +1206,8 @@ void PXK::load_setup()
 	while (n[strlen(n) - 1] == ' ')
 		n[strlen(n) - 1] = '\0';
 	ui->s_name->value(n);
-	// show setup
-	setup->show();
-	// get realtime controller assignments
-	update_control_map();
-	// select basic channel on startup
-	pwid[129][0]->set_value(setup->get_value(139));
-	((Fl_Button*) ui->main->channel_select->child(setup->get_value(139)))->take_focus();
-	ui->main->channel_select->do_callback();
+	// expensive stuff in timeout
+	Fl::add_timeout(.1, load_setup_timeout, setup);
 }
 
 void PXK::incoming_generic_name(const unsigned char* data)
@@ -1465,14 +1458,15 @@ void PXK::update_control_map()
 	ctrl_to_cc[15] = setup->get_value(401);
 }
 
+void show_preset_timeout(void* p)
+{
+	((Preset_Dump*) p)->show();
+}
+
 void PXK::show_preset()
 {
 	pmesg("PXK::show_preset() \n");
-	// update ui controls
 	ui->set_eall(0);
-	preset->show();
-	if (ui->piano_w->shown())
-		ui->piano->redraw();
 	update_cc_sliders();
 	ui->undo_b->deactivate();
 	ui->redo_b->deactivate();
@@ -1486,6 +1480,7 @@ void PXK::show_preset()
 		ui->mute_b[i]->value(0);
 		ui->main->layer_strip[i]->mute_b->value(0);
 	}
+	Fl::add_timeout(0.1, show_preset_timeout, preset);
 }
 
 int PXK::test_checksum(const unsigned char* data, int size, int packet_size)

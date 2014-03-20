@@ -345,8 +345,6 @@ static void process_midi_in(void*)
 					case 0x7b: // EOF
 						got_answer = true;
 						requested = false;
-						pxk->display_status("Edit buffer synchronized.");
-						ui->supergroup->clear_output();
 						break;
 
 					case 0x1c: // setup dumps
@@ -1203,5 +1201,5 @@ void MIDI::randomize() const
 	unsigned char r[] =
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x71, 0x7f, 0x7f, 0, 0, 0xf7 };
 	write_sysex(r, 11);
-	request_preset_dump(500);
+	request_preset_dump(300);
 }
