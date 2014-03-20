@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 		printf("prodatum %s options:\n"
 				" -d id\tConfig (Device ID) to load (default: last used ID)\n"
 				" -a   \tdo not open device at startup\n"
-				"FLTK options:\n"
+				"FLTK options (colors will be ignored):\n"
 				"%s\n", VERSION, Fl::help);
 		return 1;
 	}
