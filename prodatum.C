@@ -24,6 +24,7 @@
 #endif
 
 #include "ui.H"
+#include <FL/x.H>
 #include <FL/filename.H>
 #include <FL/fl_ask.H>
 #include <FL/Fl_Tooltip.H>
@@ -40,6 +41,7 @@ extern PD_Arp_Step* arp_step[32];
 
 static bool __auto_connect = true;
 static int __device = -1;
+static bool __use_system_colors = false;
 
 /**
  * command line option parser
@@ -74,7 +76,9 @@ int main(int argc, char *argv[])
 	{
 		printf("prodatum %s options:\n"
 				" -d id\tConfig (Device ID) to load (default: last used ID)\n"
-				" -a   \tdo not open device at startup\n", VERSION);
+				" -a   \tdo not open device at startup\n"
+				"FLTK options:\n"
+				"%s\n", VERSION, Fl::help);
 		return 1;
 	}
 	// loading... please wait.
@@ -86,7 +90,6 @@ int main(int argc, char *argv[])
 	cfg = new Cfg(__device);
 	if (!cfg)
 		return 2;
-	cfg->apply();
 #ifndef SYNCLOG
 	ui->init_log_b->hide();
 	ui->init_log_m->hide();
@@ -95,7 +98,12 @@ int main(int argc, char *argv[])
 	snprintf(label, 17, "prodatum %s", VERSION);
 	ui->main_window->label(label);
 	ui->main_window->free_position();
-	ui->main_window->showup();
+	// windows icon
+#ifdef WIN32
+	ui->main_window->icon((char *) LoadIcon(fl_display, MAKEINTRESOURCE(2)));
+#endif
+	ui->main_window->show(argc, argv);
+	cfg->apply();
 	Fl::check();
 	pxk = new PXK();
 	if (!pxk)

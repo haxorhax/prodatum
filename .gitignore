@@ -6,7 +6,9 @@
 /ui.C
 !prodatum.fl
 !prodatum.png
+!prodatum.ico
 !prodatum.desktop
+!windows.rc
 !config.h.in
 !CMakeLists.txt
 !README

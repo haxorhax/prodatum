@@ -11,8 +11,18 @@ CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/config.h.in ${CMAKE_SOURCE_DIR}/config.h )
 include_directories (${prodatum_SOURCE_DIR}/include)
 link_directories (${prodatum_SOURCE_DIR}/lib)
 
+set(RES_FILES "")
+
+if(MINGW)
+  set(RES_FILES "windows.rc")
+  set(CMAKE_RC_COMPILER_INIT windres)
+  ENABLE_LANGUAGE(RC)
+  SET(CMAKE_RC_COMPILE_OBJECT
+    "<CMAKE_RC_COMPILER> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
+endif(MINGW)
+
 file (GLOB prodatum_SOURCES *.C)
-add_executable (prodatum ${prodatum_SOURCES})
+add_executable (prodatum ${prodatum_SOURCES} ${RES_FILES})
 
 if(WIN32)
   ADD_DEFINITIONS(-DWIN32 -DSYNCLOG -Wall -W -Wno-char-subscripts -Wno-write-strings -Wno-format)
