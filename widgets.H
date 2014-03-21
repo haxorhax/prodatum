@@ -136,7 +136,6 @@ static const char* _ms = "Modulation Source";
 static const char* _md = "Modulation Destination";
 static const char* _ma = "Modulation Amount (double click to toggle between 0 and current value)";
 
-
 /**
  * Double_Window class
  * just overwrites the default handler to support
@@ -310,6 +309,7 @@ public:
 class Slider: public Fl_Slider, public PWid
 {
 	int handle(int event);
+	void draw_scale(int, int, int, int);
 	mutable int prev_value;
 public:
 	Slider(int x, int y, int w, int h, char const* label = 0) :

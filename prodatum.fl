@@ -64,7 +64,7 @@ Function {initlog_cb(void*)} {private C return_type void
 ui->i_log->show_insert_position();} {}
 } 
 
-widget_class PD_Arp_Step {
+widget_class PD_Arp_Step {open
   xywh {504 60 40 275} type Double color 49 selection_color 49 labelcolor 8 hide position_relative
 } {
   decl {void init(int s);} {public
@@ -124,22 +124,22 @@ else
   }
   Fl_Value_Output step_duration {
     callback {edit_value(786, (int) o->value());}
-    xywh {0 91 40 17} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 0 when 4 minimum 1 maximum 19 step 1 textfont 4 textsize 12 textcolor 8
+    xywh {0 91 40 17} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 64 when 4 minimum 1 maximum 19 step 1 textfont 4 textsize 12 textcolor 8
     class Step_Value
   }
   Fl_Value_Output step_repeat {
     callback {edit_value(787, (int) o->value() - 1);}
-    xywh {0 110 40 17} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 0 when 4 minimum 1 maximum 32 step 1 textfont 4 textsize 12 textcolor 8
+    xywh {0 110 40 17} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 64 when 4 minimum 1 maximum 32 step 1 textfont 4 textsize 12 textcolor 8
     class Step_Value
   }
   Fl_Value_Output step_velocity {
     callback {edit_value(785, (int) o->value());}
-    xywh {0 129 40 17} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 0 when 4 maximum 127 step 1 textfont 4 textsize 12 textcolor 8
+    xywh {0 129 40 17} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 64 when 4 maximum 127 step 1 textfont 4 textsize 12 textcolor 8
     class Step_Value
   }
   Fl_Value_Slider step_offset {
     callback {if (step_key->value()) edit_value(784, (int) o->value());}
-    xywh {0 148 40 131} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 80 when 4 minimum 48 maximum -48 step 1 textfont 4 textsize 12 textcolor 0
+    xywh {0 148 40 131} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 80 when 4 minimum 48 maximum -48 step 1 textfont 4 textsize 12 textcolor 8
     class Step_Offset
   }
 } 
@@ -773,7 +773,7 @@ widget_class PD_Layer_Patchcords {
 } 
 
 widget_class PD_Layer_Strip {
-  xywh {780 116 100 540} type Double color 49 selection_color 49 labelcolor 8 hide position_relative
+  xywh {1000 180 100 540} type Double color 49 selection_color 49 labelcolor 8 hide position_relative
 } {
   decl {void init(int layer);} {public
   }
@@ -1560,7 +1560,7 @@ l2_filter->do_callback();}
 } 
 
 widget_class PD_Main {
-  xywh {483 190 830 565} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide position_relative
+  xywh {518 250 830 565} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
   }
@@ -1571,7 +1571,7 @@ widget_class PD_Main {
     xywh {0 0 834 574} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8 align 0
   } {
     Fl_Group {} {
-      label CHANNEL
+      label CHANNEL open
       xywh {4 23 196 225} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0
     } {
       Fl_Button preset_name {
@@ -1794,7 +1794,7 @@ midi->audit();}
         }
       }
       Fl_Box minipiano {
-        xywh {5 205 194 42} box FLAT_BOX color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+        xywh {8 205 187 42} box FLAT_BOX color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
         class MiniPiano
       }
     }
@@ -2637,13 +2637,13 @@ Fl::visual(FL_DOUBLE|FL_RGB);} {}
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
-      xywh {630 185 845 620} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
+delete this;} open
+      xywh {535 192 845 620} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
-      Fl_Group supergroup {open
+      Fl_Group supergroup {
         xywh {0 0 846 620} color 49 selection_color 49 labelcolor 8 resizable
       } {
         Fl_Group {} {
@@ -2887,8 +2887,11 @@ else
             label VALUE open
             xywh {639 66 196 56} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0
           } {
+            Fl_Box {} {
+              xywh {640 67 30 20} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 0
+            }
             Fl_Value_Output forma_out {
-              tooltip {Formatted value display} xywh {640 67 194 20} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 labelcolor 8 align 0 textfont 4 textsize 12 textcolor 8
+              tooltip {Formatted value display} xywh {642 67 192 20} box FLAT_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 12 labelcolor 8 align 0 textfont 4 textsize 12 textcolor 8
               code0 {o->clear_visible_focus();}
               class Formatted_Output
             }
@@ -2936,15 +2939,15 @@ if (!eall && pxk->preset)
             }
           }
           Fl_Group g_minipiano {
-            label MINIPIANO
+            label MINIPIANO open
             xywh {639 66 196 56} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0 hide
           } {
             Fl_Box global_minipiano {
-              xywh {640 71 194 50} box FLAT_BOX color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+              xywh {643 71 187 50} box FLAT_BOX color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
               class MiniPiano
             }
           }
-          Fl_Group g_pfx {
+          Fl_Group g_pfx {open
             xywh {639 129 196 321} color 49 selection_color 49 labeltype NO_LABEL labelcolor 0 align 0
           } {
             Fl_Group g_effects {
@@ -3254,7 +3257,7 @@ pxk->preset->set_name(o->value(), 1, o->position());}
           }
         }
         Fl_Group {} {
-          label menu
+          label menu open
           xywh {0 0 231 21} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8 align 0
         } {
           Fl_Box {} {
@@ -3501,7 +3504,8 @@ log_w->showup();}
 
 global_minipiano->reset_active_keys();
 main->minipiano->reset_active_keys();
-piano->reset_active_keys();}
+piano->reset_active_keys();
+arp_mp->reset_active_keys();}
                 xywh {5 5 29 21} color 49 selection_color 49 labelsize 12 labelcolor 8
               }
               MenuItem m_all_notes_off_all {
@@ -3511,7 +3515,8 @@ midi->write_event(0xb0, 0x7b, 0, i);
 
 global_minipiano->reset_active_keys();
 main->minipiano->reset_active_keys();
-piano->reset_active_keys();}
+piano->reset_active_keys();
+arp_mp->reset_active_keys();}
                 xywh {5 5 29 21} color 49 selection_color 49 labelsize 12 labelcolor 8
               }
               MenuItem {} {
@@ -3520,7 +3525,8 @@ piano->reset_active_keys();}
 
 global_minipiano->reset_active_keys();
 main->minipiano->reset_active_keys();
-piano->reset_active_keys();}
+piano->reset_active_keys();
+arp_mp->reset_active_keys();}
                 xywh {5 5 29 21} color 49 selection_color 49 labelsize 12 labelcolor 8
               }
               MenuItem {} {
@@ -3530,7 +3536,8 @@ midi->write_event(0xb0, 0x78, 0, i);
 
 global_minipiano->reset_active_keys();
 main->minipiano->reset_active_keys();
-piano->reset_active_keys();}
+piano->reset_active_keys();
+arp_mp->reset_active_keys();}
                 xywh {5 5 29 21} color 49 selection_color 49 labelsize 12 labelcolor 8
               }
               MenuItem {} {
@@ -3542,7 +3549,8 @@ midi->write_event(NOTE_OFF, i, 0);
 
 global_minipiano->reset_active_keys();
 main->minipiano->reset_active_keys();
-piano->reset_active_keys();}
+piano->reset_active_keys();
+arp_mp->reset_active_keys();}
                 xywh {5 5 29 21} color 49 selection_color 49 labelsize 12 labelcolor 8
               }
               MenuItem {} {
@@ -3625,11 +3633,11 @@ about->show();
       }
     }
     Fl_Window arp_editor_w {
-      label {Arp editor} open selected
-      xywh {805 318 765 620} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
+      label {Arp editor} open
+      xywh {1019 250 765 630} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
       class Double_Window xclass prodatum size_range {640 480 760 600}
     } {
-      Fl_Group {} {open
+      Fl_Group {} {
         xywh {5 5 755 575} box BORDER_BOX color 49 selection_color 49 labelcolor 0
       } {
         Fl_Box {} {
@@ -3833,35 +3841,60 @@ about->show();
           xywh {698 443 1 130} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
       }
-      Fl_Group {} {open
-        xywh {5 584 755 30} box BORDER_BOX color 49 selection_color 49 labelcolor 0
+      Fl_Box arp_mp {selected
+        xywh {5 584 202 45} box FLAT_BOX color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+        class MiniPiano
+      }
+      Fl_Button arp_all_notes_off {
+        label {All N Off}
+        callback {midi->write_event(0xb0, 0x7b, 0);
+global_minipiano->reset_active_keys();
+main->minipiano->reset_active_keys();
+piano->reset_active_keys();
+arp_mp->reset_active_keys();}
+        tooltip {All Notes Off: Turns off all notes (Ignored/Disabled in omni mode)} xywh {212 585 55 17} down_box DOWN_BOX color 8 selection_color 72 labelsize 10 labelcolor 7 align 80 when 3
+      }
+      Fl_Button {} {
+        label {All S Off}
+        callback {midi->write_event(0xb0, 0x78, 0);
+global_minipiano->reset_active_keys();
+main->minipiano->reset_active_keys();
+piano->reset_active_keys();
+arp_mp->reset_active_keys();}
+        tooltip {All Sound Off: Immediately mutes all sound on the device regardless of whether the Hold Pedal is on, and mutes the sound quickly regardless of any lengthy envelope release times.} xywh {213 606 55 17} down_box DOWN_BOX color 8 selection_color 72 labelsize 10 labelcolor 7 align 80 when 3
+      }
+      Fl_Group {} {
+        xywh {272 584 340 41} color 49 selection_color 49 labelcolor 0
       } {
+        Fl_Output pattern_length {
+          tooltip {Pattern length (48 Ticks/Beat)} xywh {289 589 96 30} box UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 0 align 0 textfont 4 textsize 20 textcolor 8
+          code0 {o->clear_visible_focus();}
+          code1 {o->value("4096:24");}
+        }
+        Fl_Input arp_name {
+          label Name
+          callback {if (pxk->arp) pxk->arp->rename(arp_name->value());}
+          tooltip {Arpeggiator pattern name} xywh {408 599 96 20} box UP_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 5 when 1 textfont 4 textsize 12 textcolor 8
+          code0 {o->maximum_size(12);}
+          code1 {o->cursor_color(FL_INACTIVE_COLOR);}
+          class Input
+        }
         Fl_Choice arp_root {
+          label Root
           callback {for (char i = 0; i < 32; i++)
 arp_step[i]->step_offset->set_root(o->value());} open
-          tooltip {Show offsets relative to the selected root note} xywh {10 589 85 20} down_box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 0 align 0 textsize 12 textcolor 8
+          tooltip {Show offsets relative to the selected root note} xywh {526 599 85 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 5 textsize 12 textcolor 8
           code0 {o->add("C");o->add("C\#");o->add("D");}
           code1 {o->add("D\#");o->add("E");o->add("F");}
           code2 {o->add("F\#");o->add("G");o->add("G\#");}
           code3 {o->add("A");o->add("A\#");o->add("B");o->value(0);o->clear_visible_focus();}
         } {}
-        Fl_Output pattern_length {
-          tooltip {Pattern length (48 Ticks/Beat)} xywh {306 585 154 28} box FLAT_BOX color 49 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 0 align 0 textfont 4 textsize 24 textcolor 0
-          code0 {o->clear_visible_focus();}
-        }
-        Fl_Input arp_name {
-          callback {if (pxk->arp) pxk->arp->rename(arp_name->value());}
-          tooltip {Arpeggiator pattern name} xywh {105 589 126 20} box UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 0 align 0 when 1 textfont 4 textsize 12 textcolor 8
-          code0 {o->maximum_size(12);}
-          code1 {o->cursor_color(FL_INACTIVE_COLOR);}
-          class Input
-        }
-        Fl_Button {} {
-          label RESET
-          callback {if (pxk->arp) pxk->arp->reset_pattern();}
-          tooltip {Undo all changes made to this pattern.} xywh {695 589 60 20} down_box DOWN_BOX color 8 selection_color 72 labelsize 10 labelcolor 7 align 16
-          code0 {o->clear_visible_focus();}
-        }
+      }
+      Fl_Button {} {
+        label RESET
+        callback {if (pxk->arp) pxk->arp->reset_pattern();}
+        tooltip {Undo all changes made to this pattern.} xywh {634 594 60 20} down_box DOWN_BOX color 8 selection_color 72 labelsize 10 labelcolor 7 align 16
+        code0 {o->clear_visible_focus();}
       }
     }
     Fl_Window init {
@@ -4256,7 +4289,7 @@ if (((Fl_Button*) o->array()[i])->value())
     }
     Fl_Window piano_w {
       label {Keyboard & Ranges}
-      xywh {531 545 930 205} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide
+      xywh {535 478 930 205} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide
       class Double_Window xclass prodatum
     } {
       Fl_Slider pitchwheel {
@@ -4360,7 +4393,8 @@ if (((Fl_Button*) o->array()[i])->value())
         callback {midi->write_event(0xb0, 0x7b, 0);
 global_minipiano->reset_active_keys();
 main->minipiano->reset_active_keys();
-piano->reset_active_keys();}
+piano->reset_active_keys();
+arp_mp->reset_active_keys();}
         tooltip {All Notes Off: Turns off all notes (Ignored/Disabled in omni mode)} xywh {810 7 55 20} down_box DOWN_BOX color 8 selection_color 72 labelsize 11 labelcolor 7 align 80 when 3
       }
       Fl_Button {} {
@@ -4368,7 +4402,8 @@ piano->reset_active_keys();}
         callback {midi->write_event(0xb0, 0x78, 0);
 global_minipiano->reset_active_keys();
 main->minipiano->reset_active_keys();
-piano->reset_active_keys();}
+piano->reset_active_keys();
+arp_mp->reset_active_keys();}
         tooltip {All Sound Off: Immediately mutes all sound on the device regardless of whether the Hold Pedal is on, and mutes the sound quickly regardless of any lengthy envelope release times.} xywh {870 7 55 20} down_box DOWN_BOX color 8 selection_color 72 labelsize 11 labelcolor 7 align 80 when 3
       }
       Fl_Box piano {

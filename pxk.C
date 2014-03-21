@@ -116,6 +116,7 @@ void PXK::widget_callback(int id, int value, int layer)
 		ui->global_minipiano->reset_active_keys();
 		ui->main->minipiano->reset_active_keys();
 		ui->piano->reset_active_keys();
+		ui->arp_mp->reset_active_keys();
 		return;
 	}
 	if (id == 897) // preset_select (this is effectively id 130 (MULTIMODE_PRESET))

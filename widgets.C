@@ -29,6 +29,9 @@
 PWid* pwid[2000][4];
 /// pointer to widgets that is currently being edited
 PWid* pwid_editing;
+// knob colors
+char c_knob_1 = FL_BACKGROUND2_COLOR;
+char c_knob_2 = FL_BACKGROUND2_COLOR;
 /// contains informations for all 51 filter types
 extern FilterMap FM[51];
 /// contains strings for some tempo related parameters
@@ -1474,6 +1477,21 @@ int Slider::get_value() const
 	return (int) value();
 }
 
+void Slider::draw_scale(int X, int Y, int W, int H)
+{
+	(active_r()) ?
+			fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .6)) :
+			fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .2));
+	int S = Y + H;
+	int x = X + 2;
+	int w = x + W - 4;
+	for (double i = 2.0; i < 5.0; i += 0.2)
+	{
+		double y = (double) S - pow(i, 3.0);
+		fl_line(x, (int) y, w, (int) y);
+	}
+}
+
 void Slider::draw()
 {
 	int X = x() + Fl::box_dx(box());
@@ -1497,6 +1515,8 @@ void Slider::draw()
 	ysl = Y + xx;
 	fl_push_clip(X, Y, W, H);
 	draw_box(FL_FLAT_BOX, X, Y, W, H, FL_BACKGROUND_COLOR);
+	if (id_layer[0] == 1410)
+		draw_scale(X, Y, W, H);
 	if (Fl::focus() == this)
 		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 5, 6, H - 10, FL_SELECTION_COLOR);
 	else
@@ -2088,8 +2108,6 @@ void Fl_Knob::dependency(int v) const
 	}
 }
 
-char c_knob_1 = FL_BACKGROUND2_COLOR;
-char c_knob_2 = FL_BACKGROUND2_COLOR;
 void Fl_Knob::draw()
 {
 	int ox, oy, ww, hh, side;
@@ -3040,12 +3058,14 @@ void Choice::dependency(int v) const
 		if (v == OMNI)
 		{
 			ui->all_notes_off->deactivate();
+			ui->arp_all_notes_off->deactivate();
 			ui->m_all_notes_off->deactivate();
 			ui->m_all_notes_off_all->deactivate();
 		}
 		else
 		{
 			ui->all_notes_off->activate();
+			ui->arp_all_notes_off->activate();
 			ui->m_all_notes_off->activate();
 			ui->m_all_notes_off_all->activate();
 		}
@@ -5860,7 +5880,7 @@ void Step_Offset::draw(int X, int Y, int W, int H)
 		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 5, 6, H - 10, FL_SELECTION_COLOR);
 	else
 		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 5, 6, H - 10, FL_BACKGROUND2_COLOR);
-	draw_box(FL_THIN_UP_BOX, X + 2, ysl, W - 4, S, FL_BACKGROUND2_COLOR);
+	draw_box(FL_THIN_UP_BOX, X, ysl, W, S, FL_BACKGROUND2_COLOR);
 	draw_label(X, ysl, W, S);
 	fl_pop_clip();
 }
@@ -5874,7 +5894,7 @@ void Step_Offset::draw()
 	bhh = 18;
 	shh -= 18;
 	draw(sxx + Fl::box_dx(box()), syy + Fl::box_dy(box()), sww - Fl::box_dw(box()), shh - Fl::box_dh(box()));
-	draw_box(FL_FLAT_BOX, bxx, byy, bww, bhh, FL_BACKGROUND_COLOR); // value box
+	draw_box(FL_BORDER_BOX, bxx, byy, bww, bhh, FL_BACKGROUND2_COLOR); // value box
 	const char* transpose_values[] =
 	{ "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#", "B " };
 	int v = (int) value();
