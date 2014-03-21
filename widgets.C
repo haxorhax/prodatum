@@ -1507,7 +1507,7 @@ void Slider::draw()
 		draw_box(FL_THIN_UP_BOX, X, Y, W, H, FL_BACKGROUND2_COLOR);
 	fl_pop_clip();
 	if (wsl > 0 && hsl > 0)
-		draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, FL_BACKGROUND_COLOR);
+		draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, FL_INACTIVE_COLOR);
 	draw_label(xsl, ysl, wsl, hsl);
 }
 
@@ -2421,8 +2421,8 @@ void Button::set_value(int v)
 	if (id_layer[0] == 258) // fx bypass
 	{
 		v ? ui->m_bypass->set() : ui->m_bypass->clear();
-		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_BACKGROUND_COLOR, .6)) : ui->b_pfx->color(
-						FL_BACKGROUND_COLOR);
+		v ? ui->b_pfx->color(fl_color_average(selection_color(), FL_INACTIVE_COLOR, .6)) : ui->b_pfx->color(
+				FL_INACTIVE_COLOR);
 		ui->b_pfx->redraw();
 	}
 	else if (id_layer[0] == 1025) // arp preset
@@ -2474,8 +2474,8 @@ int Button::get_value() const
 	if (id_layer[0] == 258) // fx bypass
 	{
 		v ? ui->m_bypass->set() : ui->m_bypass->clear();
-		v ? ui->b_pfx->color(fl_color_average(this->selection_color(), FL_BACKGROUND_COLOR, .6)) : ui->b_pfx->color(
-						FL_BACKGROUND_COLOR);
+		v ? ui->b_pfx->color(fl_color_average(selection_color(), FL_INACTIVE_COLOR, .6)) : ui->b_pfx->color(
+				FL_INACTIVE_COLOR);
 		ui->b_pfx->redraw();
 	}
 	if (id_layer[0] == 258 || id_layer[0] == 1669 || id_layer[0] == 1674 || id_layer[0] == 1033 || id_layer[0] == 649) // fx bypass / lfo syncs / arp syncs
@@ -5871,7 +5871,7 @@ void Step_Offset::draw(int X, int Y, int W, int H)
 		draw_box(FL_THIN_UP_BOX, X, Y, W, H, FL_BACKGROUND2_COLOR);
 	fl_pop_clip();
 	if (wsl > 0 && hsl > 0)
-		draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, FL_BACKGROUND_COLOR);
+		draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, FL_INACTIVE_COLOR);
 	draw_label(xsl, ysl, wsl, hsl);
 }
 
