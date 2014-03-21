@@ -1561,7 +1561,7 @@ l2_filter->do_callback();}
 } 
 
 widget_class PD_Main {
-  xywh {444 188 830 565} type Double box BORDER_BOX labelcolor 8 hide position_relative
+  xywh {640 302 830 565} type Double box BORDER_BOX labelcolor 8 hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
   }
@@ -1580,7 +1580,7 @@ widget_class PD_Main {
         tooltip {Program name} xywh {5 24 194 20} box FLAT_BOX down_box FLAT_BOX color 7 selection_color 15 labelfont 4 labelsize 12 labelcolor 8 align 84
         code0 {o->clear_visible_focus();}
       }
-      Fl_Group channel_select {
+      Fl_Group channel_select {open
         tooltip {Select preset by channel or activate channel in omni and poly-mode.} xywh {4 23 196 73} labeltype NO_LABEL labelfont 1 labelcolor 15 when 0
         code0 {o->set_id(129);}
         class Group
@@ -2629,6 +2629,7 @@ delete this;} open
     code {pmesg("PD_UI::PD_UI()\\n");
 Fl::visual(FL_DOUBLE|FL_RGB);} {}
     Fl_Window main_window {
+      label prodatum
       callback {if (pxk->preset && pxk->preset->is_changed())
 {
 	if (dismiss(1) == 1)
@@ -2637,8 +2638,8 @@ Fl::visual(FL_DOUBLE|FL_RGB);} {}
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
-      xywh {457 270 845 620} type Double labelcolor 8 hide resizable
+delete this;} selected
+      xywh {457 270 845 620} type Double labelcolor 8 align 0 hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620}
@@ -3612,7 +3613,7 @@ else
 about->position(main_window->x() + (main_window->w() / 2) - (about->w() / 2),
 		main_window->y() + 80);
 about->show();
-}} selected
+}}
                 xywh {10 10 36 21} shortcut 0xffc0 labelsize 12 labelcolor 8
               }
             }
@@ -3625,7 +3626,7 @@ about->show();
       }
     }
     Fl_Window arp_editor_w {
-      label {Arpeggio editor}
+      label {Arp editor}
       xywh {430 88 760 600} type Double labelcolor 8 align 0 hide resizable
       class Double_Window xclass prodatum size_range {640 480 760 600}
     } {
@@ -3863,59 +3864,50 @@ arp_step[i]->step_offset->set_root(o->value());} open
     }
     Fl_Window init {
       label Synchronizing
-      callback {;}
-      xywh {499 660 290 130} type Double box BORDER_BOX labelcolor 8 hide modal xclass prodatum
+      callback {;} open
+      xywh {1019 372 300 115} type Double box BORDER_BOX labelcolor 8 hide modal xclass prodatum
     } {
       Fl_Box {} {
-        label {Please wait.
-This may take a few minutes.}
-        xywh {60 1 229 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 144
-      }
-      Fl_Box {} {
-        xywh {1 1 60 50} labelcolor 8 deactivate
-        code0 {o->image(image_pd);}
+        label {Please wait. This may take a few minutes.}
+        xywh {1 1 298 30} box FLAT_BOX color 0 labelfont 1 labelcolor 49 align 20
       }
       Fl_Progress init_progress {
-        xywh {10 59 270 26} box THIN_DOWN_BOX selection_color 15 labelsize 10 labelcolor 8 align 80
+        xywh {10 45 280 26} box THIN_DOWN_BOX selection_color 0 labelsize 10 labelcolor 8 align 80
       }
       Fl_Button {} {
         label Cancel
         callback {pxk->Join();}
-        xywh {210 95 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
+        xywh {220 80 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
       }
       Fl_Button init_log_b {
         label {Show log}
         callback {init_log_w->showup();}
-        xywh {130 95 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
+        xywh {145 80 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
       }
     }
     Fl_Window open_device {
-      label {Open Device}
-      xywh {564 342 280 390} type Double box BORDER_BOX labelcolor 15 hide
+      label {Open device}
+      xywh {962 330 280 370} type Double box BORDER_BOX labelcolor 15 hide
       class Double_Window modal xclass prodatum
     } {
       Fl_Box {} {
-        xywh {1 1 60 50} labelcolor 8 deactivate
-        code0 {o->image(image_pd);}
-      }
-      Fl_Box {} {
         label {Open device}
-        xywh {60 1 219 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 24 deactivate
+        xywh {1 1 278 30} box FLAT_BOX color 0 labelfont 1 labelcolor 49 align 20 deactivate
       }
       Fl_Box open_info_portable {
         label {Using portable configuration}
-        xywh {60 34 219 17} box FLAT_BOX color 32 labelfont 1 labelsize 10 labelcolor 49 align 24 hide deactivate
+        xywh {100 1 179 30} box FLAT_BOX color 0 labelfont 1 labelsize 10 labelcolor 49 align 16 hide deactivate
       }
       Fl_Group {} {
-        label Device
-        xywh {10 75 262 160} labelfont 1 align 5
+        label Device open
+        xywh {10 60 262 160} labelfont 1 align 5
       } {
         Fl_Box device_info {
-          tooltip {Shows device information for the selected device (updates automatically on every port or ID change).} xywh {20 82 215 85} box THIN_DOWN_BOX color 7 selection_color 15 labelsize 11 labelcolor 8 align 213
+          tooltip {Shows device information for the selected device (updates automatically on every port or ID change).} xywh {20 67 215 85} box THIN_DOWN_BOX color 7 selection_color 15 labelsize 11 labelcolor 8 align 213
         }
         Fl_Box {} {
           label Info
-          xywh {237 82 33 20} color 7 labelsize 12 align 148
+          xywh {237 67 33 20} color 7 labelsize 12 align 148
         }
         Fl_Spinner device_id {
           label ID
@@ -3925,26 +3917,26 @@ r_user_id->value(o->value());
 delete pxk;
 pxk = new PXK();
 pxk->Boot(true, o->value());}
-          tooltip {ID: Must be unique for every device you intend to use prodatum with (you can set the ID in the Master Menu of your device)!} xywh {20 174 90 25} color 7 selection_color 15 labelsize 12 align 8 when 1 minimum 0 maximum 126 value 127 textfont 4 textsize 13 textcolor 8
+          tooltip {ID: Must be unique for every device you intend to use prodatum with (you can set the ID in the Master Menu of your device)!} xywh {20 159 90 25} color 7 selection_color 15 labelsize 12 align 8 when 1 minimum 0 maximum 126 value 127 textfont 4 textsize 13 textcolor 8
         }
         Fl_Button {} {
           label Update
           callback {connect->deactivate();
 device_info->label(0);
 pxk->Inquire(device_id->value());}
-          tooltip {Request device information.} xywh {175 176 60 20} down_box DOWN_BOX selection_color 7 labelsize 11 align 16
+          tooltip {Request device information.} xywh {175 161 60 20} down_box DOWN_BOX selection_color 7 labelsize 11 align 16
         }
         Fl_Choice speed {
           label {Sysex packet delay [ms]}
           callback {cfg->set_cfg_option(CFG_SPEED, o->value());} open
-          tooltip {Delay: Change the response delay for preset dump requests. Also used when synchronizing (try higher values when you see garbage in the name browsers).} xywh {20 210 90 20} down_box BORDER_BOX color 7 labelsize 12 align 72 textsize 13 textcolor 8
+          tooltip {Delay: Change the response delay for preset dump requests. Also used when synchronizing (try higher values when you see garbage in the name browsers).} xywh {20 195 90 20} down_box BORDER_BOX color 7 labelsize 12 align 72 textsize 13 textcolor 8
           code0 {o->add("0");o->add("10");o->add("40");o->add("90");o->add("160");}
           code1 {o->value(1);}
         } {}
       }
       Fl_Group {} {
-        label {MIDI ports}
-        xywh {10 270 262 54} labelfont 1 align 5
+        label {MIDI ports} open
+        xywh {10 255 262 54} labelfont 1 align 5
       } {
         Fl_Menu_Button midi_outs {
           label {Select...}
@@ -3959,11 +3951,11 @@ else
 {
 o->label("Select...");
 }} open
-          tooltip {OUT: Select the MIDI port that is connected to MIDI IN of your device.} xywh {20 277 215 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 labelcolor 8 align 84 textsize 13 textcolor 8
+          tooltip {OUT: Select the MIDI port that is connected to MIDI IN of your device.} xywh {20 262 215 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 labelcolor 8 align 84 textsize 13 textcolor 8
         } {}
         Fl_Box {} {
           label Out
-          xywh {236 277 35 20} labelsize 12 align 20
+          xywh {236 262 35 20} labelsize 12 align 20
         }
         Fl_Menu_Button midi_ins {
           label {Select...}
@@ -3978,11 +3970,11 @@ else
 {
 o->label("Select...");
 }} open
-          tooltip {IN: Select the MIDI port that is connected to MIDI OUT of your device.} xywh {20 304 215 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 labelcolor 8 align 84 textsize 13 textcolor 8
+          tooltip {IN: Select the MIDI port that is connected to MIDI OUT of your device.} xywh {20 289 215 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 labelcolor 8 align 84 textsize 13 textcolor 8
         } {}
         Fl_Box {} {
           label In
-          xywh {236 304 35 20} labelsize 12 align 20
+          xywh {236 289 35 20} labelsize 12 align 20
         }
       }
       Fl_Button {} {
@@ -3990,14 +3982,14 @@ o->label("Select...");
         callback {device_info->label("Select the MIDI ports your PXK is connected to. "
 "prodatum will automatically detect the device. Push Open to synchronize prodatum. "
 "prodatum will automatically connect to your device on its next start.");}
-        tooltip {Show help file one} xywh {10 351 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
+        tooltip {Show help file one} xywh {10 336 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
       }
       Fl_Button {} {
         label {2+}
         callback {device_info->label("With multiple PXK's each must have assigned a unique Sysex Device ID. "
 "To select a device to synchronize prodatum to, use the ID selector below. "
 "prodatum keeps a configuration for every ID it synchronizes to.");}
-        tooltip {Show help file two plus} xywh {45 351 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
+        tooltip {Show help file two plus} xywh {40 336 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
       }
       Fl_Button {} {
         label A
@@ -4005,10 +3997,10 @@ o->label("Select...");
 about->position(main_window->x() + (main_window->w() / 2) - (about->w() / 2),
 		main_window->y() + 80);
 about->show();}
-        xywh {80 351 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
+        xywh {70 336 25 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 16
       }
       Fl_Button connect {
-        label {Open @returnarrow}
+        label Open
         callback {o->deactivate();
 cfg->set_cfg_option(CFG_SPEED, speed->value());
 midi->edit_parameter_value(405, cfg->get_cfg_option(CFG_SPEED));
@@ -4018,12 +4010,12 @@ cfg->set_cfg_option(CFG_MIDI_OUT, midi_outs->value());
 cfg->set_cfg_option(CFG_MIDI_IN, midi_ins->value());
 }
 open_device->hide();}
-        xywh {119 351 70 25} down_box DOWN_BOX shortcut 0xff0d selection_color 7 labelsize 12 align 20 deactivate
+        xywh {125 336 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20 deactivate
       }
       Fl_Button {} {
         label Exit
         callback {delete ui;}
-        xywh {199 351 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
+        xywh {200 336 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
       }
     }
     Fl_Window preferences {
@@ -4031,39 +4023,35 @@ open_device->hide();}
       callback {preferences->hide();
 export_dir->value(cfg->get_export_dir());
 b_set->deactivate();}
-      xywh {273 60 305 450} type Double box UP_BOX labelsize 11 labelcolor 8 hide
+      xywh {912 159 305 435} type Double box UP_BOX labelsize 11 labelcolor 8 hide
       class Double_Window xclass prodatum
     } {
       Fl_Box {} {
-        xywh {1 1 60 50} labelcolor 8 deactivate
-        code0 {o->image(image_pd);}
-      }
-      Fl_Box {} {
         label Preferences
-        xywh {60 1 244 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 24 deactivate
+        xywh {1 1 303 30} box FLAT_BOX color 0 labelfont 1 labelcolor 49 align 20 deactivate
       }
       Fl_Box pref_info_portable {
         label {Using portable configuration}
-        xywh {60 34 244 17} box FLAT_BOX color 32 labelfont 1 labelsize 10 labelcolor 49 align 24 hide deactivate
+        xywh {100 1 204 30} box FLAT_BOX color 0 labelfont 1 labelsize 10 labelcolor 49 align 16 hide deactivate
       }
       Fl_Box {} {
         label Confirm
-        xywh {10 75 124 65} labelfont 1 align 5
+        xywh {10 60 124 65} labelfont 1 align 5
       }
       Fl_Check_Button confirm {
         label Exit
         callback {cfg->set_cfg_option(CFG_CONFIRM_EXIT, o->value());}
-        tooltip {Wether to show a confirmation dialog on exit} xywh {20 82 46 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+        tooltip {Wether to show a confirmation dialog on exit} xywh {20 67 46 15} down_box DOWN_BOX value 1 color 7 selection_color 15
       }
       Fl_Check_Button confirm_dismiss {
         label Dismiss
         callback {cfg->set_cfg_option(CFG_CONFIRM_DISMISS, o->value());}
-        tooltip {Wether to show a confirmation dialog for dismiss} xywh {20 101 72 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+        tooltip {Wether to show a confirmation dialog for dismiss} xywh {20 86 72 15} down_box DOWN_BOX value 1 color 7 selection_color 15
       }
       Fl_Check_Button confirm_rand {
         label Randomize
         callback {cfg->set_cfg_option(CFG_CONFIRM_RAND, o->value());}
-        tooltip {Wether to show a confirmation dialog for randomize} xywh {20 120 94 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+        tooltip {Wether to show a confirmation dialog for randomize} xywh {20 105 94 15} down_box DOWN_BOX value 1 color 7 selection_color 15
       }
       Fl_Group g_knobmode {
         label {Knob job}
@@ -4073,35 +4061,35 @@ if (((Fl_Button*) o->array()[i])->value())
 break;
 ((Fl_Button*) o->child(i))->setonly();
 cfg->set_cfg_option(CFG_KNOBMODE, i);} open
-        tooltip {Choose how knobs should behave when you drag them} xywh {140 75 124 66} labelfont 1 align 5
+        tooltip {Choose how knobs should behave when you drag them} xywh {140 60 124 66} labelfont 1 align 5
       } {
         Fl_Check_Button {} {
           label Radially
           callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-          xywh {155 82 77 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15
+          xywh {155 67 77 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15
         }
         Fl_Check_Button {} {
           label Horizontally
           callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-          xywh {155 101 103 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15
+          xywh {155 86 103 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15
         }
         Fl_Check_Button {} {
           label Vertically
           callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-          xywh {155 120 87 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15
+          xywh {155 105 87 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15
         }
       }
       Fl_Box {} {
         label {Export directory}
-        xywh {10 165 290 35} labelfont 1 align 133
+        xywh {10 150 290 35} labelfont 1 align 133
       }
       Fl_Input export_dir {
         callback {b_set->activate();}
         tooltip {Export files will be written here
-(to use a directory relative to where prodatum was launched from, use ./ as prefix. Eg: ./export)} xywh {20 172 205 20} box UP_BOX labeltype NO_LABEL labelsize 10 align 0 when 1 textfont 4 textsize 12 textcolor 8
+(to use a directory relative to where prodatum was launched from, use ./ as prefix. Eg: ./export)} xywh {20 157 205 20} box UP_BOX labeltype NO_LABEL labelsize 10 align 0 when 1 textfont 4 textsize 12 textcolor 8
         code0 {o->maximum_size(PATH_MAX);}
         code1 {o->cursor_color(FL_INACTIVE_COLOR);}
       }
@@ -4112,25 +4100,25 @@ cfg->set_cfg_option(CFG_KNOBMODE, i);} open
 export_dir->value(cfg->get_export_dir());
 }
 o->deactivate();}
-        tooltip {Confirm new export directory} xywh {235 172 60 20} down_box DOWN_BOX selection_color 7 labelsize 10 align 16 deactivate
+        tooltip {Confirm new export directory} xywh {235 157 60 20} down_box DOWN_BOX selection_color 7 labelsize 10 align 16 deactivate
       }
       Fl_Box {} {
         label {MIDI performance}
-        xywh {10 225 290 47} labelfont 1 align 5
+        xywh {10 210 290 47} labelfont 1 align 5
       }
       Fl_Check_Button closed_loop_download {
         label {Closed loop preset download}
         callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD, o->value());}
-        tooltip {Closed loop downloads require prodatum to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: enabled)} xywh {20 232 269 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+        tooltip {Closed loop downloads require prodatum to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: enabled)} xywh {20 217 269 15} down_box DOWN_BOX value 1 color 7 selection_color 15
       }
       Fl_Check_Button closed_loop_upload {
         label {Closed loop preset upload}
         callback {cfg->set_cfg_option(CFG_CLOSED_LOOP_UPLOAD, o->value());}
-        tooltip {Closed loop uploads require the device to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: enabled)} xywh {20 251 251 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+        tooltip {Closed loop uploads require the device to acknowledge each packet using handshake messages. Advantage: a checksum is used to validate each packet. Disadvantage: it's slower. (Default: enabled)} xywh {20 236 251 15} down_box DOWN_BOX value 1 color 7 selection_color 15
       }
       Fl_Box {} {
         label Controller
-        xywh {10 300 290 60} labelfont 1 align 5
+        xywh {10 285 290 60} labelfont 1 align 5
       }
       Fl_Menu_Button midi_ctrl {
         label {Select... (optional)}
@@ -4144,51 +4132,51 @@ else
 cfg->set_cfg_option(CFG_MIDI_THRU, -1);
 o->label("Select... (optional)");
 }} open
-        tooltip {Control: Select the MIDI port that your controller is connected to (select again to disconnect).} xywh {20 307 205 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 labelcolor 8 align 84 textsize 13 textcolor 8
+        tooltip {Control: Select the MIDI port that your controller is connected to (select again to disconnect).} xywh {20 292 205 20} box THIN_UP_BOX down_box THIN_UP_BOX color 7 labelsize 12 labelcolor 8 align 84 textsize 13 textcolor 8
       } {}
       Fl_Choice midi_ctrl_ch {
         label Channel
         callback {midi->set_control_channel_filter(o->value());} open
-        tooltip {Control Channel: Data to the control port will only be accepted for the selected channel(s).} xywh {20 333 50 20} down_box BORDER_BOX color 7 align 8 textsize 13 textcolor 8
+        tooltip {Control Channel: Data to the control port will only be accepted for the selected channel(s).} xywh {20 318 50 20} down_box BORDER_BOX color 7 align 8 textsize 13 textcolor 8
         code0 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("All");}
       } {}
       Fl_Check_Button midi_automap {
         label {Map to Basic Channel}
         callback {cfg->set_cfg_option(CFG_AUTOMAP, o->value());}
-        tooltip {When enabled voice messages from the controller will always leave prodatum on the channel that is selected in prodatum. This is helpful when your controller does not allow you to change the MIDI channel or if you do not want to switch channels on the controller all the time.} xywh {139 333 160 20} down_box DOWN_BOX value 1 color 7 selection_color 15
+        tooltip {When enabled voice messages from the controller will always leave prodatum on the channel that is selected in prodatum. This is helpful when your controller does not allow you to change the MIDI channel or if you do not want to switch channels on the controller all the time.} xywh {139 318 160 20} down_box DOWN_BOX value 1 color 7 selection_color 15
       }
       Fl_Box {} {
         label Colors
-        xywh {10 389 290 32} labelfont 1 align 5
+        xywh {10 374 290 32} labelfont 1 align 5
       }
       Fl_Button {} {
         label DEFAULT
         callback {set_default_colors();}
-        tooltip {Use prodatum's default colors} xywh {20 396 70 20} down_box DOWN_BOX selection_color 7 labelsize 10 align 16
+        tooltip {Use prodatum's default colors} xywh {20 381 70 20} down_box DOWN_BOX selection_color 7 labelsize 10 align 16
       }
       Fl_Button {} {
         label {-}
         callback {PD_UI::set_color(FL_BACKGROUND_COLOR);}
-        xywh {103 396 32 20} down_box DOWN_BOX align 8
+        xywh {103 381 32 20} down_box DOWN_BOX align 8
       }
       Fl_Button {} {
         label {-}
         callback {PD_UI::set_color(FL_FOREGROUND_COLOR);}
-        xywh {143 396 32 20} down_box DOWN_BOX color 0 selection_color 0 align 4
+        xywh {143 381 32 20} down_box DOWN_BOX color 0 selection_color 0 align 4
       }
       Fl_Button {} {
         label {-}
         callback {PD_UI::set_color(FL_BACKGROUND2_COLOR);}
-        xywh {183 396 32 20} down_box DOWN_BOX color 7 selection_color 7 align 8
+        xywh {183 381 32 20} down_box DOWN_BOX color 7 selection_color 7 align 8
       }
       Fl_Button {} {
         label {-}
         callback {PD_UI::set_color(FL_INACTIVE_COLOR);}
-        xywh {223 396 32 20} down_box DOWN_BOX color 8 selection_color 8 align 4
+        xywh {223 381 32 20} down_box DOWN_BOX color 8 selection_color 8 align 4
       }
       Fl_Button {} {
         callback {PD_UI::set_color(FL_SELECTION_COLOR);}
-        xywh {263 396 32 20} down_box DOWN_BOX color 15 selection_color 15 labelcolor 8
+        xywh {263 381 32 20} down_box DOWN_BOX color 15 selection_color 15 labelcolor 8
       }
       Fl_Group knob_color_a {
         callback {for (char i = 0; i < o->children(); i++)
@@ -4198,33 +4186,33 @@ if (((Fl_Button*) o->array()[i])->value())
 	set_knobcolor(0, i);
 	break;
 }} open
-        xywh {101 422 180 15} labelcolor 8
+        xywh {101 407 180 15} labelcolor 8
       } {
         Fl_Check_Button {} {
           label {Knob/-scale}
           callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-          xywh {101 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 align 4
+          xywh {101 407 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 align 4
         }
         Fl_Check_Button {} {
           callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-          xywh {141 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
+          xywh {141 407 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
         }
         Fl_Check_Button {} {
           callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-          xywh {181 422 15 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
+          xywh {181 407 15 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
         }
         Fl_Check_Button {} {
           callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-          xywh {221 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
+          xywh {221 407 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
         }
         Fl_Check_Button {} {
           callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-          xywh {261 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0 hide deactivate
+          xywh {261 407 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0 hide deactivate
         }
       }
       Fl_Group knob_color_b {
@@ -4235,32 +4223,32 @@ if (((Fl_Button*) o->array()[i])->value())
 	set_knobcolor(1, i);
 	break;
 }} open
-        xywh {118 422 180 15} labelcolor 8
+        xywh {118 407 180 15} labelcolor 8
       } {
         Fl_Check_Button {} {
           callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-          xywh {118 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0 hide deactivate
+          xywh {118 407 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0 hide deactivate
         }
         Fl_Check_Button {} {
           callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-          xywh {158 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
+          xywh {158 407 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
         }
         Fl_Check_Button {} {
           callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-          xywh {198 422 15 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
+          xywh {198 407 15 15} type Radio down_box DOWN_BOX value 1 color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
         }
         Fl_Check_Button {} {
           callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-          xywh {238 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
+          xywh {238 407 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
         }
         Fl_Check_Button {} {
           callback {o->setonly();
 ((Group*)o->parent())->do_callback();}
-          xywh {278 422 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
+          xywh {278 407 15 15} type Radio down_box DOWN_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 8 align 0
         }
       }
     }
@@ -4378,8 +4366,8 @@ piano->reset_active_keys();}
       }
     }
     Fl_Window log_w {
-      label {Message Log}
-      xywh {784 143 490 575} type Double box BORDER_BOX labelcolor 8 hide resizable
+      label {Message log}
+      xywh {620 188 490 565} type Double box BORDER_BOX labelcolor 8 hide resizable
       class Double_Window xclass prodatum size_range {320 108 0 0}
     } {
       Fl_Text_Display log {
@@ -4387,40 +4375,40 @@ piano->reset_active_keys();}
         class Text_Display
       }
       Fl_Group {} {open
-        xywh {1 533 489 37} labelcolor 8
+        xywh {1 530 489 35} labelcolor 8
       } {
         Fl_Check_Button log_sysex_in {
           label IS
           callback {cfg->set_cfg_option(CFG_LOG_SYSEX_IN, o->value());}
-          tooltip {Log Incoming SysEx} xywh {265 533 20 20} down_box DOWN_BOX value 1 color 7 selection_color 15 labelfont 4 align 4
+          tooltip {Log Incoming SysEx} xywh {265 530 20 20} down_box DOWN_BOX value 1 color 7 selection_color 15 labelfont 4 align 4
         }
         Fl_Check_Button log_sysex_out {
           label OS
           callback {cfg->set_cfg_option(CFG_LOG_SYSEX_OUT, o->value());}
-          tooltip {Log Outgoing SysEx} xywh {305 533 20 20} down_box DOWN_BOX value 1 color 7 selection_color 15 labelfont 4 align 4
+          tooltip {Log Outgoing SysEx} xywh {305 530 20 20} down_box DOWN_BOX value 1 color 7 selection_color 15 labelfont 4 align 4
         }
         Fl_Check_Button log_events_in {
           label IE
           callback {cfg->set_cfg_option(CFG_LOG_EVENTS_IN, o->value());}
-          tooltip {Log Incoming Events} xywh {265 548 20 20} down_box DOWN_BOX color 7 selection_color 15 labelfont 4 align 4
+          tooltip {Log Incoming Events} xywh {265 545 20 20} down_box DOWN_BOX color 7 selection_color 15 labelfont 4 align 4
         }
         Fl_Check_Button log_events_out {
           label OE
           callback {cfg->set_cfg_option(CFG_LOG_EVENTS_OUT, o->value());}
-          tooltip {Log Outgoing Events} xywh {305 548 20 20} down_box DOWN_BOX color 7 selection_color 15 labelfont 4 align 4
+          tooltip {Log Outgoing Events} xywh {305 545 20 20} down_box DOWN_BOX color 7 selection_color 15 labelfont 4 align 4
         }
         Fl_Button {} {
           label CLEAR
           callback {logbuf->remove(0, logbuf->length());}
-          tooltip {Clear Buffer} xywh {335 538 70 25} down_box DOWN_BOX selection_color 7 labelsize 10 align 80
+          tooltip {Clear Buffer} xywh {335 533 70 17} down_box DOWN_BOX selection_color 7 labelsize 10 align 80
         }
         Fl_Button scroll_lock {
           label {SCRL LCK}
-          xywh {410 538 70 25} type Toggle down_box DOWN_BOX selection_color 7 labelsize 10 align 80
+          xywh {410 533 70 17} type Toggle down_box DOWN_BOX selection_color 7 labelsize 10 align 80
         }
         Fl_Box {} {
           label label
-          xywh {3 566 1 1} labeltype NO_LABEL labelcolor 8 resizable
+          xywh {3 550 1 1} labeltype NO_LABEL labelcolor 8 resizable
         }
       }
     }
@@ -4442,14 +4430,10 @@ open_device->showup();
 
 tac_i->hide();
 about_i->show();}
-      xywh {660 149 272 370} type Double box BORDER_BOX labelcolor 8 hide xclass prodatum
+      xywh {1008 322 272 370} type Double box BORDER_BOX labelcolor 8 hide xclass prodatum
     } {
-      Fl_Box {} {
-        xywh {1 1 60 50} labelcolor 8 deactivate
-        code0 {o->image(image_pd);}
-      }
       Fl_Box about_text {
-        xywh {60 1 211 50} box FLAT_BOX color 32 labelfont 1 labelsize 18 labelcolor 49 align 144 deactivate
+        xywh {1 1 270 50} box FLAT_BOX color 0 labelfont 1 labelsize 18 labelcolor 49 align 148 deactivate
       }
       Fl_Box about_i {
         xywh {1 51 270 165} labelcolor 8 deactivate
@@ -4487,7 +4471,7 @@ tac_i->show();}
     }
     Fl_Window copy_layer {
       label Copy
-      xywh {543 354 325 90} type Double box BORDER_BOX labelcolor 8 hide
+      xywh {543 354 325 80} type Double box BORDER_BOX labelcolor 8 hide
       class Double_Window xclass prodatum
     } {
       Fl_Group layer_dst {
@@ -4608,17 +4592,13 @@ copy_arp_pattern_browser_filter->do_callback();}
       }
     }
     Fl_Window reset_w {
-      label Synchronize
-      xywh {746 372 285 190} type Double box BORDER_BOX labelcolor 8 hide
+      label Synchronize open
+      xywh {933 362 260 150} type Double box BORDER_BOX labelcolor 8 hide
       class Double_Window xclass prodatum
     } {
       Fl_Box {} {
         label Synchronize
-        xywh {60 1 224 50} box FLAT_BOX color 32 labelfont 1 labelcolor 49 align 152
-      }
-      Fl_Box {} {
-        xywh {1 1 60 50} labelcolor 8 deactivate
-        code0 {o->image(image_pd);}
+        xywh {1 1 258 30} box FLAT_BOX color 0 labelfont 1 labelcolor 49 align 148
       }
       Fl_Check_Button r_user {
         label Flash
@@ -4626,11 +4606,11 @@ copy_arp_pattern_browser_filter->do_callback();}
 g_r_user->activate();
 else
 g_r_user->deactivate();}
-        tooltip {Delete Program- and Arp-Name data!} xywh {20 75 70 15} down_box DOWN_BOX color 7 selection_color 15
+        tooltip {Delete Program- and Arp-Name data!} xywh {10 50 70 15} down_box DOWN_BOX color 7 selection_color 15
         code0 {o->clear_visible_focus();}
       }
       Fl_Group g_r_user {open
-        xywh {82 68 190 28} labeltype NO_LABEL labelcolor 15 align 0 deactivate
+        xywh {72 43 190 28} labeltype NO_LABEL labelcolor 15 align 0 deactivate
       } {
         Fl_Check_Button r_user_all {
           label All
@@ -4638,12 +4618,12 @@ g_r_user->deactivate();}
 r_user_id->deactivate();
 else
 r_user_id->activate();}
-          tooltip {Delete all User data!} xywh {95 75 42 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+          tooltip {Delete all User data!} xywh {80 50 42 15} down_box DOWN_BOX value 1 color 7 selection_color 15
           code0 {o->clear_visible_focus();}
         }
         Fl_Spinner r_user_id {
           label ID
-          tooltip {Delete User data for the device configured using this ID only!} xywh {156 70 70 25} color 7 selection_color 15 align 8 when 1 minimum 0 maximum 126 value 0 textfont 4 textsize 13 textcolor 8 deactivate
+          tooltip {Delete User data for the device configured using this ID only!} xywh {136 45 70 25} color 7 selection_color 15 align 8 when 1 minimum 0 maximum 126 value 0 textfont 4 textsize 13 textcolor 8 deactivate
           code0 {o->clear_visible_focus();}
         }
       }
@@ -4653,11 +4633,11 @@ r_user_id->activate();}
 g_r_rom->activate();
 else
 g_r_rom->deactivate();}
-        tooltip {Delete ROM data (once downloaded they never change so this is only useful if initialization went wrong)!} xywh {20 109 70 15} down_box DOWN_BOX color 7 selection_color 15
+        tooltip {Delete ROM data (once downloaded they never change so this is only useful if initialization went wrong)!} xywh {10 84 70 15} down_box DOWN_BOX color 7 selection_color 15
         code0 {o->clear_visible_focus();}
       }
       Fl_Group g_r_rom {open
-        xywh {82 87 200 39} labeltype NO_LABEL labelcolor 8 align 0 deactivate
+        xywh {80 62 202 39} labeltype NO_LABEL labelcolor 8 align 0 deactivate
       } {
         Fl_Check_Button r_rom_all {
           label All
@@ -4665,12 +4645,12 @@ g_r_rom->deactivate();}
 r_rom_rom->deactivate();
 else
 r_rom_rom->activate();}
-          tooltip {Delete all ROM data!} xywh {95 109 42 15} down_box DOWN_BOX value 1 color 7 selection_color 15
+          tooltip {Delete all ROM data!} xywh {80 84 42 15} down_box DOWN_BOX value 1 color 7 selection_color 15
           code0 {o->clear_visible_focus();}
         }
         Fl_Choice r_rom_rom {
           label {ROM } open
-          tooltip {Delete  ROM data of this ROM only!} xywh {156 105 70 21} down_box BORDER_BOX color 7 align 8 textsize 13 textcolor 8 deactivate
+          tooltip {Delete  ROM data of this ROM only!} xywh {136 80 70 21} down_box BORDER_BOX color 7 align 8 textsize 13 textcolor 8 deactivate
           code0 {o->clear_visible_focus();}
           class ROM_Choice
         } {}
@@ -4695,7 +4675,7 @@ else
 	romdata = pxk->rom[r_rom_rom->value() + 1]->get_attribute(ID);
 }
 Reset(userdata, romdata);}
-        tooltip {Delete and synchronize chosen data.} xywh {200 150 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
+        tooltip {Delete and synchronize chosen data.} xywh {180 115 70 25} down_box DOWN_BOX selection_color 7 labelsize 12 align 20
       }
     }
     code {// midi log

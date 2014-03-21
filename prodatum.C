@@ -34,7 +34,7 @@
 
 static void load_data();
 
-const char* VERSION = "2.0.0";
+const char* VERSION = "v2.0.0";
 PD_UI* ui = 0;
 MIDI* midi = 0;
 PXK* pxk = 0;
@@ -76,10 +76,10 @@ int main(int argc, char *argv[])
 	if (!Fl::args(argc, argv, i, options))
 	{
 		printf("prodatum %s options:\n"
-				" -d id\tConfig (Device ID) to load (default: last used ID)\n"
-				" -a   \tdo not open device at startup\n"
-				"FLTK options (colors will be ignored):\n"
-				"%s\n", VERSION, Fl::help);
+				" -d id    \tdevice to open (default: previous)\n"
+				" -a       \tdisable autoconnect\n"
+				" -i       \tstart minimized\n"
+				" -ti title\twindow title\n", VERSION);
 		return 1;
 	}
 	// loading... please wait.
@@ -95,9 +95,6 @@ int main(int argc, char *argv[])
 	ui->init_log_b->hide();
 	ui->init_log_m->hide();
 #endif
-	char label[17];
-	snprintf(label, 17, "prodatum %s", VERSION);
-	ui->main_window->label(label);
 	ui->main_window->free_position();
 	// windows icon
 #ifdef WIN32
