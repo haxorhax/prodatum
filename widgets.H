@@ -842,7 +842,8 @@ public:
 	Step_Type(int x, int y, int w, int h, char* const label = 0) :
 			Fl_Group(x, y, w, h, label)
 	{
-		;
+		p = -1;
+		c = -1;
 	}
 	void set_step(int step);
 	int p; // prev value

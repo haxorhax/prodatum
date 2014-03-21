@@ -1,6 +1,7 @@
 v2.0.0
 
-* windows version got icon
+* windows version got an icon
+* arp editor could crash. fixed.
 
 
 v2.0rc23

@@ -1491,24 +1491,19 @@ void Slider::draw()
 		else if (val < 0.0)
 			val = 0.0;
 	}
-	int ww = H;
-	int xx, S;
+	int xx, S, ysl;
 	S = 17;
-	xx = int(val * (ww - S) + .5);
-	int xsl, ysl, wsl, hsl;
+	xx = int(val * (H - S) + .5);
 	ysl = Y + xx;
-	hsl = S;
-	xsl = X;
-	wsl = W;
 	fl_push_clip(X, Y, W, H);
+	draw_box(FL_FLAT_BOX, X, Y, W, H, FL_BACKGROUND_COLOR);
 	if (Fl::focus() == this)
-		draw_box(FL_THIN_UP_BOX, X, Y, W, H, FL_SELECTION_COLOR);
+		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 5, 6, H - 10, FL_SELECTION_COLOR);
 	else
-		draw_box(FL_THIN_UP_BOX, X, Y, W, H, FL_BACKGROUND2_COLOR);
+		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 5, 6, H - 10, FL_BACKGROUND2_COLOR);
+	draw_box(FL_THIN_UP_BOX, X, ysl, W, S, FL_BACKGROUND2_COLOR);
+	draw_label(X, ysl, W, S);
 	fl_pop_clip();
-	if (wsl > 0 && hsl > 0)
-		draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, FL_INACTIVE_COLOR);
-	draw_label(xsl, ysl, wsl, hsl);
 }
 
 // mousewheel support for slider
@@ -2422,7 +2417,7 @@ void Button::set_value(int v)
 	{
 		v ? ui->m_bypass->set() : ui->m_bypass->clear();
 		v ? ui->b_pfx->color(fl_color_average(selection_color(), FL_INACTIVE_COLOR, .6)) : ui->b_pfx->color(
-				FL_INACTIVE_COLOR);
+						FL_INACTIVE_COLOR);
 		ui->b_pfx->redraw();
 	}
 	else if (id_layer[0] == 1025) // arp preset
@@ -2475,7 +2470,7 @@ int Button::get_value() const
 	{
 		v ? ui->m_bypass->set() : ui->m_bypass->clear();
 		v ? ui->b_pfx->color(fl_color_average(selection_color(), FL_INACTIVE_COLOR, .6)) : ui->b_pfx->color(
-				FL_INACTIVE_COLOR);
+						FL_INACTIVE_COLOR);
 		ui->b_pfx->redraw();
 	}
 	if (id_layer[0] == 258 || id_layer[0] == 1669 || id_layer[0] == 1674 || id_layer[0] == 1033 || id_layer[0] == 649) // fx bypass / lfo syncs / arp syncs
@@ -5855,24 +5850,19 @@ void Step_Offset::draw(int X, int Y, int W, int H)
 		else if (val < 0.0)
 			val = 0.0;
 	}
-	int ww = H;
-	int xx, S;
+	int xx, S, ysl;
 	S = 17;
-	xx = int(val * (ww - S) + .5);
-	int xsl, ysl, wsl, hsl;
+	xx = int(val * (H - S) + .5);
 	ysl = Y + xx;
-	hsl = S;
-	xsl = X;
-	wsl = W;
 	fl_push_clip(X, Y, W, H);
+	draw_box(FL_FLAT_BOX, X, Y, W, H, FL_BACKGROUND_COLOR);
 	if (Fl::focus() == this)
-		draw_box(FL_THIN_UP_BOX, X, Y, W, H, FL_SELECTION_COLOR);
+		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 5, 6, H - 10, FL_SELECTION_COLOR);
 	else
-		draw_box(FL_THIN_UP_BOX, X, Y, W, H, FL_BACKGROUND2_COLOR);
+		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 5, 6, H - 10, FL_BACKGROUND2_COLOR);
+	draw_box(FL_THIN_UP_BOX, X + 2, ysl, W - 4, S, FL_BACKGROUND2_COLOR);
+	draw_label(X, ysl, W, S);
 	fl_pop_clip();
-	if (wsl > 0 && hsl > 0)
-		draw_box(FL_BORDER_BOX, xsl, ysl, wsl, hsl, FL_INACTIVE_COLOR);
-	draw_label(xsl, ysl, wsl, hsl);
 }
 
 void Step_Offset::draw()
