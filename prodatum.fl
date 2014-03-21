@@ -141,7 +141,7 @@ edit_value(784, val - 52);}
   }
 } 
 
-widget_class PD_Preset_Patchcords {open
+widget_class PD_Preset_Patchcords {
   xywh {430 391 825 132} type Double labelcolor 8 hide position_relative
 } {
   Function {reset_sources()} {return_type void
@@ -152,8 +152,7 @@ widget_class PD_Preset_Patchcords {open
   Function {reset_destinations()} {return_type void
   } {
     code {for (unsigned char i = 0; i < ppc_destinations->children(); i++)
-((Fl_Choice*) ppc_destinations->array()[i])->clear();} {selected
-    }
+((Fl_Choice*) ppc_destinations->array()[i])->clear();} {}
   }
   Fl_Box {} {
     label {1-4}
@@ -361,7 +360,7 @@ widget_class PD_Preset_Patchcords {open
   }
 } 
 
-widget_class PD_Layer_Patchcords {open
+widget_class PD_Layer_Patchcords {
   xywh {495 44 825 264} type Double labelcolor 7 hide position_relative
 } {
   Function {init(int l)} {open return_type void
@@ -1561,7 +1560,7 @@ l2_filter->do_callback();}
   }
 } 
 
-widget_class PD_Main {open
+widget_class PD_Main {
   xywh {444 188 830 565} type Double box BORDER_BOX labelcolor 8 hide position_relative
 } {
   decl {PD_Layer_Strip* layer_strip[4];} {public
@@ -2648,7 +2647,7 @@ delete this;}
         xywh {0 0 846 620} labelcolor 8 resizable
       } {
         Fl_Group {} {
-          label main open
+          label main
           xywh {0 19 843 596} labeltype NO_LABEL labelcolor 8
         } {
           Fl_Button {} {
@@ -2665,7 +2664,7 @@ if (((Fl_Button*) o->array()[i])->value())
 {
 	select(i);
 	break;
-}} open
+}}
             xywh {56 25 754 19} labelcolor 8 when 0
           } {
             Fl_Button {} {
@@ -3603,13 +3602,17 @@ pxk->display_status("Tooltips disabled.");
               MenuItem {} {
                 label {About...}
                 callback {if (about->shown() && about->visible())
+{
 about->hide();
+tac_i->hide();
+about_i->show();
+}
 else
 {
 about->position(main_window->x() + (main_window->w() / 2) - (about->w() / 2),
 		main_window->y() + 80);
 about->show();
-}}
+}} selected
                 xywh {10 10 36 21} shortcut 0xffc0 labelsize 12 labelcolor 8
               }
             }
@@ -4435,8 +4438,11 @@ piano->reset_active_keys();}
       label {About prodatum}
       callback {about->hide();
 if (!pxk->Synchronized())
-open_device->showup();}
-      xywh {476 62 272 370} type Double box BORDER_BOX labelcolor 8 hide xclass prodatum
+open_device->showup();
+
+tac_i->hide();
+about_i->show();}
+      xywh {660 149 272 370} type Double box BORDER_BOX labelcolor 8 hide xclass prodatum
     } {
       Fl_Box {} {
         xywh {1 1 60 50} labelcolor 8 deactivate
@@ -4445,9 +4451,13 @@ open_device->showup();}
       Fl_Box about_text {
         xywh {60 1 211 50} box FLAT_BOX color 32 labelfont 1 labelsize 18 labelcolor 49 align 144 deactivate
       }
-      Fl_Box {} {
+      Fl_Box about_i {
         xywh {1 51 270 165} labelcolor 8 deactivate
         code0 {o->image(image_about);}
+      }
+      Fl_Box tac_i {
+        xywh {1 51 270 165} labelcolor 8 hide deactivate
+        code0 {o->image(i_tac);}
       }
       Fl_Box {} {
         label {Copyright 2008-2014 Jan Eidtmann
@@ -4459,14 +4469,18 @@ my autonomy with a donation.}
       }
       Fl_Output o_ppal {
         label {paypal:}
-        callback {Fl::copy(o->value(), 16, 1);}
+        callback {Fl::copy(o->value(), 16, 1);
+about_i->hide();
+tac_i->show();}
         xywh {72 325 127 24} selection_color 7 textcolor 8
         code0 {o->value("rdxesy@gmail.com");}
         code1 {o->clear_visible_focus();}
       }
       Fl_Button {} {
         label {Click to copy email}
-        callback {Fl::copy(o_ppal->value(), 16, 1);}
+        callback {Fl::copy(o_ppal->value(), 16, 1);
+about_i->hide();
+tac_i->show();}
         xywh {205 325 55 24} box FLAT_BOX down_box FLAT_BOX selection_color 72 labelsize 9 align 144
         code0 {o->clear_visible_focus();}
       }
