@@ -65,7 +65,7 @@ ui->i_log->show_insert_position();} {}
 } 
 
 widget_class PD_Arp_Step {open
-  xywh {504 60 40 293} type Double color 49 selection_color 49 labelcolor 8 hide position_relative
+  xywh {504 60 41 293} type Double color 49 selection_color 49 labelcolor 8 hide position_relative
 } {
   decl {void init(int s);} {public
   }
@@ -93,53 +93,53 @@ if (val == 4) // note
   edit_value(784, (int) step_offset->value());
 else
   edit_value(784, val - 52);}
-    xywh {0 0 40 90} color 49 selection_color 49 labeltype NO_LABEL labelsize 10 labelcolor 7 align 0 when 0
+    xywh {0 0 41 90} color 49 selection_color 49 labeltype NO_LABEL labelsize 10 labelcolor 7 align 0 when 0
     class Step_Type
   } {
     Fl_Button step_end {
       label End
       callback {((Group*)o->parent())->do_callback();}
-      xywh {0 0 40 17} type Radio down_box DOWN_BOX color 7 selection_color 72 labelsize 10 labelcolor 8 align 80 when 6
+      xywh {0 0 41 17} type Radio down_box DOWN_BOX color 7 selection_color 72 labelsize 10 labelcolor 8 align 80 when 6
     }
     Fl_Button step_skip {
       label Skip
       callback {((Group*)o->parent())->do_callback();}
-      xywh {0 18 40 17} type Radio down_box DOWN_BOX color 7 selection_color 137 labelsize 10 labelcolor 8 align 80 when 6
+      xywh {0 18 41 17} type Radio down_box DOWN_BOX color 7 selection_color 137 labelsize 10 labelcolor 8 align 80 when 6
     }
     Fl_Button step_rest {
       label Rest
       callback {((Group*)o->parent())->do_callback();}
-      xywh {0 36 40 17} type Radio down_box DOWN_BOX color 7 selection_color 152 labelsize 10 labelcolor 8 align 80 when 6
+      xywh {0 36 41 17} type Radio down_box DOWN_BOX color 7 selection_color 152 labelsize 10 labelcolor 8 align 80 when 6
     }
     Fl_Button step_tie {
       label Tie
       callback {((Group*)o->parent())->do_callback();}
-      xywh {0 54 40 17} type Radio down_box DOWN_BOX color 7 selection_color 179 labelsize 10 labelcolor 8 align 80 when 6
+      xywh {0 54 41 17} type Radio down_box DOWN_BOX color 7 selection_color 179 labelsize 10 labelcolor 8 align 80 when 6
     }
     Fl_Button step_key {
       label Key
       callback {((Group*)o->parent())->do_callback();}
-      xywh {0 72 40 17} type Radio down_box DOWN_BOX color 7 selection_color 67 labelsize 10 labelcolor 8 align 80 when 6
+      xywh {0 72 41 17} type Radio down_box DOWN_BOX color 7 selection_color 67 labelsize 10 labelcolor 8 align 80 when 6
     }
   }
   Fl_Value_Output step_duration {
     callback {edit_value(786, (int) o->value());}
-    xywh {0 91 40 17} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 64 when 4 minimum 1 maximum 19 step 1 textfont 4 textsize 12 textcolor 8
+    xywh {0 91 41 17} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 64 when 4 minimum 1 maximum 19 step 1 textfont 4 textsize 12 textcolor 8
     class Step_Value
   }
   Fl_Value_Output step_repeat {
     callback {edit_value(787, (int) o->value() - 1);}
-    xywh {0 110 40 17} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 64 when 4 minimum 1 maximum 32 step 1 textfont 4 textsize 12 textcolor 8
+    xywh {0 110 41 17} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 64 when 4 minimum 1 maximum 32 step 1 textfont 4 textsize 12 textcolor 8
     class Step_Value
   }
   Fl_Value_Output step_velocity {
     callback {edit_value(785, (int) o->value());}
-    xywh {0 129 40 17} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 64 when 4 maximum 127 step 1 textfont 4 textsize 12 textcolor 8
+    xywh {0 129 41 17} box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 64 when 4 maximum 127 step 1 textfont 4 textsize 12 textcolor 8
     class Step_Value
   }
   Fl_Value_Slider step_offset {
     callback {if (step_key->value()) edit_value(784, (int) o->value());}
-    xywh {0 148 40 145} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 80 when 4 minimum 48 maximum -48 step 1 textfont 4 textsize 12 textcolor 8
+    xywh {0 148 41 145} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 80 when 4 minimum 48 maximum -48 step 1 textfont 4 textsize 12 textcolor 8
     class Step_Offset
   }
 } 
@@ -773,7 +773,7 @@ widget_class PD_Layer_Patchcords {
 } 
 
 widget_class PD_Layer_Strip {
-  xywh {1000 180 100 540} type Double color 49 selection_color 49 labelcolor 8 hide position_relative
+  xywh {783 191 100 540} type Double color 49 selection_color 49 labelcolor 8 hide position_relative
 } {
   decl {void init(int layer);} {public
   }
@@ -880,19 +880,19 @@ coarse->do_callback();
   }
   Fl_Slider volume {
     label dB
-    tooltip {Voice volume} xywh {10 365 32 129} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 1.19102e+06 maximum 0 step 1
+    tooltip {Voice volume} xywh {9 365 35 129} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 1.19102e+06 maximum 0 step 1
     class Slider
   }
   Fl_Button mute_b {
     label M
     callback {pxk->mute(o->value(), layer);}
-    tooltip {Mute Voice} xywh {49 365 19 17} type Toggle box BORDER_BOX down_box BORDER_BOX color 7 selection_color 72 labelsize 10 labelcolor 8 when 1
+    tooltip {Mute Voice} xywh {49 366 19 17} type Toggle box BORDER_BOX down_box BORDER_BOX color 7 selection_color 72 labelsize 10 labelcolor 8 when 1
     class Fixed_Button
   }
   Fl_Button solo_b {
     label S
     callback {pxk->solo(o->value(), layer);}
-    tooltip {Solo Voice} xywh {76 365 19 17} type Toggle box BORDER_BOX down_box BORDER_BOX color 7 selection_color 219 labelsize 10 labelcolor 8 when 1
+    tooltip {Solo Voice} xywh {76 366 19 17} type Toggle box BORDER_BOX down_box BORDER_BOX color 7 selection_color 219 labelsize 10 labelcolor 8 when 1
     class Fixed_Button
   }
   Fl_Button copy {
@@ -1567,7 +1567,7 @@ widget_class PD_Main {
   decl {Fl_Widget* ctrl_x[16];} {public
   }
   Fl_Group {} {
-    label main
+    label main open
     xywh {0 0 834 574} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8 align 0
   } {
     Fl_Group {} {
@@ -1798,7 +1798,7 @@ midi->audit();}
         class MiniPiano
       }
     }
-    Fl_Group controller {
+    Fl_Group controller {open
       xywh {4 257 196 308} color 49 selection_color 49 labelcolor 8
     } {
       Fl_Button {} {
@@ -1824,81 +1824,81 @@ else // initial controller amounts
         tooltip {Copy controller settings to initial controller amounts} xywh {160 257 40 17} down_box DOWN_BOX color 8 selection_color 72 labelsize 10 labelcolor 7 align 80 deactivate
       }
       Fl_Group {} {
-        label CONTROLLER
+        label CONTROLLER open
         xywh {4 274 196 291} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0
       } {
-        Fl_Group ctrl_initial {
+        Fl_Group ctrl_initial {open
           tooltip {Initial Controller Amounts} xywh {7 277 188 285} color 49 selection_color 49 labelcolor 8 hide
         } {
           Fl_Slider {} {
             label A
-            xywh {7 278 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
+            xywh {7 278 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(915);}
             class Slider
           }
           Fl_Slider {} {
             label B
-            xywh {39 278 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
+            xywh {39 278 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(916);}
             class Slider
           }
           Fl_Slider {} {
             label C
-            xywh {71 278 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
+            xywh {71 278 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(917);}
             class Slider
           }
           Fl_Slider {} {
             label D
-            xywh {102 278 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
+            xywh {102 278 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(918);}
             class Slider
           }
           Fl_Slider {} {
             label E
-            xywh {134 278 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
+            xywh {134 278 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(919);}
             class Slider
           }
           Fl_Slider {} {
             label F
-            xywh {166 278 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
+            xywh {166 278 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(920);}
             class Slider
           }
           Fl_Slider {} {
             label G
-            xywh {7 421 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
+            xywh {7 421 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(921);}
             class Slider
           }
           Fl_Slider {} {
             label H
-            xywh {39 421 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
+            xywh {39 421 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(922);}
             class Slider
           }
           Fl_Slider {} {
             label I
-            xywh {71 421 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
+            xywh {71 421 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(924);}
             class Slider
           }
           Fl_Slider {} {
             label J
-            xywh {102 421 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
+            xywh {102 421 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(925);}
             class Slider
           }
           Fl_Slider {} {
             label K
-            xywh {134 421 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
+            xywh {134 421 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(926);}
             class Slider
           }
           Fl_Slider {} {
             label L
-            xywh {166 421 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
+            xywh {166 421 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum -1 step 1
             code0 {o->set_id(927);}
             class Slider
           }
@@ -1909,84 +1909,84 @@ else // initial controller amounts
           Fl_Slider {} {
             label A
             callback {pxk->cc_callback(1, (int) o->value());}
-            xywh {7 278 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
+            xywh {7 278 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[1] = o;}
             class Slider
           }
           Fl_Slider {} {
             label B
             callback {pxk->cc_callback(2, (int) o->value());}
-            xywh {39 278 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
+            xywh {39 278 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[2] = o;}
             class Slider
           }
           Fl_Slider {} {
             label C
             callback {pxk->cc_callback(3, (int) o->value());}
-            xywh {71 278 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
+            xywh {71 278 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[3] = o;}
             class Slider
           }
           Fl_Slider {} {
             label D
             callback {pxk->cc_callback(4, (int) o->value());}
-            xywh {102 278 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
+            xywh {102 278 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[4] = o;}
             class Slider
           }
           Fl_Slider {} {
             label E
             callback {pxk->cc_callback(5, (int) o->value());}
-            xywh {134 278 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
+            xywh {134 278 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[5] = o;}
             class Slider
           }
           Fl_Slider {} {
             label F
             callback {pxk->cc_callback(6, (int) o->value());}
-            xywh {166 278 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
+            xywh {166 278 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[6] = o;}
             class Slider
           }
           Fl_Slider {} {
             label G
             callback {pxk->cc_callback(7, (int) o->value());}
-            xywh {7 421 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
+            xywh {7 421 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[7] = o;}
             class Slider
           }
           Fl_Slider {} {
             label H
             callback {pxk->cc_callback(8, (int) o->value());}
-            xywh {39 421 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
+            xywh {39 421 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[8] = o;}
             class Slider
           }
           Fl_Slider {} {
             label I
             callback {pxk->cc_callback(9, (int) o->value());}
-            xywh {71 421 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
+            xywh {71 421 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[9] = o;}
             class Slider
           }
           Fl_Slider {} {
             label J
             callback {pxk->cc_callback(10, (int) o->value());}
-            xywh {102 421 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
+            xywh {102 421 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[10] = o;}
             class Slider
           }
           Fl_Slider {} {
             label K
             callback {pxk->cc_callback(11, (int) o->value());}
-            xywh {134 421 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
+            xywh {134 421 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[11] = o;}
             class Slider
           }
           Fl_Slider {} {
             label L
             callback {pxk->cc_callback(12, (int) o->value());}
-            xywh {166 421 30 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
+            xywh {166 421 29 141} box THIN_UP_BOX color 7 selection_color 7 labelsize 10 labelcolor 8 align 64 minimum 127 maximum 0 step 1
             code0 {ctrl_x[12] = o;}
             class Slider
           }
@@ -3633,215 +3633,215 @@ about->show();
       }
     }
     Fl_Window arp_editor_w {
-      label {Arp editor} open
-      xywh {1020 250 765 658} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
-      class Double_Window xclass prodatum size_range {640 480 760 600}
+      label {Arp editor} open selected
+      xywh {661 249 765 658} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
+      class Double_Window xclass prodatum size_range {640 480 765 658}
     } {
       Fl_Group {} {open
         xywh {5 5 755 603} box BORDER_BOX color 49 selection_color 49 labelcolor 0
       } {
         Fl_Box {} {
-          xywh {10 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {10 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(0);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {53 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {53 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(1);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {96 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {96 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(2);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {139 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {139 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(3);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {182 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {182 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(4);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {225 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {225 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(5);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {268 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {268 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(6);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {311 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {311 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(7);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {354 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {354 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(8);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {397 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {397 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(9);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {440 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {440 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(10);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {483 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {483 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(11);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {526 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {526 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(12);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {569 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {569 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(13);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {612 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {612 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(14);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {655 10 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {655 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(15);}
           class PD_Arp_Step
         }
         Fl_Box {} {
           label OP
-          xywh {698 10 1 90} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 10 1 90} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label TIME
-          xywh {698 103 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 103 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label REPEAT
-          xywh {698 121 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 121 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label VELOCITY
-          xywh {698 139 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 139 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label OFFSET
-          xywh {698 159 1 143} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 159 1 143} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
-          xywh {10 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {10 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(16);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {53 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {53 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(17);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {96 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {96 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(18);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {139 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {139 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(19);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {182 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {182 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(20);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {225 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {225 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(21);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {268 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {268 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(22);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {311 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {311 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(23);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {354 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {354 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(24);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {397 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {397 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(25);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {440 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {440 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(26);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {483 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {483 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(27);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {526 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {526 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(28);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {569 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {569 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(29);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {612 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {612 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(30);}
           class PD_Arp_Step
         }
         Fl_Box {} {
-          xywh {655 308 40 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
+          xywh {655 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
           code0 {o->init(31);}
           class PD_Arp_Step
         }
         Fl_Box {} {
           label OP
-          xywh {698 308 1 90} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 308 1 90} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label TIME
-          xywh {698 401 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 401 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label REPEAT
-          xywh {698 419 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 419 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label VELOCITY
-          xywh {698 437 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 437 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label OFFSET
-          xywh {698 457 1 143} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 457 1 143} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
       }
-      Fl_Box arp_mp {selected
+      Fl_Box arp_mp {
         xywh {5 612 202 45} box FLAT_BOX color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
         class MiniPiano
       }

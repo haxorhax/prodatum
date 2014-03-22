@@ -117,23 +117,23 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_LOG_EVENTS_IN] = 0;
 	defaults[CFG_WINDOW_WIDTH] = 845;
 	defaults[CFG_WINDOW_HEIGHT] = 620;
-	defaults[CFG_BGR] = 136;
-	defaults[CFG_BGG] = 142;
-	defaults[CFG_BGB] = 137;
+	defaults[CFG_BGR] = 93;
+	defaults[CFG_BGG] = 106;
+	defaults[CFG_BGB] = 115;
 	defaults[CFG_BG2R] = 41;
-	defaults[CFG_BG2G] = 50;
+	defaults[CFG_BG2G] = 48;
 	defaults[CFG_BG2B] = 51;
-	defaults[CFG_FGR] = 243;
-	defaults[CFG_FGG] = 243;
-	defaults[CFG_FGB] = 232;
-	defaults[CFG_SLR] = 199;
-	defaults[CFG_SLG] = 218;
-	defaults[CFG_SLB] = 158;
-	defaults[CFG_INR] = 218;
-	defaults[CFG_ING] = 218;
-	defaults[CFG_INB] = 197;
+	defaults[CFG_FGR] = 216;
+	defaults[CFG_FGG] = 216;
+	defaults[CFG_FGB] = 206;
+	defaults[CFG_SLR] = 75;
+	defaults[CFG_SLG] = 113;
+	defaults[CFG_SLB] = 151;
+	defaults[CFG_INR] = 168;
+	defaults[CFG_ING] = 176;
+	defaults[CFG_INB] = 143;
 	defaults[CFG_KNOB_COLOR1] = 2;
-	defaults[CFG_KNOB_COLOR2] = 1;
+	defaults[CFG_KNOB_COLOR2] = 3;
 
 	// load config
 	char _fname[PATH_MAX];

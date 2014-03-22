@@ -1477,31 +1477,39 @@ int Slider::get_value() const
 	return (int) value();
 }
 
-void Slider::draw_scale(int X, int Y, int W, int H)
+void Slider::draw_scale(int Y, int H, int l, int r)
 {
 	(active_r()) ?
 			fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .6)) :
 			fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .2));
 	int S = Y + H - 9;
-	int x = X + 9;
-	int w = x + W - 18;
+	fl_line_style(FL_SOLID, 1);
+	double he = ((double) H - 18.0) / pow(106, 3);
 	if (id_layer[0] == 1410)
 	{
-		for (double i = 0.0; i < 5.1; i += 0.15)
+		for (char i = 0; i <= 104; i += 4)
 		{
-			double y = (double) S - pow(i, 3.0);
-			fl_line(x, (int) y, w, (int) y);
+			double y = (double) S - pow(i, 3.0) * he;
+			fl_line(l - 8, (int) y, l + r + 8, (int) y);
 		}
 		fl_line_style(FL_SOLID, 3);
-		fl_line(x - 3, (int) S - pow(4.35, 3.0), w + 4, (int) S - pow(4.35, 3.0));
+		double y = (double) S - pow(96, 3.0) * he;
+		fl_line(l - 13, (int) y, l + r + 13, (int) y);
 	}
 	else
 	{
-		double intvl = (H - 18) / 4.0;
-		for (int i = 0; i < 5; i++)
+		float intvl = (H - 18) / 4.0;
+		for (char i = 0; i < 5; i++)
 		{
-			double y = S - i * intvl;
-			fl_line(x, (int) y, w, (int) y);
+			float y = S - i * intvl;
+			if (i == 2)
+			{
+				fl_line_style(FL_SOLID, 3);
+				fl_line(l - 8, (int) y, l + r + 8, (int) y);
+				fl_line_style(FL_SOLID, 1);
+			}
+			else
+				fl_line(l - 5, (int) y, l + r + 5, (int) y);
 		}
 	}
 	fl_line_style(0);
@@ -1530,11 +1538,22 @@ void Slider::draw()
 	ysl = Y + xx;
 	fl_push_clip(X, Y, W, H);
 	draw_box(FL_FLAT_BOX, X, Y, W, H, FL_BACKGROUND_COLOR);
-	draw_scale(X, Y, W, H);
-	if (Fl::focus() == this)
-		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 6, 6, H - 12, FL_SELECTION_COLOR);
+	int l, r;
+	if (W % 2)
+	{
+		l = X + (W - 1) / 2;
+		r = 1;
+	}
 	else
-		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 6, 6, H - 12, FL_BACKGROUND2_COLOR);
+	{
+		l = X + (W / 2);
+		r = 0;
+	}
+	draw_scale(Y, H, l, r);
+	if (Fl::focus() == this)
+		draw_box(FL_BORDER_BOX, l - 2, Y + 6, 4 + r, H - 12, FL_SELECTION_COLOR);
+	else
+		draw_box(FL_BORDER_BOX, l - 2, Y + 6, 4 + r, H - 12, FL_BACKGROUND2_COLOR);
 	draw_box(FL_THIN_UP_BOX, X, ysl, W, S, FL_BACKGROUND2_COLOR);
 	draw_label(X, ysl, W, S);
 	fl_pop_clip();
@@ -5871,20 +5890,27 @@ int Step_Offset::handle(int ev)
 			shh - Fl::box_dh(box()));
 }
 
-void Step_Offset::draw_scale(int X, int Y, int W, int H)
+void Step_Offset::draw_scale(int Y, int H, int l, int r)
 {
 	(active_r()) ?
 			fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .6)) :
 			fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .2));
 	int S = Y + H - 9;
-	int x = X + 4;
-	int w = X + W - 4;
-	double intvl = (H - 17) / 8.0;
-	for (int i = 0; i < 9; i++)
+	float intvl = (H - 17) / 8.0;
+	fl_line_style(FL_SOLID, 1);
+	for (char i = 0; i < 9; i++)
 	{
-		double y = S - i * intvl;
-		fl_line(x, (int) y, w, (int) y);
+		float y = S - i * intvl;
+		if (i == 4)
+		{
+			fl_line_style(FL_SOLID, 3);
+			fl_line(l - 8, (int) y, l + r + 8, (int) y);
+			fl_line_style(FL_SOLID, 1);
+		}
+		else
+			fl_line(l - 13, (int) y, l + r + 13, (int) y);
 	}
+	fl_line_style(0);
 }
 
 void Step_Offset::draw(int X, int Y, int W, int H)
@@ -5906,11 +5932,22 @@ void Step_Offset::draw(int X, int Y, int W, int H)
 	ysl = Y + xx;
 	fl_push_clip(X, Y, W, H);
 	draw_box(FL_FLAT_BOX, X, Y, W, H, FL_BACKGROUND_COLOR);
-	draw_scale(X, Y, W, H);
-	if (Fl::focus() == this)
-		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 6, 6, H - 12, FL_SELECTION_COLOR);
+	int l, r;
+	if (W % 2)
+	{
+		l = X + (W - 1) / 2;
+		r = 1;
+	}
 	else
-		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 6, 6, H - 12, FL_BACKGROUND2_COLOR);
+	{
+		l = X + (W / 2);
+		r = 0;
+	}
+	draw_scale(Y, H, l, r);
+	if (Fl::focus() == this)
+		draw_box(FL_BORDER_BOX, l - 2, Y + 6, 4 + r, H - 12, FL_SELECTION_COLOR);
+	else
+		draw_box(FL_BORDER_BOX, l - 2, Y + 6, 4 + r, H - 12, FL_BACKGROUND2_COLOR);
 	draw_box(FL_THIN_UP_BOX, X, ysl, W, S, FL_BACKGROUND2_COLOR);
 	draw_label(X, ysl, W, S);
 	fl_pop_clip();
