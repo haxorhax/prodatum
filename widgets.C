@@ -1485,7 +1485,7 @@ void Slider::draw_scale(int Y, int H, int l, int r)
 	int S = Y + H - 9;
 	fl_line_style(FL_SOLID, 1);
 	double he = ((double) H - 18.0) / pow(106, 3);
-	if (id_layer[0] == 1410)
+	if (id_layer[0] == 1410) // volume sliders
 	{
 		for (char i = 0; i <= 104; i += 4)
 		{
@@ -1505,11 +1505,11 @@ void Slider::draw_scale(int Y, int H, int l, int r)
 			if (i == 2)
 			{
 				fl_line_style(FL_SOLID, 3);
-				fl_line(l - 8, (int) y, l + r + 8, (int) y);
+				fl_line(l - 13, (int) y, l + r + 13, (int) y);
 				fl_line_style(FL_SOLID, 1);
 			}
 			else
-				fl_line(l - 5, (int) y, l + r + 5, (int) y);
+				fl_line(l - 8, (int) y, l + r + 8, (int) y);
 		}
 	}
 	fl_line_style(0);
@@ -1551,9 +1551,9 @@ void Slider::draw()
 	}
 	draw_scale(Y, H, l, r);
 	if (Fl::focus() == this)
-		draw_box(FL_BORDER_BOX, l - 2, Y + 6, 4 + r, H - 12, FL_SELECTION_COLOR);
+		draw_box(FL_BORDER_BOX, l - 3, Y + 6, 6 + r, H - 12, FL_SELECTION_COLOR);
 	else
-		draw_box(FL_BORDER_BOX, l - 2, Y + 6, 4 + r, H - 12, FL_BACKGROUND2_COLOR);
+		draw_box(FL_BORDER_BOX, l - 3, Y + 6, 6 + r, H - 12, FL_BACKGROUND2_COLOR);
 	draw_box(FL_THIN_UP_BOX, X, ysl, W, S, FL_BACKGROUND2_COLOR);
 	draw_label(X, ysl, W, S);
 	fl_pop_clip();
@@ -5945,9 +5945,9 @@ void Step_Offset::draw(int X, int Y, int W, int H)
 	}
 	draw_scale(Y, H, l, r);
 	if (Fl::focus() == this)
-		draw_box(FL_BORDER_BOX, l - 2, Y + 6, 4 + r, H - 12, FL_SELECTION_COLOR);
+		draw_box(FL_BORDER_BOX, l - 3, Y + 6, 6 + r, H - 12, FL_SELECTION_COLOR);
 	else
-		draw_box(FL_BORDER_BOX, l - 2, Y + 6, 4 + r, H - 12, FL_BACKGROUND2_COLOR);
+		draw_box(FL_BORDER_BOX, l - 3, Y + 6, 6 + r, H - 12, FL_BACKGROUND2_COLOR);
 	draw_box(FL_THIN_UP_BOX, X, ysl, W, S, FL_BACKGROUND2_COLOR);
 	draw_label(X, ysl, W, S);
 	fl_pop_clip();
