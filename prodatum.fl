@@ -1040,11 +1040,11 @@ instrument_filter->do_callback();}
     } {}
     Fl_Button lfo2_sync {
       label Sync
-      tooltip {LFO Sync: specifies whether the LFO is synchronized to a key stroke or is Free Running. Key Sync starts the LFO wave at the beginning of its cycle each time you press a key on the controller. In Free Run mode, the LFO wave begins at a random point in its cycle each time you press a key on the controller} xywh {645 238 41 17} type Toggle down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
+      tooltip {LFO Sync: specifies whether the LFO is synchronized to a key stroke or is Free Running. Key Sync starts the LFO wave at the beginning of its cycle each time you press a key on the controller. In Free Run mode, the LFO wave begins at a random point in its cycle each time you press a key on the controller} xywh {645 240 41 17} type Toggle down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
       class Button
     }
     Fl_Dial lfo2_rate {
-      label Rate
+      label Rate selected
       tooltip {LFO Rate: the LFO speed in absolute frequency rate values (0.08 Hz to 18.14 Hz)  or tempo-based note values} xywh {690 226 40 40} color 7 selection_color 0 labelsize 10 labelcolor 0 align 1 minimum -25 maximum 127 step 1
       class Fl_Knob
     }
@@ -1060,11 +1060,11 @@ instrument_filter->do_callback();}
     }
     Fl_Box {} {
       label 1
-      xywh {645 134 40 18} color 49 selection_color 49 labelfont 1 labelsize 15 labelcolor 0
+      xywh {642 135 30 18} color 49 selection_color 49 labelfont 1 labelsize 15 labelcolor 0
     }
     Fl_Box {} {
       label 2
-      xywh {645 214 40 18} color 49 selection_color 49 labelfont 1 labelsize 15 labelcolor 0
+      xywh {642 217 30 18} color 49 selection_color 49 labelfont 1 labelsize 15 labelcolor 0
     }
   }
   Fl_Button copy_pc {
@@ -2637,13 +2637,13 @@ Fl::visual(FL_DOUBLE|FL_RGB);} {}
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
+delete this;} open
       xywh {535 192 845 620} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620}
     } {
-      Fl_Group supergroup {
+      Fl_Group supergroup {open
         xywh {0 0 846 620} color 49 selection_color 49 labelcolor 8 resizable
       } {
         Fl_Group {} {
@@ -2884,7 +2884,7 @@ else
             code0 {o->clear_visible_focus();}
           }
           Fl_Group g_value {
-            label VALUE open
+            label VALUE
             xywh {639 66 196 56} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0
           } {
             Fl_Box {} {
@@ -2939,7 +2939,7 @@ if (!eall && pxk->preset)
             }
           }
           Fl_Group g_minipiano {
-            label MINIPIANO open
+            label MINIPIANO
             xywh {639 66 196 56} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0 hide
           } {
             Fl_Box global_minipiano {
@@ -2948,11 +2948,11 @@ if (!eall && pxk->preset)
             }
           }
           Fl_Group g_pfx {open
-            xywh {639 129 196 321} color 49 selection_color 49 labeltype NO_LABEL labelcolor 0 align 0
+            xywh {639 129 196 324} color 49 selection_color 49 labeltype NO_LABEL labelcolor 0 align 0
           } {
             Fl_Group g_effects {
-              label EFFECTS
-              tooltip {Effects section (it is disabled when the selected channel and the selected FX channel differ)} xywh {639 146 196 304} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0 hide
+              label EFFECTS open
+              tooltip {Effects section (it is disabled when the selected channel and the selected FX channel differ)} xywh {639 146 196 307} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0 hide
             } {
               Fl_Choice fx_channel {open
                 tooltip {FX Control Channel. When in multi mode, you can set this to "0" which applies the Master menu effects settings to all 16 MIDI channels. If you want more control, you can choose a channel  which applies the effects settings of the preset on the specified channel to all the other channels. Changing the preset on the specified channel changes the effect. If you are in Omni or Poly modes this parameter is disabled} xywh {649 151 82 21} down_box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 0 align 0 textsize 13 textcolor 8
@@ -2975,12 +2975,12 @@ if (!eall && pxk->preset)
                   tooltip {Selects the type of effect A} xywh {649 178 175 21} down_box BORDER_BOX color 7 selection_color 15 labelcolor 0 align 2 textsize 13 textcolor 8
                   class Choice
                 } {}
-                Fl_Group g_fxa {
+                Fl_Group g_fxa {open
                   xywh {644 200 185 115} color 49 selection_color 49 labelcolor 8
                 } {
                   Fl_Box {} {
                     label FXA
-                    xywh {649 226 40 24} color 49 selection_color 49 labelfont 1 labelsize 15 labelcolor 0
+                    xywh {647 220 40 24} color 49 selection_color 49 labelfont 1 labelsize 15 labelcolor 0
                   }
                   Fl_Dial fxa_decay {
                     label Decay
@@ -3027,7 +3027,7 @@ if (!eall && pxk->preset)
                 } {
                   Fl_Box {} {
                     label FXB
-                    xywh {649 364 40 24} color 49 selection_color 49 labelfont 1 labelsize 15 labelcolor 0
+                    xywh {647 358 40 24} color 49 selection_color 49 labelfont 1 labelsize 15 labelcolor 0
                   }
                   Fl_Dial fxb_feedback {
                     label Feedback
@@ -3177,7 +3177,7 @@ preset_filter->do_callback();}
             }
           }
           Fl_Group g_multisetups {
-            label MULTISETUP open
+            label MULTISETUP
             xywh {639 146 196 304} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0 hide
           } {
             Fl_Browser multisetups {
@@ -3257,7 +3257,7 @@ pxk->preset->set_name(o->value(), 1, o->position());}
           }
         }
         Fl_Group {} {
-          label menu open
+          label menu
           xywh {0 0 231 21} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8 align 0
         } {
           Fl_Box {} {
@@ -3633,7 +3633,7 @@ about->show();
       }
     }
     Fl_Window arp_editor_w {
-      label {Arp editor} open selected
+      label {Arp editor}
       xywh {661 249 765 658} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
       class Double_Window xclass prodatum size_range {640 480 765 658}
     } {

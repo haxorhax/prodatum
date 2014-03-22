@@ -2,9 +2,12 @@ v2.0.0
 
 * windows version got an icon
 * arp editor could crash. fixed.
-* redesigned slider because i did not like their boldness
-* added some scales to sliders
+* some more updates to the arp editor
+* redesigned sliders
 * fresh default colors
+* added two command line options -ti and -i:
+  -ti [title] allows you to set the window title
+  -i will start prodatum minimized
 
 
 v2.0rc23
