@@ -874,6 +874,7 @@ public:
 class Step_Offset: public Fl_Value_Slider
 {
 	int handle(int event);
+	void draw_scale(int, int, int, int);
 	int s;
 	char root;
 protected:

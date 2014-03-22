@@ -1482,14 +1482,29 @@ void Slider::draw_scale(int X, int Y, int W, int H)
 	(active_r()) ?
 			fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .6)) :
 			fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .2));
-	int S = Y + H;
-	int x = X + 2;
-	int w = x + W - 4;
-	for (double i = 2.0; i < 5.0; i += 0.2)
+	int S = Y + H - 9;
+	int x = X + 9;
+	int w = x + W - 18;
+	if (id_layer[0] == 1410)
 	{
-		double y = (double) S - pow(i, 3.0);
-		fl_line(x, (int) y, w, (int) y);
+		for (double i = 0.0; i < 5.1; i += 0.15)
+		{
+			double y = (double) S - pow(i, 3.0);
+			fl_line(x, (int) y, w, (int) y);
+		}
+		fl_line_style(FL_SOLID, 3);
+		fl_line(x - 3, (int) S - pow(4.35, 3.0), w + 4, (int) S - pow(4.35, 3.0));
 	}
+	else
+	{
+		double intvl = (H - 18) / 4.0;
+		for (int i = 0; i < 5; i++)
+		{
+			double y = S - i * intvl;
+			fl_line(x, (int) y, w, (int) y);
+		}
+	}
+	fl_line_style(0);
 }
 
 void Slider::draw()
@@ -1515,12 +1530,11 @@ void Slider::draw()
 	ysl = Y + xx;
 	fl_push_clip(X, Y, W, H);
 	draw_box(FL_FLAT_BOX, X, Y, W, H, FL_BACKGROUND_COLOR);
-	if (id_layer[0] == 1410)
-		draw_scale(X, Y, W, H);
+	draw_scale(X, Y, W, H);
 	if (Fl::focus() == this)
-		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 5, 6, H - 10, FL_SELECTION_COLOR);
+		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 6, 6, H - 12, FL_SELECTION_COLOR);
 	else
-		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 5, 6, H - 10, FL_BACKGROUND2_COLOR);
+		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 6, 6, H - 12, FL_BACKGROUND2_COLOR);
 	draw_box(FL_THIN_UP_BOX, X, ysl, W, S, FL_BACKGROUND2_COLOR);
 	draw_label(X, ysl, W, S);
 	fl_pop_clip();
@@ -5857,6 +5871,22 @@ int Step_Offset::handle(int ev)
 			shh - Fl::box_dh(box()));
 }
 
+void Step_Offset::draw_scale(int X, int Y, int W, int H)
+{
+	(active_r()) ?
+			fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .6)) :
+			fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .2));
+	int S = Y + H - 9;
+	int x = X + 4;
+	int w = X + W - 4;
+	double intvl = (H - 17) / 8.0;
+	for (int i = 0; i < 9; i++)
+	{
+		double y = S - i * intvl;
+		fl_line(x, (int) y, w, (int) y);
+	}
+}
+
 void Step_Offset::draw(int X, int Y, int W, int H)
 {
 	double val;
@@ -5876,10 +5906,11 @@ void Step_Offset::draw(int X, int Y, int W, int H)
 	ysl = Y + xx;
 	fl_push_clip(X, Y, W, H);
 	draw_box(FL_FLAT_BOX, X, Y, W, H, FL_BACKGROUND_COLOR);
+	draw_scale(X, Y, W, H);
 	if (Fl::focus() == this)
-		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 5, 6, H - 10, FL_SELECTION_COLOR);
+		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 6, 6, H - 12, FL_SELECTION_COLOR);
 	else
-		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 5, 6, H - 10, FL_BACKGROUND2_COLOR);
+		draw_box(FL_BORDER_BOX, X + w() / 2 - 3, Y + 6, 6, H - 12, FL_BACKGROUND2_COLOR);
 	draw_box(FL_THIN_UP_BOX, X, ysl, W, S, FL_BACKGROUND2_COLOR);
 	draw_label(X, ysl, W, S);
 	fl_pop_clip();
