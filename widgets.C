@@ -1489,12 +1489,12 @@ void Slider::draw_scale(int Y, int H, int l, int r)
 		for (char i = 0; i <= 104; i += 4)
 		{
 			double y = (double) S - pow(i, 3.0) * he;
-			fl_line(l - 8, (int) y, l + r + 8, (int) y);
+			fl_line(l - 8, (int) y, l + r + 7, (int) y);
 		}
 		double y = (double) S - pow(96, 3.0) * he;
-		fl_line(l - 13, (int) y - 1, l + r + 13, (int) y - 1);
-		fl_line(l - 13, (int) y, l + r + 13, (int) y);
-		fl_line(l - 13, (int) y + 1, l + r + 13, (int) y + 1);
+		fl_line(l - 13, (int) y - 1, l + r + 12, (int) y - 1);
+		fl_line(l - 13, (int) y, l + r + 12, (int) y);
+		fl_line(l - 13, (int) y + 1, l + r + 12, (int) y + 1);
 	}
 	else
 	{
@@ -1504,12 +1504,12 @@ void Slider::draw_scale(int Y, int H, int l, int r)
 			float y = S - i * intvl;
 			if (i == 2)
 			{
-				fl_line(l - 13, (int) y - 1, l + r + 13, (int) y - 1);
-				fl_line(l - 13, (int) y, l + r + 13, (int) y);
-				fl_line(l - 13, (int) y + 1, l + r + 13, (int) y + 1);
+				fl_line(l - 13, (int) y - 1, l + r + 12, (int) y - 1);
+				fl_line(l - 13, (int) y, l + r + 12, (int) y);
+				fl_line(l - 13, (int) y + 1, l + r + 12, (int) y + 1);
 			}
 			else
-				fl_line(l - 8, (int) y, l + r + 8, (int) y);
+				fl_line(l - 8, (int) y, l + r + 7, (int) y);
 		}
 	}
 }
@@ -5901,12 +5901,12 @@ void Step_Offset::draw_scale(int Y, int H, int l, int r)
 		float y = S - i * intvl;
 		if (i == 4)
 		{
-			fl_line(l - 8, (int) y - 1, l + r + 8, (int) y - 1);
-			fl_line(l - 8, (int) y, l + r + 8, (int) y);
-			fl_line(l - 8, (int) y + 1, l + r + 8, (int) y + 1);
+			fl_line(l - 8, (int) y - 1, l + r + 7, (int) y - 1);
+			fl_line(l - 8, (int) y, l + r + 7, (int) y);
+			fl_line(l - 8, (int) y + 1, l + r + 7, (int) y + 1);
 		}
 		else
-			fl_line(l - 13, (int) y, l + r + 13, (int) y);
+			fl_line(l - 13, (int) y, l + r + 12, (int) y);
 	}
 }
 
