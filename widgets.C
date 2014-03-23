@@ -1492,9 +1492,9 @@ void Slider::draw_scale(int Y, int H, int l, int r)
 			fl_line(l - 8, (int) y, l + r + 7, (int) y);
 		}
 		double y = (double) S - pow(96, 3.0) * he;
-		fl_line(l - 13, (int) y - 1, l + r + 12, (int) y - 1);
+		fl_line(l - 12, (int) y - 1, l + r + 11, (int) y - 1);
 		fl_line(l - 13, (int) y, l + r + 12, (int) y);
-		fl_line(l - 13, (int) y + 1, l + r + 12, (int) y + 1);
+		fl_line(l - 12, (int) y + 1, l + r + 11, (int) y + 1);
 	}
 	else
 	{
@@ -1504,9 +1504,9 @@ void Slider::draw_scale(int Y, int H, int l, int r)
 			float y = S - i * intvl;
 			if (i == 2)
 			{
-				fl_line(l - 13, (int) y - 1, l + r + 12, (int) y - 1);
+				fl_line(l - 12, (int) y - 1, l + r + 11, (int) y - 1);
 				fl_line(l - 13, (int) y, l + r + 12, (int) y);
-				fl_line(l - 13, (int) y + 1, l + r + 12, (int) y + 1);
+				fl_line(l - 12, (int) y + 1, l + r + 11, (int) y + 1);
 			}
 			else
 				fl_line(l - 8, (int) y, l + r + 7, (int) y);
@@ -5891,9 +5891,7 @@ int Step_Offset::handle(int ev)
 
 void Step_Offset::draw_scale(int Y, int H, int l, int r)
 {
-	(active_r()) ?
-			fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .6)) :
-			fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .2));
+	fl_color(fl_color_average((Fl_Color) c_knob_2, FL_BACKGROUND_COLOR, .6));
 	int S = Y + H - 8;
 	float intvl = (H - 16) / 8.0;
 	for (char i = 0; i < 9; i++)
@@ -5901,9 +5899,9 @@ void Step_Offset::draw_scale(int Y, int H, int l, int r)
 		float y = S - i * intvl;
 		if (i == 4)
 		{
-			fl_line(l - 8, (int) y - 1, l + r + 7, (int) y - 1);
+			fl_line(l - 7, (int) y - 1, l + r + 6, (int) y - 1);
 			fl_line(l - 8, (int) y, l + r + 7, (int) y);
-			fl_line(l - 8, (int) y + 1, l + r + 7, (int) y + 1);
+			fl_line(l - 7, (int) y + 1, l + r + 6, (int) y + 1);
 		}
 		else
 			fl_line(l - 13, (int) y, l + r + 12, (int) y);
