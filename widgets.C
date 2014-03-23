@@ -5014,7 +5014,7 @@ void Piano::draw_curve(int type)
 	{
 		snprintf(buf, 30, "L%d  %3d %3d  %3d %3d", i + 1, new_key_value[mode][i][LOW_KEY], new_key_value[mode][i][LOW_FADE],
 				new_key_value[mode][i][HIGH_KEY], new_key_value[mode][i][HIGH_FADE]);
-		fl_draw(buf, keyboard_x0 + 3, keyboard_y0 + 8 + i * 8);
+		fl_draw(buf, keyboard_x0 + 3, keyboard_y0 + 6 + i * 8);
 	}
 	fl_pop_clip();
 }
