@@ -1,13 +1,16 @@
-v2.0.0
+v2.0rc24
 
 * windows version got an icon
+* updated mac/linux icons
 * arp editor could crash. fixed.
-* some more updates to the arp editor
+* some updates to the arp editor
 * redesigned sliders
 * fresh default colors
 * added two command line options -ti and -i:
   -ti [title] allows you to set the window title
   -i will start prodatum minimized
+  the -ti option should be especially interesting for people
+  who are using prodatum with multiple devices
 
 
 v2.0rc23
