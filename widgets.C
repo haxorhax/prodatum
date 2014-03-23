@@ -5131,22 +5131,15 @@ void Piano::activate_key(char value, unsigned char key)
 	else if (active_keys[key] < 1)
 		active_keys[key] = -1;
 	if (visible_r() && mode == KEYRANGE)
-	{
 		damage(D_HIGHLIGHT);
-		redraw();
-	}
 }
 
 void Piano::reset_active_keys()
 {
 	for (int i = 0; i < 128; i++)
-		if (active_keys[i] > 0)
-			active_keys[i] = -1;
+		active_keys[i] = -1;
 	if (visible_r() && mode == KEYRANGE)
-	{
 		damage(D_HIGHLIGHT);
-		redraw();
-	}
 }
 
 // map keys to 2-d space
@@ -5709,8 +5702,7 @@ void MiniPiano::activate_key(int value, int key)
 void MiniPiano::reset_active_keys()
 {
 	for (unsigned char i = 0; i < 128; i++)
-		if (active_keys[i] > 0)
-			active_keys[i] = -1;
+		active_keys[i] = -1;
 	damage(D_HIGHLIGHT);
 }
 

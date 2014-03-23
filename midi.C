@@ -436,6 +436,7 @@ static void process_midi_in(void*)
 						ui->piano->activate_key(-1, event[1]);
 						ui->main->minipiano->activate_key(-1, event[1]);
 						ui->global_minipiano->activate_key(-1, event[1]);
+						ui->arp_mp->activate_key(-1, event[1]);
 						break;
 					case 0x9: // note-on
 						if (event[2] == 0)
@@ -443,12 +444,14 @@ static void process_midi_in(void*)
 							ui->piano->activate_key(-1, event[1]);
 							ui->main->minipiano->activate_key(-1, event[1]);
 							ui->global_minipiano->activate_key(-1, event[1]);
+							ui->arp_mp->activate_key(-1, event[1]);
 						}
 						else
 						{
 							ui->piano->activate_key(1, event[1]);
 							ui->main->minipiano->activate_key(1, event[1]);
 							ui->global_minipiano->activate_key(1, event[1]);
+							ui->arp_mp->activate_key(1, event[1]);
 						}
 						break;
 					case 0xb: // controller event
@@ -488,6 +491,7 @@ static void process_midi_in(void*)
 						ui->piano->activate_key(-3, event[1]);
 						ui->main->minipiano->activate_key(-3, event[1]);
 						ui->global_minipiano->activate_key(-3, event[1]);
+						ui->arp_mp->activate_key(-3, event[1]);
 						break;
 					case 0x9: // note-on
 						if (event[2] == 0)
@@ -495,12 +499,14 @@ static void process_midi_in(void*)
 							ui->piano->activate_key(-2, event[1]);
 							ui->main->minipiano->activate_key(-2, event[1]);
 							ui->global_minipiano->activate_key(-2, event[1]);
+							ui->arp_mp->activate_key(-2, event[1]);
 						}
 						else
 						{
 							ui->piano->activate_key(2, event[1]);
 							ui->main->minipiano->activate_key(2, event[1]);
 							ui->global_minipiano->activate_key(2, event[1]);
+							ui->arp_mp->activate_key(2, event[1]);
 						}
 						break;
 					case 0xb: // controller event
