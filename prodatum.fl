@@ -64,7 +64,7 @@ Function {initlog_cb(void*)} {private C return_type void
 ui->i_log->show_insert_position();} {}
 } 
 
-widget_class PD_Arp_Step {open
+widget_class PD_Arp_Step {
   xywh {504 60 41 293} type Double color 49 selection_color 49 labelcolor 8 hide position_relative
 } {
   decl {void init(int s);} {public
@@ -1079,8 +1079,8 @@ instrument_filter->do_callback();}
   }
 } 
 
-widget_class PD_Preset_Editor {
-  xywh {483 263 830 565} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide position_relative
+widget_class PD_Preset_Editor {open
+  xywh {483 263 830 565} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 visible position_relative
 } {
   Fl_Group g_riff {
     label RIFF open
@@ -1195,44 +1195,44 @@ riff_filter->do_callback();}
         }
       }
       Fl_Group g_pattern_speed {
-        label {Pattern Speed}
-        xywh {222 230 69 89} color 49 selection_color 49 labelsize 10 labelcolor 0 when 0
+        label {Pattern Speed} open
+        xywh {223 230 70 89} color 49 selection_color 49 labelsize 10 labelcolor 0 when 0
         code0 {o->set_id(1041);}
         class Group
       } {
         Fl_Button {} {
           label 4x
           callback {o->setonly();
-((Group*)o->parent())->do_callback();}
-          xywh {232 230 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
+((Group*)o->parent())->do_callback();} selected
+          xywh {234 230 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
           class Button
         }
         Fl_Button {} {
           label 2x
           callback {o->setonly();
-((Group*)o->parent())->do_callback();}
-          xywh {232 248 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
+((Group*)o->parent())->do_callback();} selected
+          xywh {234 248 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
           class Button
         }
         Fl_Button {} {
           label 1x
           callback {o->setonly();
-((Group*)o->parent())->do_callback();}
-          xywh {232 266 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
+((Group*)o->parent())->do_callback();} selected
+          xywh {234 266 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
           class Button
         }
         Fl_Button {} {
           label {1/2x}
           callback {o->setonly();
-((Group*)o->parent())->do_callback();}
-          xywh {232 284 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
+((Group*)o->parent())->do_callback();} selected
+          xywh {234 284 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
           class Button
         }
         Fl_Button {} {
           label {1/4x}
           callback {o->setonly();
-((Group*)o->parent())->do_callback();}
-          xywh {232 302 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
+((Group*)o->parent())->do_callback();} selected
+          xywh {234 302 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
           class Button
         }
       }
@@ -1571,7 +1571,7 @@ widget_class PD_Main {
     xywh {0 0 834 574} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8 align 0
   } {
     Fl_Group {} {
-      label CHANNEL open
+      label CHANNEL
       xywh {4 23 196 225} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0
     } {
       Fl_Button preset_name {
@@ -1798,7 +1798,7 @@ midi->audit();}
         class MiniPiano
       }
     }
-    Fl_Group controller {open
+    Fl_Group controller {
       xywh {4 257 196 308} color 49 selection_color 49 labelcolor 8
     } {
       Fl_Button {} {
@@ -1998,8 +1998,8 @@ else // initial controller amounts
       xywh {4 274 196 291} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0 hide
     } {
       Fl_Group {} {
-        label REALTIME
-        xywh {4 303 196 189} color 49 selection_color 49 labelfont 1 labelcolor 0
+        label REALTIME open
+        xywh {9 303 186 189} color 49 selection_color 49 labelfont 1 labelcolor 0 align 5
       } {
         Fl_Spinner {} {
           label A
@@ -2075,8 +2075,8 @@ else // initial controller amounts
         }
       }
       Fl_Group {} {
-        label FOOTSWITCH
-        xywh {4 517 196 37} color 49 selection_color 49 labelfont 1 labelcolor 0
+        label FOOTSWITCH open
+        xywh {9 517 186 37} color 49 selection_color 49 labelfont 1 labelcolor 0 align 5
       } {
         Fl_Spinner fs1 {
           label 1
@@ -2134,7 +2134,7 @@ else // initial controller amounts
       xywh {204 0 425 569} color 49 selection_color 49 labelcolor 8 hide
     } {
       Fl_Group {} {
-        label {MASTER ARPEGGIATOR} open
+        label {MASTER ARPEGGIATOR}
         xywh {208 23 417 304} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0
       } {
         Fl_Button {} {
@@ -2385,37 +2385,27 @@ arp_filter->do_callback();}
         }
       }
       Fl_Group {} {
-        label {TEMPO CONTROL}
-        xywh {208 350 210 41} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0
+        label GENERAL
+        xywh {208 350 210 51} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0
       } {
+        Fl_Button {} {
+          label {Mode Change}
+          tooltip {MIDI Mode Change. Specifies whether mode changes made through an external MIDI controller are accepted or ignored} xywh {218 371 90 20} type Toggle down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8
+          code0 {o->set_id(386);}
+          class Button
+        }
         Fl_Choice {} {
-          label Channel open
-          tooltip {Tempo Control Channel. Determines which channel receives tempo controller values} xywh {218 366 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
-          code0 {o->set_id(141);}
-          code1 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");}
-          class Choice
-        } {}
-        Fl_Choice {} {
-          label {Ctrl Up} open
-          tooltip {Allows a MIDI controller to change the Master Tempo. You can assign any controller number from 1-31, mono key pressure, or the pitch wheel to change the Global Tempo. MIDI Controller values are added to the Base Tempo with a range of +/-64. When the controller is set to "Off" the tempo returns to its original setting. This control has no effect when using an external clock} xywh {283 366 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
-          code0 {o->set_id(402);}
-          code1 {o->add("Off");o->add("MNP");o->add("PW");}
-          code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("17");o->add("18");o->add("19");o->add("20");o->add("21");o->add("22");o->add("23");o->add("24");o->add("25");o->add("26");o->add("27");o->add("28");o->add("29");o->add("30");o->add("31");}
-          class Choice
-        } {}
-        Fl_Choice {} {
-          label {Ctrl Down} open
-          tooltip {Allows a MIDI controller to change the Master Tempo. You can assign any controller number from 1-31, mono key pressure, or the pitch wheel to change the Global Tempo. MIDI Controller values are added to the Base Tempo with a range of +/-64. When the controller is set to "Off" the tempo returns to its original setting. This control has no effect when using an external clock} xywh {348 366 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
-          code0 {o->set_id(403);}
-          code1 {o->add("Off");o->add("MNP");o->add("PW");}
-          code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("17");o->add("18");o->add("19");o->add("20");o->add("21");o->add("22");o->add("23");o->add("24");o->add("25");o->add("26");o->add("27");o->add("28");o->add("29");o->add("30");o->add("31");}
+          label {MIDI Song Start}
+          tooltip {This function enables or disables MIDI Song Start for the Arpeggiator and Riffs. The MIDI Song Start option restarts the arpeggiator and/or Riff (BEAT) to the beginning when a MIDI Song Start command is received. This is useful for synchronizing arpeggios and BEATS when recording into, or playing along with a sequencer} xywh {318 371 90 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
+          code0 {o->set_id(658);}
+          code1 {o->add("Off");o->add("Arps");o->add("Riffs");o->add("Both");}
           class Choice
         } {}
       }
       Fl_Group g_superbeats {
         label SUPERBEATS
         tooltip {SuperBEATS is a 16-track play-only sequencer that is optimized for live performance and groove creation.
-(not available on Audity 2000)} xywh {208 425 210 41} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0
+(not available on Audity 2000)} xywh {208 432 210 51} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0
       } {
         Fl_Choice {} {
           label Mode open
@@ -2423,14 +2413,14 @@ arp_filter->do_callback();}
 Off: BEATS mode off
 On: BEATS mode on. The Riff assigned in the preset is used
 Preset: BEATS mode is turned on ONLY if the Riff assigned in the preset is a "BTS" riff
-Master: BEATS mode on. The Master Riff is used} xywh {218 441 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
+Master: BEATS mode on. The Master Riff is used} xywh {218 453 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
           code0 {o->set_id(271);}
           code1 {o->add("Off");o->add("On");o->add("Preset");o->add("Master");}
           class Choice
         } {}
         Fl_Choice {} {
           label Channel open
-          tooltip {Selects the MIDI channel on which BEATS play} xywh {283 441 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
+          tooltip {Selects the MIDI channel on which BEATS play} xywh {283 453 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
           code0 {o->set_id(272);}
           code1 {o->add("Basic");}
           code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");}
@@ -2439,7 +2429,7 @@ Master: BEATS mode on. The Master Riff is used} xywh {218 441 60 20} down_box BO
         } {}
         Fl_Choice {} {
           label {Trigger Ch} open
-          tooltip {Selects the MIDI channel on which Trigger Keys will be active} xywh {348 441 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
+          tooltip {Selects the MIDI channel on which Trigger Keys will be active} xywh {348 453 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
           code0 {o->set_id(273);}
           code1 {o->add("Basic");}
           code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");}
@@ -2448,20 +2438,30 @@ Master: BEATS mode on. The Master Riff is used} xywh {218 441 60 20} down_box BO
         } {}
       }
       Fl_Group {} {
-        label GENERAL
-        xywh {208 496 210 69} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0
+        label {TEMPO CONTROL}
+        xywh {208 514 210 51} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0
       } {
-        Fl_Button {} {
-          label {Mode Change}
-          tooltip {MIDI Mode Change. Specifies whether mode changes made through an external MIDI controller are accepted or ignored} xywh {218 505 90 20} type Toggle down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8
-          code0 {o->set_id(386);}
-          class Button
-        }
         Fl_Choice {} {
-          label {MIDI Song Start}
-          tooltip {This function enables or disables MIDI Song Start for the Arpeggiator and Riffs. The MIDI Song Start option restarts the arpeggiator and/or Riff (BEAT) to the beginning when a MIDI Song Start command is received. This is useful for synchronizing arpeggios and BEATS when recording into, or playing along with a sequencer} xywh {218 540 90 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
-          code0 {o->set_id(658);}
-          code1 {o->add("Off");o->add("Arps");o->add("Riffs");o->add("Both");}
+          label Channel open
+          tooltip {Tempo Control Channel. Determines which channel receives tempo controller values} xywh {218 535 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
+          code0 {o->set_id(141);}
+          code1 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");}
+          class Choice
+        } {}
+        Fl_Choice {} {
+          label {Ctrl Up} open
+          tooltip {Allows a MIDI controller to change the Master Tempo. You can assign any controller number from 1-31, mono key pressure, or the pitch wheel to change the Global Tempo. MIDI Controller values are added to the Base Tempo with a range of +/-64. When the controller is set to "Off" the tempo returns to its original setting. This control has no effect when using an external clock} xywh {283 535 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
+          code0 {o->set_id(402);}
+          code1 {o->add("Off");o->add("MNP");o->add("PW");}
+          code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("17");o->add("18");o->add("19");o->add("20");o->add("21");o->add("22");o->add("23");o->add("24");o->add("25");o->add("26");o->add("27");o->add("28");o->add("29");o->add("30");o->add("31");}
+          class Choice
+        } {}
+        Fl_Choice {} {
+          label {Ctrl Down} open
+          tooltip {Allows a MIDI controller to change the Master Tempo. You can assign any controller number from 1-31, mono key pressure, or the pitch wheel to change the Global Tempo. MIDI Controller values are added to the Base Tempo with a range of +/-64. When the controller is set to "Off" the tempo returns to its original setting. This control has no effect when using an external clock} xywh {348 535 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
+          code0 {o->set_id(403);}
+          code1 {o->add("Off");o->add("MNP");o->add("PW");}
+          code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("17");o->add("18");o->add("19");o->add("20");o->add("21");o->add("22");o->add("23");o->add("24");o->add("25");o->add("26");o->add("27");o->add("28");o->add("29");o->add("30");o->add("31");}
           class Choice
         } {}
       }
@@ -2637,8 +2637,8 @@ Fl::visual(FL_DOUBLE|FL_RGB);} {}
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
-      xywh {535 192 845 620} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
+delete this;} open
+      xywh {484 165 845 620} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620}
@@ -2948,11 +2948,11 @@ if (!eall && pxk->preset)
             }
           }
           Fl_Group g_pfx {open
-            xywh {639 129 196 324} color 49 selection_color 49 labeltype NO_LABEL labelcolor 0 align 0
+            xywh {639 129 196 321} color 49 selection_color 49 labeltype NO_LABEL labelcolor 0 align 0
           } {
             Fl_Group g_effects {
               label EFFECTS open
-              tooltip {Effects section (it is disabled when the selected channel and the selected FX channel differ)} xywh {639 146 196 307} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0 hide
+              tooltip {Effects section (it is disabled when the selected channel and the selected FX channel differ)} xywh {639 146 196 304} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0 hide
             } {
               Fl_Choice fx_channel {open
                 tooltip {FX Control Channel. When in multi mode, you can set this to "0" which applies the Master menu effects settings to all 16 MIDI channels. If you want more control, you can choose a channel  which applies the effects settings of the preset on the specified channel to all the other channels. Changing the preset on the specified channel changes the effect. If you are in Omni or Poly modes this parameter is disabled} xywh {649 151 82 21} down_box BORDER_BOX color 7 selection_color 15 labeltype NO_LABEL labelcolor 0 align 0 textsize 13 textcolor 8
@@ -3633,7 +3633,7 @@ about->show();
       }
     }
     Fl_Window arp_editor_w {
-      label {Arp editor} open selected
+      label {Arp editor}
       xywh {661 249 765 662} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
       class Double_Window xclass prodatum size_range {640 480 765 662}
     } {
