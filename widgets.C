@@ -1486,7 +1486,7 @@ void Slider::draw_scale(int Y, int H, int l, int r)
 	double he = ((double) H - 18.0) / pow(106, 3);
 	if (id_layer[0] == 1410) // volume sliders
 	{
-		for (char i = 6; i <= 106; i += 5)
+		for (char i = 30; i <= 102; i += 6)
 		{
 			double y = (double) S - pow(i, 3.0) * he;
 			fl_line(l - 8, (int) y, l + r + 7, (int) y);
