@@ -669,11 +669,14 @@ class Piano: public Fl_Box
 	char transpose[4];
 	int push_x; // used for setting the key velocity
 	char key_velocity;
-
+	Fl_Color color_white;
+	Fl_Color color_black;
 public:
 	Piano(int x, int y, int w, int h, char* const label = 0) :
 			Fl_Box(x, y, w, h, label)
 	{
+		color_white = FL_FOREGROUND_COLOR;
+		color_black = FL_BACKGROUND2_COLOR;
 		// tasten- h�hen/-breiten
 		h_white = 32;
 		w_white = 13; // 15
@@ -785,6 +788,9 @@ class MiniPiano: public Fl_Box
 	float taste_x0[128][2];
 	int octave;
 
+	Fl_Color color_white;
+	Fl_Color color_black;
+
 	int hovered_key, play_hovered_key;
 	int active_keys[128];
 	int previous_hovered_key;
@@ -811,6 +817,8 @@ public:
 		for (int i = 0; i < 128; i++)
 			active_keys[i] = 0;
 		octave = 4;
+		color_white = FL_FOREGROUND_COLOR;
+		color_black = FL_BACKGROUND2_COLOR;
 	}
 	void activate_key(int value, int key);
 	void reset_active_keys();

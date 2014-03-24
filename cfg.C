@@ -117,9 +117,9 @@ Cfg::Cfg(int device_id)
 	defaults[CFG_LOG_EVENTS_IN] = 0;
 	defaults[CFG_WINDOW_WIDTH] = 845;
 	defaults[CFG_WINDOW_HEIGHT] = 620;
-	defaults[CFG_BGR] = 127;
-	defaults[CFG_BGG] = 135;
-	defaults[CFG_BGB] = 130;
+	defaults[CFG_BGR] = 120;
+	defaults[CFG_BGG] = 128;
+	defaults[CFG_BGB] = 123;
 	defaults[CFG_BG2R] = 41;
 	defaults[CFG_BG2G] = 48;
 	defaults[CFG_BG2B] = 51;

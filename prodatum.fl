@@ -1079,11 +1079,11 @@ instrument_filter->do_callback();}
   }
 } 
 
-widget_class PD_Preset_Editor {open
-  xywh {483 263 830 565} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 visible position_relative
+widget_class PD_Preset_Editor {
+  xywh {483 263 830 565} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide position_relative
 } {
   Fl_Group g_riff {
-    label RIFF open
+    label RIFF
     tooltip {This function allows you to assign a Riff to a Preset to be played when the Audition button is pressed. A Riff is a short pre-recorded musical phrase designed to demonstrate the presets. A Riff can also be a single note. The Riffs themselves cannot be modified.
 (not available on Audity 2000)} xywh {4 23 196 384} box THIN_DOWN_BOX color 49 selection_color 49 labelfont 1 labelcolor 0
   } {
@@ -1203,35 +1203,35 @@ riff_filter->do_callback();}
         Fl_Button {} {
           label 4x
           callback {o->setonly();
-((Group*)o->parent())->do_callback();} selected
+((Group*)o->parent())->do_callback();}
           xywh {234 230 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
           class Button
         }
         Fl_Button {} {
           label 2x
           callback {o->setonly();
-((Group*)o->parent())->do_callback();} selected
+((Group*)o->parent())->do_callback();}
           xywh {234 248 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
           class Button
         }
         Fl_Button {} {
           label 1x
           callback {o->setonly();
-((Group*)o->parent())->do_callback();} selected
+((Group*)o->parent())->do_callback();}
           xywh {234 266 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
           class Button
         }
         Fl_Button {} {
           label {1/2x}
           callback {o->setonly();
-((Group*)o->parent())->do_callback();} selected
+((Group*)o->parent())->do_callback();}
           xywh {234 284 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
           class Button
         }
         Fl_Button {} {
           label {1/4x}
           callback {o->setonly();
-((Group*)o->parent())->do_callback();} selected
+((Group*)o->parent())->do_callback();}
           xywh {234 302 48 17} type Radio down_box DOWN_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
           class Button
         }
@@ -2637,7 +2637,7 @@ Fl::visual(FL_DOUBLE|FL_RGB);} {}
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;} open
+delete this;}
       xywh {484 165 845 620} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
@@ -3634,11 +3634,11 @@ about->show();
     }
     Fl_Window arp_editor_w {
       label {Arp editor}
-      xywh {661 249 765 662} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
+      xywh {563 229 765 662} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
       class Double_Window xclass prodatum size_range {640 480 765 662}
     } {
       Fl_Group {} {open
-        xywh {5 5 755 603} box BORDER_BOX color 49 selection_color 49 labelcolor 0
+        xywh {5 5 755 603} box THIN_DOWN_BOX color 49 selection_color 49 labelcolor 0
       } {
         Fl_Box {} {
           xywh {10 10 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
@@ -3722,23 +3722,23 @@ about->show();
         }
         Fl_Box {} {
           label OP
-          xywh {699 10 1 90} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 10 1 90} box THIN_DOWN_BOX color 49 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label TIME
-          xywh {699 103 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 103 1 16} box THIN_DOWN_BOX color 49 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label REPEAT
-          xywh {699 121 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 121 1 16} box THIN_DOWN_BOX color 49 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label VELOCITY
-          xywh {699 139 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 139 1 16} box THIN_DOWN_BOX color 49 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label OFFSET
-          xywh {699 159 1 143} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 159 1 143} box THIN_DOWN_BOX color 49 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           xywh {10 308 41 293} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8
@@ -3822,23 +3822,23 @@ about->show();
         }
         Fl_Box {} {
           label OP
-          xywh {699 308 1 90} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 308 1 90} box THIN_DOWN_BOX color 49 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label TIME
-          xywh {699 401 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 401 1 16} box THIN_DOWN_BOX color 49 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label REPEAT
-          xywh {699 419 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 419 1 16} box THIN_DOWN_BOX color 49 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label VELOCITY
-          xywh {699 437 1 16} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 437 1 16} box THIN_DOWN_BOX color 49 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
         Fl_Box {} {
           label OFFSET
-          xywh {699 457 1 143} box BORDER_BOX color 7 selection_color 49 labelsize 10 labelcolor 0 align 8
+          xywh {699 457 1 143} box THIN_DOWN_BOX color 49 selection_color 49 labelsize 10 labelcolor 0 align 8
         }
       }
       Fl_Group {} {open
@@ -3900,11 +3900,11 @@ arp_mp->reset_active_keys();}
     Fl_Window init {
       label Synchronizing
       callback {;}
-      xywh {866 345 300 115} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide modal xclass prodatum
+      xywh {1025 81 300 115} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide modal xclass prodatum
     } {
       Fl_Box {} {
         label {Please wait. This may take a few minutes.}
-        xywh {1 1 298 30} box FLAT_BOX color 0 selection_color 49 labelfont 1 labelcolor 49 align 20
+        xywh {1 1 298 30} box UP_BOX color 0 selection_color 49 labelfont 1 labelcolor 49 align 20
       }
       Fl_Progress init_progress {
         xywh {10 45 280 26} box THIN_DOWN_BOX color 7 selection_color 0 labelsize 10 labelcolor 8 align 80
@@ -3922,12 +3922,12 @@ arp_mp->reset_active_keys();}
     }
     Fl_Window open_device {
       label {Open device}
-      xywh {687 286 280 370} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 15 hide
+      xywh {725 79 280 370} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 15 hide
       class Double_Window modal xclass prodatum
     } {
       Fl_Box {} {
         label {Open device}
-        xywh {1 1 278 30} box FLAT_BOX color 0 selection_color 49 labelfont 1 labelcolor 49 align 20 deactivate
+        xywh {1 1 278 30} box UP_BOX color 0 selection_color 49 labelfont 1 labelcolor 49 align 20
       }
       Fl_Box open_info_portable {
         label {Using portable configuration}
@@ -4058,12 +4058,12 @@ open_device->hide();}
       callback {preferences->hide();
 export_dir->value(cfg->get_export_dir());
 b_set->deactivate();}
-      xywh {912 159 305 435} type Double box UP_BOX color 49 selection_color 49 labelsize 11 labelcolor 8 hide
+      xywh {1346 74 305 435} type Double box UP_BOX color 49 selection_color 49 labelsize 11 labelcolor 8 hide
       class Double_Window xclass prodatum
     } {
       Fl_Box {} {
         label Preferences
-        xywh {1 1 303 30} box FLAT_BOX color 0 selection_color 49 labelfont 1 labelcolor 49 align 20 deactivate
+        xywh {1 1 303 30} box UP_BOX color 0 selection_color 49 labelfont 1 labelcolor 49 align 20
       }
       Fl_Box pref_info_portable {
         label {Using portable configuration}
@@ -4477,10 +4477,10 @@ open_device->showup();
 
 tac_i->hide();
 about_i->show();}
-      xywh {1008 322 272 370} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide xclass prodatum
+      xywh {1496 561 272 370} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide xclass prodatum
     } {
       Fl_Box about_text {
-        xywh {1 1 270 50} box FLAT_BOX color 0 selection_color 49 labelfont 1 labelsize 18 labelcolor 49 align 148 deactivate
+        xywh {1 1 270 50} box UP_BOX color 0 selection_color 49 labelfont 1 labelsize 18 labelcolor 49 align 148
       }
       Fl_Box about_i {
         xywh {1 51 270 165} color 49 selection_color 49 labelcolor 8 deactivate
@@ -4644,8 +4644,8 @@ copy_arp_pattern_browser_filter->do_callback();}
       class Double_Window xclass prodatum
     } {
       Fl_Box {} {
-        label Synchronize
-        xywh {1 1 258 30} box FLAT_BOX color 0 selection_color 49 labelfont 1 labelcolor 49 align 148
+        label Synchronize selected
+        xywh {1 1 258 30} box UP_BOX color 0 selection_color 49 labelfont 1 labelcolor 49 align 148
       }
       Fl_Check_Button r_user {
         label Flash
