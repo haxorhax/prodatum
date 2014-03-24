@@ -3900,7 +3900,7 @@ arp_mp->reset_active_keys();}
     Fl_Window init {
       label Synchronizing
       callback {;}
-      xywh {1025 81 300 115} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide modal xclass prodatum
+      xywh {1025 81 300 115} type Double color 49 selection_color 49 labelcolor 8 hide modal xclass prodatum
     } {
       Fl_Box {} {
         label {Please wait. This may take a few minutes.}
@@ -3922,7 +3922,7 @@ arp_mp->reset_active_keys();}
     }
     Fl_Window open_device {
       label {Open device}
-      xywh {725 79 280 370} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 15 hide
+      xywh {725 79 280 370} type Double color 49 selection_color 49 labelcolor 15 hide
       class Double_Window modal xclass prodatum
     } {
       Fl_Box {} {
@@ -4058,7 +4058,7 @@ open_device->hide();}
       callback {preferences->hide();
 export_dir->value(cfg->get_export_dir());
 b_set->deactivate();}
-      xywh {1346 74 305 435} type Double box UP_BOX color 49 selection_color 49 labelsize 11 labelcolor 8 hide
+      xywh {1346 74 305 435} type Double color 49 selection_color 49 labelsize 11 labelcolor 8 hide
       class Double_Window xclass prodatum
     } {
       Fl_Box {} {
@@ -4289,7 +4289,7 @@ if (((Fl_Button*) o->array()[i])->value())
     }
     Fl_Window piano_w {
       label {Keyboard & Ranges}
-      xywh {535 478 930 205} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide
+      xywh {535 478 930 205} type Double color 49 selection_color 49 labelcolor 8 hide
       class Double_Window xclass prodatum
     } {
       Fl_Slider pitchwheel {
@@ -4414,7 +4414,7 @@ arp_mp->reset_active_keys();}
     }
     Fl_Window log_w {
       label {Message log}
-      xywh {620 188 490 565} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide resizable
+      xywh {620 188 490 565} type Double color 49 selection_color 49 labelcolor 8 hide resizable
       class Double_Window xclass prodatum size_range {320 108 0 0}
     } {
       Fl_Text_Display log {
@@ -4461,7 +4461,7 @@ arp_mp->reset_active_keys();}
     }
     Fl_Window init_log_w {
       label {Sync log}
-      xywh {784 165 490 625} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide resizable
+      xywh {784 165 490 625} type Double color 49 selection_color 49 labelcolor 8 hide resizable
       class Double_Window xclass prodatum size_range {320 108 0 0}
     } {
       Fl_Text_Display i_log {
@@ -4477,7 +4477,7 @@ open_device->showup();
 
 tac_i->hide();
 about_i->show();}
-      xywh {1496 561 272 370} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide xclass prodatum
+      xywh {1496 561 272 370} type Double color 49 selection_color 49 labelcolor 8 hide xclass prodatum
     } {
       Fl_Box about_text {
         xywh {1 1 270 50} box UP_BOX color 0 selection_color 49 labelfont 1 labelsize 18 labelcolor 49 align 148
@@ -4518,7 +4518,7 @@ tac_i->show();}
     }
     Fl_Window copy_layer {
       label Copy
-      xywh {543 354 325 80} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide
+      xywh {543 354 325 80} type Double color 49 selection_color 49 labelcolor 8 hide
       class Double_Window xclass prodatum
     } {
       Fl_Group layer_dst {
@@ -4581,7 +4581,7 @@ o->deactivate();
     }
     Fl_Window copy_preset {
       label Copy
-      xywh {808 212 215 335} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide
+      xywh {808 212 215 335} type Double color 49 selection_color 49 labelcolor 8 hide
       class Double_Window xclass prodatum
     } {
       Fl_Group g_copy_preset {
@@ -4639,12 +4639,12 @@ copy_arp_pattern_browser_filter->do_callback();}
       }
     }
     Fl_Window reset_w {
-      label Synchronize
-      xywh {933 362 260 150} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide
+      label Synchronize selected
+      xywh {933 362 260 150} type Double color 49 selection_color 49 labelcolor 8 hide
       class Double_Window xclass prodatum
     } {
       Fl_Box {} {
-        label Synchronize selected
+        label Synchronize
         xywh {1 1 258 30} box UP_BOX color 0 selection_color 49 labelfont 1 labelcolor 49 align 148
       }
       Fl_Check_Button r_user {
