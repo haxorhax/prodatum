@@ -5939,9 +5939,9 @@ void Step_Offset::draw()
 
 	int sxx = x(), syy = y(), sww = w(), shh = h();
 	int bxx = x(), byy = y(), bww = w(), bhh;
-	syy += 14; // height of value output
-	bhh = 14;
-	shh -= 14;
+	syy += 17; // height of value output
+	bhh = 17;
+	shh -= 17;
 	draw(sxx + Fl::box_dx(box()), syy + Fl::box_dy(box()), sww - Fl::box_dw(box()), shh - Fl::box_dh(box()));
 	draw_box(FL_UP_BOX, bxx, byy, bww, bhh, FL_BACKGROUND2_COLOR); // value box
 	const char* transpose_values[] =
