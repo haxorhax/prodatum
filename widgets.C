@@ -1550,6 +1550,8 @@ void Slider::draw()
 	else
 		draw_box(FL_BORDER_BOX, l - 3, Y + 5, 6 + r, H - 10, FL_BACKGROUND2_COLOR);
 	draw_box(FL_THIN_UP_BOX, X, ysl, W, S, FL_BACKGROUND2_COLOR);
+	fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_BACKGROUND2_COLOR, .5));
+	fl_rect(X + 1, ysl + 1, W - 2, S - 2);
 	draw_label(X, ysl, W, S);
 	fl_pop_clip();
 }
@@ -5930,6 +5932,8 @@ void Step_Offset::draw(int X, int Y, int W, int H)
 	else
 		draw_box(FL_BORDER_BOX, l - 3, Y + 5, 6 + r, H - 10, FL_BACKGROUND2_COLOR);
 	draw_box(FL_UP_BOX, X, ysl, W, S, FL_BACKGROUND2_COLOR);
+	fl_color(fl_color_average(FL_INACTIVE_COLOR, FL_BACKGROUND2_COLOR, .5));
+	fl_rect(X + 1, ysl + 1, W - 2, S - 2);
 	draw_label(X, ysl, W, S);
 	fl_pop_clip();
 }
