@@ -237,13 +237,13 @@ void Double_Window::showup()
 		position(ui->main_window->x() + (ui->main_window->w() / 2) - (w() / 2), ui->main_window->y() + 80);
 		w__shown = true;
 	}
-	Fl_Window::show();
+	Fl_Double_Window::show();
 }
 
 void Double_Window::hide()
 {
 	supposed_to_be_shown = false;
-	Fl_Window::hide();
+	Fl_Double_Window::hide();
 }
 
 bool Double_Window::shown_called()
@@ -356,13 +356,9 @@ void Browser::set_value(int v)
 					ui->preset_editor->g_link2->activate();
 			}
 			select(v + 2);
-			Fl::flush();
 		}
 		else if (v >= 0)
-		{
 			select(v + 1);
-			Fl::flush();
-		}
 		else
 			return;
 		apply_filter();
@@ -3253,7 +3249,7 @@ int PPCD_Choice::get_value() const
 // ###################
 void Envelope_Editor::draw_b_label(char butt, Fl_Color col)
 {
-	int ypos = ee_y0 + ee_h - 9;
+	int ypos = ee_y0 + ee_h - 8;
 	fl_color(col);
 	switch (butt)
 	{
@@ -3318,13 +3314,13 @@ void Envelope_Editor::draw()
 	switch (mode)
 	{
 		case VOLUME:
-			fl_draw("VOL", ee_x0 + 5, ee_y0 + 17);
+			fl_draw("VOL", ee_x0 + 5, ee_y0 + 14);
 			break;
 		case FILTER:
-			fl_draw("FIL", ee_x0 + 5, ee_y0 + 17);
+			fl_draw("FIL", ee_x0 + 5, ee_y0 + 14);
 			break;
 		case AUXILIARY:
-			fl_draw("AUX", ee_x0 + 5, ee_y0 + 17);
+			fl_draw("AUX", ee_x0 + 5, ee_y0 + 14);
 			break;
 	}
 // top bar
@@ -3339,31 +3335,31 @@ void Envelope_Editor::draw()
 		{
 			fl_color(FL_SELECTION_COLOR);
 			fg = fl_contrast(FL_INACTIVE_COLOR, FL_SELECTION_COLOR);
-			draw_box(FL_DOWN_BOX, mode_button[i] - 2, ee_y0 + 3, 52, 17, fl_color());
+			draw_box(FL_UP_BOX, mode_button[i] - 2, ee_y0 + 3, 52, 14, fl_color());
 		}
 		else
 		{
 			fl_color(FL_BACKGROUND2_COLOR);
 			fg = FL_INACTIVE_COLOR;
-			draw_box(FL_UP_BOX, mode_button[i] - 2, ee_y0 + 3, 52, 17, fl_color());
+			draw_box(FL_UP_BOX, mode_button[i] - 2, ee_y0 + 3, 52, 14, fl_color());
 		}
 		// text
 		fl_color(fg);
 		if (i == 0)
 		{
 			if (mode == VOLUME)
-				fl_draw("Factory", mode_button[0] + 3, ee_y0 + 14);
+				fl_draw("Factory", mode_button[0] + 3, ee_y0 + 13);
 			else
-				fl_draw("Repeat", mode_button[0] + 7, ee_y0 + 14);
+				fl_draw("Repeat", mode_button[0] + 7, ee_y0 + 13);
 		}
 		else if (i == 1)
-			fl_draw("Time", mode_button[i] + 12, ee_y0 + 14);
+			fl_draw("Time", mode_button[i] + 12, ee_y0 + 13);
 		else if (i == 2)
-			fl_draw("Tempo", mode_button[i] + 9, ee_y0 + 14);
+			fl_draw("Tempo", mode_button[i] + 9, ee_y0 + 13);
 		else if (i == 3)
-			fl_draw("/\\\\//\\\\", mode_button[i] + 3, ee_y0 + 14);
+			fl_draw("/\\\\//\\\\", mode_button[i] + 3, ee_y0 + 13);
 		else if (i == 4)
-			fl_draw("(( Y ))", mode_button[i] + 3, ee_y0 + 14);
+			fl_draw("(( Y ))", mode_button[i] + 3, ee_y0 + 13);
 	}
 // lower bar
 	fl_font(FL_HELVETICA, 10);
@@ -3373,33 +3369,33 @@ void Envelope_Editor::draw()
 		{
 			if (button_push && button_hover == VOLUME_SELECTED + i)
 			{
-				draw_box(FL_UP_BOX, copy_button[i], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
+				draw_box(FL_UP_BOX, copy_button[i], ee_y0 + ee_h - 18, 17, 14, FL_SELECTION_COLOR);
 				draw_b_label(VOLUME_SELECTED + i, fl_contrast(FL_INACTIVE_COLOR, FL_SELECTION_COLOR));
 			}
 			else
 			{
-				draw_box(FL_UP_BOX, copy_button[i], ee_y0 + ee_h - 21, 17, 17, FL_BACKGROUND2_COLOR);
+				draw_box(FL_UP_BOX, copy_button[i], ee_y0 + ee_h - 18, 17, 14, FL_BACKGROUND2_COLOR);
 				draw_b_label(VOLUME_SELECTED + i, FL_INACTIVE_COLOR);
 			}
 		}
-	draw_box(FL_UP_BOX, copy_button[mode], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
+	draw_box(FL_UP_BOX, copy_button[mode], ee_y0 + ee_h - 18, 17, 14, FL_SELECTION_COLOR);
 	draw_b_label(VOLUME_SELECTED + mode, fl_contrast(FL_INACTIVE_COLOR, FL_SELECTION_COLOR));
 // shapes
 	for (i = 0; i < 4; i++)
 	{
 		if (button_push && button_hover == SHAPE_A + i)
 		{
-			draw_box(FL_UP_BOX, shape_button[i], ee_y0 + ee_h - 21, 17, 17, FL_SELECTION_COLOR);
+			draw_box(FL_UP_BOX, shape_button[i], ee_y0 + ee_h - 18, 17, 14, FL_SELECTION_COLOR);
 			draw_b_label(SHAPE_A + i, fl_contrast(FL_INACTIVE_COLOR, FL_SELECTION_COLOR));
 		}
 		else
 		{
-			draw_box(FL_UP_BOX, shape_button[i], ee_y0 + ee_h - 21, 17, 17, FL_BACKGROUND2_COLOR);
+			draw_box(FL_UP_BOX, shape_button[i], ee_y0 + ee_h - 18, 17, 14, FL_BACKGROUND2_COLOR);
 			draw_b_label(SHAPE_A + i, FL_INACTIVE_COLOR);
 		}
 	}
 	fl_color(FL_FOREGROUND_COLOR);
-	int ypos = ee_y0 + ee_h - 9;
+	int ypos = ee_y0 + ee_h - 8;
 	fl_font(FL_COURIER, 10);
 	fl_draw("Copy to", copy_button[2] + 22, ypos);
 	fl_draw("Shape", ee_x0 + ee_w - 115, ypos);
@@ -3807,11 +3803,11 @@ int Envelope_Editor::handle(int ev)
 				}
 			}
 			// mode buttons
-			else if (Fl::event_inside(ee_x0, ee_y0 + 3, ee_w, 17))
+			else if (Fl::event_inside(ee_x0, ee_y0 + 3, ee_w, 14))
 			{
 				fl_cursor(FL_CURSOR_DEFAULT);
 				for (unsigned char i = 0; i < 5; i++)
-					if (Fl::event_inside(mode_button[i] - 2, ee_y0 + 3, 52, 17))
+					if (Fl::event_inside(mode_button[i] - 2, ee_y0 + 3, 52, 14))
 					{
 						const char* tt = 0;
 						switch (i)
@@ -3835,32 +3831,32 @@ int Envelope_Editor::handle(int ev)
 								tt = tt4;
 								break;
 						}
-						Fl_Tooltip::enter_area(this, mode_button[i], 2, 60, 17, tt);
+						Fl_Tooltip::enter_area(this, mode_button[i], 2, 60, 14, tt);
 						button_hover = i;
 						return 1;
 					}
 			}
 			// extra buttons
-			else if (Fl::event_inside(ee_x0, ee_y0 + ee_h - 21, ee_w, 18))
+			else if (Fl::event_inside(ee_x0, ee_y0 + ee_h - 18, ee_w, 14))
 			{
 				fl_cursor(FL_CURSOR_DEFAULT);
 				for (unsigned char i = 0; i < 6; i++)
 				{
-					if (Fl::event_inside(copy_button[i], ee_y0 + ee_h - 21, 17, 17))
+					if (Fl::event_inside(copy_button[i], ee_y0 + ee_h - 18, 17, 14))
 					{
 						if (i > 2)
-							Fl_Tooltip::enter_area(this, copy_button[i], ee_h - 21, 60, 17, bt1);
+							Fl_Tooltip::enter_area(this, copy_button[i], ee_h - 18, 60, 14, bt1);
 						else
-							Fl_Tooltip::enter_area(this, copy_button[i], ee_h - 21, 60, 17, bt0);
+							Fl_Tooltip::enter_area(this, copy_button[i], ee_h - 18, 60, 14, bt0);
 						button_hover = i + VOLUME_SELECTED;
 						return 1;
 					}
 				}
 				for (unsigned char i = 0; i < 4; i++)
 				{
-					if (Fl::event_inside(shape_button[i], ee_y0 + ee_h - 21, 17, 17))
+					if (Fl::event_inside(shape_button[i], ee_y0 + ee_h - 18, 17, 14))
 					{
-						Fl_Tooltip::enter_area(this, copy_button[i], ee_h - 21, 60, 17, bt2);
+						Fl_Tooltip::enter_area(this, copy_button[i], ee_h - 18, 60, 14, bt2);
 						button_hover = i + SHAPE_A;
 						return 1;
 					}
@@ -5933,7 +5929,7 @@ void Step_Offset::draw(int X, int Y, int W, int H)
 		draw_box(FL_BORDER_BOX, l - 3, Y + 5, 6 + r, H - 10, FL_SELECTION_COLOR);
 	else
 		draw_box(FL_BORDER_BOX, l - 3, Y + 5, 6 + r, H - 10, FL_BACKGROUND2_COLOR);
-	draw_box(FL_THIN_UP_BOX, X, ysl, W, S, FL_BACKGROUND2_COLOR);
+	draw_box(FL_UP_BOX, X, ysl, W, S, FL_BACKGROUND2_COLOR);
 	draw_label(X, ysl, W, S);
 	fl_pop_clip();
 }
@@ -5943,11 +5939,11 @@ void Step_Offset::draw()
 
 	int sxx = x(), syy = y(), sww = w(), shh = h();
 	int bxx = x(), byy = y(), bww = w(), bhh;
-	syy += 18; // height of value output
-	bhh = 18;
-	shh -= 18;
+	syy += 14; // height of value output
+	bhh = 14;
+	shh -= 14;
 	draw(sxx + Fl::box_dx(box()), syy + Fl::box_dy(box()), sww - Fl::box_dw(box()), shh - Fl::box_dh(box()));
-	draw_box(FL_BORDER_BOX, bxx, byy, bww, bhh, FL_BACKGROUND2_COLOR); // value box
+	draw_box(FL_UP_BOX, bxx, byy, bww, bhh, FL_BACKGROUND2_COLOR); // value box
 	const char* transpose_values[] =
 	{ "C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#", "B " };
 	int v = (int) value();
