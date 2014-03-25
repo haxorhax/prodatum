@@ -772,7 +772,7 @@ widget_class PD_Layer_Patchcords {
   }
 } 
 
-widget_class PD_Layer_Strip {selected
+widget_class PD_Layer_Strip {
   xywh {696 206 100 540} type Double color 49 selection_color 49 labelcolor 8 hide position_relative
 } {
   decl {void init(int layer);} {public
@@ -930,8 +930,8 @@ coarse->do_callback();
     }
   }
   Fl_Button non_t {
-    label NTP
-    tooltip {Turns keyboard transposition On or Off. With Nontranspose the keyboard will not control the pitch of the instrument. This is a useful function for drones, attack "chiffs" or other sound effects which you may not want to track the keyboard} xywh {53 475 40 17} type Toggle down_box UP_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
+    label {@+18[]<} selected
+    tooltip {Turns keyboard transposition On or Off. With Nontranspose the keyboard will not control the pitch of the instrument. This is a useful function for drones, attack "chiffs" or other sound effects which you may not want to track the keyboard} xywh {58 475 30 17} type Toggle down_box UP_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
     class Button
   }
   Fl_Choice layer_solo {open
@@ -2639,7 +2639,7 @@ Fl::visual(FL_DOUBLE|FL_RGB);} {}
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
 delete this;}
-      xywh {988 245 845 620} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
+      xywh {51 342 845 620} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
       class Double_Window xclass prodatum size_range {674 492 845 620}
