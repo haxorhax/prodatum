@@ -150,8 +150,13 @@ static void process_midi(PtTimestamp, void*)
 					// universal sysex
 					else if (((ev.message >> 8) & 0xFF) == 0x7E)
 						receiving_sysex = true;
-					position = 3;
-					goto Copy;
+					if (receiving_sysex)
+					{
+						position = 3;
+						goto Copy;
+					}
+					else
+						break;
 				}
 				// check for truncated sysex
 				if (receiving_sysex && (((data & 0x80) == 0 || data == 0xF7) || position == 3))
