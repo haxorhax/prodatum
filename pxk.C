@@ -733,6 +733,7 @@ static void sync_bro(void* p)
 			delete pxk;
 			pxk = new PXK();
 			pxk->Boot(false, id);
+			ui->open_device->showup();
 			pxk->Inquire(id);
 		}
 		else
