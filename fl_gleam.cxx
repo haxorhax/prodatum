@@ -26,7 +26,7 @@
 //     http://www.fltk.org/str.php
 //
 
-// Heavily modifiel for prodatum (Jan Eidtmann)
+// Heavily modified for prodatum (Jan Eidtmann)
 
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
@@ -44,12 +44,7 @@ static void frame_rect(int x, int y, int w, int h, Fl_Color bc)
 
 	Fl_Color col = FL_BLACK;
 	if (bc == FL_BACKGROUND_COLOR)
-	{
-		unsigned char r, g, b;
-		Fl::get_color(bc, r, g, b);
-		if ((r + r + b + g + g + g) / 6 < 128)
-			col = FL_WHITE;
-	}
+		col = FL_FOREGROUND_COLOR;
 	gleam_color(fl_color_average(bc, col, 0.5));
 	fl_rect(x, y, w, h);
 }

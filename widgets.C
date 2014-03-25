@@ -4714,7 +4714,7 @@ void Piano::draw_ranges()
 			fl_line(offset + 7 * i, dragbox[0][0][0][1] + 4, offset + 7 * i, dragbox[0][3][0][1]);
 	}
 
-	Fl_Color ranges = fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .6);
+	Fl_Color ranges = FL_FOREGROUND_COLOR;
 // draw selected ranges
 	for (i = 0; i < show_layers; i++) // for all 4 layers
 	{
@@ -4990,10 +4990,9 @@ void Piano::draw_curve(int type)
 	fl_push_clip(keyboard_x0, keyboard_y0 - 11, keyboard_w + 1, 10 + h_white);
 	fl_color(FL_BACKGROUND_COLOR);
 	fl_rectf(keyboard_x0, keyboard_y0 - 11, keyboard_w + 1, 10 + h_white);
-	fl_color(fl_color_average(FL_BACKGROUND2_COLOR, FL_BACKGROUND_COLOR, .6));
+	fl_color(FL_FOREGROUND_COLOR);
 	fl_polygon(keyboard_x0 + 110, keyboard_h + keyboard_y0, keyboard_w + keyboard_x0 - 3, keyboard_h + keyboard_y0,
 			keyboard_w + keyboard_x0 - 3, keyboard_y0 - 11);
-	fl_color(FL_FOREGROUND_COLOR);
 	fl_font(FL_HELVETICA, 10);
 	switch (type)
 	{

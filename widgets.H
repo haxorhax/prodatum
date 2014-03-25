@@ -676,7 +676,7 @@ public:
 			Fl_Box(x, y, w, h, label)
 	{
 		color_white = FL_FOREGROUND_COLOR;
-		color_black = FL_BACKGROUND2_COLOR;
+		color_black = FL_BACKGROUND_COLOR;
 		// tasten- h�hen/-breiten
 		h_white = 32;
 		w_white = 13; // 15
@@ -818,7 +818,7 @@ public:
 			active_keys[i] = 0;
 		octave = 4;
 		color_white = FL_FOREGROUND_COLOR;
-		color_black = FL_BACKGROUND2_COLOR;
+		color_black = FL_BACKGROUND_COLOR;
 	}
 	void activate_key(int value, int key);
 	void reset_active_keys();

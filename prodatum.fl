@@ -772,7 +772,7 @@ widget_class PD_Layer_Patchcords {
   }
 } 
 
-widget_class PD_Layer_Strip {
+widget_class PD_Layer_Strip {open
   xywh {696 206 100 540} type Double color 49 selection_color 49 labelcolor 8 hide position_relative
 } {
   decl {void init(int layer);} {public
@@ -931,7 +931,7 @@ coarse->do_callback();
   }
   Fl_Button non_t {
     label {@+18[]<} selected
-    tooltip {Turns keyboard transposition On or Off. With Nontranspose the keyboard will not control the pitch of the instrument. This is a useful function for drones, attack "chiffs" or other sound effects which you may not want to track the keyboard} xywh {58 475 30 17} type Toggle down_box UP_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
+    tooltip {Nontranspose: Turns keyboard transposition off (the keyboard will not control the pitch of the instrument). This is a useful function for drones, attack "chiffs" or other sound effects which you may not want to track the keyboard} xywh {58 475 30 17} type Toggle down_box UP_BOX color 7 selection_color 15 labelsize 10 labelcolor 8 when 1
     class Button
   }
   Fl_Choice layer_solo {open
