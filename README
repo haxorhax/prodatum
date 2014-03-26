@@ -1,29 +1,41 @@
+prodatum source code.
+supported and maintained by Jan Mann (aka Jan Eidtmann, rdxesy@yahoo.de)
+Copyright (C) 2014 by Jan Eidtmann
 
-This is current, healthy prodatum source code.
-It is supported and maintained by Jan Mann (aka Jan Eidtmann)
 
+Dependencies: FLTK, portmidi
+Tools: CMake
 
-Building
+ Building
+ ########
 
 Get FLTK 1.1.10 and patch it with the fltk_gleam-1.1.10.patch from prodatum's
 Git repository. Copy fl_gleam.cxx (also from prodatum's Git repo) to
 path/to/fltk-1.1.10/src/ and compile FLTK.
 
-Alternatively you can try to link prodatum against your installed version
-of FLTK (most likely version 1.3.x). I don't recommend doing so as prodatum's
-gleam theme is highly modified and linking against FLTK 1.3 will make prodatum
-look (and possibly behave) differently (I have test-compiled the source code
-against FLTK 1.3.2 (static linking) and prodatum worked just fine).
+Alternatively you can use your system's FLTK (most likely v1.3.x). I don't
+recommend doing so as prodatum's gleam theme is highly modified and linking
+against an unpatched FLTK will make prodatum look 'not as nice'.*
 
 Get and compile portmidi (I recommend the SVN version).
 
-Alternatively you can try to use an shared library (has not been tested but
-should work fine).
+Alternatively you can use your system's portmidi installation.*
 
 Use CMake to create prodatum's Makefiles. The Makefiles will look in
 path/to/prodatum-source/lib/ and path/to/prodatum-source/include/ for custom
-libraries and header files (I only put portmidi/FLTK here).
+libraries and header files (put SVN/patched versions of portmidi/FLTK here).
 
 Use FLTK's fluid to create the GUI code from prodatum.fl.
 
-Compile prodatum.
+Compile prodatum using make.
+
+
+* NOTE: If you want to use your system's libraries of FLTK and portmidi,
+change the last line in CMakeLists.txt as follows
+- target_link_libraries (prodatum fltk.a portmidi_s.a ${ADDITIONAL_LIBRARIES} )
++ target_link_libraries (prodatum ${ADDITIONAL_LIBRARIES} )
+
+and add "fltk portmidi" to the ADDITIONAL_LIBRARIES variable for your system.
+Eg, for linux:
+- set(ADDITIONAL_LIBRARIES X11 Xinerama Xft fontconfig asound pthread)
++ set(ADDITIONAL_LIBRARIES fltk portmidi X11 Xinerama Xft fontconfig asound pthread)
