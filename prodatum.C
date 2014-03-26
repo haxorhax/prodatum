@@ -34,7 +34,7 @@
 
 static void load_data();
 
-const char* VERSION = "v2.0rc24";
+const char* VERSION = "v2.0.0";
 PD_UI* ui = 0;
 MIDI* midi = 0;
 PXK* pxk = 0;
@@ -75,7 +75,8 @@ int main(int argc, char *argv[])
 	int i = 1;
 	if (!Fl::args(argc, argv, i, options))
 	{
-		printf("prodatum %s options:\n"
+		printf("prodatum %s  Copyright (C) 2014  Jan Eidtmann\n"
+				"Options:\n"
 				" -d id    \tdevice to open (default: previous)\n"
 				" -a       \tdisable autoconnect\n"
 				" -i       \tstart minimized\n"

@@ -23,7 +23,7 @@ Alternatively you can use your system's portmidi installation.*
 
 Use CMake to create prodatum's Makefiles. The Makefiles will look in
 path/to/prodatum-source/lib/ and path/to/prodatum-source/include/ for custom
-libraries and header files (put SVN/patched versions of portmidi/FLTK here).
+libraries and header files (put SVN/patched versions of portmidi/FLTK here).**
 
 Use FLTK's fluid to create the GUI code from prodatum.fl.
 
@@ -39,3 +39,7 @@ and add "fltk portmidi" to the ADDITIONAL_LIBRARIES variable for your system.
 Eg, for linux:
 - set(ADDITIONAL_LIBRARIES X11 Xinerama Xft fontconfig asound pthread)
 + set(ADDITIONAL_LIBRARIES fltk portmidi X11 Xinerama Xft fontconfig asound pthread)
+
+
+**: If your target system(s) run the same GCC library as *this* host, you can
+remove the "-static-libgcc -static-libstdc++" linker options from CMakeLists.txt.
