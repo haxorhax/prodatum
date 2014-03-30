@@ -198,6 +198,15 @@ void PD_UI::select(int l)
 	selected = l;
 }
 
+/**
+ * gets selected view/layer
+ * @return selected view/layer
+ */
+int PD_UI::get_selected()
+{
+	return selected;
+}
+
 void PD_UI::set_color(Fl_Color t)
 {
 	unsigned char r, g, b;
@@ -299,15 +308,6 @@ void PD_UI::set_knobcolor(char type, char color)
 			break;
 	}
 	Fl::reload_scheme();
-}
-
-/**
- * gets selected view/layer
- * @return selected view/layer
- */
-int PD_UI::get_selected()
-{
-	return selected;
 }
 
 static const char* tip_end =
@@ -591,11 +591,6 @@ void PD_UI::show_copy_preset(int type)
 	copy_preset->showup();
 }
 
-/**
- * initializes voice strips.
- * sets id and layer information for all widgets in the voice strips
- * @param l layer number of this strip (0-3)
- */
 void PD_UI::create_about()
 {
 	//pmesg("PD_UI::create_about()\n");
@@ -1262,6 +1257,11 @@ static void load_data()
 	PresetPatchD[27].name = "Preset/Preset Ramp Rt";
 }
 
+/**
+ * initializes voice strips.
+ * sets id and layer information for all widgets in the voice strips
+ * @param l layer number of this strip (0-3)
+ */
 void PD_Layer_Strip::init(int l)
 {
 	//pmesg("PD_Layer_Strip::init(%d)\n", l);
