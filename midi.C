@@ -330,7 +330,7 @@ static void process_midi_in(void*)
 									break;
 								case 0x04: // dump data (open)
 									pxk->incoming_preset_dump(sysex, len);
-									if (len < 255) // last packet
+									if (len < 253) // last packet
 									{
 										got_answer = true;
 										requested = false;
