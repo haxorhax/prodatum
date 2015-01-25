@@ -94,7 +94,7 @@ static void show_error(void)
 	free(__buffer);
 }
 
-static bool __midi_wait = false;
+//static bool __midi_wait = false;
 static void process_midi(PtTimestamp, void*)
 {
 	PmEvent ev;
@@ -113,7 +113,7 @@ static void process_midi(PtTimestamp, void*)
 		if (!jack_ringbuffer_read_space(write_buffer))
 		{
 			process_midi_exit_flag = true;
-			__midi_wait = false;
+//			__midi_wait = false;
 			receiving_sysex = false;
 			position = 3;
 			result_out = false;
@@ -168,16 +168,17 @@ static void process_midi(PtTimestamp, void*)
 						// hand over a complete sysex message to the main thread
 						if (data == MIDI_EOX)
 						{
-							// check if its a WAIT command
-							if (local_read_buffer[4] == 0x55 && local_read_buffer[5] == 0x7c)
+							// TODO: check if its a WAIT command
+							if (local_read_buffer[7] == 0x55 && local_read_buffer[8] == 0x7c)
 							{
-								__midi_wait = true;
+								pmesg("Received WAIT command\n");
+//								__midi_wait = true;
 								receiving_sysex = false;
 								break;
 							}
-							// check if it's an ack command
-							else if (__midi_wait == true && local_read_buffer[4] == 0x55 && local_read_buffer[5] == 0x7f)
-								__midi_wait = false;
+							// TODO: check if it's an ack command
+//							else if (__midi_wait == true && local_read_buffer[7] == 0x55 && local_read_buffer[8] == 0x7f)
+//								__midi_wait = false;
 #ifdef SYNCLOG
 							if (read_space > (jack_ringbuffer_write_space(read_buffer) - position))
 								read_space = jack_ringbuffer_write_space(read_buffer) - position;
@@ -259,15 +260,16 @@ static void process_midi(PtTimestamp, void*)
 			result_out = true;
 			if (poll == MIDI_SYSEX)
 			{
-				if (!__midi_wait)
-				{
+				// TODO: WAIT
+//				if (!__midi_wait)
+//				{
 					jack_ringbuffer_read(write_buffer, local_write_buffer, 3); // read header
 					unsigned int len = local_write_buffer[1] * 128 + local_write_buffer[2];
 					jack_ringbuffer_read(write_buffer, local_write_buffer, len);
 					pmerror = Pm_WriteSysEx(port_out, 0, local_write_buffer);
 					if (pmerror < 0)
 						show_error();
-				}
+//				}
 			}
 			else if (jack_ringbuffer_read(write_buffer, event, 3) == 3)
 			{
@@ -393,7 +395,7 @@ static void process_midi_in(void*)
 						ui->init_log->append("\nprocess_midi_in: Received unrecognized e-mu sysex:\n");
 						char* __buffer = (char*) malloc(len * sizeof(char));
 						for (unsigned int i = 0; i < len; i++)
-							snprintf(__buffer + i, 1, "%02hhX", *(sysex + i));
+							sprintf(__buffer + 2 * i, "%02hhX", sysex[i]);
 						ui->init_log->append(__buffer);
 						ui->init_log->append("\n");
 						free(__buffer);
@@ -628,15 +630,16 @@ bool MIDI::out()
 	return false;
 }
 
-bool MIDI::Wait()
-{
-	return __midi_wait;
-}
-
-void MIDI::Wait(bool wait)
-{
-	__midi_wait = wait;
-}
+// TODO: WAIT
+//bool MIDI::Wait()
+//{
+//	return __midi_wait;
+//}
+//
+//void MIDI::Wait(bool wait)
+//{
+//	__midi_wait = wait;
+//}
 
 void MIDI::set_device_id(unsigned char id)
 {

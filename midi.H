@@ -173,8 +173,8 @@ public:
 	void randomize() const;
 	bool in();
 	bool out();
-	bool Wait();
-	void Wait(bool);
+//	bool Wait();
+//	void Wait(bool);
 };
 
 #endif /*MIDI_H_*/
