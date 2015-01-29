@@ -1468,6 +1468,9 @@ void show_preset_timeout(void* p)
 void PXK::show_preset()
 {
 	pmesg("PXK::show_preset() \n");
+	// select edit buffer
+	midi->edit_parameter_value(138, 0); // set rom id to be 0 so we can edit rom presets
+	midi->edit_parameter_value(897, -1); // edit buffer
 	ui->set_eall(0);
 	selected_layer = 5;
 	update_cc_sliders();
