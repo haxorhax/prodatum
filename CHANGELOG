@@ -1,3 +1,9 @@
+v2.0.1
+
+* fix preset editing on Command Stations (and possibly p2500)
+  not working
+
+
 v2.0
 
 * changed theme so that its less 'noisy'
