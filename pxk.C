@@ -1469,6 +1469,7 @@ void PXK::show_preset()
 {
 	pmesg("PXK::show_preset() \n");
 	ui->set_eall(0);
+	selected_layer = 5;
 	update_cc_sliders();
 	ui->undo_b->deactivate();
 	ui->redo_b->deactivate();
