@@ -1,6 +1,6 @@
 /*
  This file is part of prodatum.
- Copyright 2011-2014 Jan Eidtmann
+ Copyright 2011-2015 Jan Eidtmann
 
  prodatum is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

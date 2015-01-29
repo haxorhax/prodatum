@@ -4497,7 +4497,7 @@ about_i->show();}
         code0 {o->image(i_tac);}
       }
       Fl_Box {} {
-        label {Copyright © 2008-2014 Jan Eidtmann
+        label {Copyright © 2008-2015 Jan Eidtmann
 http://prodatum.sf.net
 
 Please support free software and

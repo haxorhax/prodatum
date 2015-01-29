@@ -1,6 +1,6 @@
 /*
  prodatum: E-MU Proteus family remote and preset editor
- Copyright 2011-2014 Jan Eidtmann
+ Copyright 2011-2015 Jan Eidtmann
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@
 
 static void load_data();
 
-const char* VERSION = "v2.0.0";
+const char* VERSION = "v2.0.1";
 PD_UI* ui = 0;
 MIDI* midi = 0;
 PXK* pxk = 0;
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 	int i = 1;
 	if (!Fl::args(argc, argv, i, options))
 	{
-		printf("prodatum %s  Copyright (C) 2014  Jan Eidtmann\n"
+		printf("prodatum %s  Copyright (C) 2015  Jan Eidtmann\n"
 				"Options:\n"
 				" -d id    \tdevice to open (default: previous)\n"
 				" -a       \tdisable autoconnect\n"
