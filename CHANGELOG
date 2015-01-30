@@ -2,6 +2,7 @@ v2.0.1
 
 * fix preset editing on Command Stations (and possibly p2500)
   not working
+* fix open loop download on Command Stations not working
 
 
 v2.0
