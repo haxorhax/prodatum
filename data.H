@@ -270,9 +270,7 @@ public:
 	 * currently not used
 	 */
 	void upload() const;
-	// get methods needed to copy setup dumps
-	int get_dump_size() const;
-	const unsigned char* get_data() const;
+	Setup_Dump* Clone() const;
 };
 
 /**

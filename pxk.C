@@ -698,6 +698,8 @@ static void sync_bro(void* p)
 				goto Wait;
 				// wait for upload
 			}
+			else
+				mysleep(300); // let it crunch
 		}
 #ifdef SYNCLOG
 		snprintf(logbuffer, 128,
@@ -1146,23 +1148,30 @@ void PXK::incoming_setup_dump(const unsigned char* data, int len)
 static void check_loading(void*)
 {
 	if (!got_answer)
-	{
-		ui->supergroup->clear_output();
 		fl_alert("Device did not respond to our request.");
-	}
+	ui->supergroup->clear_output();
 }
 
 void PXK::Loading(bool upload)
 {
 	pmesg("PXK::Loading() \n");
 	Fl::remove_timeout(check_loading);
-	display_status("Loading program...");
 	ui->supergroup->set_output();
 	got_answer = false;
 	if (upload)
-		Fl::add_timeout((2000. + cfg->get_cfg_option(CFG_SPEED)) / 1000., check_loading);
+	{
+		display_status("Saving program...");
+		if (cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD))
+			Fl::add_timeout((2800. + cfg->get_cfg_option(CFG_SPEED)) / 1000., check_loading);
+		else
+		{
+			got_answer = true;
+			Fl::add_timeout(2.5, check_loading);
+		}
+	}
 	else
 	{
+		display_status("Syncing program...");
 		if (cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD))
 			Fl::add_timeout((1900. + cfg->get_cfg_option(CFG_SPEED)) / 1000., check_loading);
 		else
@@ -1179,6 +1188,7 @@ void load_setup_timeout(void* s)
 	((Setup_Dump*) s)->show();
 	// select basic channel on startup
 	pwid[129][0]->set_value(((Setup_Dump*) s)->get_value(139));
+	// focus channel selection
 	((Fl_Button*) ui->main->channel_select->child(((Setup_Dump*) s)->get_value(139)))->take_focus();
 	ui->main->channel_select->do_callback();
 }
@@ -1189,8 +1199,8 @@ void PXK::load_setup()
 	display_status("Loading multisetup...");
 	if (setup_init)
 	{
-		setup = new Setup_Dump(setup_init->get_dump_size(), setup_init->get_data());
-		setup_copy = new Setup_Dump(setup_init->get_dump_size(), setup_init->get_data());
+		setup = setup_init->Clone();
+		setup_copy = setup_init->Clone();
 		delete setup_init;
 		setup_init = 0;
 	}
@@ -1714,7 +1724,7 @@ static void clear_status(void*)
 void PXK::display_status(const char* message)
 {
 	Fl::remove_timeout(clear_status);
-	Fl::add_timeout(1.5, clear_status);
+	Fl::add_timeout(3.5, clear_status);
 	ui->status->copy_label(message);
 }
 

@@ -68,7 +68,7 @@ Preset_Dump::Preset_Dump(int dump_size, const unsigned char* dump_data, int p_si
 	{
 		data = new unsigned char[size];
 		memcpy(data, dump_data, size);
-		snprintf((char*) name, 17, "%s", data + DUMP_HEADER_SIZE + 9);
+		snprintf((char*) name, 17, "%s", dump_data + DUMP_HEADER_SIZE + 9);
 	}
 	// silently update outside name changes
 	if (update)
@@ -376,15 +376,13 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		closed_loop = closed;
 		show_preset = show;
 		update_checksum();
-		if (closed_loop)
-			pxk->Loading(true);
 	}
-	pxk->display_status("Uploading program...");
 	if (closed_loop)
 	{
 		// first we send the dump header
 		if (packet == 0)
 		{
+			pxk->Loading(true);
 			data[3] = (unsigned char) (cfg->get_cfg_option(CFG_DEVICE_ID) & 0xFF);
 			data[6] = 0x01;
 			offset = 0;
@@ -408,14 +406,13 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		// ack of tail...send eof
 		if (packet == chunks + 2)
 		{
-			ui->supergroup->clear_output();
 			midi->eof();
 			if (show_preset)
 				pxk->show_preset();
 			if (unibble(data + 7, data + 8) == -1)
 				pxk->display_status("Program loaded into edit buffer.");
 			else
-				pxk->display_status("Program saved.");
+				pxk->display_status("Please wait for device to crunch data...");
 		}
 		else
 			midi->write_sysex(data + offset, chunk_size);
@@ -427,6 +424,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		{
 			if (i == 0)
 			{
+				pxk->Loading(true);
 				data[3] = (unsigned char) (cfg->get_cfg_option(CFG_DEVICE_ID) & 0xFF);
 				data[6] = 0x03;
 				offset = 0;
@@ -452,7 +450,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 				if (unibble(data + 7, data + 8) == -1)
 					pxk->display_status("Program loaded into edit buffer.");
 				else
-					pxk->display_status("Program saved.");
+					pxk->display_status("Please wait for device to crunch data...");
 			}
 		}
 	}
@@ -1074,16 +1072,10 @@ int Setup_Dump::get_value(int id, int channel) const
 	return unibble(data + offset, data + offset + 1);
 }
 
-int Setup_Dump::get_dump_size() const
+Setup_Dump* Setup_Dump::Clone() const
 {
-	//pmesg("Setup_Dump::get_dump_size()\n");
-	return size;
-}
-
-const unsigned char* Setup_Dump::get_data() const
-{
-	//pmesg("Setup_Dump::get_data()\n");
-	return data;
+	Setup_Dump* dump = new Setup_Dump(size, data);
+	return dump;
 }
 
 int Setup_Dump::set_value(int id, int value, int channel)
