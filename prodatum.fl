@@ -60,7 +60,7 @@ if (!ui->scroll_lock->value())
 
 declblock {\#ifdef SYNCLOG} {after {\#endif}
 } {
-  Function {initlog_cb(void*)} {open selected private C return_type void
+  Function {initlog_cb(void*)} {open private C return_type void
   } {
     code {ui->i_log->insert_position(ui->init_log->length());
 ui->i_log->show_insert_position();} {}
@@ -1082,7 +1082,7 @@ instrument_filter->do_callback();}
   }
 } 
 
-widget_class PD_Preset_Editor {
+widget_class PD_Preset_Editor {open
   xywh {447 258 830 565} type Double box BORDER_BOX color 49 selection_color 49 labelcolor 8 hide position_relative
 } {
   Fl_Group g_riff {
@@ -1404,8 +1404,8 @@ arp_filter->do_callback();}
       }
     }
     Fl_Choice {} {
-      label {Keyboard Tuning} open
-      tooltip {Keyboard Tuning.  The Keyboard Tuning parameter selects which tuning is used by the current preset. The User Tuning tables are defined in the Master section} xywh {215 380 190 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
+      label {Keyboard Tuning} open selected
+      tooltip {Keyboard Tuning.  The Keyboard Tuning parameter selects which tuning is used by the current preset. The User Tuning tables are defined in the Master section (but not currently available for editing in prodatum).} xywh {215 380 190 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
       code0 {o->set_id(923);}
       code1 {o->add("Equal Temperament"); o->add("Just C"); o->add("Just C2"); o->add("Just C minor"); o->add("Just C3"); o->add("Valloti"); o->add("19-tone"); o->add("Gamelan"); o->add("Werkmeister III"); o->add("Kirnberger"); o->add("Scarlatti"); o->add("Repeating Octave");}
       class Choice
@@ -2641,7 +2641,7 @@ Fl::visual(FL_DOUBLE|FL_RGB);} {}
 }
 if (confirm->value() && fl_choice("Exit prodatum?", "Cancel", "Exit", 0) != 1)
 	return;
-delete this;}
+delete this;} open
       xywh {51 342 845 620} type Double color 49 selection_color 49 labelcolor 8 align 0 hide resizable
       code0 {o->label("prodatum");}
       code1 {o->__main = true;}
@@ -2651,7 +2651,7 @@ delete this;}
         xywh {0 0 846 620} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8 align 0 resizable
       } {
         Fl_Group {} {
-          label main open
+          label main
           xywh {0 19 843 596} color 49 selection_color 49 labeltype NO_LABEL labelcolor 8 align 0
         } {
           Fl_Button {} {
@@ -3910,7 +3910,7 @@ arp_mp->reset_active_keys();}
     } {
       Fl_Box {} {
         label {Please wait. This may take a few minutes.}
-        xywh {1 1 298 30} box UP_BOX color 0 selection_color 49 labelfont 1 labelcolor 49 align 20
+        xywh {1 1 298 30} box UP_BOX color 0 selection_color 49 labelfont 1 labelsize 12 labelcolor 49 align 148
       }
       Fl_Progress init_progress {
         xywh {10 45 280 26} box UP_BOX color 7 selection_color 8 labelsize 10 labelcolor 8 align 80
