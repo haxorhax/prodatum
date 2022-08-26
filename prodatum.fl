@@ -126,7 +126,7 @@ else
     }
   }
   Fl_Input_Choice step_duration {
-    callback {edit_value(786, (int) o->menubutton->value());}
+    callback {edit_value(786, (int) o->menubutton()->value());}
     xywh {0 85 41 17} box UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 64 when 4 minimum 1 maximum 19 step 1 textfont 4 textsize 12 textcolor 8
     class Step_Drop
   }
