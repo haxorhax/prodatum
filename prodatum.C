@@ -332,7 +332,7 @@ void PD_Arp_Step::init(int s)
 	step_offset->set_step(s);
 	step_velocity->set_id(785, s);
 	step_duration->set_id(786, s);
-	step_duration->value(4.);
+	step_duration->value(3);
 	step_repeat->set_id(787, s);
 	arp_step[s] = this;
 	char buf[3];
@@ -390,7 +390,7 @@ void PD_Arp_Step::set_values(int off, int vel, int dur, int rep)
 		}
 	}
 	step_velocity->value((double) vel);
-	step_duration->value((double) dur);
+	step_duration->value(dur);
 	step_repeat->value((double) rep + 1);
 }
 

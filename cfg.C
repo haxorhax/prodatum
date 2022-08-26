@@ -168,7 +168,8 @@ Cfg::Cfg(int device_id)
 	file >> check_file;
 	// get export directory
 	char buf[PATH_MAX];
-	file.getline(0, 0);
+	char temp[PATH_MAX];
+	file.getline(temp, PATH_MAX);
 	file.getline(buf, PATH_MAX);
 	if (!file.fail())
 		set_export_dir(buf);

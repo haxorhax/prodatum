@@ -173,6 +173,7 @@ public:
 	void randomize() const;
 	bool in();
 	bool out();
+	void reset_handler() const;
 //	bool Wait();
 //	void Wait(bool);
 };
