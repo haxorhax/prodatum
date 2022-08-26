@@ -2357,10 +2357,10 @@ void load_preset_flash(void*)
 
 #ifdef __linux
 	int offset = 0;
-	while (strncmp(filename + offset, "/", 1) != 0)
+	while (strncmp(filename.c_str() + offset, "/", 1) != 0)
 		++offset;
 	char n[PATH_MAX];
-	snprintf(n, PATH_MAX, "%s", filename + offset);
+	snprintf(n, PATH_MAX, "%s", filename.c_str() + offset);
 	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
 		n[strlen(n) - 1] = '\0';
 	std::ifstream file(n, std::ifstream::binary);
@@ -2541,10 +2541,10 @@ void load_arp_flash(void*)
 
 #ifdef __linux
 	int offset = 0;
-	while (strncmp(filename + offset, "/", 1) != 0)
+	while (strncmp(filename.c_str() + offset, "/", 1) != 0)
 		++offset;
 	char n[PATH_MAX];
-	snprintf(n, PATH_MAX, "%s", filename + offset);
+	snprintf(n, PATH_MAX, "%s", filename.c_str() + offset);
 	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
 		n[strlen(n) - 1] = '\0';
 	std::ifstream file(n, std::ifstream::binary);
@@ -2604,10 +2604,10 @@ void upload_setup(void*)
 
 #ifdef __linux
 	int offset = 0;
-	while (strncmp(filename + offset, "/", 1) != 0)
+	while (strncmp(filename.c_str() + offset, "/", 1) != 0)
 		++offset;
 	char n[PATH_MAX];
-	snprintf(n, PATH_MAX, "%s", filename + offset);
+	snprintf(n, PATH_MAX, "%s", filename.c_str() + offset);
 	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
 		n[strlen(n) - 1] = '\0';
 	std::ifstream file(n, std::ifstream::binary);
