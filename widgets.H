@@ -39,6 +39,7 @@
 #include <FL/Fl_Hold_Browser.H>
 #include <FL/Fl_Choice.H>
 #include <FL/Fl_Input.H>
+#include <FL/Fl_Input_Choice.H>
 #include <FL/Fl_Value_Input.H>
 #include <FL/Fl_Value_Output.H>
 #include <FL/Fl_Slider.H>
@@ -861,7 +862,7 @@ public:
 // ###################
 //
 // ###################
-class Step_Value: public Fl_Value_Output
+class Step_Value: public Fl_Spinner
 {
 	virtual int format(char* buf);
 	int handle(int event);
@@ -869,12 +870,51 @@ class Step_Value: public Fl_Value_Output
 	int s;
 public:
 	Step_Value(int x, int y, int w, int h, char const* label = 0) :
-			Fl_Value_Output(x, y, w, h, label)
+		Fl_Spinner(x, y, w, h, label)
 	{
 		;
 	}
 	void set_id(int i, int step);
 };
+
+// ###################
+//
+// ###################
+class Step_Drop : public Fl_Input_Choice
+{
+	virtual int format(char* buf);
+	int handle(int event);
+	int id;
+	int s;
+public:
+	Step_Drop(int x, int y, int w, int h, char const* label = 0) :
+		Fl_Input_Choice(x, y, w, h, label)
+	{
+		menubutton()->add("1-32");
+		menubutton()->add("1-16T");
+		menubutton()->add("1-32D");
+		menubutton()->add("1-16");
+		menubutton()->add("1-8T");
+		menubutton()->add("1-16D");
+		menubutton()->add("1-8");
+		menubutton()->add("1-4T");
+		menubutton()->add("1-8D");
+		menubutton()->add("1-4");
+		menubutton()->add("1-2T");
+		menubutton()->add("1-4D");
+		menubutton()->add("1-2");
+		menubutton()->add("1-1T");
+		menubutton()->add("1-2D");
+		menubutton()->add("1-1");
+		menubutton()->add("2-1T");
+		menubutton()->add("1-1D");
+		menubutton()->add("2-1");
+	}
+	void set_id(int i, int step);
+};
+
+
+
 
 // ###################
 //

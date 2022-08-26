@@ -325,7 +325,7 @@ static void process_midi_in(void*)
 							{
 								case 0x01: // dump header (closed)
 								case 0x03: // dump header (open)
-									pxk->incoming_preset_dump(sysex, len);
+									pxk->incoming_preset_dump(sysex, len, true);
 									break;
 								case 0x02: // dump data (closed)
 									pxk->incoming_preset_dump(sysex, len);
@@ -1005,6 +1005,7 @@ void MIDI::ack(int packet) const
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x7f, l, m, 0xf7 };
 	write_sysex(a, 9);
 }
+
 void MIDI::nak(int packet) const
 {
 	pmesg("MIDI::nak(packet: %d) \n", packet);
@@ -1049,9 +1050,24 @@ void MIDI::request_preset_dump(int timeout) const
 	}
 	if (requested)
 		return;
+
+
 	unsigned char loop = cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD) ? 0x02 : 0x04;
+
+	unsigned char nl = pxk->selected_preset % 128;
+	unsigned char nm = pxk->selected_preset / 128;
+	unsigned char rl = pxk->selected_preset_rom % 128;
+	unsigned char rm = pxk->selected_preset_rom / 128;
+
+	if (pxk->selected_preset == -1)
+	{
+		nl = nm = 0x7F;
+		rl = rm = 0;
+	}
+	
 	unsigned char request[] =
-	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x11, loop, 0x7f, 0x7f, 0, 0, 0xf7 };
+		{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x11, loop, nl, nm, rl, rm, 0xf7 };
+
 	write_sysex(request, 12);
 	pxk->Loading();
 	requested = true;
@@ -1216,4 +1232,9 @@ void MIDI::randomize() const
 	{ 0xf0, 0x18, 0x0f, midi_device_id, 0x55, 0x71, 0x7f, 0x7f, 0, 0, 0xf7 };
 	write_sysex(r, 11);
 	request_preset_dump(300);
+}
+
+void MIDI::reset_handler() const
+{
+	requested = false;
 }

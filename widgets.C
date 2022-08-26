@@ -16,6 +16,7 @@
  along with prodatum.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 #include <FL/fl_ask.H>
 #include <FL/filename.H>
 #include <math.h>
@@ -5798,7 +5799,7 @@ int Step_Value::handle(int ev)
 			}
 			break;
 	}
-	return Fl_Value_Output::handle(ev);
+	return Fl_Spinner::handle(ev);
 }
 
 int Step_Value::format(char *buf)
@@ -5806,6 +5807,42 @@ int Step_Value::format(char *buf)
 	if (id == 786)
 		return snprintf(buf, 6, "%s", rates[25 - (int) value()]);
 	return sprintf(buf, "%d", (int) value());
+}
+
+// ###################
+//
+// ###################
+void Step_Drop::set_id(int i, int step)
+{
+	id = i;
+	s = step;
+}
+
+int Step_Drop::handle(int ev)
+{
+	switch (ev)
+	{
+	case FL_PUSH:
+		if (FL_RIGHT_MOUSE == Fl::event_button())
+			return 1;
+		break;
+	case FL_RELEASE:
+		if (FL_RIGHT_MOUSE == Fl::event_button() && pxk->arp)
+		{
+			value((double)pxk->arp->get_value(id, s));
+			do_callback();
+			return 1;
+		}
+		break;
+	}
+	return Fl_Input_Choice::handle(ev);
+}
+
+int Step_Drop::format(char* buf)
+{
+	if (id == 786)
+		return snprintf(buf, 6, "%s", rates[25 - (int)menubutton()->value()]);
+	return sprintf(buf, "%d", (int)value());
 }
 
 // ###################

@@ -20,6 +20,8 @@
 #include <fstream>
 #include <FL/fl_ask.H>
 #include <FL/Fl_Tooltip.H>
+#include <FL/Fl_File_Chooser.H>
+#include <FL/Fl_Text_Editor.H>
 #include "pxk.H"
 
 extern const char* VERSION;
@@ -40,8 +42,14 @@ extern MIDI* midi;
 Cfg* cfg = 0;
 
 volatile bool join_bro = false;
+
 volatile static bool name_set_incomplete;
 volatile static int init_progress;
+
+volatile static bool moar_files = false;
+
+void check_for_packet_ack(void*);
+
 
 void PXK::widget_callback(int id, int value, int layer)
 {
@@ -264,6 +272,7 @@ PXK::PXK()
 	pmesg("PXK::PXK()\n");
 	// initialize
 	device_id = -1;
+	machine_id = -1;
 	inquired = false;
 	device_code = -1;
 	synchronized = false;
@@ -280,8 +289,12 @@ PXK::PXK()
 	setup_names_changed = false;
 	arp = 0;
 	nak_count = 0;
+	ack_count = 0;
 	cc_changed = false;
 	randomizing = false;
+	started_request = false;
+	save_in_progress = false;
+	pending_cancel = false;
 	for (unsigned char i = 0; i < 4; i++)
 	{
 		mute_volume[i] = -100;
@@ -391,6 +404,11 @@ PXK::~PXK()
 	setup_init = 0;
 	setup_names = 0;
 	cfg = 0;
+	status_message.clear();
+	cc_to_ctrl.clear();
+	ctrl_to_cc.clear();
+
+	preset_list.clear();
 }
 
 void PXK::ConnectPorts()
@@ -759,6 +777,8 @@ void PXK::Join()
 		ui->device_info->label(0);
 		join_bro = true;
 	}
+
+	pending_cancel = true;
 }
 
 bool PXK::Synchronize()
@@ -876,9 +896,12 @@ void PXK::incoming_inquiry_data(const unsigned char* data)
 			device_id = data[2];
 			ui->device_id->value((double) data[2]);
 			// load user config if we scanned using ID 127
-			delete cfg;
-			cfg = new Cfg(device_id);
-			cfg->apply();
+			if (cfg)
+			{
+				delete cfg;
+				cfg = new Cfg(device_id);
+				cfg->apply();
+			}
 		}
 		midi->set_device_id((unsigned char) device_id); // so further sysex comes through
 		Fl::add_timeout(.1, request_hardware_config_timeout);
@@ -986,7 +1009,7 @@ unsigned char PXK::load_setup_names(unsigned char start)
 			for (char i = 0; i < available_setups; i++)
 			{
 				snprintf(buf, 21, "%02d: %s", i, setup_names + i * 16);
-				ui->multisetups->add(buf);
+				ui->multisetups->add(buf); 
 			}
 			return 0;
 		}
@@ -997,6 +1020,9 @@ unsigned char PXK::load_setup_names(unsigned char start)
 	{
 		midi->copy(C_SETUP, start, -1);
 		midi->request_name(SETUP, start, 0);
+
+		if(setup)
+			set_setup_name(start, setup->name);
 	}
 	else // last setup name
 	{
@@ -1013,7 +1039,7 @@ unsigned char PXK::load_setup_names(unsigned char start)
 	return 1;
 }
 
-void PXK::incoming_preset_dump(const unsigned char* data, int len)
+void PXK::incoming_preset_dump(const unsigned char* data, int len, bool restart)
 {
 	pmesg("PXK::incoming_preset_dump(data, %d) \n", len);
 	//static int packets;
@@ -1022,6 +1048,12 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 	static int packet_size = 0;
 	static bool closed_loop;
 	static int number;
+
+	if (restart)
+	{
+		dump_pos = 0;
+	}
+
 	if (dump_pos + len > 1615)
 	{
 		fl_message("Preset dump larger than expected!\nPlease report!");
@@ -1117,7 +1149,13 @@ void PXK::incoming_preset_dump(const unsigned char* data, int len)
 		}
 	}
 	if (dump_pos == 0)
-		show_preset();
+	{
+		// don't show unless bulk dump finishes, update looks choppy
+		if (!save_in_progress)
+			show_preset();
+
+		save_in_progress = false;
+	}
 }
 
 void PXK::incoming_setup_dump(const unsigned char* data, int len)
@@ -1148,7 +1186,9 @@ void PXK::incoming_setup_dump(const unsigned char* data, int len)
 static void check_loading(void*)
 {
 	if (!got_answer)
+	{
 		fl_alert("Device did not respond to our request.");
+	}
 	ui->supergroup->clear_output();
 }
 
@@ -1281,7 +1321,7 @@ void PXK::incoming_generic_name(const unsigned char* data)
 void PXK::incoming_arp_dump(const unsigned char* data, int len)
 {
 	//pmesg("PXK::incoming_arp_dump(data, %d)\n", len);
-	if (!synchronized || ui->init->shown()) // init
+	if (!started_request && (!synchronized || ui->init->shown())) // init
 	{
 #ifdef SYNCLOG
 		char* __name = (char*) malloc(13 * sizeof(char));
@@ -1321,31 +1361,46 @@ void PXK::incoming_arp_dump(const unsigned char* data, int len)
 	else // this is a dump we like to edit ")
 	{
 		delete arp;
-		arp = new Arp_Dump(len, data);
+		arp = new Arp_Dump(len, data, !started_request);
 		display_status("Arp pattern loaded.");
 	}
 }
 
+
 void PXK::incoming_ACK(int packet)
 {
-	pmesg("PXK::incoming_ACK(packet: %d) \n", packet);
-//	display_status("Received ACK.");
+	//pmesg("PXK::incoming_ACK(packet: %d) \n", packet);
+	display_status("Received ACK.");
 	if (preset)
+	{
 		preset->upload(++packet);
+
+		ack_count++;
+
+#ifdef SYNCLOG
+		char buf[128];
+		sprintf(buf, "prodatum ack on %d \n\n", (int)ack_count);
+		ui->init_log->append(buf);
+#endif
+
+	}
 	nak_count = 0;
 }
 
 void PXK::incoming_NAK(int packet)
 {
 	pmesg("PD:incoming_NAK:(packet: %d) \n", packet);
-//	display_status("Received NAK. Retrying...");
+	display_status("Received NAK. Retrying...");
 	if (preset && nak_count < 3)
 	{
 		preset->upload(packet);
 		++nak_count;
 	}
 	else
+	{
+		Fl::remove_timeout(check_for_packet_ack);
 		fl_message("Closed Loop Upload failed!");
+	}
 }
 
 //void PXK::incoming_ERROR(int cmd, int sub)
@@ -1601,7 +1656,7 @@ void PXK::load_export(const char* filename)
 		delete preset;
 		delete preset_copy;
 	}
-	preset = new Preset_Dump(size, sysex, pos - DUMP_HEADER_SIZE + 1);
+	preset = new Preset_Dump(size, sysex, pos - DUMP_HEADER_SIZE + 1, true);
 	preset_copy = new Preset_Dump(size, sysex, pos - DUMP_HEADER_SIZE + 1);
 	// set edited
 	//preset->set_changed(true);
@@ -1612,10 +1667,31 @@ void PXK::load_export(const char* filename)
 	delete[] sysex;
 }
 
+
+void PXK::new_preset(int dump_size, const unsigned char* dump_data, int p_size)
+{
+	// load preset
+	if (preset) delete preset;
+	if (preset_copy) delete preset_copy;
+
+	preset = new Preset_Dump(dump_size, dump_data, p_size);
+	preset_copy = new Preset_Dump(dump_size, dump_data, p_size);
+}
+
+
+void PXK::new_arp(int dump_size, const unsigned char* dump_data)
+{
+	// load arp
+	if (arp) delete arp;
+
+	arp = new Arp_Dump(dump_size, dump_data, false);
+}
+
+
 void PXK::create_device_info()
 {
 	//pmesg("PXK::create_device_info()\n");
-// if we cancelled initialisation of roms, return here
+	// if we cancelled initialisation of roms, return here
 	if (!rom[1])
 		return;
 	char buf[512];
@@ -1655,6 +1731,7 @@ void PXK::create_device_info()
 	ui->init_log->append("\n\n");
 #endif
 }
+
 const char* PXK::get_name(int code) const
 {
 	//pmesg("PXK::get_name(code: %d)\n", code);
@@ -2227,3 +2304,827 @@ void PXK::store_play_as_initial()
 		if (pwid[i][0] && i != 923)
 			pwid[i][0]->set_value(preset->get_value(i));
 }
+
+void PXK::reset()
+{
+	ui->init->hide();
+	got_answer = true;
+	moar_files = false;
+	save_in_progress = false;  // closed loop dumps in progress
+	started_request = false;   // one preset of the dumps is in progress
+	pending_cancel = false;    // cancel flag
+	join_bro = false;               // midi input process routine reset
+	midi->reset_handler();          // midi request flag 
+
+	selected_preset = -1;
+	selected_preset_rom = 0;
+}
+
+void cb_pres_validate(Fl_Widget* w, void* args)
+{
+	int num_pres = pxk->rom[((ROM_Choice*)w)->value()]->get_attribute(PRESET);
+
+	// sb, sp, eb, ep
+	((Fl_Spinner*)w->parent()->child(1))->maximum((num_pres / 128) - 1);
+
+	((Fl_Spinner*)w->parent()->child(2))->maximum(127);
+
+	((Fl_Spinner*)w->parent()->child(3))->maximum((num_pres / 128) - 1);
+	((Fl_Spinner*)w->parent()->child(3))->value((num_pres / 128) - 1);
+
+	((Fl_Spinner*)w->parent()->child(4))->maximum(99);
+	((Fl_Spinner*)w->parent()->child(4))->value((num_pres - 1) % 128);
+}
+
+void load_preset_flash(void*)
+{
+	if (pxk->preset_list.empty() || pxk->pending_cancel)
+	{
+		pxk->reset();
+		return;
+	}
+
+	if (pxk->preset_list.size() > 1)
+		moar_files = true;
+	else
+		moar_files = false;
+
+	// gets next file
+	std::string filename = pxk->preset_list.front();
+	pxk->preset_list.erase(pxk->preset_list.begin());
+
+	int is_closed = cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD);
+
+#ifdef __linux
+	int offset = 0;
+	while (strncmp(filename + offset, "/", 1) != 0)
+		++offset;
+	char n[PATH_MAX];
+	snprintf(n, PATH_MAX, "%s", filename + offset);
+	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
+		n[strlen(n) - 1] = '\0';
+	std::ifstream file(n, std::ifstream::binary);
+#else
+	std::ifstream file(filename, std::ifstream::binary);
+#endif
+
+	// check and load file
+	int size;
+	file.seekg(0, std::ios::end);
+	size = file.tellg();
+	file.seekg(0, std::ios::beg);
+	if (size < 1605 || size > 1615)
+	{
+		pxk->display_status("File size incorrect");
+		file.close();
+		return;
+	}
+	unsigned char* sysex = new unsigned char[size];
+	file.read((char*)sysex, size);
+	file.close();
+	if (!(sysex[0] == 0xf0 && sysex[1] == 0x18 && sysex[2] == 0x0f && sysex[4] == 0x55 && sysex[5] == 0x10 && sysex[size - 1] == 0xf7))
+	{
+		pxk->display_status("Sysex is not a preset");
+		delete[] sysex;
+		return;
+	}
+	// find packet size
+	int pos = DUMP_HEADER_SIZE; // start after the header
+	while (++pos < size) // calculate packet size
+		if (sysex[pos] == 0xf7)
+			break;
+
+	pxk->new_preset(size, sysex, pos - DUMP_HEADER_SIZE + 1);
+
+	int pres_id = pxk->get_preset_and_increment();
+	pxk->clear_preset_handler();
+	pxk->preset->move(pres_id);
+	pxk->preset->upload(0, is_closed);
+
+	delete[] sysex;
+
+
+	ui->init_progress->value((float)++init_progress);
+
+	if (moar_files == true)
+	{
+		if (is_closed)
+		{
+			Fl::add_timeout(0.1, check_for_packet_ack);
+		}
+		else
+		{
+			Fl::add_timeout(50 + cfg->get_cfg_option(CFG_SPEED), load_preset_flash, NULL);
+		}
+	}
+	else
+	{
+		ui->init->hide();
+	}
+
+	return;
+}
+
+void check_for_packet_ack(void*)
+{
+#ifdef SYNCLOG
+	char buf[128];
+	sprintf(buf, "calling:  check_for_packet_ack \n");
+	ui->init_log->append(buf);
+#endif
+
+	if (pxk->preset_transfer_complete() || pxk->pending_cancel)
+	{
+		Fl::remove_timeout(check_for_packet_ack);
+
+		if (moar_files)
+		{
+			Fl::add_timeout(1.0, load_preset_flash, NULL);
+		}
+	}
+	else
+	{
+		Fl::repeat_timeout(0.1, check_for_packet_ack);
+	}
+}
+
+void save_presets(void*)
+{
+	if (pxk->preset_saves.empty() || pxk->pending_cancel)
+	{
+		pxk->reset();
+		return;
+	}
+
+	if (!pxk->save_in_progress)
+	{
+		if (pxk->started_request)
+			pxk->preset->save_file(pxk->output_dir.c_str(), pxk->selected_preset);
+
+		pxk->selected_preset = pxk->preset_saves.front();
+		pxk->preset_saves.erase(pxk->preset_saves.begin());
+		pxk->selected_preset_rom = pxk->preset_dump_rom;
+
+		if (cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD))
+		{
+			midi->request_preset_dump(100);
+			Fl::add_timeout(0.4, save_presets, NULL);
+		}
+		else
+		{
+			midi->request_preset_dump(50 + cfg->get_cfg_option(CFG_SPEED));
+			Fl::add_timeout(50 + cfg->get_cfg_option(CFG_SPEED), save_presets, NULL);
+		}
+
+		pxk->save_in_progress = true;
+		pxk->started_request = true;
+		got_answer = false;
+
+		ui->init_progress->value((float)++init_progress);
+	}
+	else
+	{
+		if (cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD))
+			Fl::add_timeout(0.4, save_presets, NULL);
+		else
+			Fl::add_timeout(50 + cfg->get_cfg_option(CFG_SPEED), save_presets, NULL);
+	}
+
+	return;
+}
+
+void save_arps(void*)
+{ 
+	if (pxk->started_request && !pxk->pending_cancel)
+		pxk->arp->save_file(pxk->output_dir.c_str(), pxk->selected_arp);
+
+	if (pxk->arp_saves.empty() || pxk->pending_cancel)
+	{
+		pxk->reset();
+		return;
+	}
+
+	pxk->selected_arp = pxk->arp_saves.front();
+	pxk->arp_saves.erase(pxk->arp_saves.begin());
+	pxk->selected_preset_rom = pxk->preset_dump_rom;
+
+	midi->request_arp_dump(pxk->selected_arp, pxk->selected_preset_rom);
+	Fl::add_timeout(0.4 + .008*cfg->get_cfg_option(CFG_SPEED), save_arps, NULL);
+
+	pxk->started_request = true;
+
+	ui->init_progress->value((float)++init_progress);
+
+	return;
+}
+
+void load_arp_flash(void*)
+{
+	if (pxk->arp_list.empty() || pxk->pending_cancel)
+	{
+		pxk->reset();
+		return;
+	}
+
+	if (pxk->arp_list.size() > 1)
+		moar_files = true;
+	else
+	{	
+		moar_files = false;
+		ui->init->hide();
+		fl_message("Press key combo MULTI->EDIT USER PATTERN on any arp... This commits changes to user memory.");
+	}
+
+	// gets next file
+	std::string filename = pxk->arp_list.front();
+	pxk->arp_list.erase(pxk->arp_list.begin());
+
+#ifdef __linux
+	int offset = 0;
+	while (strncmp(filename + offset, "/", 1) != 0)
+		++offset;
+	char n[PATH_MAX];
+	snprintf(n, PATH_MAX, "%s", filename + offset);
+	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
+		n[strlen(n) - 1] = '\0';
+	std::ifstream file(n, std::ifstream::binary);
+#else
+	std::ifstream file(filename, std::ifstream::binary);
+#endif
+
+	// check and load file
+	int size;
+	file.seekg(0, std::ios::end);
+	size = file.tellg();
+	file.seekg(0, std::ios::beg);
+	if (size != 285)
+	{
+		file.close();
+		return;
+	}
+	unsigned char* sysex = new unsigned char[size];
+	file.read((char*)sysex, size);
+	file.close();
+	if (!(sysex[0] == 0xf0 && sysex[1] == 0x18 && sysex[2] == 0x0f && sysex[4] == 0x55 && sysex[5] == 0x18 && sysex[size - 1] == 0xf7))
+	{
+		pxk->display_status("Sysex is not an arp");
+		delete[] sysex;
+		return;
+	}
+
+	pxk->new_arp(size, sysex);
+
+	int arp_id = pxk->get_arp_and_increment();
+
+	pxk->arp->load_file(arp_id);
+
+	delete[] sysex;
+
+	if (moar_files == true)
+	{
+		Fl::add_timeout(0.45 + .008*cfg->get_cfg_option(CFG_SPEED), load_arp_flash, NULL);
+	}
+
+	ui->init_progress->value((float)++init_progress);
+
+	return;
+}
+
+void download_setup(void*)
+{
+	pxk->setup->save_file(pxk->output_dir.c_str());
+
+	return;
+}
+
+void upload_setup(void*)
+{
+	// gets next file
+	std::string filename = pxk->setup_file;
+
+#ifdef __linux
+	int offset = 0;
+	while (strncmp(filename + offset, "/", 1) != 0)
+		++offset;
+	char n[PATH_MAX];
+	snprintf(n, PATH_MAX, "%s", filename + offset);
+	while (n[strlen(n) - 1] == '\n' || n[strlen(n) - 1] == '\r' || n[strlen(n) - 1] == ' ')
+		n[strlen(n) - 1] = '\0';
+	std::ifstream file(n, std::ifstream::binary);
+#else
+	std::ifstream file(filename, std::ifstream::binary);
+#endif
+
+	// check and load file
+	int size;
+	file.seekg(0, std::ios::end);
+	size = file.tellg();
+	file.seekg(0, std::ios::beg);
+	if (size < 975 || size > 981)  // a2k setup size unknown - need to verify
+	{
+		pxk->display_status("File is incorrect size");
+		file.close();
+		return;
+	}
+	unsigned char* sysex = new unsigned char[size];
+	file.read((char*)sysex, size);
+	file.close();
+
+	if (!(sysex[0] == 0xf0 && sysex[1] == 0x18 && sysex[2] == 0x0f && sysex[4] == 0x55 && sysex[5] == 0x1c && sysex[size - 1] == 0xf7))
+	{
+		pxk->display_status("Sysex is not a setup");
+		delete[] sysex;
+		return;
+	}
+
+	sysex[0x4A] = pxk->setup_offset;
+
+	midi->write_sysex(sysex, size);
+	midi->request_setup_dump();
+	midi->copy(C_SETUP, -1, pxk->setup_offset);
+
+	pxk->selected_multisetup = pxk->setup_offset;
+
+	pxk->set_setup_name(pxk->setup_offset, pxk->setup->name);
+	pxk->save_setup_names(true);
+	pxk->load_setup_names(63);
+
+	delete[] sysex;
+
+	return;
+}
+
+
+void PXK::bulk_preset_download() 
+{
+	// Create the file chooser, and show it
+	Fl_File_Chooser chooser(cfg->get_export_dir(),    // directory
+		"*",                        // filter
+		Fl_File_Chooser::DIRECTORY, // chooser type
+		"Preset - Export Select - Choose Save Folder");      // title
+
+	Fl_Group* grp = new Fl_Group(10, 35, 400 - 20, 200 - 50);
+	
+	ROM_Choice* rc = new ROM_Choice(100, 60, 150, 25); // (649, 152, 176, 21);
+	rc->box(FL_FLAT_BOX);
+	rc->down_box(FL_BORDER_BOX);
+	rc->color(FL_BACKGROUND2_COLOR);
+	rc->selection_color(FL_SELECTION_COLOR);
+	rc->labeltype(FL_NO_LABEL);
+	rc->labelfont(0);
+	rc->labelsize(14);
+	rc->labelcolor(FL_FOREGROUND_COLOR);
+	rc->textsize(13);
+	rc->textcolor(FL_INACTIVE_COLOR);
+	rc->align(Fl_Align(FL_ALIGN_CENTER));
+	rc->callback((Fl_Callback*)cb_pres_validate);
+
+	std::vector<ROM*> dd;
+
+	rc->add(rom[0]->name()); dd.push_back(rom[0]);
+	if (rom[1]) { rc->add(rom[1]->name()); dd.push_back(rom[1]); }
+	if (rom[2]) { rc->add(rom[2]->name()); dd.push_back(rom[2]); }
+	if (rom[3]) { rc->add(rom[3]->name()); dd.push_back(rom[3]); }
+	if (rom[4]) { rc->add(rom[4]->name()); dd.push_back(rom[4]); }
+	rc->value(0);
+
+	Fl_Spinner* sb = new Fl_Spinner(100, 90, 90, 25, "Bank Start");
+	sb->align(FL_ALIGN_LEFT);
+	sb->maximum(3);
+	sb->minimum(0);
+	sb->value(0);
+
+	Fl_Spinner* sp = new Fl_Spinner(100, 120, 90, 25, "Preset Start");
+	sp->align(FL_ALIGN_LEFT);
+	sp->maximum(127);
+	sp->minimum(0);
+	sp->value(0);
+
+	Fl_Spinner* eb = new Fl_Spinner(300, 90, 90, 25, "Bank Stop");
+	eb->align(FL_ALIGN_LEFT);
+	eb->maximum(3);
+	eb->minimum(0);
+	eb->value(3);
+
+	Fl_Spinner* ep = new Fl_Spinner(300, 120, 90, 25, "Preset Stop");
+	ep->align(FL_ALIGN_LEFT);
+	ep->maximum(127);
+	ep->minimum(0);
+	ep->value(127);
+
+	grp->add(rc);
+	grp->add(sb);
+	grp->add(sp);
+	grp->add(eb);
+	grp->add(ep);
+
+	chooser.add_extra(grp);
+	chooser.preview(0);
+	chooser.show();
+
+	while (chooser.shown()) Fl::wait(); 
+
+	if (chooser.value() == NULL || chooser.count() == 0) return;
+	
+	int start = 128 * sb->value() + sp->value();
+	int stop = 128 * eb->value() + ep->value();
+
+	preset_saves.clear();
+	for (int ix = start; ix <= stop; ix++)
+	{
+		preset_saves.push_back(ix);
+	}
+
+	selected_preset = preset_saves[0];
+	preset_dump_rom = rom[rc->value()]->get_romid();
+	output_dir = chooser.value();
+
+	if (grp) delete grp;
+
+	if (!setup)
+	{
+		pxk->display_status("*** Must be connected.");
+		return;
+	}
+
+	pxk->reset();
+
+	ui->init_progress->label("Saving User Presets...");
+	ui->init_progress->maximum((float)preset_saves.size());
+	ui->init_progress->value(.0);
+	init_progress = 0;
+	ui->init->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->init->w() / 2),
+		ui->main_window->y() + 80);
+	ui->init->show();
+	
+	save_presets(NULL);
+}
+
+
+void PXK::bulk_preset_upload() 
+{
+	// Create the file chooser, and show it
+	Fl_File_Chooser chooser(cfg->get_export_dir(),    // directory
+		"*.syx",                    // filter
+		Fl_File_Chooser::MULTI,     // chooser type
+		"Preset - Import Select - Choose Files");      // title
+
+	Fl_Group* grp = new Fl_Group(10, 35, 200 - 20, 200 - 50);
+
+	Fl_Spinner* offb = new Fl_Spinner(50, 60, 90, 25, "Bank Offset");
+	offb->align(FL_ALIGN_RIGHT);
+	offb->maximum(3);
+	offb->minimum(0);
+	offb->value(0);
+
+	Fl_Spinner* offp = new Fl_Spinner(50, 90, 90, 25, "Preset Offset");
+	offp->align(FL_ALIGN_RIGHT);
+	offp->maximum(127);
+	offp->minimum(0);
+	offp->value(0);
+
+	grp->add(offb);
+	grp->add(offp);
+
+	chooser.add_extra(grp);
+	chooser.preview(0);
+	chooser.show();
+
+	// Block until user picks something
+	while (chooser.shown()) Fl::wait();
+
+	// User hit cancel or did not select
+	if (chooser.value() == NULL || chooser.count() == 0) return;
+
+	preset_offset = 128 * offb->value() + offp->value();
+
+	char buf[256];
+	preset_list.clear();
+	for (int t = 1; t <= chooser.count(); t++)  // File Chooser is a 1-based list 
+	{
+		preset_list.push_back(chooser.value(t));
+
+		sprintf(buf, "loading file:  %s to %d \n\n", preset_list.back().c_str(), preset_offset + t - 1);
+		ui->init_log->append(buf);
+	}
+
+	if (grp) delete grp;
+
+	if (preset_list.size() > 1)
+		moar_files = true;
+	else 
+		moar_files = false;
+	
+	if (!setup)
+	{
+		pxk->display_status("*** Must be connected.");
+		return;
+	}
+
+	pxk->reset();
+
+	ui->init_progress->label("Loading User Presets...");
+	ui->init_progress->maximum((float)preset_list.size());
+	ui->init_progress->value(.0);
+	init_progress = 0;
+	ui->init->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->init->w() / 2),
+		ui->main_window->y() + 80);
+	ui->init->show();
+	
+	load_preset_flash(NULL);
+}
+
+
+void cb_arps_validate(Fl_Widget *w, void *args)
+{
+	int num_arps = pxk->rom[((ROM_Choice*)w)->value()]->get_attribute(ARP);
+
+	// sb, sp, eb, ep
+	((Fl_Spinner*)w->parent()->child(1))->maximum( (num_arps/100)-1 );
+
+	((Fl_Spinner*)w->parent()->child(2))->maximum(99);
+
+	((Fl_Spinner*)w->parent()->child(3))->maximum( (num_arps/100)-1 );
+	((Fl_Spinner*)w->parent()->child(3))->value( (num_arps/100)-1 );
+
+	((Fl_Spinner*)w->parent()->child(4))->maximum(99);
+	((Fl_Spinner*)w->parent()->child(4))->value( (num_arps-1)%100 );
+}
+
+
+void PXK::bulk_pattern_download() 
+{
+	// Create the file chooser, and show it
+	Fl_File_Chooser chooser(cfg->get_export_dir(),    // directory
+		"*",                        // filter
+		Fl_File_Chooser::DIRECTORY, // chooser type
+		"Arp Pattern - Export Select - Choose Save Folder");      // title
+
+	Fl_Group* grp = new Fl_Group(10, 35, 400 - 20, 200 - 50);
+
+	ROM_Choice* rc = new ROM_Choice(100, 60, 150, 25); // (649, 152, 176, 21);
+	rc->box(FL_FLAT_BOX);
+	rc->down_box(FL_BORDER_BOX);
+	rc->color(FL_BACKGROUND2_COLOR);
+	rc->selection_color(FL_SELECTION_COLOR);
+	rc->labeltype(FL_NO_LABEL);
+	rc->labelfont(0);
+	rc->labelsize(14);
+	rc->labelcolor(FL_FOREGROUND_COLOR);
+	rc->textsize(13);
+	rc->textcolor(FL_INACTIVE_COLOR);
+	rc->align(Fl_Align(FL_ALIGN_CENTER));
+	rc->callback((Fl_Callback*)cb_arps_validate);
+
+	std::vector<ROM*> dd;
+
+	rc->add(rom[0]->name()); dd.push_back(rom[0]);
+	if (rom[1]) { rc->add(rom[1]->name()); dd.push_back(rom[1]); }
+	if (rom[2]) { rc->add(rom[2]->name()); dd.push_back(rom[2]); }
+	if (rom[3]) { rc->add(rom[3]->name()); dd.push_back(rom[3]); }
+	if (rom[4]) { rc->add(rom[4]->name()); dd.push_back(rom[4]); }
+	rc->value(0);
+	
+	Fl_Spinner* sb = new Fl_Spinner(100, 90, 90, 25, "Bank Start");
+	sb->align(FL_ALIGN_LEFT);
+	sb->maximum(2);
+	sb->minimum(0);
+	sb->value(0);
+
+	Fl_Spinner* sp = new Fl_Spinner(100, 120, 90, 25, "Arp Pattern Start");
+	sp->align(FL_ALIGN_LEFT);
+	sp->maximum(99);
+	sp->minimum(0);
+	sp->value(0);
+
+	Fl_Spinner* eb = new Fl_Spinner(300, 90, 90, 25, "Bank Stop");
+	eb->align(FL_ALIGN_LEFT);
+	eb->maximum(2);
+	eb->minimum(0);
+	eb->value(0);
+
+	Fl_Spinner* ep = new Fl_Spinner(300, 120, 90, 25, "Arp Pattern Stop");
+	ep->align(FL_ALIGN_LEFT);
+	ep->maximum(99);
+	ep->minimum(0);
+	ep->value(99);
+
+	grp->add(rc);
+	grp->add(sb);
+	grp->add(sp);
+	grp->add(eb);
+	grp->add(ep);
+
+	chooser.add_extra(grp);
+	chooser.preview(0);
+	chooser.show();
+
+	while (chooser.shown()) Fl::wait();
+
+	if (chooser.value() == NULL || chooser.count() == 0) return;
+
+	int start = 100 * sb->value() + sp->value();
+	int stop = 100 * eb->value() + ep->value();
+
+	arp_saves.clear();
+	for (int ix = start; ix <= stop; ix++)
+	{
+		arp_saves.push_back(ix);
+	}
+
+	preset_dump_rom = rom[rc->value()]->get_romid();
+	output_dir = chooser.value();
+
+	if (grp) delete grp;
+
+	if (!setup)
+	{
+		pxk->display_status("*** Must be connected.");
+		return;
+	}
+
+	pxk->reset();
+
+	ui->init_progress->label("Saving User Arp Patterns...");
+	ui->init_progress->maximum((float)arp_saves.size());
+	ui->init_progress->value(.0);
+	init_progress = 0;
+	ui->init->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->init->w() / 2),
+		ui->main_window->y() + 80);
+	ui->init->show();
+	
+	save_arps(NULL);
+}
+
+
+void PXK::bulk_pattern_upload() 
+{
+	// Create the file chooser, and show it
+	Fl_File_Chooser chooser(cfg->get_export_dir(),    // directory
+		"*.syx",                    // filter
+		Fl_File_Chooser::MULTI,     // chooser type
+		"Arp Pattern - Import Select - Choose Files"); // title
+
+	Fl_Group* grp = new Fl_Group(10, 35, 200 - 20, 200 - 50);
+
+	Fl_Spinner* offp = new Fl_Spinner(50, 90, 90, 25, "Arp Offset");
+	offp->align(FL_ALIGN_RIGHT);
+	offp->maximum(99);
+	offp->minimum(0);
+	offp->value(0);
+
+	grp->add(offp);
+
+	chooser.add_extra(grp);
+	chooser.preview(0);
+	chooser.show();
+
+	// Block until user picks something
+	while (chooser.shown()) Fl::wait();
+
+	// User hit cancel or did not select
+	if (chooser.value() == NULL || chooser.count() == 0) return;
+
+	arp_offset = offp->value();
+
+	char buf[256];
+	arp_list.clear();
+	for (int t = 1; t <= chooser.count(); t++)  // File Chooser is a 1-based list 
+	{
+		if (arp_offset + t - 1 > 99)
+			break;
+			
+		arp_list.push_back(chooser.value(t));
+
+		sprintf(buf, "loading file:  %s to %d \n\n", arp_list.back().c_str(), arp_offset + t - 1);
+		ui->init_log->append(buf);
+	}
+
+	if (grp) delete grp;
+
+	if (arp_list.size() > 1)
+		moar_files = true;
+	else
+		moar_files = false;
+
+	if (!setup)
+	{
+		pxk->display_status("*** Must be connected.");
+		return;
+	}
+
+	pxk->reset();
+
+	ui->init_progress->label("Loading User Arp Patterns...");
+	ui->init_progress->maximum((float)arp_list.size());
+	ui->init_progress->value(.0);
+	init_progress = 0;
+	ui->init->position(ui->main_window->x() + (ui->main_window->w() / 2) - (ui->init->w() / 2),
+		ui->main_window->y() + 80);
+	ui->init->show();
+
+	load_arp_flash(NULL);
+}
+
+void PXK::clear_preset_handler()
+{
+	ack_count = 0;
+}
+
+bool PXK::preset_transfer_complete()
+{
+#ifdef SYNCLOG
+	char buf[128];
+	sprintf(buf, "checking:  ack_count at %d \n\n", (int)ack_count);
+	ui->init_log->append(buf);
+#endif
+
+	if (ack_count == 8)
+		return true;
+	else
+		return false;
+}
+
+int PXK::get_preset_and_increment()
+{	
+	return preset_offset++;
+}
+
+
+int PXK::get_arp_and_increment()
+{
+	return arp_offset++;
+}
+
+void PXK::export_setup()
+{
+	// Create the file chooser, and show it
+	Fl_File_Chooser chooser(cfg->get_export_dir(),    // directory
+		"*.syx",                                      // filter
+		Fl_File_Chooser::DIRECTORY,                   // chooser type
+		"Setup - Export - Choose File Name");         // title
+
+	chooser.preview(0);
+	chooser.show();
+
+	while (chooser.shown()) Fl::wait();
+
+	if (chooser.value() == NULL || chooser.count() == 0) return;
+
+	output_dir = chooser.value();
+
+	if (!setup)
+	{
+		pxk->display_status("*** Must be connected.");
+		return;
+	}
+
+	pxk->reset();
+
+	download_setup(NULL);
+}
+
+void PXK::import_setup()
+{
+	// Create the file chooser, and show it
+	Fl_File_Chooser chooser(cfg->get_export_dir(),    // directory
+		"*.syx",                                      // filter
+		Fl_File_Chooser::SINGLE,                      // chooser type
+		"Setup - Import - Choose File Name");         // title
+
+	Fl_Group* grp = new Fl_Group(10, 35, 400 - 20, 200 - 50);
+
+	Fl_Spinner* offs = new Fl_Spinner(50, 90, 90, 25, "Setup Offset");
+	offs->align(FL_ALIGN_RIGHT);
+	offs->maximum(62);
+	offs->minimum(0);
+	offs->value(0);
+
+	grp->add(offs);
+
+	chooser.add_extra(grp);
+	chooser.preview(0);
+	chooser.show();
+
+	// Block until user picks something
+	while (chooser.shown()) Fl::wait();
+
+	// User hit cancel or did not select
+	if (chooser.value() == NULL || chooser.count() == 0) return;
+
+	setup_offset = offs->value();
+	setup_file = chooser.value();
+
+	if (grp) delete grp;
+
+	if (!setup)
+	{
+		pxk->display_status("*** Must be connected.");
+		return;
+	}
+
+	pxk->reset();
+
+	upload_setup(NULL);
+}
+

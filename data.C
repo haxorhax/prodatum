@@ -17,7 +17,9 @@
  */
 
 #include <string.h>
+#include <algorithm>
 #include <fstream>
+#include <cctype>
 #include <sys/stat.h>
 #include <FL/fl_ask.H>
 
@@ -64,15 +66,199 @@ Preset_Dump::Preset_Dump(int dump_size, const unsigned char* dump_data, int p_si
 	(size == 1605) ? a2k = 1 : a2k = 0;
 	number = pxk->selected_preset;
 	rom_id = pxk->selected_preset_rom;
+
+	// nominal loads
+	//   pxk->machine_id == 0 && size == 1615   command stations
+	//   pxk->machine_id == 1 && size == 1607   proteus 2k
+	//   pxk->machine_id == 2 && size == 1605   audity 2k
+
+	const unsigned char audity_romid = 0x03;
+	const unsigned char conv_audity_romid = 0x0E;
+	const int conv_audity_riffid = 0x15;
+
+	const int postdly_off = 201;
+	const int postdly_bytes = 2;
+
+	const int ext_ctrl_off = 166;
+	const int ext_ctrl_bytes = 8;
+
+	std::vector<unsigned char> v(dump_data, dump_data + size);
+	std::vector<unsigned char>::iterator it;
+
 	if (dump_data)
 	{
-		data = new unsigned char[size];
-		memcpy(data, dump_data, size);
-		snprintf((char*) name, 17, "%s", dump_data + DUMP_HEADER_SIZE + 9);
+		if (pxk->machine_id == 0 && size != 1615)
+		{
+			// converting to CS sysex...
+			int adj_size = 1615;  // override size for command station
+			data = new unsigned char[adj_size];
+
+			v[9] = 0x5E;   // increase num bytes (from 0x56 or 0x54)  p2k/a2k
+			v[13] = 0x38;  // increase # of controllers from (0x34)   p2k
+			v[15] = 0x13;  // increase # of reserved from (0x12)  a2k
+
+			if (size == 1607)  // proteus 2K -> command station
+			{
+				// add extra controllers
+				it = v.begin() + ext_ctrl_off;
+				v.insert(it, ext_ctrl_bytes, 0);
+
+				repack_sysex(v, ext_ctrl_bytes, 0xFD);
+			}
+			else if (size == 1605)  // audity 2K -> command station
+			{
+				// add extra controllers
+				it = v.begin() + ext_ctrl_off;
+				v.insert(it, ext_ctrl_bytes, 0);
+
+				// add missing post delay (0)
+				it = v.begin() + postdly_off;
+				v.insert(it, postdly_bytes, 0);
+
+				repack_sysex(v, ext_ctrl_bytes + postdly_bytes, 0xFD);
+			}
+
+			// tweak member vars used for send / receive
+			size = adj_size;
+			packet_size = 0xFD;
+			extra_controller = 4;
+			a2k = 0;
+		}
+		else if (pxk->machine_id == 1 && size != 1607)
+		{
+			// converting to P2K sysex...
+			int adj_size = 1607;  // override size for p2k
+			data = new unsigned char[adj_size];
+
+			v[9] = 0x56;   // decrease/increase num bytes (from 0x5E or 0x54)  CS/a2k
+			v[13] = 0x34;  // decrease # of controllers from (0x38)   CS
+			v[15] = 0x13;  // increase # of reserved from (0x12)  a2k
+
+			if (size == 1615)  // command station -> proteus 2K
+			{
+				// remove extra controllers
+				it = v.begin() + ext_ctrl_off;
+				v.erase(it, it + ext_ctrl_bytes);
+
+				repack_sysex(v, -ext_ctrl_bytes, 0xFF);
+			}
+			else if (size == 1605)  // audity 2K -> proteus 2K
+			{
+				// add missing post delay (0)
+				it = v.begin() + postdly_off;
+				v.insert(it, postdly_bytes, 0);
+
+				// riff id override 
+				v[87] = conv_audity_riffid % 128; 
+				v[88] = conv_audity_riffid / 128;
+				// riff rom override
+				v[89] = conv_audity_romid;
+				v[199] = conv_audity_romid;
+				v[271] = conv_audity_romid;
+				v[273] = conv_audity_romid;
+				v[322] = conv_audity_romid;
+				v[346] = conv_audity_romid;
+				v[673] = conv_audity_romid;
+				v[1000] = conv_audity_romid;
+				v[1338] = conv_audity_romid;
+
+				repack_sysex(v, postdly_bytes, 0xFF);
+			}
+
+			// tweak member vars used for send / receive
+			size = adj_size;
+			packet_size = 0xFF;
+			extra_controller = 0;
+			a2k = 0;
+		}
+		else if (pxk->machine_id == 2 && size != 1605)
+		{
+			// converting to A2K sysex...
+			int adj_size = 1605;  // override size for a2k
+			data = new unsigned char[adj_size];
+
+			v[9] = 0x54;   // decrease num bytes (from 0x5E or 0x56)  CS/p2k
+			v[13] = 0x34;  // decrease # of controllers from (0x38)   CS
+			v[15] = 0x12;  // decrease # of reserved from (0x13)  a2k
+
+			// riff id override 
+			v[87] = 0;
+			v[88] = 0;
+			// riff rom override
+			v[89] = audity_romid;
+
+			if (size == 1615)  // command station -> audity 2K
+			{
+				// remove extra controllers
+				it = v.begin() + ext_ctrl_off;
+				v.erase(it, it + ext_ctrl_bytes);
+
+				v[199] = audity_romid;
+				v[271] = audity_romid;
+				v[273] = audity_romid;
+				v[322] = audity_romid;
+				v[346] = audity_romid;
+				v[673] = audity_romid;
+				v[1000] = audity_romid;
+				v[1338] = audity_romid;
+
+				// remove post delay (0)
+				it = v.begin() + postdly_off;
+				v.erase(it, it + postdly_bytes);
+
+				repack_sysex(v, -ext_ctrl_bytes - postdly_bytes, 0xFF);
+			}
+			else if (size == 1607)  // proteus 2K -> audity 2K
+			{
+				v[199] = audity_romid;
+				v[271] = audity_romid;
+				v[273] = audity_romid;
+				v[322] = audity_romid;
+				v[346] = audity_romid;
+				v[673] = audity_romid;
+				v[1000] = audity_romid;
+				v[1338] = audity_romid;
+
+				// remove post delay (0)
+				it = v.begin() + postdly_off;
+				v.erase(it, it + postdly_bytes);
+
+				repack_sysex(v, -postdly_bytes, 0xFF);
+			}
+
+			// tweak member vars used for send / receive
+			size = adj_size;
+			packet_size = 0xFF;
+			extra_controller = 0;
+			a2k = 1;
+		}
+		else // nominal case, sysex load is native to instrument
+		{
+			data = new unsigned char[size];
+		}
+		
+		std::copy(v.begin(), v.end(), data);
+		snprintf((char*)name, 17, "%s", data + DUMP_HEADER_SIZE + 9);
+
+		v.clear();
 	}
+
 	// silently update outside name changes
 	if (update)
-	{
+	{	
+		// first update will determine machine type (this allows sysex to be interchangeable P2K->CS->AUD)
+		if (pxk->machine_id == -1)
+		{
+			if (extra_controller == 4)  // command stations
+				pxk->machine_id = 0;
+			else if (extra_controller == 0 && !a2k)  // proteus 2k
+				pxk->machine_id = 1;
+			else if (a2k) // audity 2k
+				pxk->machine_id = 2;
+			else
+				pmesg("Preset_Dump::unknown sysex file format\n");
+		}
+
 		if (rom_id == 0 && number >= 0 && pxk->rom[0])
 		{
 			pxk->rom[0]->set_name(PRESET, number, name);
@@ -85,8 +271,33 @@ Preset_Dump::Preset_Dump(int dump_size, const unsigned char* dump_data, int p_si
 
 Preset_Dump::~Preset_Dump()
 {
-	pmesg("Preset_Dump::~Preset_Dump()\n");
-	delete[] data;
+
+	//undo_s.clear();
+	//redo_s.clear();
+	//pmesg("Preset_Dump::~Preset_Dump()\n");
+	if (data) delete[] data;
+}
+
+void Preset_Dump::repack_sysex(std::vector<unsigned char> &v, int shift, int dest_size)
+{
+	const int sysex_hdr_size = 11;   // <ck>h, F7h, F0h, 18h, 0Fh, dd, 55h, 10h, 02h, pp, pp
+
+	std::vector<unsigned char>::iterator it;
+
+	// shift sysex command bytes for each packet
+	for (int pkt = 1; pkt < 7; ++pkt)
+	{
+		std::vector<unsigned char> slice(11);
+
+		it = v.begin() + DUMP_HEADER_SIZE + (pkt * packet_size) - 2 + shift;
+		std::copy(it, it + sysex_hdr_size, slice.begin());
+
+		it = v.begin() + DUMP_HEADER_SIZE + (pkt * packet_size) - 2 + shift;
+		v.erase(it, it + sysex_hdr_size);
+
+		it = v.begin() + DUMP_HEADER_SIZE + (pkt * dest_size) - 2;
+		v.insert(it, slice.begin(), slice.end());
+	}
 }
 
 bool Preset_Dump::is_changed() const
@@ -364,8 +575,8 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 	pmesg("Preset_Dump::upload(packet: %d, closed: %d)\n", packet, closed);
 	if (!data)
 		return;
-	const static int chunks = (size - DUMP_HEADER_SIZE) / packet_size;
-	const static int tail = (size - DUMP_HEADER_SIZE) % packet_size;
+	int chunks = (size - DUMP_HEADER_SIZE) / packet_size;
+	int tail = (size - DUMP_HEADER_SIZE) % packet_size;
 	static int offset;
 	static int chunk_size = 0;
 	static int closed_loop = 0;
@@ -377,13 +588,14 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		show_preset = show;
 		update_checksum();
 	}
+
 	if (closed_loop)
 	{
 		// first we send the dump header
 		if (packet == 0)
 		{
 			pxk->Loading(true);
-			data[3] = (unsigned char) (cfg->get_cfg_option(CFG_DEVICE_ID) & 0xFF);
+			data[3] = (unsigned char)(cfg->get_cfg_option(CFG_DEVICE_ID) & 0xFF);
 			data[6] = 0x01;
 			offset = 0;
 			chunk_size = DUMP_HEADER_SIZE;
@@ -397,16 +609,20 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 				else
 					offset += packet_size;
 			}
-			data[offset + 3] = (unsigned char) (cfg->get_cfg_option(CFG_DEVICE_ID) & 0xFF);
+
+			data[offset + 3] = (unsigned char)(cfg->get_cfg_option(CFG_DEVICE_ID) & 0xFF);
 			data[offset + 6] = 0x02;
 			chunk_size = packet_size;
 			if (packet == chunks + 1)
+			{
 				chunk_size = tail;
+			}
 		}
 		// ack of tail...send eof
 		if (packet == chunks + 2)
 		{
 			midi->eof();
+
 			if (show_preset)
 				pxk->show_preset();
 			if (unibble(data + 7, data + 8) == -1)
@@ -416,6 +632,7 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 		}
 		else
 			midi->write_sysex(data + offset, chunk_size);
+
 		previous_packet = packet;
 	}
 	else
@@ -456,20 +673,35 @@ void Preset_Dump::upload(int packet, int closed, bool show)
 	}
 }
 
-void Preset_Dump::save_file()
+void Preset_Dump::save_file(const char* save_dir, int offset)
 {
 	pmesg("Preset_Dump::save_file() \n");
 	char path[PATH_MAX];
-	snprintf(path, PATH_MAX, "%s/%s.syx", cfg->get_export_dir(), get_name());
-	// check if file exists and ask for confirmation
-	struct stat sbuf;
-	if (stat(path, &sbuf) == 0 && fl_choice("Overwrite existing file?", "No", "Overwrite", 0) == 0)
-		return;
+
+	std::string name_ = get_name();
+
+	name_.erase(std::remove_if(name_.begin(), name_.end(), [](char c) { return !std::isalnum(c); }), name_.end());
+
+	if (offset == -1)
+	{
+		snprintf(path, PATH_MAX, "%s/EXPORT-%s_PRES.syx", save_dir, name_.c_str());
+
+		// check if file exists and ask for confirmation
+		struct stat sbuf;
+		if (stat(path, &sbuf) == 0 && fl_choice("Overwrite existing file?", "No", "Overwrite", 0) == 0)
+			return;
+	}
+	else
+		snprintf(path, PATH_MAX, "%s/%02d-%04d-%s_PRES.syx", save_dir, pxk->selected_preset_rom, offset, name_.c_str());
+
 	// write
 	std::ofstream file(path, std::ofstream::binary | std::ios::trunc);
 	if (!file.is_open())
 	{
-		fl_message("Could not write the file.\nDo you have permission to write?");
+		if (offset == -1)
+		{
+			fl_message("Could not write the file.\nDo you have permission to write?");
+		}
 		return;
 	}
 	update_checksum(); // save a valid dump
@@ -478,18 +710,17 @@ void Preset_Dump::save_file()
 	pxk->display_status("Program file saved.");
 }
 
-void Preset_Dump::move(int new_number)
+void Preset_Dump::move(int number)
 {
-	pmesg("Preset_Dump::move(position: %d)\n", new_number);
+	pmesg("Preset_Dump::move(position: %d)\n", number);
 	if (!data)
 		return;
-	number = new_number;
-	rom_id = 0;
-	if (new_number < 0)
-		new_number += 16384;
+
+	if (number < 0)
+		number += 16384;
 	// preset number
-	data[7] = new_number % 128;
-	data[8] = new_number / 128;
+	data[7] = number % 128;
+	data[8] = number / 128;
 	// rom id
 	data[33] = 0;
 	data[34] = 0;
@@ -895,20 +1126,24 @@ void Preset_Dump::update_checksum()
 	data[offset + tail] = checksum % 128;
 }
 
+
 // #################
 // Arp_Dump class
 // #################
-Arp_Dump::Arp_Dump(int dump_size, const unsigned char* dump_data)
+Arp_Dump::Arp_Dump(int dump_size, const unsigned char* dump_data, bool show_editor=true)
 {
 	pmesg("Arp_Dump::Arp_Dump(size: %d, data)\n", dump_size);
 	size = dump_size;
 	data = new unsigned char[dump_size];
 	memcpy(data, dump_data, dump_size);
+
+	snprintf((char*)name, 17, "%s                 ", data + 14);
 	number = data[6] + 128 * data[7];
-	snprintf((char*) name, 17, "%s                 ", data + 14);
+
 	// tell device that we want to edit this pattern
 	midi->edit_parameter_value(769, number);
-	show();
+
+	show(show_editor);
 }
 
 Arp_Dump::~Arp_Dump()
@@ -923,7 +1158,7 @@ int Arp_Dump::get_number() const
 	return number;
 }
 
-void Arp_Dump::show() const
+void Arp_Dump::show(bool show_editor=true) const
 {
 	//pmesg("Arp_Dump::show()\n");
 	// fill name field
@@ -935,12 +1170,16 @@ void Arp_Dump::show() const
 		int tmp = i * 8;
 		int offset = unibble(dat + tmp, dat + tmp + 1);
 		int velocity = unibble(dat + tmp + 2, dat + tmp + 3);
-		int duration = unibble(dat + tmp + 4, dat + tmp + 5);
+		int duration = unibble(dat + tmp + 4, dat + tmp + 5) - 1;
 		int repeat = unibble(dat + tmp + 6, dat + tmp + 7);
 		arp_step[i]->set_values(offset, velocity, duration, repeat);
 	}
 	update_sequence_length_information();
-	ui->arp_editor_w->showup();
+
+	if (show_editor)
+	{
+		ui->arp_editor_w->showup();
+	}
 }
 
 void Arp_Dump::update_sequence_length_information() const
@@ -953,7 +1192,7 @@ void Arp_Dump::update_sequence_length_information() const
 	while (i < 32 && !arp_step[i]->step_end->value())
 	{
 		if (!arp_step[i]->step_skip->value())
-			total += tick[(int) arp_step[i]->step_duration->value() - 1] * (int) arp_step[i]->step_repeat->value();
+			total += tick[(int) arp_step[i]->step_duration->menubutton()->value()] * (int)arp_step[i]->step_repeat->value();
 		++i;
 	}
 	int beat = total / 48;
@@ -1033,6 +1272,47 @@ void Arp_Dump::reset_pattern() const
 	show();
 }
 
+void Arp_Dump::load_file(int num) const
+{
+	pmesg("Arp_Dump::load_file() \n");
+
+	data[6] = num;
+	data[7] = 0;
+
+	data[size - 2] = 0;
+	data[size - 3] = 0;
+
+	midi->write_sysex(data, size);
+
+	rename((char*)name);
+	pxk->display_status("Arp pattern loaded.");
+}
+
+void Arp_Dump::save_file(const char* save_dir, int offset) const
+{
+	pmesg("Arp_Dump::save_file() \n");
+	char path[PATH_MAX];
+
+	std::string name_((char*)name, 17);
+
+	name_.erase(std::remove_if(name_.begin(), name_.end(), [](char c) { return !std::isalnum(c); }), name_.end());
+
+	snprintf(path, PATH_MAX, "%s/%02d-%04d-%s_ARP.syx", save_dir, pxk->selected_preset_rom, offset, name_.c_str());
+
+	// write
+	std::ofstream file(path, std::ofstream::binary | std::ios::trunc);
+	if (!file.is_open())
+	{
+		pxk->display_status("Cannot open file.");
+		return;
+	}
+
+	file.write((const char*)data, size);
+	file.close();
+	pxk->display_status("Arp pattern saved.");
+}
+
+
 // #################
 // Setup_Dump class
 // #################
@@ -1054,6 +1334,8 @@ Setup_Dump::Setup_Dump(int dump_size, const unsigned char* dump_data)
 		setup_dump_info[5] = data[17] * 128 + data[16]; // # midi chnls
 		setup_dump_info[6] = data[19] * 128 + data[18]; // # chnl params
 	}
+
+	snprintf((char*)name, 17, "%s                 ", data + 20);
 }
 
 Setup_Dump::~Setup_Dump()
@@ -1190,6 +1472,42 @@ void Setup_Dump::idmap(const int& id, const int& channel, int& id_mapped) const
 		return;
 	}
 }
+
+void Setup_Dump::save_file(const char* save_dir) const
+{
+	pmesg("Setup_Dump::save_file() \n");
+	char path[PATH_MAX];
+
+	std::string name_((char*)name, 17);
+
+	name_.erase(std::remove_if(name_.begin(), name_.end(), [](char c) { return !std::isalnum(c); }), name_.end());
+
+	if (pxk->machine_id == 0)
+		snprintf(path, PATH_MAX, "%s/%02d_%s_CS-SETUP.syx", save_dir, pxk->selected_multisetup, name_.c_str());
+	else if (pxk->machine_id == 1)
+		snprintf(path, PATH_MAX, "%s/%02d_%s_P2K-SETUP.syx", save_dir, pxk->selected_multisetup, name_.c_str());
+	else
+		snprintf(path, PATH_MAX, "%s/%02d_%s_A2K-SETUP.syx", save_dir, pxk->selected_multisetup, name_.c_str());
+
+	// check if file exists and ask for confirmation
+	struct stat sbuf;
+	if (stat(path, &sbuf) == 0 && fl_choice("Overwrite existing file?", "No", "Overwrite", 0) == 0)
+		return;
+
+	// write
+	std::ofstream file(path, std::ofstream::binary | std::ios::trunc);
+	if (!file.is_open())
+	{
+		fl_message("Could not write the file.\nDo you have permission to write?");
+		return;
+	}
+
+	file.write((const char*)data, size);
+	file.close();
+
+	pxk->display_status("Setup saved.");
+}
+
 
 // ###############
 // ROM class
@@ -1579,4 +1897,9 @@ const char* ROM::name() const
 			snprintf(buf, 20, "Unknown (%d)", id);
 			return buf;
 	}
+}
+
+int ROM::get_romid()
+{
+	return id;
 }

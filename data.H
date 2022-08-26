@@ -5,6 +5,7 @@
  \defgroup pd_data prodatum Data Classes
  @{
  */
+#include <vector>
 #include <deque>
 
 #define DUMP_HEADER_SIZE 36
@@ -92,6 +93,9 @@ public:
 	 * DTOR just frees the memory
 	 */
 	~Preset_Dump();
+
+	/// pack the sysex for converted messages
+	void repack_sysex(std::vector<unsigned char>& v, int shift, int dest_size);
 	/// return data status
 	bool is_changed() const;
 	/// return extra_controller
@@ -169,7 +173,7 @@ public:
 	 */
 	void upload(int packet, int closed = -1, bool show = false);
 	/// save dump to disk
-	void save_file();
+	void save_file(const char* save_dir, int offset=-1);
 };
 
 /**
@@ -182,10 +186,10 @@ class Arp_Dump
 	int number;
 	unsigned char name[17];
 	unsigned char* data;
-	void show() const;
+	void show(bool show_editor) const;
 	void update_name(const unsigned char* np) const;
 public:
-	Arp_Dump(int dump_size, const unsigned char* dump_data);
+	Arp_Dump(int dump_size, const unsigned char* dump_data, bool editor);
 	~Arp_Dump();
 	void update_sequence_length_information() const;
 	int get_number() const;
@@ -194,6 +198,8 @@ public:
 	void rename(const char* newname) const;
 	void reset_step(int step) const;
 	void reset_pattern() const;
+	void load_file(int num) const;
+	void save_file(const char* save_dir, int offset) const;
 };
 
 /**
@@ -243,6 +249,10 @@ public:
 	 * @param hannel the channel number for the parameter
 	 * @returns integer value for the parameter
 	 */
+
+	 /// name of setup
+	unsigned char name[17];
+
 	int get_value(int id, int channel = -1) const;
 	/**
 	 * set the value of a parameter.
@@ -267,9 +277,13 @@ public:
 	void show_fx() const;
 	/**
 	 * uploads the dump to the device to save it.
-	 * currently not used
 	 */
 	void upload() const;
+	/**
+	 * saves the setup to a file for backup
+	 */
+	void save_file(const char* save_dir) const;
+
 	Setup_Dump* Clone() const;
 };
 
@@ -355,6 +369,8 @@ public:
 	 * @returns pointer to the name
 	 */
 	const unsigned char* get_name(int type, int number = 0) const;
+
+	int get_romid();
 };
 
 #endif /*DATA_H_*/
