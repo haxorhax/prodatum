@@ -126,7 +126,7 @@ else
     }
   }
   Fl_Input_Choice step_duration {
-    callback {edit_value(786, (int) o->value());}
+    callback {edit_value(786, (int) o->menubutton->value());}
     xywh {0 85 41 17} box UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 64 when 4 minimum 1 maximum 19 step 1 textfont 4 textsize 12 textcolor 8
     class Step_Drop
   }
@@ -801,7 +801,7 @@ widget_class PD_Layer_Strip {
   }
   Fl_Dial coarse {
     label Coarse
-    private tooltip {Coarse tune (± 36 semitones)} xywh {7 35 40 40} color 7 selection_color 0 labelsize 10 labelcolor 0 align 1 minimum -36 maximum 36 step 1
+    private tooltip {Coarse tune (ï¿½ 36 semitones)} xywh {7 35 40 40} color 7 selection_color 0 labelsize 10 labelcolor 0 align 1 minimum -36 maximum 36 step 1
     class Fl_Knob
   }
   Fl_Button {} {
@@ -820,7 +820,7 @@ widget_class PD_Layer_Strip {
   }
   Fl_Dial fine {
     label Fine
-    private tooltip {Fine tune (± 1 semitone by 1/64 semitone intervals (1.56 cents))} xywh {53 35 40 40} color 7 selection_color 0 labelsize 10 labelcolor 0 align 1 minimum -63 maximum 63 step 1
+    private tooltip {Fine tune (ï¿½ 1 semitone by 1/64 semitone intervals (1.56 cents))} xywh {53 35 40 40} color 7 selection_color 0 labelsize 10 labelcolor 0 align 1 minimum -63 maximum 63 step 1
     class Fl_Knob
   }
   Fl_Dial offset {
@@ -878,7 +878,7 @@ widget_class PD_Layer_Strip {
   }
   Fl_Dial bend {
     label {Bend R.}
-    private tooltip {Pitch-Bend Range: 0 to ± 12 semitones or Master (-1)} xywh {52 322 40 40} color 7 selection_color 0 labelsize 10 labelcolor 0 align 1 minimum -1 maximum 12 step 1
+    private tooltip {Pitch-Bend Range: 0 to ï¿½ 12 semitones or Master (-1)} xywh {52 322 40 40} color 7 selection_color 0 labelsize 10 labelcolor 0 align 1 minimum -1 maximum 12 step 1
     class Fl_Knob
   }
   Fl_Slider volume {
@@ -2454,7 +2454,7 @@ widget_class PD_Main {
         } {}
         Fl_Choice {} {
           label {Ctrl Up} open
-          tooltip {Allows a MIDI controller to change the Master Tempo. You can assign any controller number from 1-31, mono key pressure, or the pitch wheel to change the Global Tempo. MIDI Controller values are added to the Base Tempo with a range of ± 64. When the controller is set to "Off" the tempo returns to its original setting. This control has no effect when using an external clock} xywh {283 535 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
+          tooltip {Allows a MIDI controller to change the Master Tempo. You can assign any controller number from 1-31, mono key pressure, or the pitch wheel to change the Global Tempo. MIDI Controller values are added to the Base Tempo with a range of ï¿½ 64. When the controller is set to "Off" the tempo returns to its original setting. This control has no effect when using an external clock} xywh {283 535 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
           code0 {o->set_id(402);}
           code1 {o->add("Off");o->add("MNP");o->add("PW");}
           code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("17");o->add("18");o->add("19");o->add("20");o->add("21");o->add("22");o->add("23");o->add("24");o->add("25");o->add("26");o->add("27");o->add("28");o->add("29");o->add("30");o->add("31");}
@@ -2462,7 +2462,7 @@ widget_class PD_Main {
         } {}
         Fl_Choice {} {
           label {Ctrl Down} open
-          tooltip {Allows a MIDI controller to change the Master Tempo. You can assign any controller number from 1-31, mono key pressure, or the pitch wheel to change the Global Tempo. MIDI Controller values are added to the Base Tempo with a range of ± 64. When the controller is set to "Off" the tempo returns to its original setting. This control has no effect when using an external clock} xywh {348 535 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
+          tooltip {Allows a MIDI controller to change the Master Tempo. You can assign any controller number from 1-31, mono key pressure, or the pitch wheel to change the Global Tempo. MIDI Controller values are added to the Base Tempo with a range of ï¿½ 64. When the controller is set to "Off" the tempo returns to its original setting. This control has no effect when using an external clock} xywh {348 535 60 20} down_box BORDER_BOX color 7 selection_color 15 labelsize 10 labelcolor 0 align 1 textsize 13 textcolor 8
           code0 {o->set_id(403);}
           code1 {o->add("Off");o->add("MNP");o->add("PW");}
           code2 {o->add("1");o->add("2");o->add("3");o->add("4");o->add("5");o->add("6");o->add("7");o->add("8");o->add("9");o->add("10");o->add("11");o->add("12");o->add("13");o->add("14");o->add("15");o->add("16");o->add("17");o->add("18");o->add("19");o->add("20");o->add("21");o->add("22");o->add("23");o->add("24");o->add("25");o->add("26");o->add("27");o->add("28");o->add("29");o->add("30");o->add("31");}
@@ -2545,19 +2545,19 @@ widget_class PD_Main {
       }
       Fl_Dial {} {
         label {Transp.}
-        tooltip {Master Transpose. Transposes the key of all presets, in semitone intervals. The transpose range is ± 24 semitones} xywh {688 524 40 40} color 7 selection_color 39 labelsize 10 labelcolor 0 align 1 minimum -24 maximum 24 step 1
+        tooltip {Master Transpose. Transposes the key of all presets, in semitone intervals. The transpose range is ï¿½ 24 semitones} xywh {688 524 40 40} color 7 selection_color 39 labelsize 10 labelcolor 0 align 1 minimum -24 maximum 24 step 1
         code0 {o->set_id(259);}
         class Fl_Knob
       }
       Fl_Dial {} {
         label Tune
-        tooltip {Master Tune (cents). Adjusts the fine tuning of all presets so that you can tune your device to other instruments. The master tuning range is ± 1 semitone in 1/64th semitone increments} xywh {737 524 40 40} color 7 selection_color 39 labelsize 10 labelcolor 0 align 1 minimum -63 maximum 63 step 1
+        tooltip {Master Tune (cents). Adjusts the fine tuning of all presets so that you can tune your device to other instruments. The master tuning range is ï¿½ 1 semitone in 1/64th semitone increments} xywh {737 524 40 40} color 7 selection_color 39 labelsize 10 labelcolor 0 align 1 minimum -63 maximum 63 step 1
         code0 {o->set_id(260);}
         class Fl_Knob
       }
       Fl_Dial {} {
         label {Bend R.}
-        tooltip {Bend Range. Sets the range of the pitch wheel. This affects only presets that have their individual Pitch Bend range set to Master. The maximum pitch bend range is ± 12 semitones or one octave in each direction} xywh {786 524 40 40} color 7 selection_color 39 labelsize 10 labelcolor 0 align 1 maximum 12 step 1 value 2
+        tooltip {Bend Range. Sets the range of the pitch wheel. This affects only presets that have their individual Pitch Bend range set to Master. The maximum pitch bend range is ï¿½ 12 semitones or one octave in each direction} xywh {786 524 40 40} color 7 selection_color 39 labelsize 10 labelcolor 0 align 1 maximum 12 step 1 value 2
         code0 {o->set_id(264);}
         class Fl_Knob
       }
@@ -4527,7 +4527,7 @@ o->label("Select...");
         code0 {o->image(i_tac);}
       }
       Fl_Box {} {
-        label {Copyright © 2008-2015 Jan Eidtmann
+        label {Copyright ï¿½ 2008-2015 Jan Eidtmann
             http://prodatum.sf.net
 
             Please support free software and
