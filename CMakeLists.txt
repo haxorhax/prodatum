@@ -82,7 +82,7 @@ if( WIN32 )
   # using gcc
   if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
     ADD_DEFINITIONS( -DWIN32 -DSYNCLOG -Wall -W -Wno-char-subscripts -Wno-write-strings -Wno-format )
-    set( CMAKE_EXE_LINKER_FLAGS "-mwindows -m32 -static-libgcc -static-libstdc++" )
+    set( CMAKE_EXE_LINKER_FLAGS "-mwindows -static-libgcc -static-libstdc++" )
     set( ADDITIONAL_LIBRARIES winmm ole32 uuid comctl32 wsock32 )
 
   # using visual studio
@@ -94,13 +94,13 @@ endif( WIN32 )
 
 # Build for MacOS
 if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
-  ADD_DEFINITIONS( -DUSE_MLOCK -DOSX -DSYNCLOG -Wall -W -Wno-char-subscripts -Wno-write-strings )
+  ADD_DEFINITIONS( -std=c++14 -DUSE_MLOCK -DOSX -DSYNCLOG -Wall -W -Wno-char-subscripts -Wno-write-strings )
   set( ADDITIONAL_LIBRARIES "-framework Carbon -framework Cocoa -framework ApplicationServices -framework CoreMIDI -framework CoreAudio" )
 endif( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
 
 # Build for Linux
 if( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
-	ADD_DEFINITIONS( -DUSE_MLOCK -D__linux -DSYNCLOG -Wall -W -Wno-char-subscripts -Wno-write-strings )
+	ADD_DEFINITIONS( -std=c++14 -DUSE_MLOCK -D__linux -DSYNCLOG -Wall -W -Wno-char-subscripts -Wno-write-strings )
 	set( CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++" )
   set( ADDITIONAL_LIBRARIES X11 Xinerama Xft fontconfig asound pthread )
 endif( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
