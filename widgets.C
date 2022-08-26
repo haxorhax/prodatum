@@ -5842,7 +5842,7 @@ int Step_Drop::format(char* buf)
 {
 	if (id == 786)
 		return snprintf(buf, 6, "%s", rates[25 - (int)menubutton()->value()]);
-	return sprintf(buf, "%d", (int)value());
+	return sprintf(buf, "%d", (int)menubutton()->value());
 }
 
 // ###################
