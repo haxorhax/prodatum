@@ -34,7 +34,7 @@ extern unsigned int max_write;
 extern unsigned int max_read;
 #endif
 
-extern bool got_answer;
+volatile bool got_answer;
 extern FilterMap FM[51];
 extern MIDI* midi;
 Cfg* cfg = 0;

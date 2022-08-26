@@ -29,7 +29,7 @@ extern PD_UI* ui;
 extern Cfg* cfg;
 extern PXK* pxk;
 
-volatile bool got_answer;
+extern volatile bool got_answer;
 extern volatile bool join_bro;
 
 static bool timer_running = false;

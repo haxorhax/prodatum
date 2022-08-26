@@ -1,44 +1,114 @@
-project(prodatum)
-cmake_minimum_required(VERSION 2.6)
+project( prodatum )
+cmake_minimum_required( VERSION 3.21 )
 
-SET( SYSEX_MAX_SIZE 1024 )
-SET( RINGBUFFER_WRITE 2048 )
-SET( RINGBUFFER_READ 2048 )
-SET( PATH_MAX 1024 )
-SET( LOG_BUFFER_SIZE 1048576 )
+if( NOT CMAKE_BUILD_TYPE )
+  SET( CMAKE_BUILD_TYPE Release )
+endif()
+
+macro( SET_OPTION option value )
+  set( ${option} ${value} CACHE INTERNAL "" FORCE )
+endmacro()
+
+SET_OPTION( BUILD_SHARED_LIBS OFF )
+SET_OPTION( OPTION_BUILD_SHARED_LIBS OFF )
+SET_OPTION( FLTK_BUILD_TEST OFF )
+SET_OPTION( FLTK_BUILD_EXAMPLES OFF )
+
+set( SYSEX_MAX_SIZE 1024 )
+set( RINGBUFFER_WRITE 2048 )
+set( RINGBUFFER_READ 2048 )
+set( PATH_MAX 1024 )
+set( LOG_BUFFER_SIZE 1048576 )
+set( RES_FILES "" )
+
+if( WIN32 )
+  set( FLUID_EXECUTABLE "${CMAKE_BINARY_DIR}/lib/fltk/bin/${CMAKE_BUILD_TYPE}/fluid.exe" )
+else()
+  set( FLUID_EXECUTABLE "${CMAKE_BINARY_DIR}/lib/fltk/bin/fluid" )
+endif( WIN32 )
+
+set( UI_AUTOGEN "${CMAKE_BINARY_DIR}/ui.C" )
+
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/config.h.in ${CMAKE_SOURCE_DIR}/config.h )
 
-include_directories (${prodatum_SOURCE_DIR}/include)
-link_directories (${prodatum_SOURCE_DIR}/lib)
+option( BUILD_LIBS "Enable building libs" ON )
 
-set(RES_FILES "")
+if( BUILD_LIBS )
+  add_subdirectory( ${CMAKE_SOURCE_DIR}/lib/portmidi )
+  add_subdirectory( ${CMAKE_SOURCE_DIR}/lib/fltk )
+endif( BUILD_LIBS )
 
-if(MINGW)
-  set(RES_FILES "windows.rc")
-  set(CMAKE_RC_COMPILER_INIT windres)
+add_custom_command(
+  OUTPUT ${UI_AUTOGEN}
+  PRE_BUILD
+  COMMAND "${FLUID_EXECUTABLE}"
+          "-c"
+          "${CMAKE_SOURCE_DIR}/prodatum.fl"
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  DEPENDS fluid
+)
+
+include_directories ( 
+  ${CMAKE_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR}/include 
+  ${CMAKE_SOURCE_DIR}/lib/portmidi/pm_common
+  ${CMAKE_SOURCE_DIR}/lib/portmidi/porttime
+  ${CMAKE_SOURCE_DIR}/lib/fltk
+  ${CMAKE_BINARY_DIR} 
+  ${CMAKE_BINARY_DIR}/lib/fltk
+  )
+
+link_directories ( 
+  ${CMAKE_SOURCE_DIR}/lib 
+  ${CMAKE_BINARY_DIR}/lib/fltk/lib
+  ${CMAKE_BINARY_DIR}/lib/fltk/lib/${CMAKE_BUILD_TYPE} 
+  ${CMAKE_BINARY_DIR}/lib/portmidi
+  ${CMAKE_BINARY_DIR}/lib/portmidi/${CMAKE_BUILD_TYPE} 
+  )
+
+if( MINGW )
+  set( RES_FILES "windows.rc" )
+  set( CMAKE_RC_COMPILER_INIT windres )
   ENABLE_LANGUAGE(RC)
-  SET(CMAKE_RC_COMPILE_OBJECT
-    "<CMAKE_RC_COMPILER> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
-endif(MINGW)
+  SET( CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>" )
+endif( MINGW )
 
-file (GLOB prodatum_SOURCES *.C)
-add_executable (prodatum ${prodatum_SOURCES} ${RES_FILES})
+file ( GLOB prodatum_SOURCES *.C ${CMAKE_BINARY_DIR}/*.C )
 
-if(WIN32)
-  ADD_DEFINITIONS(-DWIN32 -DSYNCLOG -Wall -W -Wno-char-subscripts -Wno-write-strings -Wno-format)
-  set(CMAKE_EXE_LINKER_FLAGS "-mwindows -m32 -static-libgcc -static-libstdc++")
-  set(ADDITIONAL_LIBRARIES winmm ole32 uuid comctl32 wsock32)
-endif(WIN32)
+add_executable ( prodatum ${prodatum_SOURCES} ${UI_AUTOGEN} ${RES_FILES} )
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  ADD_DEFINITIONS(-DUSE_MLOCK -DOSX -DSYNCLOG -Wall -W -Wno-char-subscripts -Wno-write-strings)
-  set(ADDITIONAL_LIBRARIES "-framework Carbon -framework ApplicationServices -framework CoreMIDI -framework CoreAudio")
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+# Build for Windows
+if( WIN32 )
+  # using gcc
+  if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
+    ADD_DEFINITIONS( -DWIN32 -DSYNCLOG -Wall -W -Wno-char-subscripts -Wno-write-strings -Wno-format )
+    set( CMAKE_EXE_LINKER_FLAGS "-mwindows -m32 -static-libgcc -static-libstdc++" )
+    set( ADDITIONAL_LIBRARIES winmm ole32 uuid comctl32 wsock32 )
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	ADD_DEFINITIONS(-DUSE_MLOCK -D__linux -DSYNCLOG -Wall -W -Wno-char-subscripts -Wno-write-strings)
-	set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
-  set(ADDITIONAL_LIBRARIES X11 Xinerama Xft fontconfig asound pthread)
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  # using visual studio
+  elseif(MSVC)
+    ADD_DEFINITIONS( -DWIN32 -DSYNCLOG -D_CRT_SECURE_NO_WARNINGS )
+    set( ADDITIONAL_LIBRARIES winmm ole32 uuid comctl32 wsock32 gdi32 )
+  endif()
+endif( WIN32 )
 
-target_link_libraries (prodatum fltk.a portmidi_s.a ${ADDITIONAL_LIBRARIES} )
+# Build for MacOS
+if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
+  ADD_DEFINITIONS( -DUSE_MLOCK -DOSX -DSYNCLOG -Wall -W -Wno-char-subscripts -Wno-write-strings )
+  set( ADDITIONAL_LIBRARIES "-framework Carbon -framework Cocoa -framework ApplicationServices -framework CoreMIDI -framework CoreAudio" )
+endif( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
+
+# Build for Linux
+if( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
+	ADD_DEFINITIONS( -DUSE_MLOCK -D__linux -DSYNCLOG -Wall -W -Wno-char-subscripts -Wno-write-strings )
+	set( CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++" )
+  set( ADDITIONAL_LIBRARIES X11 Xinerama Xft fontconfig asound pthread )
+endif( ${CMAKE_SYSTEM_NAME} MATCHES "Linux" )
+
+target_include_directories( prodatum 
+                            PRIVATE 
+                            ${CMAKE_BUILD_DIR}/lib/fltk/lib/${CMAKE_BUILD_TYPE}
+                            ${CMAKE_BUILD_DIR}/lib/portmidi/${CMAKE_BUILD_TYPE}
+                            )
+
+target_link_libraries ( prodatum fltk portmidi ${ADDITIONAL_LIBRARIES} )

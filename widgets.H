@@ -192,7 +192,7 @@ public:
 	Browser(int x, int y, int w, int h, char* const label = 0) :
 			Fl_Hold_Browser(x, y, w, h, label)
 	{
-		filter = '\0';
+		filter = 0;
 		has_scrollbar(VERTICAL);
 		selected_rom = -1;
 	}
