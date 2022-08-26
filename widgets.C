@@ -21,6 +21,10 @@
 #include <math.h>
 #include <string.h>
 
+#ifdef WIN32
+	#include <corecrt_math_defines.h>
+#endif
+
 #include "ui.H"
 /**
  * global array that holds all device parameter widgets.

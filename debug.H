@@ -3,11 +3,13 @@
 #include <stdarg.h>
 
 #if defined(NDEBUG)
-#define pmesg(format, args...) ((void)0)
-
+    #if defined(WIN32)
+        #define pmesg(format, ...) ((void)0)
+    #else
+        #define pmesg(format, args...) ((void)0)
+    #endif
 #else
-void pmesg(const char *format, ...);
-
+    void pmesg(const char *format, ...);
 #endif
 
 #endif
