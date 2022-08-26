@@ -2663,7 +2663,7 @@ void PXK::bulk_preset_download()
 		Fl_File_Chooser::DIRECTORY, // chooser type
 		"Preset - Export Select - Choose Save Folder");      // title
 
-	Fl_Group* grp = new Fl_Group(10, 35, 400 - 20, 200 - 50);
+	Fl_Group* grp = new Fl_Group(10, 35, 450, 150);
 	
 	ROM_Choice* rc = new ROM_Choice(100, 60, 150, 25); // (649, 152, 176, 21);
 	rc->box(FL_FLAT_BOX);
@@ -2769,7 +2769,7 @@ void PXK::bulk_preset_upload()
 		Fl_File_Chooser::MULTI,     // chooser type
 		"Preset - Import Select - Choose Files");      // title
 
-	Fl_Group* grp = new Fl_Group(10, 35, 200 - 20, 200 - 50);
+	Fl_Group* grp = new Fl_Group(10, 35, 200, 125);
 
 	Fl_Spinner* offb = new Fl_Spinner(100, 60, 90, 25, "Bank Offset");
 	offb->align(FL_ALIGN_RIGHT);
@@ -2860,7 +2860,7 @@ void PXK::bulk_pattern_download()
 		Fl_File_Chooser::DIRECTORY, // chooser type
 		"Arp Pattern - Export Select - Choose Save Folder");      // title
 
-	Fl_Group* grp = new Fl_Group(10, 35, 400 - 20, 200 - 50);
+	Fl_Group* grp = new Fl_Group(10, 35, 450, 150);
 
 	ROM_Choice* rc = new ROM_Choice(140, 60, 150, 25); // (649, 152, 176, 21);
 	rc->box(FL_FLAT_BOX);
@@ -2965,7 +2965,7 @@ void PXK::bulk_pattern_upload()
 		Fl_File_Chooser::MULTI,     // chooser type
 		"Arp Pattern - Import Select - Choose Files"); // title
 
-	Fl_Group* grp = new Fl_Group(10, 35, 200 - 20, 200 - 50);
+	Fl_Group* grp = new Fl_Group(10, 35, 200, 125);
 
 	Fl_Spinner* offp = new Fl_Spinner(100, 90, 90, 25, "Arp Offset");
 	offp->align(FL_ALIGN_RIGHT);
@@ -3092,9 +3092,9 @@ void PXK::import_setup()
 		Fl_File_Chooser::SINGLE,                      // chooser type
 		"Setup - Import - Choose File Name");         // title
 
-	Fl_Group* grp = new Fl_Group(10, 35, 400 - 20, 200 - 50);
+	Fl_Group* grp = new Fl_Group(10, 35, 200, 125);
 
-	Fl_Spinner* offs = new Fl_Spinner(50, 90, 90, 25, "Setup Offset");
+	Fl_Spinner* offs = new Fl_Spinner(100, 90, 90, 25, "Setup Offset");
 	offs->align(FL_ALIGN_RIGHT);
 	offs->maximum(62);
 	offs->minimum(0);
