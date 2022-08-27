@@ -2663,7 +2663,7 @@ void PXK::bulk_preset_download()
 		Fl_File_Chooser::DIRECTORY, // chooser type
 		"Preset - Export Select - Choose Save Folder");      // title
 
-	Fl_Group* grp = new Fl_Group(10, 35, 400 - 20, 200 - 50);
+	Fl_Group* grp = new Fl_Group(10, 35, 450, 150);
 	
 	ROM_Choice* rc = new ROM_Choice(100, 60, 150, 25); // (649, 152, 176, 21);
 	rc->box(FL_FLAT_BOX);
@@ -2688,25 +2688,25 @@ void PXK::bulk_preset_download()
 	if (rom[4]) { rc->add(rom[4]->name()); dd.push_back(rom[4]); }
 	rc->value(0);
 
-	Fl_Spinner* sb = new Fl_Spinner(100, 90, 90, 25, "Bank Start");
+	Fl_Spinner* sb = new Fl_Spinner(140, 90, 90, 25, "Bank Start");
 	sb->align(FL_ALIGN_LEFT);
 	sb->maximum(3);
 	sb->minimum(0);
 	sb->value(0);
 
-	Fl_Spinner* sp = new Fl_Spinner(100, 120, 90, 25, "Preset Start");
+	Fl_Spinner* sp = new Fl_Spinner(140, 120, 90, 25, "Preset Start");
 	sp->align(FL_ALIGN_LEFT);
 	sp->maximum(127);
 	sp->minimum(0);
 	sp->value(0);
 
-	Fl_Spinner* eb = new Fl_Spinner(300, 90, 90, 25, "Bank Stop");
+	Fl_Spinner* eb = new Fl_Spinner(340, 90, 90, 25, "Bank Stop");
 	eb->align(FL_ALIGN_LEFT);
 	eb->maximum(3);
 	eb->minimum(0);
 	eb->value(3);
 
-	Fl_Spinner* ep = new Fl_Spinner(300, 120, 90, 25, "Preset Stop");
+	Fl_Spinner* ep = new Fl_Spinner(340, 120, 90, 25, "Preset Stop");
 	ep->align(FL_ALIGN_LEFT);
 	ep->maximum(127);
 	ep->minimum(0);
@@ -2769,15 +2769,15 @@ void PXK::bulk_preset_upload()
 		Fl_File_Chooser::MULTI,     // chooser type
 		"Preset - Import Select - Choose Files");      // title
 
-	Fl_Group* grp = new Fl_Group(10, 35, 200 - 20, 200 - 50);
+	Fl_Group* grp = new Fl_Group(10, 35, 200, 125);
 
-	Fl_Spinner* offb = new Fl_Spinner(50, 60, 90, 25, "Bank Offset");
+	Fl_Spinner* offb = new Fl_Spinner(100, 60, 90, 25, "Bank Offset");
 	offb->align(FL_ALIGN_RIGHT);
 	offb->maximum(3);
 	offb->minimum(0);
 	offb->value(0);
 
-	Fl_Spinner* offp = new Fl_Spinner(50, 90, 90, 25, "Preset Offset");
+	Fl_Spinner* offp = new Fl_Spinner(100, 90, 90, 25, "Preset Offset");
 	offp->align(FL_ALIGN_RIGHT);
 	offp->maximum(127);
 	offp->minimum(0);
@@ -2860,9 +2860,9 @@ void PXK::bulk_pattern_download()
 		Fl_File_Chooser::DIRECTORY, // chooser type
 		"Arp Pattern - Export Select - Choose Save Folder");      // title
 
-	Fl_Group* grp = new Fl_Group(10, 35, 400 - 20, 200 - 50);
+	Fl_Group* grp = new Fl_Group(10, 35, 450, 150);
 
-	ROM_Choice* rc = new ROM_Choice(100, 60, 150, 25); // (649, 152, 176, 21);
+	ROM_Choice* rc = new ROM_Choice(140, 60, 150, 25); // (649, 152, 176, 21);
 	rc->box(FL_FLAT_BOX);
 	rc->down_box(FL_BORDER_BOX);
 	rc->color(FL_BACKGROUND2_COLOR);
@@ -2885,25 +2885,25 @@ void PXK::bulk_pattern_download()
 	if (rom[4]) { rc->add(rom[4]->name()); dd.push_back(rom[4]); }
 	rc->value(0);
 	
-	Fl_Spinner* sb = new Fl_Spinner(100, 90, 90, 25, "Bank Start");
+	Fl_Spinner* sb = new Fl_Spinner(140, 90, 90, 25, "Bank Start");
 	sb->align(FL_ALIGN_LEFT);
 	sb->maximum(2);
 	sb->minimum(0);
 	sb->value(0);
 
-	Fl_Spinner* sp = new Fl_Spinner(100, 120, 90, 25, "Arp Pattern Start");
+	Fl_Spinner* sp = new Fl_Spinner(140, 120, 90, 25, "Arp Pattern Start");
 	sp->align(FL_ALIGN_LEFT);
 	sp->maximum(99);
 	sp->minimum(0);
 	sp->value(0);
 
-	Fl_Spinner* eb = new Fl_Spinner(300, 90, 90, 25, "Bank Stop");
+	Fl_Spinner* eb = new Fl_Spinner(340, 90, 90, 25, "Bank Stop");
 	eb->align(FL_ALIGN_LEFT);
 	eb->maximum(2);
 	eb->minimum(0);
 	eb->value(0);
 
-	Fl_Spinner* ep = new Fl_Spinner(300, 120, 90, 25, "Arp Pattern Stop");
+	Fl_Spinner* ep = new Fl_Spinner(340, 120, 90, 25, "Arp Pattern Stop");
 	ep->align(FL_ALIGN_LEFT);
 	ep->maximum(99);
 	ep->minimum(0);
@@ -2965,9 +2965,9 @@ void PXK::bulk_pattern_upload()
 		Fl_File_Chooser::MULTI,     // chooser type
 		"Arp Pattern - Import Select - Choose Files"); // title
 
-	Fl_Group* grp = new Fl_Group(10, 35, 200 - 20, 200 - 50);
+	Fl_Group* grp = new Fl_Group(10, 35, 200, 125);
 
-	Fl_Spinner* offp = new Fl_Spinner(50, 90, 90, 25, "Arp Offset");
+	Fl_Spinner* offp = new Fl_Spinner(100, 90, 90, 25, "Arp Offset");
 	offp->align(FL_ALIGN_RIGHT);
 	offp->maximum(99);
 	offp->minimum(0);
@@ -3092,9 +3092,9 @@ void PXK::import_setup()
 		Fl_File_Chooser::SINGLE,                      // chooser type
 		"Setup - Import - Choose File Name");         // title
 
-	Fl_Group* grp = new Fl_Group(10, 35, 400 - 20, 200 - 50);
+	Fl_Group* grp = new Fl_Group(10, 35, 200, 125);
 
-	Fl_Spinner* offs = new Fl_Spinner(50, 90, 90, 25, "Setup Offset");
+	Fl_Spinner* offs = new Fl_Spinner(100, 90, 90, 25, "Setup Offset");
 	offs->align(FL_ALIGN_RIGHT);
 	offs->maximum(62);
 	offs->minimum(0);

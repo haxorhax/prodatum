@@ -14,9 +14,9 @@
 
 ### **Build Process -- [ git, CMake, FLTK, portmidi ]** 
 ```bash
-$ git clone https://github.com/haxorhax/prodatum.git
-$ git clone https://github.com/haxorhax/fltk.git prodatum/lib/fltk
-$ git clone https://github.com/haxorhax/portmidi.git prodatum/lib/portmidi
+$ git clone https://github.com/haxorhax/prodatum
+$ git clone https://github.com/haxorhax/fltk prodatum/lib/fltk
+$ git clone https://github.com/haxorhax/portmidi prodatum/lib/portmidi
 $ cd prodatum
 $ cmake -S . -B build
 $ cmake --build build --config Release
@@ -26,6 +26,11 @@ $ cmake --build build --config Release
 
 
 # ***Version Info***
+## *Version 2.1.0 - 8/26/22*
+> Added bulk import/export functionality
+#### See wiki for details
+###### Update provided by haxorhax (https://haxorhax.com)  
+<br>
 
 ## *Version 2.0.2 - 8/21/22*
 > Resurrected repository.  Enhanced cmake build process, and added github action support.
@@ -34,8 +39,8 @@ $ cmake --build build --config Release
 
 ## *Versions 2.0.1 and older*
 > Last updated on 1/31/2015.
-###### Original design by Jan Mann (aka Jan Eidtmann, rdxesy@yahoo.de)  
 #### Sourceforge repository:  https://sourceforge.net/projects/prodatum
+###### Original design by Jan Mann (aka Jan Eidtmann, rdxesy@yahoo.de)  
 ###### *Copyright (C) 2014 by Jan Eidtmann*  
 
 
