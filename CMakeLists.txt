@@ -87,7 +87,7 @@ if( WIN32 )
 
   # using visual studio
   elseif(MSVC)
-    ADD_DEFINITIONS( -DWIN32 -DSYNCLOG -D_CRT_SECURE_NO_WARNINGS )
+    ADD_DEFINITIONS( -mwindows -DWIN32 -DSYNCLOG -D_CRT_SECURE_NO_WARNINGS )
     set( ADDITIONAL_LIBRARIES winmm ole32 uuid comctl32 wsock32 gdi32 )
   endif()
 endif( WIN32 )
