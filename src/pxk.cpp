@@ -1725,7 +1725,7 @@ void PXK::create_device_info()
 #else
 	OS = "GNU/Linux";
 #endif
-	snprintf(buf, 512, "prodatum %s on %s\nClosed loop up/down %d/%d\n\n", PROJECT_VERSION, OS,
+	snprintf(buf, 512, "prodatum %s on %s\nClosed loop up/down %d/%d\n\n", PRODATUM_VERSION, OS,
 			cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD), cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD));
 	ui->init_log->append(buf);
 	ui->init_log->append(info.data());
