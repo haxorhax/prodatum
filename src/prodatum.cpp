@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 				" -d id    \tdevice to open (default: previous)\n"
 				" -a       \tdisable autoconnect\n"
 				" -i       \tstart minimized\n"
-				" -ti title\twindow title\n", VERSION);
+				" -ti title\twindow title\n", PROJECT_VER);
 		return 1;
 	}
 	// loading... please wait.
@@ -604,7 +604,7 @@ void PD_UI::create_about()
 	OS = "GNU/Linux";
 #endif
 	char buf[512];
-	snprintf(buf, 512, "prodatum %s\nfor %s", VERSION, OS);
+	snprintf(buf, 512, "prodatum %s\nfor %s", PROJECT_VER, OS);
 	about_text->copy_label(buf);
 }
 
