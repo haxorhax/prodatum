@@ -30,7 +30,7 @@
 #include <FL/Fl_Tooltip.H>
 #include <stdlib.h>
 
-#include "ui.H"
+#include "ui.h"
 
 extern PD_UI* ui;
 extern PXK* pxk;

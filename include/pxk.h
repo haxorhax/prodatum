@@ -12,8 +12,8 @@
 #include <vector>
 #include <string>
 
-#include "ui.H"
-#include "data.H"
+#include "ui.h"
+#include "data.h"
 
 /**
  * Enum for the three MIDI modes

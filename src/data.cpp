@@ -23,12 +23,12 @@
 #include <sys/stat.h>
 #include <FL/fl_ask.H>
 
-#include "data.H"
-#include "midi.H"
-#include "cfg.H"
-#include "pxk.H"
-#include "ui.H"
-#include "debug.H"
+#include "data.h"
+#include "midi.h"
+#include "cfg.h"
+#include "pxk.h"
+#include "ui.h"
+#include "debug.h"
 
 extern MIDI* midi;
 extern Cfg* cfg;

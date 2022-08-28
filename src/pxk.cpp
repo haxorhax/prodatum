@@ -23,7 +23,7 @@
 #include <FL/Fl_File_Chooser.H>
 #include <FL/Fl_Text_Editor.H>
 
-#include "pxk.H"
+#include "pxk.h"
 #include "version.h"
 
 extern const char* VERSION;

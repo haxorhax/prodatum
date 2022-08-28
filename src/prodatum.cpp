@@ -24,7 +24,7 @@
 #endif
 
 #include "version.h"
-#include "ui.H"
+#include "ui.h"
 
 #ifdef WIN32
 #include <FL/x.H>
