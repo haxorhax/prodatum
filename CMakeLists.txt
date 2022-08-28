@@ -27,7 +27,7 @@ else()
   set( FLUID_EXECUTABLE "${CMAKE_BINARY_DIR}/lib/fltk/bin/fluid" )
 endif( WIN32 )
 
-set( UI_AUTOGEN "${CMAKE_BINARY_DIR}/ui.c" )
+set( UI_AUTOGEN "${CMAKE_BINARY_DIR}/ui.cpp" )
 
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/config.h.in ${CMAKE_SOURCE_DIR}/config.h )
 
