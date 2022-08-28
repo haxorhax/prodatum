@@ -1,5 +1,17 @@
-project( prodatum )
 cmake_minimum_required( VERSION 3.21 )
+
+file( STRINGS "PRODATUM_VERSION" PRODATUM_VERSION_IN )
+
+project( prodatum VERSION ${PRODATUM_VERSION_IN} )
+
+set( PRODATUM_NAME ${PROJECT_NAME} )
+set( PRODATUM_VERSION ${PROJECT_VERSION} )
+set( PRODATUM_VERSION_MAJOR ${PROJECT_VERSION_MAJOR} )
+set( PRODATUM_VERSION_MINOR ${PROJECT_VERSION_MINOR} )
+set( PRODATUM_VERSION_PATCH ${PROJECT_VERSION_PATCH} )
+
+message( "prodatum name   : [${PRODATUM_NAME}]" )
+message( "prodatum version: [${PRODATUM_VERSION}]" )
 
 if( NOT CMAKE_BUILD_TYPE )
   SET( CMAKE_BUILD_TYPE Release )
@@ -27,9 +39,9 @@ else()
   set( FLUID_EXECUTABLE "${CMAKE_BINARY_DIR}/lib/fltk/bin/fluid" )
 endif( WIN32 )
 
-set( UI_AUTOGEN "${CMAKE_BINARY_DIR}/ui.C" )
+set( UI_AUTOGEN "${CMAKE_BINARY_DIR}/ui.cpp" )
 
-CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/config.h.in ${CMAKE_SOURCE_DIR}/config.h )
+CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/cmake/config.h.in ${CMAKE_SOURCE_DIR}/include/config.h )
 
 option( BUILD_LIBS "Enable building libs" ON )
 
@@ -54,9 +66,10 @@ include_directories (
   ${CMAKE_SOURCE_DIR}/lib/portmidi/pm_common
   ${CMAKE_SOURCE_DIR}/lib/portmidi/porttime
   ${CMAKE_SOURCE_DIR}/lib/fltk
-  ${CMAKE_BINARY_DIR} 
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_BINARY_DIR}/include 
   ${CMAKE_BINARY_DIR}/lib/fltk
-  )
+)
 
 link_directories ( 
   ${CMAKE_SOURCE_DIR}/lib 
@@ -64,18 +77,31 @@ link_directories (
   ${CMAKE_BINARY_DIR}/lib/fltk/lib/${CMAKE_BUILD_TYPE} 
   ${CMAKE_BINARY_DIR}/lib/portmidi
   ${CMAKE_BINARY_DIR}/lib/portmidi/${CMAKE_BUILD_TYPE} 
-  )
+)
 
-if( MINGW )
-  set( RES_FILES "windows.rc" )
+if ( WIN32 )
+  set( RES_FILES "resources/windows.rc" )
+endif ( WIN32 )
+
+if ( MINGW )
   set( CMAKE_RC_COMPILER_INIT windres )
   ENABLE_LANGUAGE(RC)
   SET( CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>" )
 endif( MINGW )
 
-file ( GLOB prodatum_SOURCES *.C ${CMAKE_BINARY_DIR}/*.C )
+set ( SOURCES
+      src/cfg.cpp
+      src/data.cpp
+      src/debug.cpp
+      src/Fl_Scope.cpp
+      src/midi.cpp
+      src/prodatum.cpp
+      src/pxk.cpp
+      src/ringbuffer.cpp
+      src/widgets.cpp
+)
 
-add_executable ( prodatum ${prodatum_SOURCES} ${UI_AUTOGEN} ${RES_FILES} )
+add_executable ( prodatum ${SOURCES} ${UI_AUTOGEN} ${RES_FILES} )
 
 # Build for Windows
 if( WIN32 )
@@ -86,7 +112,7 @@ if( WIN32 )
     set( ADDITIONAL_LIBRARIES winmm ole32 uuid comctl32 wsock32 )
 
   # using visual studio
-  elseif(MSVC)
+  elseif( MSVC )
     ADD_DEFINITIONS( -DWIN32 -DSYNCLOG -D_CRT_SECURE_NO_WARNINGS )
     set( ADDITIONAL_LIBRARIES winmm ole32 uuid comctl32 wsock32 gdi32 )
 

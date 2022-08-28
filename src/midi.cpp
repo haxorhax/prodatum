@@ -22,8 +22,8 @@
 #include <time.h>
 #include <FL/fl_ask.H>
 
-#include "ringbuffer.H"
-#include "ui.H"
+#include "ringbuffer.h"
+#include "ui.h"
 
 extern PD_UI* ui;
 extern Cfg* cfg;

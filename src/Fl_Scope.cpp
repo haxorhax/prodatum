@@ -60,7 +60,7 @@
 
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
-#include "Fl_Scope.H"
+#include "Fl_Scope.h"
 #include <stdlib.h>
 #include <stdio.h>
 

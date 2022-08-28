@@ -23,7 +23,9 @@
 #include <unistd.h>
 #endif
 
-#include "ui.H"
+#include "config.h"
+#include "ui.h"
+
 #ifdef WIN32
 #include <FL/x.H>
 #endif
@@ -34,7 +36,6 @@
 
 static void load_data();
 
-const char* VERSION = "v2.0.1";
 PD_UI* ui = 0;
 MIDI* midi = 0;
 PXK* pxk = 0;
@@ -80,7 +81,7 @@ int main(int argc, char *argv[])
 				" -d id    \tdevice to open (default: previous)\n"
 				" -a       \tdisable autoconnect\n"
 				" -i       \tstart minimized\n"
-				" -ti title\twindow title\n", VERSION);
+				" -ti title\twindow title\n", PRODATUM_VERSION);
 		return 1;
 	}
 	// loading... please wait.
@@ -603,7 +604,7 @@ void PD_UI::create_about()
 	OS = "GNU/Linux";
 #endif
 	char buf[512];
-	snprintf(buf, 512, "prodatum %s\nfor %s", VERSION, OS);
+	snprintf(buf, 512, "prodatum %s\nfor %s", PRODATUM_VERSION, OS);
 	about_text->copy_label(buf);
 }
 

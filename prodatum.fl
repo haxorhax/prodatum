@@ -1,7 +1,7 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0110 
-header_name {ui.H} 
-code_name {ui.C}
+version 1.0400 
+header_name {ui.h} 
+code_name {ui.cpp}
 comment {/**
     \\defgroup pd_ui prodatum User Interface
     @\{
@@ -11,24 +11,24 @@ comment {/**
 decl {\#include "config.h"} {public global
 } 
 
-decl {\#include "debug.H"} {public global
+decl {\#include "debug.h"} {public global
 } 
 
-decl {\#include "midi.H"} {public global
+decl {\#include "midi.h"} {public global
 } 
 
-decl {\#include "pxk.H"} {public global
+decl {\#include "pxk.h"} {public global
 } 
 
-decl {\#include "cfg.H"} {public global
+decl {\#include "cfg.h"} {public global
 } 
 
-decl {\#include "widgets.H"} {public global
+decl {\#include "widgets.h"} {public global
 } 
 
-decl {\#include "images.H"} {} 
+decl {\#include "images.h"} {} 
 
-decl {\#include "Fl_Scope.H"} {public global
+decl {\#include "Fl_Scope.h"} {public global
 } 
 
 decl {\#include <FL/filename.H>} {} 
@@ -127,7 +127,7 @@ else
   }
   Fl_Input_Choice step_duration {
     callback {edit_value(786, (int) o->menubutton()->value());}
-    xywh {0 85 41 17} box UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 64 when 4 minimum 1 maximum 19 step 1 textfont 4 textsize 12 textcolor 8
+    xywh {0 85 41 17} box UP_BOX color 7 selection_color 15 labeltype NO_LABEL labelsize 10 labelcolor 8 align 64 when 4 textfont 4 textsize 12 textcolor 8
     class Step_Drop
   }
   Fl_Spinner step_repeat {
@@ -1709,8 +1709,7 @@ widget_class PD_Main {
         code0 {o->clear_visible_focus();}
       }
       Fl_Button channel_enable {
-        label {MIDI
-            E&nable}
+        label {MIDI E&nable}
         tooltip {MIDI Enable lets you turn each MIDI channel on and off independently when in Multi mode. This feature is helpful when you have other devices connected to the same MIDI line and do not want the PXK unit to respond to the MIDI channels reserved for the other devices.} xywh {64 120 56 29} type Toggle down_box UP_BOX shortcut 0x6e color 8 selection_color 67 labelsize 10 labelcolor 7 align 208 when 1 deactivate
         code0 {o->set_id(135);}
         code1 {o->clear_visible_focus();}
@@ -4527,11 +4526,11 @@ o->label("Select...");
         code0 {o->image(i_tac);}
       }
       Fl_Box {} {
-        label {Copyright � 2008-2015 Jan Eidtmann
-            http://prodatum.sf.net
+        label {https://github.com/haxorhax/prodatum
+        Copyright 2008-2015 Jan Eidtmann
 
-            Please support free software and
-            my autonomy with a donation.}
+           Please support the original 
+            designer with a donation.}
         xywh {3 226 265 83} color 49 selection_color 49 labelsize 12 labelcolor 0 align 144
       }
       Fl_Output o_ppal {

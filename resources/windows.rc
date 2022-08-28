@@ -1,0 +1,28 @@
+#include "config.h"
+
+1 VERSIONINFO
+FILEVERSION     PRODATUM_VERSION_MAJOR,PRODATUM_VERSION_MINOR,PRODATUM_VERSION_PATCH,1
+PRODUCTVERSION  PRODATUM_VERSION_MAJOR,PRODATUM_VERSION_MINOR,PRODATUM_VERSION_PATCH,1
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4"
+    BEGIN
+      VALUE "CompanyName", "haxorhax"
+      VALUE "FileDescription", "prodatum"
+      VALUE "FileVersion", PRODATUM_VERSION
+      VALUE "InternalName", "prodatum"
+      VALUE "LegalCopyright", "Jan Eidtmann"
+      VALUE "OriginalFilename", "prodatum"
+      VALUE "ProductName", "prodatum"
+      VALUE "ProductVersion", PRODATUM_VERSION
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1252
+  END
+END
+
+2 ICON "resources\prodatum.ico"

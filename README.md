@@ -2,33 +2,56 @@
 
 ### Allows easy editing of presets for the E-MU Proteus family of synthesizers.
 #### Specifically:
-- Proteus 2000/2500 racks
+- Proteus 1000/2000/2500 racks
 - Command Station (MP-7, XL-7, PX-7)
 - Audity 2000
 <br>
 <br>
 
 
+# ***Getting Started***
+
+### **Setting up prodatum for the first time:** 
+
+- Choose the version of [Release](https://github.com/haxorhax/prodatum/releases) from the deployment page
+
+- Download the corresponding executable for your OS *or* build from source (steps below)
+
+- The executable is built portable, and you should create a ***prodatum_config*** folder alongside the executable to store the sync files
+
+- Done!
+
+  > Note to linux users:  a prodatum.desktop file is provided in the repo
+
+<br>
+<br>
+
 
 # ***Build Process***
 
 ### **Build Process -- [ git, CMake, FLTK, portmidi ]** 
 ```bash
-$ git clone https://github.com/haxorhax/prodatum
-$ git clone https://github.com/haxorhax/fltk prodatum/lib/fltk
-$ git clone https://github.com/haxorhax/portmidi prodatum/lib/portmidi
-$ cd prodatum
-$ cmake -S . -B build
-$ cmake --build build --config Release
+git clone https://github.com/haxorhax/prodatum
+git clone https://github.com/haxorhax/fltk prodatum/lib/fltk
+git clone https://github.com/haxorhax/portmidi prodatum/lib/portmidi
+cd prodatum
+cmake -S . -B build
+cmake --build build --config Release
 ```
 <br>
 <br>
 
 
 # ***Version Info***
+## *Version 2.1.1 - 8/28/22*
+> Project redecorating and versioning, no functional changes
+#### See wiki for details -> [New features v2.1](https://github.com/haxorhax/prodatum/wiki/New-features-v2.1)
+###### Update provided by haxorhax (https://haxorhax.com)  
+<br>
+
 ## *Version 2.1.0 - 8/26/22*
 > Added bulk import/export functionality
-#### See wiki for details
+#### See wiki for details -> [New features v2.1](https://github.com/haxorhax/prodatum/wiki/New-features-v2.1)
 ###### Update provided by haxorhax (https://haxorhax.com)  
 <br>
 

@@ -26,7 +26,7 @@
 	#include <corecrt_math_defines.h>
 #endif
 
-#include "ui.H"
+#include "ui.h"
 /**
  * global array that holds all device parameter widgets.
  * every parameter can be accessed by their ID and layer.

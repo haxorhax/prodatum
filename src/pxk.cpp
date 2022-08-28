@@ -22,9 +22,10 @@
 #include <FL/Fl_Tooltip.H>
 #include <FL/Fl_File_Chooser.H>
 #include <FL/Fl_Text_Editor.H>
-#include "pxk.H"
 
-extern const char* VERSION;
+#include "config.h"
+#include "pxk.h"
+
 extern PD_UI* ui;
 extern PXK* pxk;
 
@@ -1724,7 +1725,7 @@ void PXK::create_device_info()
 #else
 	OS = "GNU/Linux";
 #endif
-	snprintf(buf, 512, "prodatum %s on %s\nClosed loop up/down %d/%d\n\n", VERSION, OS,
+	snprintf(buf, 512, "prodatum %s on %s\nClosed loop up/down %d/%d\n\n", PRODATUM_VERSION, OS,
 			cfg->get_cfg_option(CFG_CLOSED_LOOP_UPLOAD), cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD));
 	ui->init_log->append(buf);
 	ui->init_log->append(info.data());
