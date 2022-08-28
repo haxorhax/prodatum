@@ -11,24 +11,24 @@ comment {/**
 decl {\#include "config.h"} {public global
 } 
 
-decl {\#include "debug.H"} {public global
+decl {\#include "debug.h"} {public global
 } 
 
-decl {\#include "midi.H"} {public global
+decl {\#include "midi.h"} {public global
 } 
 
-decl {\#include "pxk.H"} {public global
+decl {\#include "pxk.h"} {public global
 } 
 
-decl {\#include "cfg.H"} {public global
+decl {\#include "cfg.h"} {public global
 } 
 
-decl {\#include "widgets.H"} {public global
+decl {\#include "widgets.h"} {public global
 } 
 
-decl {\#include "images.H"} {} 
+decl {\#include "images.h"} {} 
 
-decl {\#include "Fl_Scope.H"} {public global
+decl {\#include "Fl_Scope.h"} {public global
 } 
 
 decl {\#include <FL/filename.H>} {} 
