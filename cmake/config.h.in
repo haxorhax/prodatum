@@ -1,12 +1,18 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
  
+#cmakedefine PROJECT_NAME "@PROJECT_NAME@"
+
+#cmakedefine PROJECT_VER  "@PROJECT_VERSION@"
+
+#cmakedefine PROJECT_VER_MAJOR "@PROJECT_VERSION_MAJOR@"
+#cmakedefine PROJECT_VER_MINOR "@PROJECT_VERSION_MINOR@"
+#cmakedefine PROJECT_VER_PATCH "@PROJECT_VERSION_PATCH@"
+
 #cmakedefine SYSEX_MAX_SIZE @SYSEX_MAX_SIZE@
 #cmakedefine RINGBUFFER_WRITE @RINGBUFFER_WRITE@
 #cmakedefine RINGBUFFER_READ @RINGBUFFER_READ@
 #cmakedefine LOG_BUFFER_SIZE @LOG_BUFFER_SIZE@
+
 #ifndef PATH_MAX
 #cmakedefine PATH_MAX @PATH_MAX@
 #endif
- 
-#endif // CONFIG_H

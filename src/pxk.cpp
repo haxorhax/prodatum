@@ -23,8 +23,8 @@
 #include <FL/Fl_File_Chooser.H>
 #include <FL/Fl_Text_Editor.H>
 
+#include "config.h"
 #include "pxk.h"
-#include "version.h"
 
 extern PD_UI* ui;
 extern PXK* pxk;

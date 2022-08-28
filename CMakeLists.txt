@@ -33,7 +33,6 @@ endif( WIN32 )
 
 set( UI_AUTOGEN "${CMAKE_BINARY_DIR}/ui.cpp" )
 
-CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/cmake/version.h.in ${CMAKE_SOURCE_DIR}/include/version.h )
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/cmake/config.h.in ${CMAKE_SOURCE_DIR}/include/config.h )
 
 option( BUILD_LIBS "Enable building libs" ON )

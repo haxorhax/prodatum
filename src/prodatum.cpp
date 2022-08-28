@@ -23,7 +23,7 @@
 #include <unistd.h>
 #endif
 
-#include "version.h"
+#include "config.h"
 #include "ui.h"
 
 #ifdef WIN32
