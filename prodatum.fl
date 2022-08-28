@@ -1,7 +1,7 @@
 # data file for the Fltk User Interface Designer (fluid)
 version 1.0110 
-header_name {ui.h} 
-code_name {ui.cpp}
+header_name {include/ui.h} 
+code_name {src/ui.cpp}
 comment {/**
     \\defgroup pd_ui prodatum User Interface
     @\{

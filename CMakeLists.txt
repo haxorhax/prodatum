@@ -1,5 +1,9 @@
-project( prodatum )
 cmake_minimum_required( VERSION 3.21 )
+
+file( STRINGS "VERSION" PRODATUM_VERSION )
+message( "Building prodatum version: ${PRODATUM_VERSION}" )
+
+project( prodatum VERSION ${PRODATUM_VERSION} )
 
 if( NOT CMAKE_BUILD_TYPE )
   SET( CMAKE_BUILD_TYPE Release )
@@ -27,9 +31,10 @@ else()
   set( FLUID_EXECUTABLE "${CMAKE_BINARY_DIR}/lib/fltk/bin/fluid" )
 endif( WIN32 )
 
-set( UI_AUTOGEN "${CMAKE_BINARY_DIR}/ui.cpp" )
+set( UI_AUTOGEN "${CMAKE_BINARY_DIR}/src/ui.cpp" )
 
-CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/config.h.in ${CMAKE_SOURCE_DIR}/config.h )
+CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/cmake/version.h.in ${CMAKE_SOURCE_DIR}/include/version.h )
+CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/cmake/config.h.in ${CMAKE_SOURCE_DIR}/include/config.h )
 
 option( BUILD_LIBS "Enable building libs" ON )
 
@@ -86,7 +91,6 @@ set ( SOURCES
       src/prodatum.cpp
       src/pxk.cpp
       src/ringbuffer.cpp
-      src/version.cpp
       src/widgets.cpp
 )
 
