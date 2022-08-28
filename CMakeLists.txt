@@ -78,15 +78,15 @@ if ( MINGW )
 endif( MINGW )
 
 set ( SOURCES
-      src/cfg.c
-      src/data.c
-      src/debug.c
-      src/Fl_Scope.c
-      src/midi.c
-      src/prodatum.c
-      src/pxk.c
-      src/ringbuffer.c
-      src/widgets.c
+      src/cfg.cpp
+      src/data.cpp
+      src/debug.cpp
+      src/Fl_Scope.cpp
+      src/midi.cpp
+      src/prodatum.cpp
+      src/pxk.cpp
+      src/ringbuffer.cpp
+      src/widgets.cpp
 )
 
 add_executable ( prodatum ${SOURCES} ${UI_AUTOGEN} ${RES_FILES} )
