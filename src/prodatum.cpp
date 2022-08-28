@@ -36,8 +36,6 @@
 
 static void load_data();
 
-extern const char* VERSION;
-
 PD_UI* ui = 0;
 MIDI* midi = 0;
 PXK* pxk = 0;

@@ -26,7 +26,6 @@
 #include "pxk.h"
 #include "version.h"
 
-extern const char* VERSION;
 extern PD_UI* ui;
 extern PXK* pxk;
 

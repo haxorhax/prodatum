@@ -86,6 +86,7 @@ set ( SOURCES
       src/prodatum.cpp
       src/pxk.cpp
       src/ringbuffer.cpp
+      src/version.cpp
       src/widgets.cpp
 )
 
