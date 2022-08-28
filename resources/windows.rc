@@ -8,13 +8,13 @@ BEGIN
   BEGIN
     BLOCK "040904E4"
     BEGIN
-      VALUE "CompanyName", "mods by haxorhax"
-      VALUE "FileDescription", "prodatum0"
+      VALUE "CompanyName", "haxorhax"
+      VALUE "FileDescription", "prodatum"
       VALUE "FileVersion", PRODATUM_VERSION
-      VALUE "InternalName", "prodatum1"
+      VALUE "InternalName", "prodatum"
       VALUE "LegalCopyright", "Jan Eidtmann"
-      VALUE "OriginalFilename", "prodatum2"
-      VALUE "ProductName", "prodatum3"
+      VALUE "OriginalFilename", "prodatum"
+      VALUE "ProductName", "prodatum"
       VALUE "ProductVersion", PRODATUM_VERSION
     END
   END
