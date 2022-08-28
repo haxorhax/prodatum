@@ -22,7 +22,9 @@
 #include <FL/Fl_Tooltip.H>
 #include <FL/Fl_File_Chooser.H>
 #include <FL/Fl_Text_Editor.H>
+
 #include "pxk.H"
+#include "version.h"
 
 extern const char* VERSION;
 extern PD_UI* ui;

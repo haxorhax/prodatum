@@ -1709,8 +1709,7 @@ widget_class PD_Main {
         code0 {o->clear_visible_focus();}
       }
       Fl_Button channel_enable {
-        label {MIDI
-            E&nable}
+        label {MIDI E&nable}
         tooltip {MIDI Enable lets you turn each MIDI channel on and off independently when in Multi mode. This feature is helpful when you have other devices connected to the same MIDI line and do not want the PXK unit to respond to the MIDI channels reserved for the other devices.} xywh {64 120 56 29} type Toggle down_box UP_BOX shortcut 0x6e color 8 selection_color 67 labelsize 10 labelcolor 7 align 208 when 1 deactivate
         code0 {o->set_id(135);}
         code1 {o->clear_visible_focus();}
@@ -4527,11 +4526,11 @@ o->label("Select...");
         code0 {o->image(i_tac);}
       }
       Fl_Box {} {
-        label {Copyright � 2008-2015 Jan Eidtmann
-            http://prodatum.sf.net
+        label {https://github.com/haxorhax/prodatum
+        Copyright 2008-2015 Jan Eidtmann
 
-            Please support free software and
-            my autonomy with a donation.}
+           Please support the original 
+            designer with a donation.}
         xywh {3 226 265 83} color 49 selection_color 49 labelsize 12 labelcolor 0 align 144
       }
       Fl_Output o_ppal {

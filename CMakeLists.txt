@@ -27,7 +27,7 @@ else()
   set( FLUID_EXECUTABLE "${CMAKE_BINARY_DIR}/lib/fltk/bin/fluid" )
 endif( WIN32 )
 
-set( UI_AUTOGEN "${CMAKE_BINARY_DIR}/ui.C" )
+set( UI_AUTOGEN "${CMAKE_BINARY_DIR}/ui.c" )
 
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/config.h.in ${CMAKE_SOURCE_DIR}/config.h )
 
@@ -54,9 +54,10 @@ include_directories (
   ${CMAKE_SOURCE_DIR}/lib/portmidi/pm_common
   ${CMAKE_SOURCE_DIR}/lib/portmidi/porttime
   ${CMAKE_SOURCE_DIR}/lib/fltk
-  ${CMAKE_BINARY_DIR} 
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_BINARY_DIR}/include 
   ${CMAKE_BINARY_DIR}/lib/fltk
-  )
+)
 
 link_directories ( 
   ${CMAKE_SOURCE_DIR}/lib 
@@ -64,18 +65,31 @@ link_directories (
   ${CMAKE_BINARY_DIR}/lib/fltk/lib/${CMAKE_BUILD_TYPE} 
   ${CMAKE_BINARY_DIR}/lib/portmidi
   ${CMAKE_BINARY_DIR}/lib/portmidi/${CMAKE_BUILD_TYPE} 
-  )
+)
 
-if( MINGW )
+if ( WIN32 )
   set( RES_FILES "windows.rc" )
+endif ( WIN32 )
+
+if ( MINGW )
   set( CMAKE_RC_COMPILER_INIT windres )
   ENABLE_LANGUAGE(RC)
   SET( CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>" )
 endif( MINGW )
 
-file ( GLOB prodatum_SOURCES *.C ${CMAKE_BINARY_DIR}/*.C )
+set ( SOURCES
+      src/cfg.c
+      src/data.c
+      src/debug.c
+      src/Fl_Scope.c
+      src/midi.c
+      src/prodatum.c
+      src/pxk.c
+      src/ringbuffer.c
+      src/widgets.c
+)
 
-add_executable ( prodatum ${prodatum_SOURCES} ${UI_AUTOGEN} ${RES_FILES} )
+add_executable ( prodatum ${SOURCES} ${UI_AUTOGEN} ${RES_FILES} )
 
 # Build for Windows
 if( WIN32 )
@@ -86,7 +100,7 @@ if( WIN32 )
     set( ADDITIONAL_LIBRARIES winmm ole32 uuid comctl32 wsock32 )
 
   # using visual studio
-  elseif(MSVC)
+  elseif( MSVC )
     ADD_DEFINITIONS( -DWIN32 -DSYNCLOG -D_CRT_SECURE_NO_WARNINGS )
     set( ADDITIONAL_LIBRARIES winmm ole32 uuid comctl32 wsock32 gdi32 )
 

@@ -23,7 +23,9 @@
 #include <unistd.h>
 #endif
 
+#include "version.h"
 #include "ui.H"
+
 #ifdef WIN32
 #include <FL/x.H>
 #endif
@@ -34,7 +36,8 @@
 
 static void load_data();
 
-const char* VERSION = "v2.0.1";
+extern const char* VERSION;
+
 PD_UI* ui = 0;
 MIDI* midi = 0;
 PXK* pxk = 0;
