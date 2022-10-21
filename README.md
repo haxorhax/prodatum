@@ -43,6 +43,14 @@ cmake --build build --config Release
 
 
 # ***Version Info***
+## *Version 2.1.2 - 10/16/22*
+> Support for more than 300 arps (DRUM expansion has 400) 
+> Dumping more than 512 presets requires load to edit buffer first
+> Command Station sync bug fix
+#### See wiki for details -> [New features v2.1](https://github.com/haxorhax/prodatum/wiki/New-features-v2.1)
+###### Update provided by haxorhax (https://haxorhax.com)  
+<br>
+
 ## *Version 2.1.1 - 8/28/22*
 > Project redecorating and versioning, no functional changes
 #### See wiki for details -> [New features v2.1](https://github.com/haxorhax/prodatum/wiki/New-features-v2.1)

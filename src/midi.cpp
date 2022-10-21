@@ -1045,7 +1045,7 @@ void MIDI::request_preset_dump(int timeout) const
 {
 	if (timeout > 0)
 	{
-		Fl::add_timeout((double) timeout / 1000, request_preset_dump_timeout, (void*) this);
+		Fl::add_timeout((double) timeout / 1000., request_preset_dump_timeout, (void*) this);
 		return;
 	}
 	if (requested)
@@ -1059,7 +1059,7 @@ void MIDI::request_preset_dump(int timeout) const
 	unsigned char rl = pxk->selected_preset_rom % 128;
 	unsigned char rm = pxk->selected_preset_rom / 128;
 
-	if (pxk->selected_preset == -1)
+	if (pxk->selected_preset == -1 || pxk->selected_preset >= 512)
 	{
 		nl = nm = 0x7F;
 		rl = rm = 0;

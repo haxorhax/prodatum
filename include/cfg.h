@@ -13,7 +13,7 @@
 #endif
 
 #include "config.h"
-#define MAX_ARPS 300
+#define MAX_ARPS 400
 #define MAX_RIFFS 1000
 #include <vector>
 

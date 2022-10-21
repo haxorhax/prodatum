@@ -1850,48 +1850,49 @@ const char* ROM::name() const
 	switch (id)
 	{
 		case 0:
-			return "User";
+			return "USER";
 		case 2:
 			return "XTREM";
 		case 3:
-			return "Audity";
+			return "AUDTY";
 		case 4:
-			return "Composer";
+			return "CMPSR";
 		case 5:
-			return "Protozoa";
+			return "P-123";
 		case 6:
-			return "B3";
+			return "B-3";
 		case 7:
 			return "XL-1";
 		case 8:
-			return "ZR-76";
+			return "ZR-76.QROM"; 
 		case 9:
-			return "World Exp.";
+			return "WORLD";
 		case 10:
-			return "Orch 1";
+			return "ORCH1";
 		case 11:
-			return "Orch 2";
+			return "ORCH2";
 		case 13:
+			return "PHATT";
 		case 15:
-			return "Mo'Phatt";
+			return "MP-7.MROM";
 		case 14:
-			return "XL-2";
+			return "XL-7.XROM";
 		case 16:
-			return "Ensoniq";
+			return "SONIQ";
 		case 17:
-			return "PROM1";
+			return "2500.PROM1";
 		case 18:
-			return "Vintage";
+			return "VROM";
 		case 19:
 			return "DRUM";
 		case 64:
-			return "Holy Grail";
+			return "GRAIL";
 		case 65:
-			return "TSCY";
+			return "TECNO";
 		case 66:
-			return "Siedlaczek";
+			return "AORCH";
 		case 67:
-			return "Beat";
+			return "BEAT";
 		default:
 			static char buf[20];
 			snprintf(buf, 20, "Unknown (%d)", id);
