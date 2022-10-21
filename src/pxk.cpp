@@ -111,7 +111,7 @@ void PXK::widget_callback(int id, int value, int layer)
 		if (cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD))
 			midi->request_preset_dump();
 		else
-			midi->request_preset_dump(50 + cfg->get_cfg_option(CFG_SPEED));
+			midi->request_preset_dump( 50 + cfg->get_cfg_option(CFG_SPEED) );
 		// update channel controls (pan etc)
 		if (midi_mode == MULTI)
 			pwid[135][0]->set_value(setup->get_value(135, selected_channel)); // MIDI enable
@@ -321,6 +321,7 @@ void PXK::Boot(bool autoconnect, int __id)
 		cfg = new Cfg(__id);
 		cfg->apply();
 	}
+
 	if (cfg->get_cfg_option(CFG_MIDI_IN) != -1 && cfg->get_cfg_option(CFG_MIDI_OUT) != -1)
 	{
 		if (autoconnect)
@@ -661,6 +662,9 @@ static void sync_bro(void* p)
 						ui->init_log->append("\nsync_bro: timed out syncing RIFF/ARP name. Skipping.\n");
 #endif
 						name_set_incomplete = false; // stop requesting arp/riff names
+
+						if (type == ARP)
+							requested = false;
 					}
 					goto Exit;
 				}
@@ -703,11 +707,13 @@ static void sync_bro(void* p)
 	else
 		*(bool*) p = true;
 
-	Exit: if (!*(bool*) p)
+Exit: 
+	if (!*(bool*) p)
 		Fl::repeat_timeout(.01, sync_bro, p);
 	else
 	{
-		Club: if (pxk->setup_init)
+Club: 
+		if (pxk->setup_init)
 		{
 			pxk->setup_init->upload();
 			if (join_bro)
@@ -759,6 +765,7 @@ static void sync_bro(void* p)
 		}
 		else
 		{
+			pxk->reset();
 			midi->filter_loose();
 			if (pxk->setup_init)
 				pxk->load_setup();
@@ -768,7 +775,8 @@ static void sync_bro(void* p)
 		}
 	}
 	return;
-	Wait: Fl::repeat_timeout(.5 + (double) (cfg->get_cfg_option(CFG_SPEED) / 1000.), sync_bro, p);
+Wait: 
+	Fl::repeat_timeout(.5 + (double) (cfg->get_cfg_option(CFG_SPEED) / 1000.), sync_bro, p);
 }
 
 void PXK::Join()
@@ -897,12 +905,11 @@ void PXK::incoming_inquiry_data(const unsigned char* data)
 			device_id = data[2];
 			ui->device_id->value((double) data[2]);
 			// load user config if we scanned using ID 127
-			if (cfg)
-			{
-				delete cfg;
-				cfg = new Cfg(device_id);
-				cfg->apply();
-			}
+			if (cfg) delete cfg;
+
+			cfg = new Cfg(device_id);
+			cfg->apply();
+			
 		}
 		midi->set_device_id((unsigned char) device_id); // so further sysex comes through
 		Fl::add_timeout(.1, request_hardware_config_timeout);
@@ -2308,17 +2315,19 @@ void PXK::store_play_as_initial()
 
 void PXK::reset()
 {
-	ui->init->hide();
+	ui->init->hide();          // close progress bar
 	got_answer = true;
 	moar_files = false;
+	clear_preset_handler();    // if cancelled, reset packet counter of closed loop
 	save_in_progress = false;  // closed loop dumps in progress
 	started_request = false;   // one preset of the dumps is in progress
 	pending_cancel = false;    // cancel flag
-	join_bro = false;               // midi input process routine reset
-	midi->reset_handler();          // midi request flag 
+	join_bro = false;          // midi input process routine reset
+	midi->reset_handler();     // midi request flag 
+	midi->ack(0);              // send any command to clear instrument state (device will cancel/ignore)
 
-	selected_preset = -1;
-	selected_preset_rom = 0;
+	selected_preset = -1;      // reset to edit buffer
+	selected_preset_rom = 0;   // reset to user bank
 }
 
 void cb_pres_validate(Fl_Widget* w, void* args)
@@ -2415,7 +2424,7 @@ void load_preset_flash(void*)
 		}
 		else
 		{
-			Fl::add_timeout(50 + cfg->get_cfg_option(CFG_SPEED), load_preset_flash, NULL);
+			Fl::add_timeout((50. + cfg->get_cfg_option(CFG_SPEED))/1000., load_preset_flash, NULL);
 		}
 	}
 	else
@@ -2451,7 +2460,7 @@ void check_for_packet_ack(void*)
 
 void save_presets(void*)
 {
-	if (pxk->preset_saves.empty() || pxk->pending_cancel)
+	if (pxk->pending_cancel)
 	{
 		pxk->reset();
 		return;
@@ -2460,11 +2469,23 @@ void save_presets(void*)
 	if (!pxk->save_in_progress)
 	{
 		if (pxk->started_request)
+		{
 			pxk->preset->save_file(pxk->output_dir.c_str(), pxk->selected_preset);
+
+			if (pxk->preset_saves.empty())
+			{
+				pxk->reset();
+				return;
+			}
+		}
 
 		pxk->selected_preset = pxk->preset_saves.front();
 		pxk->preset_saves.erase(pxk->preset_saves.begin());
 		pxk->selected_preset_rom = pxk->preset_dump_rom;
+
+		midi->write_event(0xb0, 0, pxk->selected_preset_rom, pxk->selected_channel);
+		midi->write_event(0xb0, 32, pxk->selected_preset / 128, pxk->selected_channel);
+		midi->write_event(0xc0, pxk->selected_preset % 128, 0, pxk->selected_channel);
 
 		if (cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD))
 		{
@@ -2474,7 +2495,7 @@ void save_presets(void*)
 		else
 		{
 			midi->request_preset_dump(50 + cfg->get_cfg_option(CFG_SPEED));
-			Fl::add_timeout(50 + cfg->get_cfg_option(CFG_SPEED), save_presets, NULL);
+			Fl::add_timeout((50. + cfg->get_cfg_option(CFG_SPEED))/1000., save_presets, NULL);
 		}
 
 		pxk->save_in_progress = true;
@@ -2488,7 +2509,7 @@ void save_presets(void*)
 		if (cfg->get_cfg_option(CFG_CLOSED_LOOP_DOWNLOAD))
 			Fl::add_timeout(0.4, save_presets, NULL);
 		else
-			Fl::add_timeout(50 + cfg->get_cfg_option(CFG_SPEED), save_presets, NULL);
+			Fl::add_timeout((50. + cfg->get_cfg_option(CFG_SPEED))/1000., save_presets, NULL);
 	}
 
 	return;
@@ -2888,7 +2909,7 @@ void PXK::bulk_pattern_download()
 	
 	Fl_Spinner* sb = new Fl_Spinner(140, 90, 90, 25, "Bank Start");
 	sb->align(FL_ALIGN_LEFT);
-	sb->maximum(2);
+	sb->maximum(3);
 	sb->minimum(0);
 	sb->value(0);
 
@@ -2900,7 +2921,7 @@ void PXK::bulk_pattern_download()
 
 	Fl_Spinner* eb = new Fl_Spinner(340, 90, 90, 25, "Bank Stop");
 	eb->align(FL_ALIGN_LEFT);
-	eb->maximum(2);
+	eb->maximum(3);
 	eb->minimum(0);
 	eb->value(0);
 
