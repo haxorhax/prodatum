@@ -123,19 +123,19 @@ jobs:
         
       # First, download all resulting assets from the previous steps.
       - name: Retrieve windows installers
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: prodatum-windows-latest
           path: ./release
           
       - name: Retrieve macOS images
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: prodatum-macos-latest
           path: ./release
           
       - name: Retrieve Linux installers
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4.1.7
         with:
           name: prodatum-ubuntu-latest
           path: ./release
